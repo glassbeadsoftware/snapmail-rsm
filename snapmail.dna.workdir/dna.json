@@ -1,0 +1,10 @@
+{
+  "name": "snapmail-dna",
+  "uuid": "",
+  "properties": null,
+  "zomes": {
+    "foo": {
+      "wasm_path": "./snapmail.wasm"
+    }
+  }
+}
