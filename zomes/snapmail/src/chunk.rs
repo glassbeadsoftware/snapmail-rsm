@@ -114,19 +114,12 @@ impl FileChunk {
 /// Zome function
 /// Write base64 file as string to source chain
 pub fn _write_chunk(
-    //data_hash: String,
-    //chunk_index: usize,
-    chunk: MyString,
+    fileChunk: FileChunk
 ) -> Result<EntryHash, WasmError> {
-    let data_hash = "QM324rdx".to_string();
-    let chunk_index = 0;
-    let initial_file = FileChunk::new(data_hash.clone(), chunk_index, chunk.0);
-
-    //debug!(format!("data_hash: {}", data_hash)).ok();
-
+    //debug!(format!("fileChunk: {:?}", fileChunk)).ok();
     let res: EntryHash = host_call!(
         __commit_entry,
-        CommitEntryInput::new(((&initial_file).into(), (&initial_file).try_into()?))
+        CommitEntryInput::new(((&fileChunk).into(), (&fileChunk).try_into()?))
     )?;
     debug!(format!("commit_result: {:?}", res)).ok();
     Ok(res)

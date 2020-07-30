@@ -17,9 +17,14 @@ orchestrator.registerScenario('call zome', async (s, t) => {
     //const result = await alex.call('tester', 'snapmail', 'foo', { anything: 'goes' })
     //const result = await alex.call('tester', 'snapmail', 'whoami', undefined)
     //console.log('agent_pubkey:', result.agent_pubkey.hash.toString())
-    const data_string = "0123465789".repeat(10 * 1024 * 1024 / 10)
+    const data_string = "0123465789".repeat(1 * 1024 * 1024 / 10)
+    const chunk = {
+        data_hash: "Qm324rdx",
+        chunk_index: 0,
+        chunk: data_string,
+    };
     //const data_string = "toto";
-    const result = await alex.call('tester', 'snapmail', 'write_chunk', data_string)
+    const result = await alex.call('tester', 'snapmail', 'write_chunk', chunk)
     console.log('result1:', result)
     let entry_hash = [...result.hash];
     console.log('result1 hash:', entry_hash)
