@@ -14,11 +14,12 @@ name = "snapmail"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
+shrinkwraprs = "0.3.0"
 holochain_serialized_bytes = "=0.0.40"
 holochain_wasmer_guest = "=0.0.36"
 holochain_zome_types = { version = "=0.0.1", path = "../../../holochain-rsm/crates/zome_types" }
 hdk3 = { path = "../../../holochain-rsm/crates/hdk" }
-holo_hash_core = { path = "../../../holochain-rsm/crates/holo_hash_core" }
+holo_hash = { path = "../../../holochain-rsm/crates/holo_hash" }
 
 serde = "=1.0.104"
 test_wasm_common = { version = "=0.0.1", path = "../../../holochain-rsm/crates/test_utils/wasm_common" }

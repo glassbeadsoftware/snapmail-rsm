@@ -3,7 +3,7 @@
   "uuid": "",
   "properties": null,
   "zomes": {
-    "foo": {
+    "snapmail": {
       "wasm_path": "./snapmail.wasm"
     }
   }

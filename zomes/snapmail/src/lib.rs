@@ -1,7 +1,13 @@
+#[macro_use] extern crate shrinkwraprs;
+
+mod chunk;
+
 use hdk3::prelude::*;
 use test_wasm_common::*;
+use chunk::*;
 
 holochain_externs!();
+holochain_wasmer_guest::host_externs!(__call_remote);
 
 const POST_ID: &str = "post";
 const POST_VALIDATIONS: u8 = 8;
@@ -10,7 +16,14 @@ const POST_VALIDATIONS: u8 = 8;
 #[serde(transparent)]
 struct Post(String);
 
-entry_defs!(vec![Post::entry_def()]);
+entry_defs!(vec![Post::entry_def(), FileChunk::entry_def()]);
+
+// returns the current agent info
+fn _whoami(_: ()) -> Result<AgentInfo, WasmError> {
+    Ok(agent_info!()?)
+}
+
+map_extern!(whoami, _whoami);
 
 // map_extern!(commit_post, _commit_post);
 //

@@ -2,7 +2,7 @@
 
 const { Orchestrator, Config } = require('../../tryorama-rsm/src')
 
-const testDna = Config.dna("snapmail.dna.gz")
+const testDna = Config.dna("../snapmail.dna.gz")
 
 const config = Config.gen({
     tester: testDna,
@@ -10,37 +10,31 @@ const config = Config.gen({
 
 const orchestrator = new Orchestrator()
 
-// orchestrator.registerScenario('list dnas', async (s, t) => {
-//     const { alex } = await s.players({ alex: config })
-//     await alex.spawn()
-//
-//     console.log('\n\n LIST DNAS \n\n')
-//     const dnas = await alex.admin().listDnas()
-//     console.log('dnas', dnas)
-//
-//     t.equal(dnas.length, 1)
-// })
-
-// orchestrator.registerScenario('call zome', async (s, t) => {
-//     const { alex } = await s.players({ alex: config })
-//     await alex.spawn()
-//
-//     const result = await alex.call('tester', 'foo', 'foo', { anything: 'goes' })
-//     console.log('result', result)
-//
-//     t.equal(result, 'foo')
-// })
-//
-orchestrator.registerScenario('state dump', async (s, t) => {
+orchestrator.registerScenario('call zome', async (s, t) => {
     const { alex } = await s.players({ alex: config })
     await alex.spawn()
 
-    const dump = await alex.stateDump('tester')
-    console.log('dump', JSON.stringify(dump))
-    t.equal(dump.length, 3)
-    t.ok(typeof dump[0].element === 'object')
-    t.ok(typeof dump[1].element === 'object')
-    t.ok(typeof dump[2].element === 'object')
+    //const result = await alex.call('tester', 'snapmail', 'foo', { anything: 'goes' })
+    //const result = await alex.call('tester', 'snapmail', 'whoami', undefined)
+    //console.log('agent_pubkey:', result.agent_pubkey.hash.toString())
+    const data_string = "0123465789".repeat(10 * 1024 * 1024 / 10)
+    //const data_string = "toto";
+    const result = await alex.call('tester', 'snapmail', 'write_chunk', data_string)
+    console.log('result1:', result)
+    let entry_hash = [...result.hash];
+    console.log('result1 hash:', entry_hash)
+    //t.equal(result, 'foo')
+
+    // Get Entry
+    // =========
+    let arg = {
+        hash: {"type": "Buffer", "data": [71,198,64,23,140,236,238,52,45,24,23,49,174,76,245,96,159,177,79,237,236,216,152,112,146,158,213,243,212,178,164,145,204,155,174,205]},// result,
+        hash_type: {'1': null},
+    }
+    //console.log('arg:', arg)
+    const result2 = await alex.call('tester', 'snapmail', 'get_chunk', entry_hash)
+    console.log('result2:', result2)
+    t.equal(result2, data_string)
 })
 
 orchestrator.run()
