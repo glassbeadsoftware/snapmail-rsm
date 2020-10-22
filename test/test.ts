@@ -1,56 +1,59 @@
 // See README.md for prerequisites for this to run
 
 const { Orchestrator, Config } = require('../../tryorama-rsm/src')
+//const { Orchestrator, Config } = require('../../tryorama/src')
 
-const testDna = Config.dna("../snapmail.dna.gz")
+const ALEX_NICK = 'alice'
+const BILLY_NICK = 'billy'
+
+//const testDna = Config.dna("../snapmail.dna.gz")
 
 const config = Config.gen({
-    tester: testDna,
+    //tester: testDna,
+    [ALEX_NICK]: Config.dna("../snapmail.dna.gz", null),
+    //[BILLY_NICK]: Config.dna("../snapmail.dna.gz", null),
 })
 
 const orchestrator = new Orchestrator()
 
+/**
+ *
+ */
 orchestrator.registerScenario('write/get chunk', async (s, t) => {
     const { alex } = await s.players({ alex: config })
     await alex.spawn()
+    const [_dnaHash, agentAddress] = alex.cellId(ALEX_NICK)
+    console.log({agentAddress})
+    // const dump = await alex.stateDump(ALEX_NICK)
+    // console.log(dump)
 
-    //const result = await alex.call('tester', 'snapmail', 'foo', { anything: 'goes' })
-    //const result = await alex.call('tester', 'snapmail', 'whoami', undefined)
+    const result = await alex.call(ALEX_NICK, 'snapmail', 'whoami', undefined)
+    console.log({result})
+
     //console.log('agent_pubkey:', result.agent_pubkey.hash.toString())
     const chunk_size = 1 * 1024 * 1024;
     const data_string = "0123465789".repeat( chunk_size / 10)
     //const data_string = "toto"
     const chunk = {
-        data_hash: "Qm324rdx",
+        data_hash: "Qm324rdx90ABC",
         chunk_index: 0,
         chunk: data_string,
     };
-    //const data_string = "toto";
+
     const start = Date.now();
     let loop_avg = [];
 
-    for (let i = 0 ; i < 10; ++i) {
+    for (let i = 0 ; i < 2; ++i) {
         const loop_start = Date.now();
-        let result = await alex.call('tester', 'snapmail', 'write_chunk', chunk)
+        let result = await alex.call(ALEX_NICK, 'snapmail', 'write_chunk', chunk)
         const write_end = Date.now();
         console.log( '['+(write_end - start) +'] (' + (write_end - loop_start)  + ') result0:' + JSON.stringify(result))
-        result = await alex.call('tester', 'snapmail', 'get_chunk_hash', chunk)
-        //console.log('result1:', result)
-        let entry_hash = [...result.hash];
+        result = await alex.call(ALEX_NICK, 'snapmail', 'get_chunk_hash', chunk)
+        console.log('result1:', result)
+        //let entry_hash = [...result.hash];
         //console.log('result1 hash:', entry_hash)
         //t.equal(result, 'foo')
-
-        // Get Entry
-        // =========
-        let arg = {
-            hash: {
-                "type": "Buffer",
-                "data": [71, 198, 64, 23, 140, 236, 238, 52, 45, 24, 23, 49, 174, 76, 245, 96, 159, 177, 79, 237, 236, 216, 152, 112, 146, 158, 213, 243, 212, 178, 164, 145, 204, 155, 174, 205]
-            },// result,
-            hash_type: {'1': null},
-        }
-        //console.log('arg:', arg)
-        const result2 = await alex.call('tester', 'snapmail', 'get_chunk', entry_hash)
+        const result2 = await alex.call(ALEX_NICK, 'snapmail', 'get_chunk', result)
         const loop_end = Date.now();
         loop_avg.push(loop_end - loop_start);
         console.log('['+ (loop_end - loop_start) +'] (' + (loop_end - write_end)  + ') result2:', result2.length)

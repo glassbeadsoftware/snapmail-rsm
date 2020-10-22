@@ -16,10 +16,10 @@ crate-type = [ "cdylib", "rlib" ]
 [dependencies]
 shrinkwraprs = "0.3.0"
 holochain_serialized_bytes = "=0.0.40"
-holochain_wasmer_guest = "=0.0.36"
-holochain_zome_types = { version = "=0.0.1", path = "../../../holochain-rsm/crates/zome_types" }
 hdk3 = { path = "../../../holochain-rsm/crates/hdk" }
-holo_hash = { path = "../../../holochain-rsm/crates/holo_hash" }
+#hdk3 = { git = "ssh://git@github.com/holochain/holochain.git", rev = "4714fbddc48f1f9987c9f574b8d06510ea58ab16", package = "hdk3" }
+derive_more = "0.99.9"
+#dna_help = { path = "../../../../crates/dna_help" }
 
 serde = "=1.0.104"
 test_wasm_common = { version = "=0.0.1", path = "../../../holochain-rsm/crates/test_utils/wasm_common" }

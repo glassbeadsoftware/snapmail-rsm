@@ -1,19 +1,6 @@
 use hdk3::prelude::*;
-use test_wasm_common::*;
-use holochain_wasmer_guest::*;
-use holochain_zome_types::*;
-use holo_hash::HoloHash;
-use holo_hash::hash_type;
-
-holochain_wasmer_guest::holochain_externs!();
-holochain_wasmer_guest::host_externs!(__call_remote);
 
 pub const CHUNK_MAX_SIZE: usize = 10 * 1024 * 1024;
-
-map_extern!(write_chunk, _write_chunk);
-map_extern!(get_chunk, _get_chunk);
-map_extern!(send_chunk, _send_chunk);
-map_extern!(get_chunk_hash, _get_chunk_hash);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
 pub struct MyString(String);
@@ -26,70 +13,18 @@ pub struct MyRaw(Vec<u8>);
 //-------------------------------------------------------------------------------------------------
 
 /// Entry representing a file chunk.
-#[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+// #[hdk_entry(
+// id = "file_chunk",
+// required_validations = 5,
+// required_validation_type = "full",
+// visibility = "private"
+// )]
+#[hdk_entry(id = "file_chunk")]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct FileChunk {
     pub data_hash: String,
     pub chunk_index: usize,
     pub chunk: String,
-}
-
-impl FileChunk {
-    pub fn entry_def() -> EntryDef {
-        EntryDef {
-            id: "file_chunk".into(),
-            visibility: EntryVisibility::Private,
-            crdt_type: CrdtType,
-            required_validations: 8.into(),
-        }
-    }
-}
-
-impl From<FileChunk> for EntryDefId {
-    fn from(_: FileChunk) -> Self {
-        "file_chunk".into()
-    }
-}
-
-impl From<&FileChunk> for EntryDefId {
-    fn from(_: &FileChunk) -> Self {
-        "file_chunk".into()
-    }
-}
-
-impl From<&FileChunk> for EntryVisibility {
-    fn from(_: &FileChunk) -> Self {
-        Self::Private
-    }
-}
-
-impl From<&FileChunk> for CrdtType {
-    fn from(_: &FileChunk) -> Self {
-        Self
-    }
-}
-
-impl From<&FileChunk> for RequiredValidations {
-    fn from(_: &FileChunk) -> Self {
-        8.into()
-    }
-}
-
-impl From<&FileChunk> for EntryDef {
-    fn from(post: &FileChunk) -> Self {
-        Self {
-            id: post.into(),
-            visibility: post.into(),
-            crdt_type: post.into(),
-            required_validations: post.into(),
-        }
-    }
-}
-
-impl TryFrom<&FileChunk> for Entry {
-    type Error = SerializedBytesError;
-    fn try_from(post: &FileChunk) -> Result<Self, Self::Error> {
-        Ok(Entry::App(post.try_into()?))
-    }
 }
 
 // pub(crate) fn validate_chunk(validation_data: hdk::EntryValidationData<FileChunk>) -> Result<(), String> {
@@ -108,6 +43,7 @@ impl TryFrom<&FileChunk> for Entry {
 //             return Ok(());
 //         }
 //     }
+
 // }
 
 impl FileChunk {
@@ -122,21 +58,24 @@ impl FileChunk {
 
 /// Zome function
 /// Write base64 file as string to source chain
-pub fn _write_chunk(
+#[hdk_extern]
+pub fn write_chunk(
     file_chunk: FileChunk
-) -> Result<HeaderHash, WasmError> {
+) -> ExternResult<HeaderHash> {
     debug!(format!("fileChunk: {:?}", file_chunk)).ok();
-    let res = commit_entry!(file_chunk.clone())?;
+    let res = create_entry!(file_chunk.clone())?;
     debug!(format!("commit_result: {:?}", res)).ok();
     Ok(res)
 }
 
+
 /// Zome function
-pub fn _get_chunk_hash(
+#[hdk_extern]
+pub fn get_chunk_hash(
     file_chunk: FileChunk
-) -> Result<EntryHash, WasmError> {
+) -> ExternResult<EntryHash> {
     debug!(format!("fileChunk: {:?}", file_chunk)).ok();
-    let res = entry_hash!(file_chunk.clone())?;
+    let res = hash_entry!(file_chunk.clone())?;
     debug!(format!("entry_hash_result: {:?}", res)).ok();
     Ok(res)
 }
@@ -144,24 +83,26 @@ pub fn _get_chunk_hash(
 
 /// Zome function
 /// Get chunk index and chunk as base64 string in local source chain at given address
-pub fn _get_chunk(chunk_address_raw: MyRaw) -> Result<MyString, WasmError> {
+#[hdk_extern]
+pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<MyString> {
 //pub fn _get_chunk(chunk_address: EntryHash) -> Result<MyString, WasmError> {
-        debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
-    let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
-        debug!(format!("chunk_address: {:?}", chunk_address)).ok();
-    let maybe_entry = get_entry!(chunk_address)
-        .expect("No reason for get_entry() to crash");
-    if maybe_entry.is_none() {
-        return Ok(MyString("".into()));
+        //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
+    //let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
+    debug!(format!("chunk_address: {:?}", chunk_address)).ok();
+    let maybe_element = get!(chunk_address)
+        .expect("No reason for get() to crash");
+    if maybe_element.is_none() {
+        return Ok(MyString(String::new().into()));
     }
-
-    let chunk = match maybe_entry.unwrap() {
-        Entry::App(entry_value) => FileChunk::try_from(entry_value).expect("should convert"),
-        _ =>  return Ok(MyString(String::new().into())),
-    };
-    // Ok((chunk.chunk_index, chunk.chunk))
+    let chunk_element = maybe_element.unwrap();
+    let maybe_chunk: Option<FileChunk> = chunk_element.entry().to_app_option()?;
+    if maybe_chunk.is_none() {
+        return Ok(MyString(String::new().into()));
+    }
+    let chunk = maybe_chunk.unwrap();
     Ok(MyString(chunk.chunk.into()))
 }
+
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
 pub struct SendChunkInput {
@@ -169,19 +110,26 @@ pub struct SendChunkInput {
     pub file_chunk: FileChunk,
 }
 
-//
-fn _send_chunk(input: SendChunkInput) -> Result<EntryHash, WasmError> {
+/// Zome function
+#[hdk_extern]
+fn send_chunk(input: SendChunkInput) -> ExternResult<EntryHash> {
     let zome_name = zome_info!()?.zome_name;
     debug!(format!("to_agent: {:?}", input.agent_pubkey)).ok();
     let chunk = input.file_chunk.try_into()?;
     debug!(format!("chunk: {:?}", chunk)).ok();
-    let result: SerializedBytes = call_remote!(
+    let response: ZomeCallResponse = call_remote!(
         input.agent_pubkey,
         zome_name,
-        "write_chunk".to_string(),
-        CapSecret::default(),
+        "write_chunk".to_string().into(),
+        None,
         chunk
     )?;
-
-    Ok(result.try_into()?)
+    match response {
+        ZomeCallResponse::Ok(guest_output) => Ok(guest_output.into_inner().try_into()?),
+        // we're just panicking here because our simple tests can always call set_access before
+        // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
+        // something meaningful to the extern's client
+        ZomeCallResponse::Unauthorized => unreachable!(),
+    }
+    //Ok(result.try_into()?)
 }

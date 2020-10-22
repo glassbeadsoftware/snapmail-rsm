@@ -2,28 +2,63 @@
 
 mod chunk;
 
+//mod handle;
+
+/*
+mod file;
+mod mail;
+mod utils;
+mod protocol;
+mod signal_protocol;
+mod globals;
+mod link_kind;
+mod entry_kind;
+*/
+
+
 use hdk3::prelude::*;
-use test_wasm_common::*;
+//use test_wasm_common::*;
 use chunk::*;
 
-holochain_externs!();
-holochain_wasmer_guest::host_externs!(__call_remote);
+/*
+pub use signal_protocol::*;
+pub use protocol::*;
+pub use utils::*;
+pub use globals::*;
+pub use entry_kind::*;
 
+use mail::entries::*;
+*/
+
+holochain_externs!();
+//holochain_wasmer_guest::host_externs!(__call_remote);
+
+/*
 const POST_ID: &str = "post";
 const POST_VALIDATIONS: u8 = 8;
 #[derive(Default, SerializedBytes, Serialize, Deserialize)]
 #[repr(transparent)]
 #[serde(transparent)]
 struct Post(String);
+*/
 
-entry_defs!(vec![Post::entry_def(), FileChunk::entry_def()]);
+#[hdk_entry(
+id = "post",
+required_validations = 5,
+required_validation_type = "full"
+)]
+struct Post(String);
+
+entry_defs![Post::entry_def(), FileChunk::entry_def()];
+
 
 // returns the current agent info
-fn _whoami(_: ()) -> Result<AgentInfo, WasmError> {
+#[hdk_extern]
+fn whoami(_: ()) -> Result<AgentInfo, WasmError> {
     Ok(agent_info!()?)
 }
 
-map_extern!(whoami, _whoami);
+//map_extern!(whoami, _whoami);
 
 // map_extern!(commit_post, _commit_post);
 //
@@ -36,18 +71,18 @@ map_extern!(whoami, _whoami);
 //     )?)
 // }
 
-#[no_mangle]
-/// always returns "foo" in a TestString
-pub extern "C" fn foo(_: GuestPtr) -> GuestPtr {
-    // this is whatever the dev wants we don't know
-    let response = TestString::from(String::from("foo"));
+// #[no_mangle]
+// /// always returns "foo" in a TestString
+// pub extern "C" fn foo(_: GuestPtr) -> GuestPtr {
+//     // this is whatever the dev wants we don't know
+//     let response = TestString::from(String::from("foo"));
+//
+//     // imagine this is inside the hdk
+//     let response_sb: SerializedBytes = try_result!(response.try_into(), "failed to serialize TestString");
+//     ret!(GuestOutput::new(response_sb));
+// }
 
-    // imagine this is inside the hdk
-    let response_sb: SerializedBytes = try_result!(response.try_into(), "failed to serialize TestString");
-    ret!(GuestOutput::new(response_sb));
-}
-
-
+/*
 impl Post {
     pub fn entry_def() -> EntryDef {
         EntryDef {
@@ -100,3 +135,4 @@ impl TryFrom<&Post> for Entry {
         Ok(Entry::App(post.try_into()?))
     }
 }
+*/
