@@ -112,24 +112,31 @@ pub struct SendChunkInput {
 
 /// Zome function
 #[hdk_extern]
-fn send_chunk(input: SendChunkInput) -> ExternResult<EntryHash> {
-    let zome_name = zome_info!()?.zome_name;
+fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
     debug!(format!("to_agent: {:?}", input.agent_pubkey)).ok();
     let chunk = input.file_chunk.try_into()?;
-    debug!(format!("chunk: {:?}", chunk)).ok();
+    debug!(format!("dbg chunk: {:?}", chunk)).ok();
     let response: ZomeCallResponse = call_remote!(
         input.agent_pubkey,
-        zome_name,
+        zome_info!()?.zome_name,
         "write_chunk".to_string().into(),
         None,
         chunk
     )?;
+    debug!(format!("response2: {:?}", response)).ok();
     match response {
-        ZomeCallResponse::Ok(guest_output) => Ok(guest_output.into_inner().try_into()?),
+        ZomeCallResponse::Ok(guest_output) => {
+            debug!(format!("guest_output: {:?}", guest_output)).ok();
+            let hash: HeaderHash = guest_output.into_inner().try_into()?;
+            debug!(format!("hash_output: {:?}", hash)).ok();
+            Ok(hash)
+        },
         // we're just panicking here because our simple tests can always call set_access before
         // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
         // something meaningful to the extern's client
-        ZomeCallResponse::Unauthorized => unreachable!(),
+        //ZomeCallResponse::Unauthorized => unreachable!(),
+        ZomeCallResponse::Unauthorized => Err(HdkError::Wasm(WasmError::Zome(
+            "{\"code\": \"000\", \"message\": \"[Unauthorized] write_chunk\"}".to_owned()))),
     }
     //Ok(result.try_into()?)
 }

@@ -58,9 +58,43 @@ fn whoami(_: ()) -> Result<AgentInfo, WasmError> {
     Ok(agent_info!()?)
 }
 
-//map_extern!(whoami, _whoami);
 
-// map_extern!(commit_post, _commit_post);
+#[hdk_extern]
+fn set_access(_: ()) -> ExternResult<()> {
+    let mut functions: GrantedFunctions = HashSet::new();
+    //functions.insert((zome_info!()?.zome_name, "whoami".into()));
+    functions.insert((zome_info!()?.zome_name, "write_chunk".into()));
+    create_cap_grant!(
+        CapGrantEntry {
+            tag: "".into(),
+            // empty access converts to unrestricted
+            access: ().into(),
+            functions,
+        }
+    )?;
+    Ok(())
+}
+
+#[hdk_extern]
+fn whoarethey(agent_pubkey: AgentPubKey) -> ExternResult<AgentInfo> {
+    let response: ZomeCallResponse = call_remote!(
+        agent_pubkey,
+        zome_info!()?.zome_name,
+        "whoami".to_string().into(),
+        None,
+        ().try_into()?
+    )?;
+
+    match response {
+        ZomeCallResponse::Ok(guest_output) => Ok(guest_output.into_inner().try_into()?),
+        // we're just panicking here because our simple tests can always call set_access before
+        // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
+        // something meaningful to the extern's client
+        ZomeCallResponse::Unauthorized => unreachable!(),
+    }
+}
+
+
 //
 //
 // fn _commit_post() -> Result<holo_hash_core::EntryHash, WasmError> {
