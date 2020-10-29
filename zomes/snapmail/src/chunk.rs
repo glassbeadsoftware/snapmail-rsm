@@ -3,10 +3,10 @@ use hdk3::prelude::*;
 pub const CHUNK_MAX_SIZE: usize = 10 * 1024 * 1024;
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
-pub struct MyString(String);
+pub struct ZomeString(String);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
-pub struct MyRaw(Vec<u8>);
+pub struct ZomeRaw(Vec<u8>);
 
 //-------------------------------------------------------------------------------------------------
 // Definition
@@ -84,7 +84,7 @@ pub fn get_chunk_hash(
 /// Zome function
 /// Get chunk index and chunk as base64 string in local source chain at given address
 #[hdk_extern]
-pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<MyString> {
+pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<ZomeString> {
 //pub fn _get_chunk(chunk_address: EntryHash) -> Result<MyString, WasmError> {
         //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
     //let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
@@ -92,15 +92,15 @@ pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<MyString> {
     let maybe_element = get!(chunk_address)
         .expect("No reason for get() to crash");
     if maybe_element.is_none() {
-        return Ok(MyString(String::new().into()));
+        return Ok(ZomeString(String::new().into()));
     }
     let chunk_element = maybe_element.unwrap();
     let maybe_chunk: Option<FileChunk> = chunk_element.entry().to_app_option()?;
     if maybe_chunk.is_none() {
-        return Ok(MyString(String::new().into()));
+        return Ok(ZomeString(String::new().into()));
     }
     let chunk = maybe_chunk.unwrap();
-    Ok(MyString(chunk.chunk.into()))
+    Ok(ZomeString(chunk.chunk.into()))
 }
 
 
