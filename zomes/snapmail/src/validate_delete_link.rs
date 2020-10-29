@@ -4,5 +4,5 @@ use hdk3::prelude::*;
 fn validate_delete_link(_delete_link_submission: ValidateDeleteLinkData) -> ExternResult<ValidateLinkCallbackResult> {
     let _delete_link = validate_delete_link.delete_link;
 
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }

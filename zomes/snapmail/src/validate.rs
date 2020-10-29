@@ -7,7 +7,7 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
     let entry = element.into_inner().1;
     let entry = match entry {
         ElementEntry::Present(e) => e,
-        _ => return Ok(ValidateCallbackResult::Valid),
+        _ => return Ok(ValidateCallbackResult::Valid), // Why not invalid?
     };
 
     // Determine where to dispatch according to base
@@ -30,23 +30,23 @@ fn validate_app(base_entry_bytes: AppEntryBytes, maybe_validation_package: Optio
     }
     // Add validate entry per type here...
     // Done
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn validate_agent(_agent_hash: HoloHash<Agent>, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn validate_claim(_claim: CapClaim, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn validate_grant(_grant: ZomeCallCapGrant, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }

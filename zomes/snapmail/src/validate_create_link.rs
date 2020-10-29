@@ -21,24 +21,24 @@ fn validate_create_link_from_app(base_entry_bytes: AppEntryBytes, target_entry: 
         let handle = maybe_handle.unwrap();
         return validate_create_link_from_handle(handle, target_entry);
     }
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn validate_create_link_from_agent(_agent_hash: HoloHash<Agent>, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME: Can only set handle for self
     // FIXME: Only one handle per agent
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn validate_create_link_from_claim(_claim: CapClaim, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn validate_create_link_from_grant(_grant: ZomeCallCapGrant, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }

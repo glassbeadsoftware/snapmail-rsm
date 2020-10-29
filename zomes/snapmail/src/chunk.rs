@@ -1,12 +1,6 @@
 use hdk3::prelude::*;
+use crate::constants::*;
 
-pub const CHUNK_MAX_SIZE: usize = 10 * 1024 * 1024;
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
-pub struct ZomeString(String);
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
-pub struct ZomeRaw(Vec<u8>);
 
 //-------------------------------------------------------------------------------------------------
 // Definition

@@ -2,7 +2,7 @@ use hdk3::prelude::*;
 use crate::handle::Handle;
 
 /// Validates the handle's name field
-fn validate_name(name: String) -> ExternResult<ValidateCallbackResult> {
+fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
     // TODO: Do check with a regex
     // Check: min & max character count
     if name.len() < 2 {
@@ -16,14 +16,14 @@ fn validate_name(name: String) -> ExternResult<ValidateCallbackResult> {
 
 ///
 fn validate_handle(handle: Handle, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateLinkCallbackResult> {
-    return validate_name(handle.name);
+    return check_name(handle.name);
 }
 
 #[hdk_extern]
 fn validate_handle_create(package: ValidateData) -> ExternResult<ValidateCallbackResult> {
     // FIXME: Check if author has already created a handle
     let handle = package.element.try_into()?;
-    return validate_name(handle.name);
+    return check_name(handle.name);
 }
 
 #[hdk_extern]
@@ -44,11 +44,11 @@ fn validate_handle_delete(_: ValidateData) -> ExternResult<ValidateCallbackResul
 ///
 fn validate_create_link_from_handle(_handle: Handle, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }
 
 ///
 fn _validate_delete_link_from_handle(_handle: Handle, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
     // FIXME
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid)
 }

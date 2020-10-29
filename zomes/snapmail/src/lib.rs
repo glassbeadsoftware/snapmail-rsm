@@ -1,22 +1,24 @@
 #[macro_use] extern crate shrinkwraprs;
 
-mod chunk;
 
-mod handle;
-mod playground;
 mod validate_create_link;
 mod validate_delete_link;
 mod validate;
+mod utils;
+mod constants;
+mod link_kind;
+mod entry_kind;
+
+mod playground;
+mod chunk;
+mod handle;
 
 /*
 mod file;
 mod mail;
-mod utils;
 mod protocol;
 mod signal_protocol;
-mod globals;
-mod link_kind;
-mod entry_kind;
+
 */
 
 
@@ -40,15 +42,36 @@ holochain_externs!();
 
 entry_defs![Post::entry_def(), FileChunk::entry_def(), Handle::entry_def()];
 
+// -- Send & Receive Hack -- //
+
+#[hdk_extern]
+pub fn receive(/*from: Address, */ dm: DirectMessageProtocol) -> ExternalResult<ZomeBool> {
+    //mail::receive(from, JsonString::from_json(&msg_json))
+    match dm {
+        DirectMessageProtocol::Ping => Ok(true),
+        _ => Ok(false),
+    }
+}
+
+
+// -- Wrapped Common types -- //
+
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+pub struct ZomeBool(bool);
+
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+pub struct ZomeString(String);
+
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+pub struct ZomeRaw(Vec<u8>);
+
+
 // -- Callbacks -- //
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)
 }
-
-
-
 
 
 #[hdk_extern]
