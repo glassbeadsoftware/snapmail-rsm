@@ -70,17 +70,20 @@ pub struct ZomeRaw(Vec<u8>);
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    debug!("*** init() called!").ok();
     Ok(InitCallbackResult::Pass)
 }
 
 
 #[hdk_extern]
 fn validation_package(input: AppEntryType) -> ExternResult<ValidationPackageCallbackResult> {
-    let wtf = ValidationPackage(vec![]);
-    Ok(ValidationPackageCallbackResult::Success(wtf))
+    debug!("*** validation_package() called!").ok();
+    let dummy = ValidationPackage(vec![]);
+    Ok(ValidationPackageCallbackResult::Success(dummy))
 }
 
-// #[hdk_extern]
-// fn validate_agent(_: Element) -> ExternResult<ValidateCallbackResult> {
-//     Ok(ValidateCallbackResult::Valid)
-// }
+#[hdk_extern]
+fn validate_agent(_: Element) -> ExternResult<ValidateCallbackResult> {
+    debug!("*** validate_agent() called!").ok();
+    Ok(ValidateCallbackResult::Valid)
+}

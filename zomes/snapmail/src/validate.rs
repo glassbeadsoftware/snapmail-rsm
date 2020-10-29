@@ -2,6 +2,8 @@ use hdk3::prelude::*;
 
 #[hdk_extern]
 fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
+    debug!("*** validate() called!").ok();
+
     let maybe_validation_package = input.validation_package;
     let element = input.element;
     let entry = element.into_inner().1;

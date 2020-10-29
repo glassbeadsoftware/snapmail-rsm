@@ -2,6 +2,8 @@ use hdk3::prelude::*;
 
 #[hdk_extern]
 fn validate_create_link(create_link_submission: ValidateCreateLinkData) -> ExternResult<ValidateLinkCallbackResult> {
+    debug!("*** validate_create_link() called!").ok();
+
     let base_entry = create_link_submission.base;
     let target_entry = create_link_submission.target;
 

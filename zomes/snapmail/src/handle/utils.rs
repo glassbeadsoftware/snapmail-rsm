@@ -15,7 +15,7 @@ use crate::{
 };
 
 ///
-pub(crate) fn get_handle_string(maybe_handle_entry: Option<(Address, Entry)>) -> ZomeApiResult<String> {
+pub(crate) fn get_handle_string(maybe_handle_entry: Option<(Address, Entry)>) -> ExternalResult<ZomeString> {
     if let Some((_, current_handle_entry)) = maybe_handle_entry {
         let current_handle = into_typed::<Handle>(current_handle_entry)
             .expect("Should be a Handle entry");
