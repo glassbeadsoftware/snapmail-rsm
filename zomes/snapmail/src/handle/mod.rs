@@ -1,10 +1,14 @@
-//mod functions;
-//mod utils;
+mod functions;
+mod utils;
 mod validation;
 
-//pub use functions::*;
+
 
 use hdk3::prelude::*;
+
+pub use functions::*;
+pub use validation::*;
+
 
 // use hdk::{
 //     entry_definition::ValidatingEntryType,
@@ -32,13 +36,13 @@ entry_def!(Handle EntryDef {
 });
 */
 
-impl From<EntryAndHash<Handle>> for Handle {
-    fn from(entry_and_hash: EntryAndHash<Handle>) -> Self {
-        entry_and_hash.0
-    }
-}
+// impl From<EntryAndHash<Handle>> for Handle {
+//     fn from(entry_and_hash: EntryAndHash<Handle>) -> Self {
+//         entry_and_hash.0
+//     }
+// }
 
-entry_defs!(vec![Handle::entry_def()]);
+//entry_defs!(vec![Handle::entry_def()]);
 
 
 impl Handle {

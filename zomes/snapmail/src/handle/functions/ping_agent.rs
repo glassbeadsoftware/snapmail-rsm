@@ -1,36 +1,39 @@
-use hdk::{
-    error::ZomeApiResult,
-    holochain_core_types::time::Timeout,
-};
+use hdk3::prelude::*;
+
+// use hdk::{
+//     error::ZomeApiResult,
+//     holochain_core_types::time::Timeout,
+// };
 
 use crate::{
-    AgentAddress,
+    ZomeBool,
     protocol::DirectMessageProtocol,
 };
 
 /// Zome function
 /// Return true if agent is online
 #[hdk_extern]
-pub fn ping_agent(destination: AgentHash) -> ExternResult<ZomeBool> {
-    // 1. Send DM
+pub fn ping_agent(destination: AgentPubKey) -> ExternResult<ZomeBool> {
+    /// 1. Send ping DM
     debug!(format!("ping_agent: {:?}", destination)).ok();
+    let dm_sb: SerializedBytes = DirectMessageProtocol::Ping.try_into().unwrap();
     let response: ZomeCallResponse = call_remote!(
-        input.agent_pubkey,
+        destination,
         zome_info!()?.zome_name,
         "receive".to_string().into(),
         None,
-        DirectMessageProtocol::Ping
+        dm_sb
     )?;
-    hdk::debug(format!("ping response = {:?}", response)).ok();
-    // 2. Check Response
+    debug!(format!("ping response = {:?}", response)).ok();
+    /// 2. Check Response
     match response {
         ZomeCallResponse::Ok(guest_output) => {
             debug!(format!("guest_output: {:?}", guest_output)).ok();
             //let hash: HeaderHash = guest_output.into_inner().try_into()?;
             //debug!(format!("hash_output: {:?}", hash)).ok();
-            Ok(true)
+            Ok(ZomeBool(true))
         },
         ZomeCallResponse::Unauthorized => Err(HdkError::Wasm(WasmError::Zome(
-            "{\"code\": \"000\", \"message\": \"[Unauthorized] receive\"}".to_owned()))),
+            "[Unauthorized] receive() call()".to_owned()))),
     }
 }

@@ -15,16 +15,23 @@ fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
 }
 
 ///
-fn validate_handle(handle: Handle, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateLinkCallbackResult> {
+pub(crate) fn validate_handle_entry(handle: Handle, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateCallbackResult> {
+    debug!("*** validate_handle_entry() called!").ok();
     return check_name(handle.name);
 }
 
-#[hdk_extern]
-fn validate_handle_create(package: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    // FIXME: Check if author has already created a handle
-    let handle = package.element.try_into()?;
-    return check_name(handle.name);
-}
+// #[hdk_extern]
+// fn validate_handle_create(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
+//     // FIXME: Check if author has already created a handle
+//     let element = input.element;
+//     let entry = element.into_inner().1;
+//     let entry = match entry {
+//         ElementEntry::Present(e) => e,
+//         _ => return Ok(ValidateCallbackResult::Invalid("Entry not present".into())),
+//     };
+//     let handle: Handle = entry.try_into()?;
+//     return check_name(handle.name);
+// }
 
 #[hdk_extern]
 fn validate_handle_delete(_: ValidateData) -> ExternResult<ValidateCallbackResult> {
@@ -42,13 +49,23 @@ fn validate_handle_delete(_: ValidateData) -> ExternResult<ValidateCallbackResul
 
 
 ///
-fn validate_create_link_from_handle(_handle: Handle, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
+pub(crate) fn validate_create_link_from_handle(
+    _handle: Handle,
+    _submission: ValidateCreateLinkData,
+) -> ExternResult<ValidateLinkCallbackResult>
+{
+    debug!("*** validate_create_link_from_handle() called!").ok();
     // FIXME
-    Ok(ValidateCallbackResult::Invalid)
+    Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
 }
 
 ///
-fn _validate_delete_link_from_handle(_handle: Handle, _target_entry: Entry) -> ExternResult<ValidateLinkCallbackResult> {
+pub(crate) fn _validate_delete_link_from_handle(
+    _handle: Handle,
+    _submission: ValidateCreateLinkData,
+) -> ExternResult<ValidateLinkCallbackResult>
+{
+    debug!("*** validate_delete_link_from_handle() called!").ok();
     // FIXME
-    Ok(ValidateCallbackResult::Invalid)
+    Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
 }

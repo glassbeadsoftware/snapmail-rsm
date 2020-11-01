@@ -14,7 +14,7 @@ id = "post",
 required_validations = 5,
 required_validation_type = "full"
 )]
-struct Post(String);
+pub struct Post(String);
 
 
 // returns the current agent info

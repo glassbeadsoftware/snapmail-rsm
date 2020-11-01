@@ -1,3 +1,4 @@
+
 // Listing all Holochain Entry kinds in this DNA
 pub const Handle: &'static str = "handle";
 pub const InMail: &'static str = "inmail";

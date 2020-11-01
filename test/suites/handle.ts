@@ -3,7 +3,7 @@ const { config, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } = require('../config')
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    //scenario("test get/set handle", test_getset_handle)
+    scenario("test get/set handle", test_getset_handle)
     scenario("test handle list", test_handle_list)
 
     // FAILING
@@ -65,7 +65,7 @@ const test_getset_handle = async (s, t) => {
 
 /**
  *
- *
+ */
 const test_handle_list = async (s, t) => {
     // -- Setup conductor
     const { conductor } = await s.players({ conductor: config })
@@ -80,22 +80,20 @@ const test_handle_list = async (s, t) => {
 
     // Set Alex
     let name = "alex"
-    let params = { name }
-    let handle_address = await conductor.call(ALEX_NICK, "snapmail", "set_handle", params)
+    let handle_address = await conductor.call(ALEX_NICK, "snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
     // Set billy
     name = "billy"
-    params = { name }
-    handle_address = await conductor.call(BILLY_NICK, "snapmail", "set_handle", params)
+    handle_address = await conductor.call(BILLY_NICK, "snapmail", "set_handle", name)
     console.log('handle_address2: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
 
-    let result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", {})
+    let result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
     console.log('handle_list: ' + JSON.stringify(result))
     t.deepEqual(result.length, 2)
 
@@ -106,7 +104,7 @@ const test_handle_list = async (s, t) => {
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
-    result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", {})
+    result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
     console.log('handle_list: ' + JSON.stringify(result))
     t.deepEqual(result.length, 3)
 
@@ -117,11 +115,11 @@ const test_handle_list = async (s, t) => {
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
-    result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", {})
+    result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
     console.log('handle_list updated: ' + JSON.stringify(result))
     t.deepEqual(result.length, 3)
 };
-*/
+
 
 /**
  *  TODO: Currently this fails as Holochain doesnt allow multiple updates of an entry in one call

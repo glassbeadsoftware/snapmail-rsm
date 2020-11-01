@@ -1,5 +1,7 @@
 use hdk3::prelude::*;
+use hdk3::prelude::element::ElementEntry;
 
+/*
 use hdk::{
     error::ZomeApiResult,
     holochain_persistence_api::{
@@ -11,39 +13,41 @@ use hdk::{
     },
     holochain_core_types::time::Timeout,
 };
-
+*/
 use crate::{
-    AgentAddress,
+    //AgentAddress,
+    ZomeString,
     link_kind,
     handle::utils::get_handle_string,
+    utils::link_tag,
 };
 
 /// Zome Function
 /// get an agent's latest handle
-pub fn get_handle(agentId: AgentAddress) -> ZomeApiResult<String> {
-    let maybe_current_handle_entry = get_handle_entry(&agentId);
+#[hdk_extern]
+pub fn get_handle(agentId: AgentPubKey) -> ExternResult<ZomeString> {
+    let maybe_current_handle_entry = get_handle_element(agentId);
     return get_handle_string(maybe_current_handle_entry);
 }
 
-/// Return handle entry address and entry
-pub(crate) fn get_handle_entry(agentId: &AgentAddress) -> Option<(Address, Entry)> {
-    let query_result = query!(EntryType::Dna.into(), 0, 0);
+/*
+/// Return latest entry & entry address of an agent's Handle
+pub(crate) fn get_handle_entry(agentId: &AgentPubKey) -> Option<(EntryHash, Entry)> {
+    // -- Get DNA's header to retrieve the links on it
+    let query_result = query!(EntryType::Dna.into());
     let dna_address = query_result.ok().unwrap()[0].clone();
     debug!(format!("dna_address33: {:?}", dna_address)).ok();
     debug!(format!("agentId33: {:?}", agentId)).ok();
-    let entry_opts = GetEntryOptions::new(StatusRequestKind::default(), false, true, Timeout::default());
-    let entry_results = get_link_details!(
+    //let entry_opts = GetEntryOptions::new(StatusRequestKind::default(), false, true, Timeout::default());
+    let member_links = get_links!(
         //&*hdk::DNA_ADDRESS,
         &dna_address,
-        LinkMatch::Exactly(link_kind::Members),
-        LinkMatch::Any,
-        GetLinksOptions::default(),
-        entry_opts,
+        link_kind::Members
     ).expect("No reason for this to fail");
-    debug!(format!("entry_results33: {:?}", entry_results)).ok();
+    debug!(format!("member_links: {:?}", member_links)).ok();
 
     // Find handle entry whose author is agentId
-    for maybe_entry_result in entry_results {
+    for maybe_entry_result in member_links {
         if let Ok(entry_result) = maybe_entry_result {
             let item = match entry_result.result {
                 GetEntryResultType::Single(result_item) => result_item,
@@ -60,27 +64,36 @@ pub(crate) fn get_handle_entry(agentId: &AgentAddress) -> Option<(Address, Entry
     debug!("None33").ok();
     return None;
 }
+*/
 
 // pub fn get_handle_entry(agentId: &AgentAddress) -> Option<(Address, Entry)> {
 //     get_handle_entry_by_agent(agentId)
 // }
 
-/// Return (handle entry address, handle entry) pair
-pub fn _get_handle_entry_by_agent(agentId: &AgentAddress) -> Option<(Address, Entry)> {
-    let link_results = get_links!(
-        agentId,
-        LinkMatch::Exactly(link_kind::Handle),
-        LinkMatch::Any,
-    ).expect("No reason for this to fail");
-    let links_result = link_results.links();
-    assert!(links_result.len() <= 1);
-    if links_result.len() == 0 {
-        hdk::debug("No handle found for this agent:").ok();
+
+/// Return Element of latest Handle Entry for agent
+pub(crate) fn get_handle_element(agentId: AgentPubKey) -> Option<Element> {
+    /// Get All Handle links on agent ; should have only one
+    let handle_links = get_links!(agentId.into(), link_tag(link_kind::Handle))
+       .expect("No reason for this to fail")
+       .into_inner();
+    assert!(handle_links.len() <= 1);
+    if handle_links.len() == 0 {
+        debug!("No handle found for this agent:").ok();
         return None;
     }
-    let entry_address = &links_result[0].address;
-    let entry = get!(entry_address)
+    /// Get the Element from the link
+    let handle_entry_hash = handle_links[0].target.clone();
+    let element = get!(handle_entry_hash)
         .expect("No reason for get_entry to crash")
         .expect("Should have it");
-    return Some((entry_address.clone(), entry));
+
+    // let entry = element.into_inner().1;
+    // let entry = match entry {
+    //     ElementEntry::Present(e) => e,
+    //     _ => return None,
+    // };
+
+    /// Done
+    return Some(element);
 }

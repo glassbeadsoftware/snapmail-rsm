@@ -1,17 +1,21 @@
-mod get_handle;
-mod get_all_handles;
-mod get_my_handle;
-mod get_my_handle_history;
-mod set_handle;
-mod find_agent;
 mod ping_agent;
 
+mod get_handle;
+mod get_my_handle;
+mod set_handle;
+
+//mod get_my_handle_history;
+//mod find_agent;
+mod get_all_handles;
+
 pub use self::{
-    get_all_handles::*,
+    ping_agent::*,
+
     get_handle::*,
     get_my_handle::*,
-    get_my_handle_history::*,
     set_handle::*,
-    find_agent::*,
-    ping_agent::*,
+
+   // get_my_handle_history::*,
+    //find_agent::*,
+    get_all_handles::*,
 };

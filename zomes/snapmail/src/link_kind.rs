@@ -1,4 +1,5 @@
-// Listing all Holochain Link kinds in this DNA
+
+/// Listing all Holochain Link kinds in this DNA
 pub const Acknowledgment: &'static str = "acknowledgement";
 pub const AckInbox: &'static str = "ack_inbox";
 pub const MailInbox: &'static str = "mail_inbox";
