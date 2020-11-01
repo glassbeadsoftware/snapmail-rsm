@@ -50,12 +50,12 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     /// Link Handle to DNA entry for a global directory
 
     // TODO: hdk::DNA_ADDRESS doesnt work for linking, get the dna entry address
-    //hdk::debug(format!("DNA_ADDRESS42: {:?}", &*hdk::DNA_ADDRESS)).ok();
+    //debug!(format!("DNA_ADDRESS42: {:?}", &*hdk::DNA_ADDRESS)).ok();
     // let dna_entry = hdk::get_entry(&*hdk::DNA_ADDRESS)?;
-    // hdk::debug(format!("dna_entry1: {:?}", dna_entry)).ok();
+    // debug!(format!("dna_entry1: {:?}", dna_entry)).ok();
 
     //let query_result = query!(EntryType::Dna.into());
-    //hdk::debug(format!("query_result42: {:?}", query_result)).ok();
+    //debug!(format!("query_result42: {:?}", query_result)).ok();
     //let dna_address = query_result.ok().unwrap()[0].clone();
 
     // let dna_entry_hash = EntryHash::from_raw_bytes_and_type(
