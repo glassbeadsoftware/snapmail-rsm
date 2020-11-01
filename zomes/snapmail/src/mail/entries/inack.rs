@@ -9,10 +9,11 @@ use hdk::{
 use crate::entry_kind;
 
 /// Entry for a received Acknowledgement Receipt
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[hdk_entry(id = "outack")]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct InAck {
 }
-
+/*
 pub fn inack_def() -> ValidatingEntryType {
     entry!(
         name: entry_kind::InAck,
@@ -26,7 +27,7 @@ pub fn inack_def() -> ValidatingEntryType {
         }
     )
 }
-
+*/
 impl InAck {
     pub fn new() -> Self {
         Self {

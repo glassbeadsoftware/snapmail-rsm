@@ -18,40 +18,13 @@ use crate::{
 //-------------------------------------------------------------------------------------------------
 
 /// Entry representing a received mail. It is private.
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[hdk_entry(id = "inmail")]
+#[derive(PartialEq, Debug, Clone)]
 pub struct InMail {
     pub mail: Mail,
     pub from: AgentAddress,
     pub date_received: u64,
     pub outmail_address: Address,
-}
-
-pub fn inmail_def() -> ValidatingEntryType {
-    entry!(
-            name: entry_kind::InMail,
-            description: "Entry for a received mail",
-            sharing: Sharing::Public, // should be private
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-            validation: | _validation_data: hdk::EntryValidationData<InMail>| {
-                // FIXME
-                Ok(())
-            },
-            links: [
-                to!(
-                    entry_kind::OutAck,
-                    link_type: link_kind::Acknowledgment,
-                    validation_package: || {
-                        hdk::ValidationPackageDefinition::Entry
-                    },
-                    validation: | _validation_data: hdk::LinkValidationData| {
-                        // FIXME
-                        Ok(())
-                    }
-                )
-            ]
-        )
 }
 
 //-------------------------------------------------------------------------------------------------

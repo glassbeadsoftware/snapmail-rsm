@@ -12,11 +12,13 @@ use hdk::{
 use crate::{entry_kind, link_kind};
 
 /// Entry representing an AcknowldegmentReceipt on the DHT waiting to be received
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[hdk_entry(id = "outack")]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct PendingAck {
     pub outmail_address: Address,
 }
 
+/*
 pub fn pending_ack_def() -> ValidatingEntryType {
     entry!(
         name: entry_kind::PendingAck,
@@ -44,6 +46,7 @@ pub fn pending_ack_def() -> ValidatingEntryType {
         ]
     )
 }
+*/
 
 impl PendingAck {
     pub fn new(outmail_address: Address) -> Self {

@@ -20,12 +20,14 @@ use super::Mail;
 /// Entry representing a mail on the DHT waiting to be received by receipient
 /// The receipient is the agentId where the entry is linked from,
 /// hence only the receipient knows it has pending mail.
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[hdk_entry(id = "outack")]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct PendingMail {
     pub mail: Mail,
     pub outmail_address: Address,
 }
 
+/*
 pub fn pending_mail_def() -> ValidatingEntryType {
     entry!(
         name: entry_kind::PendingMail,
@@ -53,6 +55,7 @@ pub fn pending_mail_def() -> ValidatingEntryType {
         ]
     )
 }
+*/
 
 //-------------------------------------------------------------------------------------------------
 // Implementation

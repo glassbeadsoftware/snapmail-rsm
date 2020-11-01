@@ -21,13 +21,15 @@ use crate::mail::entries::AttachmentInfo;
 //-------------------------------------------------------------------------------------------------
 
 /// Entry representing an authored mail. It is private.
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[hdk_entry(id = "outmail")]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct OutMail {
     pub mail: Mail,
     pub bcc: Vec<AgentAddress>,
 }
 
 /// Entry definition
+/*
 pub fn outmail_def() -> ValidatingEntryType {
     entry!(
         name: entry_kind::OutMail,
@@ -68,6 +70,7 @@ pub fn outmail_def() -> ValidatingEntryType {
         ]
     )
 }
+*/
 
 //-------------------------------------------------------------------------------------------------
 // Implementation

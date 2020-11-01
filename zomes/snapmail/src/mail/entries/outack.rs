@@ -9,10 +9,12 @@ use hdk::{
 use crate::{entry_kind, link_kind};
 
 /// Entry for an Acknowledgement Receipt of a Mail authored by this agent
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[hdk_entry(id = "outack")]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct OutAck {
 }
 
+/*
 pub fn outack_def() -> ValidatingEntryType {
     entry!(
         name: entry_kind::OutAck,
@@ -39,6 +41,8 @@ pub fn outack_def() -> ValidatingEntryType {
         ]
     )
 }
+
+ */
 
 impl OutAck {
     pub fn new() -> Self {
