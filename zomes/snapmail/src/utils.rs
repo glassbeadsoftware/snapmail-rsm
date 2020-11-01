@@ -1,7 +1,6 @@
 use std::convert::TryFrom;
 
 use hdk3::prelude::*;
-use hdk3::prelude::link::Link;
 
 pub type EntryAndHash<T> = (T, HeaderHash, EntryHash);
 pub type OptionEntryAndHash<T> = Option<EntryAndHash<T>>;

@@ -69,7 +69,7 @@ fn validate_create_link_from_agent(
        if maybe_current_handle.is_err() {
           return Ok(ValidateLinkCallbackResult::Invalid("Not linked to a Handle Entry".into()));
        }
-       let handle_entry = maybe_current_handle.unwrap();
+       let _handle_entry = maybe_current_handle.unwrap();
         /// Can only set handle for self
         if submission.link_add.author != agent_hash {
             return Ok(ValidateLinkCallbackResult::Invalid("Not self authored".into()));
@@ -84,7 +84,7 @@ fn validate_create_link_from_agent(
 ///
 fn validate_create_link_from_claim(
     _claim: CapClaim,
-    submission: ValidateCreateLinkData,
+    _submission: ValidateCreateLinkData,
 ) -> ExternResult<ValidateLinkCallbackResult>
 {
     debug!("*** validate_create_link_from_claim() called!").ok();
@@ -95,7 +95,7 @@ fn validate_create_link_from_claim(
 ///
 fn validate_create_link_from_grant(
     _grant: ZomeCallCapGrant,
-    submission: ValidateCreateLinkData,
+    _submission: ValidateCreateLinkData,
 ) -> ExternResult<ValidateLinkCallbackResult>
 {
     debug!("*** validate_create_link_from_grant() called!").ok();

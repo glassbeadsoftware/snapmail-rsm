@@ -1,6 +1,5 @@
 use hdk3::prelude::*;
 
-use crate::constants::*;
 use crate::ZomeString;
 
 

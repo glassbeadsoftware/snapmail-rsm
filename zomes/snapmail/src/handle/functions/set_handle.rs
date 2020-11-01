@@ -2,9 +2,7 @@ use hdk3::prelude::*;
 
 use crate::{
     ZomeString,
-    entry_kind,
-    link_kind,
-    path_kind,
+    link_kind, path_kind,
     utils::{
         try_from_element, link_tag,
     },
