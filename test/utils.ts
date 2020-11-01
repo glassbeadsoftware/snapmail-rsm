@@ -1,9 +1,14 @@
 const sjcl = require('sjcl')
 
 // const CHUNK_MAX_SIZE = 500 * 1024;
-const CHUNK_MAX_SIZE = 100 * 1024;
+export const CHUNK_MAX_SIZE = 100 * 1024;
 
-function sleep(milliseconds) {
+export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ *
+ */
+export function sleep(milliseconds) {
     const date = Date.now();
     let currentDate = null;
     do {
@@ -14,7 +19,7 @@ function sleep(milliseconds) {
 /**
  * Removed deleted mails from input mail list
  */
-function filterMailList(mail_list) {
+export function filterMailList(mail_list) {
     let new_list = [];
     for (let mailItem of mail_list) {
         if (mailItem.state.hasOwnProperty('In')) {
@@ -32,7 +37,7 @@ function filterMailList(mail_list) {
     return new_list;
 }
 
-function sha256(message) {
+export function sha256(message) {
     //console.log('message: ' + message)
     const myBitArray = sjcl.hash.sha256.hash(message)
     //console.log('myBitArray: ' + JSON.stringify(myBitArray))
@@ -41,7 +46,7 @@ function sha256(message) {
     return hashHex;
 }
 
-function chunkSubstr(str, size) {
+export function chunkSubstr(str, size) {
     var numChunks = Math.ceil(str.length / size);
     var chunks = new Array(numChunks);
 
@@ -52,7 +57,7 @@ function chunkSubstr(str, size) {
     return chunks;
 }
 
-function split_file(full_data_string) {
+export function split_file(full_data_string) {
     const hash = sha256(full_data_string);
     console.log('file hash: ' + hash)
     const chunks = chunkSubstr(full_data_string, CHUNK_MAX_SIZE);
@@ -63,6 +68,3 @@ function split_file(full_data_string) {
         chunks: chunks,
     }
 }
-
-
-module.exports = { sleep, filterMailList, sha256, split_file };

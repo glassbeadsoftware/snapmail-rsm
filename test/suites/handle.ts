@@ -1,4 +1,5 @@
-const { config, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } = require('../config')
+import { setup_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } from '../config';
+import { delay } from '../utils';
 
 // -- Export scenarios -- //
 
@@ -10,9 +11,6 @@ module.exports = scenario => {
     // scenario("test set 3 handles", test_set_3_handles)
 }
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-
-
 // -- Scenarios -- //
 
 /**
@@ -20,14 +18,9 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
  */
 const test_getset_handle = async (s, t) => {
     // -- Setup conductor
-    const { conductor } = await s.players({ conductor: config })
-    await conductor.spawn()
-    // -- Get Ids
-    const [_dnaHash, alexAddress] = conductor.cellId(ALEX_NICK)
-    console.log({alexAddress})
-    const [_dnaHash2, billyAddress] = conductor.cellId(BILLY_NICK)
-    console.log({billyAddress})
+    const { conductor, alexAddress } = await setup_conductor(s, t)
 
+    // -- Start test
     //console.log(alex)
     const name = "alex"
     const handle_address = await conductor.call(ALEX_NICK, "snapmail", "set_handle", name)
@@ -68,15 +61,7 @@ const test_getset_handle = async (s, t) => {
  */
 const test_handle_list = async (s, t) => {
     // -- Setup conductor
-    const { conductor } = await s.players({ conductor: config })
-    await conductor.spawn()
-    // -- Get Ids
-    const [_dnaHash, alexAddress] = conductor.cellId(ALEX_NICK)
-    console.log({alexAddress})
-    const [_dnaHash2, billyAddress] = conductor.cellId(BILLY_NICK)
-    console.log({billyAddress})
-    const [_dnaHash3, camilleAddress] = conductor.cellId(CAMILLE_NICK)
-    console.log({camilleAddress})
+    const { conductor } = await setup_conductor(s, t)
 
     // Set Alex
     let name = "alex"
