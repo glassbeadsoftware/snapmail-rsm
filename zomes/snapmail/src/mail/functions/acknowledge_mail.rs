@@ -2,7 +2,7 @@ use hdk3::prelude::*;
 
 /*
 use hdk::{
-    error::{ZomeApiResult, ZomeApiError},
+    error::{ExternResult, ZomeApiError},
     holochain_persistence_api::{
         cas::content::Address
     },
@@ -26,7 +26,7 @@ use crate::{
 /// Zome function
 /// Return address of newly created OutAck
 #[hdk_extern]
-pub fn acknowledge_mail(inmail_address: Address) -> ExternResult<EntryHash> {
+pub fn acknowledge_mail(inmail_address: HeaderHash) -> ExternResult<EntryHash> {
     //  1. Make sure its an InMail
     let inmail = hdk::utils::get_as_type::<InMail>(inmail_address.clone())?;
     //  2. Make sure it has not already been acknowledged
@@ -37,8 +37,8 @@ pub fn acknowledge_mail(inmail_address: Address) -> ExternResult<EntryHash> {
     debug!("No Acknowledgment yet").ok();
     // 3. Write OutAck
     let outack = OutAck::new();
-    let outack_entry = Entry::App(entry_kind::OutAck.into(), outack.into());
-    let outack_address = commit_entry!(&outack_entry)?;
+    //let outack_entry = Entry::App(entry_kind::OutAck.into(), outack.into());
+    let outack_address = create_entry!(&outack)?;
     let _ = create_link!(&inmail_address, &outack_address, link_kind::Acknowledgment, "")?;
     // 4. Try Direct sharing of Acknowledgment
     let res = acknowledge_mail_direct(&inmail.outmail_address, &inmail.from);
@@ -53,7 +53,7 @@ pub fn acknowledge_mail(inmail_address: Address) -> ExternResult<EntryHash> {
 }
 
 /// Try sending directly to other Agent if Online
-fn acknowledge_mail_direct(outmail_address: &Address, from: &AgentAddress) -> ExternResult<()> {
+fn acknowledge_mail_direct(outmail_address: &HeaderHash, from: &AgentPubKey) -> ExternResult<()> {
     /// a. Create DM
     let msg = AckMessage {
         outmail_address: outmail_address.clone(),
@@ -65,6 +65,7 @@ fn acknowledge_mail_direct(outmail_address: &Address, from: &AgentAddress) -> Ex
         from.clone(),
         zome_info!()?.zome_name,
         "receive".to_string().into(),
+        None,
         payload,
     );
     if let Err(err) = result {
@@ -87,7 +88,7 @@ fn acknowledge_mail_direct(outmail_address: &Address, from: &AgentAddress) -> Ex
 /// Create & Commit PendingAck
 /// Return address of newly created PendingAck
 /// Return PendingAck's address
-fn acknowledge_mail_pending(outack_address: &Address, outmail_address: &Address, from: &AgentAddress) -> ExternResult<EntryHash> {
+fn acknowledge_mail_pending(outack_address: &HeaderHash, outmail_address: &HeaderHash, from: &AgentPubKey) -> ExternResult<EntryHash> {
     // Get Handle address first
     let maybe_handle_address = crate::handle::get_handle_entry(from);
     if let None = maybe_handle_address {
@@ -97,7 +98,7 @@ fn acknowledge_mail_pending(outack_address: &Address, outmail_address: &Address,
     // Commit PendingAck
     let pending_ack = PendingAck::new(outmail_address.clone());
     //let pending_ack_entry = Entry::App(entry_kind::PendingAck.into(), pending_ack.into());
-    let pending_ack_address = commit_entry!(&pending_ack_entry)?;
+    let pending_ack_address = create_entry!(&pending_ack)?;
     let _ = create_link!(&outack_address, &pending_ack_address, link_tag(link_kind::Pending))?;
     let _ = create_link!(&handle_address, &pending_ack_address, link_tag(link_kind::AckInbox + &*hdk::AGENT_ADDRESS.to_string()))?;
     debug!(format!("pending_ack_address: {:?} (for {} ; from: {})", pending_ack_address, handle_address, from)).ok();

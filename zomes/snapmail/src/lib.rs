@@ -18,19 +18,15 @@ mod protocol;
 mod playground;
 mod chunk;
 mod handle;
-
-/*
-mod file;
-mod mail;
 mod signal_protocol;
+mod mail;
 
-*/
-
+// mod file;
 
 use hdk3::prelude::*;
-//use hdk3::map_extern::ExternResult;
 use chunk::*;
 use handle::*;
+use mail::entries::*;
 
 pub use playground::*;
 pub use protocol::*;
@@ -38,35 +34,92 @@ pub use utils::*;
 pub use constants::*;
 pub use entry_kind::*;
 pub use path_kind::*;
-
-/*
 pub use signal_protocol::*;
-use mail::entries::*;
-*/
-
 
 holochain_externs!();
 
-//entry_defs![Post::entry_def()];
+/// Careful of order
 entry_defs![
+   /// --  Handle
+   Handle::entry_def(),
+   /// -- Mail
+   InMail::entry_def(),
+   OutMail::entry_def(),
+   /// -- Other
    Path::entry_def(),
    Post::entry_def(),
-   FileChunk::entry_def(),
-   Handle::entry_def()
+   FileChunk::entry_def()
 ];
+
+
+/// Get EntryType out of a EntryDef
+pub fn def_to_type(entry_name: &str) -> EntryType {
+    /// Sadly hardcoded since index is based on vec above.
+    let entry_index = match entry_name {
+        entry_kind::Handle => 0,
+        entry_kind::InMail => 1,
+        entry_kind::OutMail => 2,
+        _  => unreachable!(),
+    };
+    let app_type = AppEntryType::new(
+        EntryDefIndex::from(entry_index),
+        ZomeId::from(0), // since we have only one zome in our DNA (thank god)
+        EntryVisibility::Public, // Everything Public for now...
+    );
+    EntryType::App(app_type)
+}
 
 // -- Send & Receive Hack -- //
 
-#[hdk_extern]
-pub fn receive(/*from: Address, */ dm: DirectMessageProtocol) -> ExternResult<ZomeBool> {
-    debug!("*** receive() called!").ok();
-    //mail::receive(from, JsonString::from_json(&msg_json))
-    match dm {
-        DirectMessageProtocol::Ping => Ok(ZomeBool(true.into())),
-        _ => Ok(ZomeBool(false.into())),
-    }
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+pub struct DmPacket {
+    pub from: AgentPubKey,
+    pub dm: DirectMessageProtocol,
 }
 
+#[hdk_extern]
+pub fn receive(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
+    // let (from, dm): (AgentPubKey, DirectMessageProtocol) = dm_packet.into();
+    debug!("*** receive() called from {:?}", dm_packet.from).ok();
+    return mail::receive(dm_packet.from, dm_packet.dm);
+}
+
+///
+pub(crate) fn send(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
+    /// Pre-conditions: Don't call yourself
+    let me = agent_info!()?.agent_latest_pubkey;
+    if destination == me {
+        //return Err(HdkError::Wasm(WasmError::Zome("receive() aborted. Can't call yourself.".to_owned())));
+    }
+    // FIXME: Check AgentPubKey is valid, i.e. exists in Directory
+    /// Prepare payload
+    let dm_packet = DmPacket { from: me, dm, };
+    let payload: SerializedBytes = dm_packet.try_into().unwrap();
+    /// Call peer
+    let response = call_remote!(
+        destination,
+        zome_info!()?.zome_name,
+        "receive".to_string().into(),
+        None,
+        payload
+    )?;
+    /// Check and convert response to DirectMessageProtocol
+    match response {
+        ZomeCallResponse::Ok(output) => {
+            debug!("Received response from receive()".to_string()).ok();
+            // let maybe_msg: Result<DirectMessageProtocol, _> = output.into_inner().try_into()?;
+            // if maybe_msg.is_err() {
+            //     return Err(HdkError::Wasm(WasmError::Zome("receive() response failed to deserialize.".to_owned())));
+            // }
+            // Ok(maybe_msg.unwrap())
+            let msg: DirectMessageProtocol = output.into_inner().try_into()?;
+            Ok(msg)
+        },
+        ZomeCallResponse::Unauthorized => {
+            Err(HdkError::Wasm(WasmError::Zome("[Unauthorized] call to receive().".to_owned())))
+        },
+    }
+}
 
 // -- Wrapped Common types -- //
 

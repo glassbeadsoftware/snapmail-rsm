@@ -1,18 +1,5 @@
 use hdk3::prelude::*;
 
-/*
-use hdk::{
-    error::{ZomeApiResult, ZomeApiError},
-    holochain_persistence_api::{
-        cas::content::Address
-    },
-    holochain_core_types::crud_status::CrudStatus,
-};
-use holochain_wasm_utils::{
-    holochain_core_types::link::LinkMatch,
-};
-*/
-
 use crate::{
     link_kind,
     mail::entries::{
@@ -23,7 +10,7 @@ use crate::{
 /// Zome function
 /// Ack is considered received if there is no pendingAck link or PendingAck has delete status
 #[hdk_extern]
-pub fn has_ack_been_received(inmail_address: Address) -> ExternResult<ZomeBool> {
+pub fn has_ack_been_received(inmail_address: HeaderHash) -> ExternResult<ZomeBool> {
     // 0. Get InMail (make sure InMail exists)
     let _ = hdk::utils::get_as_type::<InMail>(inmail_address.clone())?;
     // 1. Get OutAck

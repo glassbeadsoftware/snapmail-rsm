@@ -1,36 +1,34 @@
 use hdk3::prelude::*;
-//use hdk::holochain_persistence_api::cas::content::Address;
 
-/*
 use crate::{
-    mail::entries::Mail, file::{FileChunk, FileManifest},
+    mail::entries::Mail,
+    //file::{FileChunk, FileManifest},
 };
-*/
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
 pub enum DirectMessageProtocol {
     Failure(String),
     Success(String),
     // Chunk(FileChunk),
     // FileManifest(FileManifest),
-    // Mail(MailMessage),
-    // Ack(AckMessage),
+    Mail(MailMessage),
+    Ack(AckMessage),
     // RequestChunk(Address),
     // RequestManifest(Address),
     UnknownEntry,
     Ping,
 }
 
-/*
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
+
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub struct MailMessage {
-    pub outmail_address: Address,
+    pub outmail_address: HeaderHash,
     pub mail: Mail,
-    pub manifest_address_list: Vec<Address>,
+    //pub manifest_address_list: Vec<HeaderHash>,
 }
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub struct AckMessage {
-    pub outmail_address: Address,
+    pub outmail_address: HeaderHash,
 }
-*/

@@ -1,20 +1,12 @@
 use hdk3::prelude::*;
 
-/*
-use hdk::{
-    entry_definition::ValidatingEntryType,
-    holochain_core_types::{
-        dna::entry_types::Sharing,
-    },
-};
-*/
-
 use crate::{
-    AgentAddress, link_kind, entry_kind,
-    mail::entries::Mail,
-    file::FileManifest,
+    mail::entries::{
+        Mail,
+        //            AttachmentInfo,
+    },
+    //file::FileManifest,
 };
-use crate::mail::entries::AttachmentInfo;
 
 //-------------------------------------------------------------------------------------------------
 // Definition
@@ -22,10 +14,10 @@ use crate::mail::entries::AttachmentInfo;
 
 /// Entry representing an authored mail. It is private.
 #[hdk_entry(id = "outmail")]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct OutMail {
     pub mail: Mail,
-    pub bcc: Vec<AgentAddress>,
+    pub bcc: Vec<AgentPubKey>,
 }
 
 /// Entry definition
@@ -78,7 +70,7 @@ pub fn outmail_def() -> ValidatingEntryType {
 
 ///
 impl OutMail {
-    pub fn new(mail: Mail, bcc: Vec<AgentAddress>) -> Self {
+    pub fn new(mail: Mail, bcc: Vec<AgentPubKey>) -> Self {
         Self {
             mail, bcc,
         }
@@ -87,20 +79,20 @@ impl OutMail {
     pub fn create(
         subject: String,
         payload: String,
-        to: Vec<AgentAddress>,
-        cc: Vec<AgentAddress>,
-        bcc: Vec<AgentAddress>,
-        file_manifest_list: Vec<(Address, FileManifest)>,
+        to: Vec<AgentPubKey>,
+        cc: Vec<AgentPubKey>,
+        bcc: Vec<AgentPubKey>,
+        //file_manifest_list: Vec<(HeaderHash, FileManifest)>,
     ) -> Self {
         assert_ne!(0, to.len() + cc.len() + bcc.len());
         // TODO: remove duplicate receipients
 
-        let attachments: Vec<AttachmentInfo> = file_manifest_list
-            .iter().map(|(address, manifest)| AttachmentInfo::from_manifest(manifest.clone(), address.clone()))
-            .collect();
+        // let attachments: Vec<AttachmentInfo> = file_manifest_list
+        //     .iter().map(|(address, manifest)| AttachmentInfo::from_manifest(manifest.clone(), address.clone()))
+        //     .collect();
 
         let date_sent = crate::snapmail_now();
-        let mail = Mail { date_sent, subject, payload, to, cc, attachments };
+        let mail = Mail { date_sent, subject, payload, to, cc, /*attachments*/ };
         OutMail::new(mail, bcc)
     }
 }

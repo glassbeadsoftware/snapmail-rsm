@@ -1,26 +1,21 @@
-//use hdk::prelude::*;
-
-use hdk::{
-    error::ZomeApiResult,
-    holochain_persistence_api::{
-        cas::content::Address
-    },
-};
-use holochain_wasm_utils::{
-    holochain_core_types::link::LinkMatch,
-};
-use crate::{link_kind, entry_kind};
+use hdk3::prelude::*;
 
 // use hdk::{
+//     error::ExternResult,
 //     holochain_persistence_api::{
-//         hash::HashString,
+//         cas::content::Address
 //     },
 // };
+// use holochain_wasm_utils::{
+//     holochain_core_types::link::LinkMatch,
+// };
+
+use crate::{link_kind, entry_kind};
 
 /// Zome Function
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
-pub fn get_all_arrived_mail() -> ExternResult<Vec<Address>> {
+pub fn get_all_arrived_mail() -> ExternResult<Vec<HeaderHash>> {
     // 1. Get all InMails with query
     let result = query!(entry_kind::InMail.into())?;
     debug!(format!("get_all_arrived_mail: {:?}", result)).ok();

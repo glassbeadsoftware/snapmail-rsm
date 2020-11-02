@@ -12,11 +12,11 @@ pub use self::{
     pending_ack::*, inack::*, outack::*,
 };
 
-use crate::{
-    file::FileManifest,
-};
+// use crate::{
+//     file::FileManifest,
+// };
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub enum InMailState {
     // PendingMail available
     Incoming,
@@ -31,7 +31,7 @@ pub enum InMailState {
 }
 
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub enum OutMailState {
     // Has a pending link for each receipient
     Pending,
@@ -49,24 +49,24 @@ pub enum OutMailState {
     Deleted,
 }
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub enum MailState {
     In(InMailState),
     Out(OutMailState),
 }
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub struct MailItem {
-    pub address: Address,
-    pub author: AgentAddress,
+    pub address: HeaderHash,
+    pub author: AgentPubKey,
     pub mail: Mail,
     pub state: MailState,
-    pub bcc: Vec<AgentAddress>,
+    pub bcc: Vec<AgentPubKey>,
     pub date: i64,
 }
 
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub enum ReceipientKind {
     TO,
     CC,
@@ -75,34 +75,35 @@ pub enum ReceipientKind {
 
 /// Core content of all *Mail Entries
 /// Mail can have Zero public receipient (but must have at least one public or private receipient)
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
+#[derive(Serialize, Deserialize, Debug, SerializedBytes, PartialEq, Clone)]
 pub struct Mail {
     pub date_sent: u64,
     pub subject: String,
     pub payload: String,
-    pub to: Vec<AgentAddress>,
-    pub cc: Vec<AgentAddress>,
-    pub attachments: Vec<AttachmentInfo>,
+    pub to: Vec<AgentPubKey>,
+    pub cc: Vec<AgentPubKey>,
+    //pub attachments: Vec<AttachmentInfo>,
 }
 
-/// Metadata for a mail attachment
-#[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
-pub struct AttachmentInfo {
-    pub manifest_address: Address,
-    pub data_hash: Address,
-    pub filename: String,
-    pub filetype: String,
-    pub orig_filesize: usize,
-}
-
-impl AttachmentInfo {
-    fn from_manifest(manifest: FileManifest, manifest_address: Address) -> Self {
-        Self {
-            manifest_address: manifest_address.clone(),
-            data_hash: manifest.data_hash.clone(),
-            filename: manifest.filename.clone(),
-            filetype: manifest.filetype.clone(),
-            orig_filesize: manifest.orig_filesize,
-        }
-    }
-}
+// FIXME
+// /// Metadata for a mail attachment
+// #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
+// pub struct AttachmentInfo {
+//     pub manifest_address: Address,
+//     pub data_hash: Address,
+//     pub filename: String,
+//     pub filetype: String,
+//     pub orig_filesize: usize,
+// }
+//
+// impl AttachmentInfo {
+//     fn from_manifest(manifest: FileManifest, manifest_address: Address) -> Self {
+//         Self {
+//             manifest_address: manifest_address.clone(),
+//             data_hash: manifest.data_hash.clone(),
+//             filename: manifest.filename.clone(),
+//             filetype: manifest.filetype.clone(),
+//             orig_filesize: manifest.orig_filesize,
+//         }
+//     }
+// }

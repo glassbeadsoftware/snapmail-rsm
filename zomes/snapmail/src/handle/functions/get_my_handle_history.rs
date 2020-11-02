@@ -14,7 +14,7 @@ use crate::{
 
 /// Zome function
 #[hdk_extern]
-pub fn get_my_handle_history(initial_handle_address: Address) -> Vec<String> {
+pub fn get_my_handle_history(initial_handle_address: HeaderHash) -> Vec<String> {
 
     let history_result = get_details!(&initial_handle_address);
     if let Err(_e) = history_result {

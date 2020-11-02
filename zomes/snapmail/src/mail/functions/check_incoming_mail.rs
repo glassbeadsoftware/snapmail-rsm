@@ -1,18 +1,19 @@
-// use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::{
-    error::{ZomeApiResult, ZomeApiError},
-    holochain_persistence_api::{
-        cas::content::Address
-    },
-    holochain_core_types::{
-        entry::Entry,
-    },
-    holochain_json_api::json::JsonString,
-};
-use holochain_wasm_utils::{
-    holochain_core_types::link::LinkMatch,
-};
+// use hdk::{
+//     error::{ExternResult, ZomeApiError},
+//     holochain_persistence_api::{
+//         cas::content::Address
+//     },
+//     holochain_core_types::{
+//         entry::Entry,
+//     },
+//     holochain_json_api::json::JsonString,
+// };
+// use holochain_wasm_utils::{
+//     holochain_core_types::link::LinkMatch,
+// };
+
 use crate::{
     signal_protocol::*,
     file::dm::{request_chunk_by_dm, request_manifest_by_dm},
@@ -21,7 +22,7 @@ use crate::{
 /// Zome Function
 /// Return list of new InMail addresses created after checking MailInbox links
 #[hdk_extern]
-pub fn check_incoming_mail() -> ExternResult<Vec<Address>> {
+pub fn check_incoming_mail() -> ExternResult<Vec<HeaderHash>> {
     let maybe_my_handle_address = crate::handle::get_my_handle_entry();
     if let None = maybe_my_handle_address {
         return Err(ZomeApiError::Internal("This agent does not have a Handle set up".to_string()));
@@ -48,8 +49,8 @@ pub fn check_incoming_mail() -> ExternResult<Vec<Address>> {
         let (author, pending) = maybe_pending_mail.unwrap();
         //  2. Convert and Commit as InMail
         let inmail = InMail::from_pending(pending, author);
-        let inmail_entry = Entry::App(entry_kind::InMail.into(), inmail.clone().into());
-        let maybe_inmail_address = hdk::commit_entry(&inmail_entry);
+        //let inmail_entry = Entry::App(entry_kind::InMail.into(), inmail.clone().into());
+        let maybe_inmail_address = create_entry!(&inmail);
         if maybe_inmail_address.is_err() {
             debug!("Failed committing InMail").ok();
             continue;
@@ -91,8 +92,8 @@ pub fn check_incoming_mail() -> ExternResult<Vec<Address>> {
             }
             let manifest = maybe_manifest.unwrap();
             // Write
-            let file_entry = Entry::App(entry_kind::FileManifest.into(), manifest.clone().into());
-            let maybe_file_address = hdk::commit_entry(&file_entry);
+            //let file_entry = Entry::App(entry_kind::FileManifest.into(), manifest.clone().into());
+            let maybe_file_address = create_entry!(&manifest);
             if let Err(err) = maybe_file_address {
                 let response_str = "Failed committing FileManifest";
                 debug!(format!("{}: {}", response_str, err)).ok();
@@ -115,8 +116,8 @@ pub fn check_incoming_mail() -> ExternResult<Vec<Address>> {
                 }
                 let chunk = maybe_chunk.unwrap();
                 // Write
-                let file_entry = Entry::App(entry_kind::FileChunk.into(), chunk.into());
-                let maybe_address = hdk::commit_entry(&file_entry);
+                //let file_entry = Entry::App(entry_kind::FileChunk.into(), chunk.into());
+                let maybe_address = create_entry!(&chunk);
                 if let Err(err) = maybe_address {
                     let response_str = "Failed committing FileChunk";
                     debug!(format!("{}: {}", response_str, err)).ok();

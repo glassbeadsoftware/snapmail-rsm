@@ -1,68 +1,19 @@
 use hdk3::prelude::*;
 
-/*
-use hdk::{
-    entry_definition::ValidatingEntryType,
-    holochain_persistence_api::{
-        cas::content::Address
-    },
-};
-*/
-
-use crate::{entry_kind, link_kind};
-
 use super::Mail;
-
-//-------------------------------------------------------------------------------------------------
-// Definition
-//-------------------------------------------------------------------------------------------------
 
 /// Entry representing a mail on the DHT waiting to be received by receipient
 /// The receipient is the agentId where the entry is linked from,
 /// hence only the receipient knows it has pending mail.
-#[hdk_entry(id = "outack")]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[hdk_entry(id = "pending_mail")]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PendingMail {
     pub mail: Mail,
-    pub outmail_address: Address,
+    pub outmail_address: HeaderHash,
 }
-
-/*
-pub fn pending_mail_def() -> ValidatingEntryType {
-    entry!(
-        name: entry_kind::PendingMail,
-        description: "Entry for a mail held in the DHT waiting to be received by its receipient",
-        sharing: Sharing::Public, // should be encrypted
-        validation_package: || {
-            hdk::ValidationPackageDefinition::Entry
-        },
-        validation: | _validation_data: hdk::EntryValidationData<PendingMail>| {
-            // FIXME
-            Ok(())
-        },
-        links: [
-            from!(
-                entry_kind::Handle,
-                link_type: link_kind::MailInbox,
-                validation_package: || {
-                    hdk::ValidationPackageDefinition::Entry
-                },
-                validation: | _validation_data: hdk::LinkValidationData| {
-                    // FIXME
-                    Ok(())
-                }
-            )
-        ]
-    )
-}
-*/
-
-//-------------------------------------------------------------------------------------------------
-// Implementation
-//-------------------------------------------------------------------------------------------------
 
 impl PendingMail {
-    pub fn new(mail: Mail, outmail_address: Address) -> Self {
+    pub fn new(mail: Mail, outmail_address: HeaderHash) -> Self {
         Self {
             mail,
             outmail_address,
@@ -98,4 +49,5 @@ impl PendingMail {
 //        let maybe_mail: Result<Mail> = serde_json::from_str(&decrypted.unwrap());
 //        maybe_mail
 //    }
+
 }

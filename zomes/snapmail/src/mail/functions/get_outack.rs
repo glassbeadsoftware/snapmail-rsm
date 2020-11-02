@@ -1,8 +1,5 @@
-use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::holochain_persistence_api::{
-    cas::content::Address
-};
 //
 ///// Get InMail our OutMail struct in local source chain at address
 //pub fn get_outack(mail_address: &Address, from: &Address) -> Option<Result<InMail, OutMail>> {
