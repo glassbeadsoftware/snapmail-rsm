@@ -1,24 +1,7 @@
 use hdk3::prelude::*;
+use hdk3::prelude::link::Link;
 
-// use hdk::{
-//     error::{
-//         ExternResult,
-//     //    ZomeApiError,
-//     },
-//     holochain_persistence_api::{
-//     cas::content::Address
-// }, holochain_core_types::{
-//     entry::Entry,
-//     time::Timeout,
-//     },
-// };
-
-// use holochain_wasm_utils::{
-//     api_serialization::get_entry::{
-//         GetEntryOptions, StatusRequestKind, GetEntryResultType,
-//     },
-//     holochain_core_types::link::LinkMatch,
-// };
+use std::str;
 
 use crate::{
     link_kind, entry_kind,
@@ -76,15 +59,21 @@ pub(crate) fn get_inmail_state(inmail_eh: &EntryHash) -> ExternResult<InMailStat
     //     // return Err(ZomeApiError::Internal("No InMail at given address".to_string()));
     // }
     /// 2. Get OutAck
-    let links_result = get_links!(&inmail_eh, link_tag(link_kind::Acknowledgment))?;
-    if links_result.links().len() < 1 {
+    let links_result: Vec<Link> = get_links!(
+    inmail_eh.clone(),
+    link_tag(link_kind::Acknowledgment,
+    ))
+    ?.into_inner();
+
+    if links_result.len() < 1 {
         return Ok(InMailState::Arrived);
     }
-    let ack_link = links_result.links()[0].clone();
+    let ack_link = links_result[0].clone();
     /// 3. Get PendingAck
-    let links_result = get_links!(&ack_link.address, link_tag(link_kind::Pending))?;
+    let links_result = get_links!(ack_link.target, link_tag(link_kind::Pending))
+       ?.into_inner();
     /// If link found, it means Ack has not been received
-    if links_result.links().len() > 0 {
+    if links_result.len() > 0 {
         return Ok(InMailState::Acknowledged);
     }
     Ok(InMailState::AckReceived)
@@ -130,16 +119,22 @@ pub(crate) fn get_inmail_state(inmail_eh: &EntryHash) -> ExternResult<InMailStat
 // }
 
 /// Return address of created InAck
-pub(crate) fn create_and_commit_inack(outmail_address: &HeaderHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
-    debug!(format!("Create inAck for: {} ({})", outmail_address, from)).ok();
+pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
+    debug!(format!("Create inAck for: {} ({})", outmail_eh, from)).ok();
     /// Create InAck
     let inack = InAck::new();
-    //let inack_entry = Entry::App(entry_kind::InAck.into(), inack.into());
-    let inack_address = create_entry!(&inack)?;
-    // let json_from = serde_json::to_string(from).expect("Should stringify");
-    let tag = link_tag(format!("{}___{}", link_kind::Receipt, from.into_inner().to_string()));
+    let inack_hh = create_entry!(&inack)?;
+    let inack_eh = hash_entry!(&inack)?;
+    /// Create link tag
+    let vec = from.clone().into_inner();
+    let recepient = match str::from_utf8(&vec) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+    let tag = link_tag(format!("{}___{}", link_kind::Receipt, recepient).as_str());
     /// Create link from OutMail
-    let link_address = create_link!(outmail_address, &inack_address, tag)?;
+    let link_address = create_link!(outmail_eh, inack_eh, tag)?;
     debug!(format!("inAck link address: {}", link_address)).ok();
-    Ok(inack_address)
+    /// Done
+    Ok(inack_hh)
 }

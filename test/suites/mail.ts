@@ -18,7 +18,7 @@ module.exports = scenario => {
 async function setup_handles(s, t, conductor) {
     // Make sure Billy has a handle entry
     let name = "billy"
-    let handle_address = await conductor.call("app", "snapmail", "set_handle", name)
+    let handle_address = await conductor.call(BILLY_NICK, "snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
     t.match(handle_address.Ok, RegExp('Qm*'))
 
@@ -176,13 +176,13 @@ const send_dm_test = async (s, t) => {
         to: [alexAddress],
         cc: [],
         bcc: [],
-        manifest_address_list: []
+        //manifest_address_list: []
     }
     console.log('sending...')
     const send_result = await conductor.call(BILLY_NICK, "snapmail", "send_mail", send_params)
-    console.log('send_result: ' + JSON.stringify(send_result.Ok))
+    console.log('send_result: ' + JSON.stringify(send_result))
     // Should receive via DM, so no pendings
-    t.deepEqual(send_result.Ok.to_pendings, {})
+    t.deepEqual(send_result.to_pendings, {})
 
     // Wait for all network activity to settle
     await delay(10);
@@ -190,12 +190,12 @@ const send_dm_test = async (s, t) => {
     const arrived_result = await conductor.call(ALEX_NICK, "snapmail", "get_all_arrived_mail", {})
 
     console.log('arrived_result : ' + JSON.stringify(arrived_result.Ok[0]))
-    t.deepEqual(arrived_result.Ok.length, 1)
-    const mail_adr = arrived_result.Ok[0]
+    t.deepEqual(arrived_result.length, 1)
+    const mail_adr = arrived_result[0]
 
     const mail_result = await conductor.call(ALEX_NICK, "snapmail", "get_mail", {"address": mail_adr})
-    console.log('mail_result : ' + JSON.stringify(mail_result.Ok))
-    const result_obj = mail_result.Ok.mail
+    console.log('mail_result : ' + JSON.stringify(mail_result))
+    const result_obj = mail_result.mail
 
     // check for equality of the actual and expected results
     t.deepEqual(send_params.payload, result_obj.payload)
@@ -203,9 +203,9 @@ const send_dm_test = async (s, t) => {
     // -- ACK -- //
 
     const received_result = await conductor.call(BILLY_NICK, "snapmail", "has_mail_been_received", {"outmail_address": send_result.Ok.outmail})
-    console.log('received_result1 : ' + JSON.stringify(received_result.Ok))
-    t.deepEqual(received_result.Ok.Err.length, 1)
-    t.deepEqual(received_result.Ok.Err[0], alexAddress)
+    console.log('received_result1 : ' + JSON.stringify(received_result))
+    t.deepEqual(received_result.Err.length, 1)
+    t.deepEqual(received_result.Err[0], alexAddress)
 
     const ack_result = await conductor.call(ALEX_NICK, "snapmail", "acknowledge_mail", {"inmail_address": mail_adr})
     console.log('ack_result1 : ' + ack_result.Ok)
@@ -213,12 +213,12 @@ const send_dm_test = async (s, t) => {
     await delay(10);
 
     const received_result2 = await conductor.call(BILLY_NICK, "snapmail", "has_mail_been_received", {"outmail_address": send_result.Ok.outmail})
-    console.log('received_result2 : ' + JSON.stringify(received_result2.Ok))
-    t.deepEqual(received_result2.Ok.Ok, null)
+    console.log('received_result2 : ' + JSON.stringify(received_result2))
+    t.deepEqual(received_result2.Ok, null)
 
     const ack_result2 = await conductor.call(ALEX_NICK, "snapmail", "has_ack_been_received", {"inmail_address": mail_adr})
     console.log('ack_result2 : ' + JSON.stringify(ack_result2))
-    t.deepEqual(ack_result2.Ok, true)
+    t.deepEqual(ack_result2, true)
 };
 
 

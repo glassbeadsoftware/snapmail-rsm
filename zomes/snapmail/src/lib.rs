@@ -81,7 +81,9 @@ pub struct DmPacket {
 pub fn receive(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
     // let (from, dm): (AgentPubKey, DirectMessageProtocol) = dm_packet.into();
     debug!("*** receive() called from {:?}", dm_packet.from).ok();
-    return mail::receive(dm_packet.from, dm_packet.dm);
+    let response = mail::receive(dm_packet.from, dm_packet.dm);
+    debug!("*** receive() response to send back: {:?}", response).ok();
+    return Ok(response)
 }
 
 ///
@@ -96,6 +98,7 @@ pub(crate) fn send(destination: AgentPubKey, dm: DirectMessageProtocol) -> Exter
     let dm_packet = DmPacket { from: me, dm, };
     let payload: SerializedBytes = dm_packet.try_into().unwrap();
     /// Call peer
+    debug!("calling remote receive()...".to_string()).ok();
     let response = call_remote!(
         destination,
         zome_info!()?.zome_name,

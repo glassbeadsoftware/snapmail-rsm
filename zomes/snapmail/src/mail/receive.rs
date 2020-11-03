@@ -1,6 +1,7 @@
 use hdk3::prelude::*;
 
 use crate::{
+    utils::*,
     entry_kind, signal_protocol::*,
             //file::{FileChunk, FileManifest},
             mail::{
@@ -13,8 +14,8 @@ use std::convert::TryInto;
 use crate::mail::entries::InMailState;
 
 
-pub fn receive(from: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
-    debug!(format!("Received from: {:?}", from)).ok();
+pub fn receive(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessageProtocol {
+    debug!(format!("Received from: {}", from)).ok();
     // let maybe_msg: Result<DirectMessageProtocol, _> = msg_json.try_into();
     // if let Err(err) = maybe_msg {
     //     return format!("error: {}", err);
@@ -143,22 +144,25 @@ pub fn receive_direct_chunk(_from: AgentAddress, chunk: FileChunk) -> DirectMess
 }
 */
 
+fn create_entry_wrapper(inmail: InMail) -> ExternResult<HeaderHash> {
+   Ok(create_entry!(inmail.clone())?)
+}
+
 /// Handle a MailMessage.
 /// Emits `received_mail` signal.
 /// Returns Success or Failure.
 pub fn receive_direct_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessageProtocol {
-    // Create InMail
+    /// Create InMail
     let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
-    // Commit InMail
-    //let inmail_entry = Entry::App(entry_kind::InMail.into(), inmail.into());
-    let maybe_inmail_address = create_entry!(&inmail);
+    /// Commit InMail
+    let maybe_inmail_address = create_entry_wrapper(inmail);
     if let Err(err) = maybe_inmail_address {
         let response_str = "Failed committing InMail";
         debug!(format!("{}: {}", response_str, err)).ok();
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let inmail_address =  maybe_inmail_address.unwrap();
-    debug!(format!("inmail_address: {}", inmail_address)).ok();
+    debug!(format!("inmail_address: {:?}", inmail_address)).ok();
 
     // // Emit signal
     // let item = MailItem {
@@ -183,8 +187,9 @@ pub fn receive_direct_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMe
 /// Emits `received_ack` signal.
 /// Returns Success or Failure.
 pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
-    // Create InAck
-    let res = mail::create_and_commit_inack(&ack_msg.outmail_address, &from);
+    /// Create InAck
+    let outmail_eh = hh_to_eh(ack_msg.outmail_address).expect("Should have valid HeaderHash");
+    let res = mail::create_and_commit_inack(outmail_eh, &from);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
         debug!(format!("{}: {}", response_str, err)).ok();

@@ -17,12 +17,14 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
     };
 
     // Determine where to dispatch according to base
-    match entry {
+    let result = match entry {
         Entry::Agent(agent_hash) => validate_agent_entry(agent_hash, maybe_package),
         Entry::CapClaim(claim) => validate_claim_entry(claim, maybe_package),
         Entry::CapGrant(grant) => validate_grant_entry(grant, maybe_package),
         Entry::App(entry_bytes) => validate_app_entry(entry_bytes, maybe_package),
-    }
+    };
+    debug!(format!("*** validate() called ; result = {:?}", result)).ok();
+    result
 }
 
 
@@ -40,14 +42,21 @@ fn validate_app_entry(
         let handle = maybe_handle.unwrap();
         return validate_handle_entry(handle, maybe_validation_package);
     }
-    // Call validate Chunk entry
+    /// Call validate Chunk entry
     let maybe_chunk = FileChunk::try_from(sb.clone());
     if maybe_chunk.is_ok() {
         return Ok(ValidateCallbackResult::Valid);
     }
-    // Add validate entry per type here...
-    // Done
-    Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
+    // let maybe_inmail = InMail::try_from(sb.clone());
+    // if maybe_inmail.is_ok() {
+    //     let inmail = maybe_inmail.unwrap();
+    //     return validate_inmail_entry(inmail, maybe_validation_package);
+    // }
+    /// Add validate entry per type here...
+    /// Done
+    //Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
+    // FIXME
+    return Ok(ValidateCallbackResult::Valid);
 }
 
 ///
