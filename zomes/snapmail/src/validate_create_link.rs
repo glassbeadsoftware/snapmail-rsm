@@ -35,12 +35,25 @@ fn validate_create_link_from_app(
       return Ok(ValidateLinkCallbackResult::Valid);
    }
 
+   /// Check Acknolwedgment
+   if submission.link_add.tag == link_tag(link_kind::Acknowledgment) {
+      // TODO: check from InMail and unicity
+      return Ok(ValidateLinkCallbackResult::Valid);
+   }
+
+   /// Check Receipt
+   if submission.link_add.tag == link_tag(link_kind::Receipt) {
+      // TODO: check from OutMail and unicity per recepient
+      return Ok(ValidateLinkCallbackResult::Valid);
+   }
+
     /// Check for Handle
     let maybe_handle = Handle::try_from(base_entry_bytes.clone().into_sb());
     if maybe_handle.is_ok() {
         let handle = maybe_handle.unwrap();
         return validate_create_link_from_handle(handle, submission);
     }
+
     // /// Check for Path
     // let maybe_path = Path::try_from(base_entry_bytes.clone().into_sb());
     // if maybe_path.is_ok() {

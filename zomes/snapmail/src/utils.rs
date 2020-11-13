@@ -33,6 +33,20 @@ pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
 
 
 ///
+pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(
+    hash: HeaderHash,
+) -> ExternResult<(EntryHash, T)> {
+    match get!(hash.clone())? {
+        Some(element) => {
+            let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
+            Ok((eh.clone(), try_from_element(element)?))
+        },
+        None => crate::error("Entry not found"),
+    }
+}
+
+
+///
 pub fn try_get_and_convert<T: TryFrom<SerializedBytes>>(
     entry_hash: EntryHash,
 ) -> ExternResult<(EntryHash, T)> {

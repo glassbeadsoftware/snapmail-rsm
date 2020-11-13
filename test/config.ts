@@ -29,3 +29,26 @@ export async function setup_conductor(s, t) {
     // Done
     return { conductor, alexAddress, billyAddress, camilleAddress }
 }
+
+/**
+ *
+ */
+export const config_alex = Config.gen({
+    [ALEX_NICK]: Config.dna("../snapmail.dna.gz", null),
+})
+
+/**
+ *
+ */
+export async function setup_alex_only(s, t) {
+    // -- Setup conductor
+    const {conductor} = await s.players({conductor: config_alex})
+    await conductor.spawn()
+    // -- Get Ids
+    const [_dnaHash, alexAddress] = conductor.cellId(ALEX_NICK)
+    console.log({alexAddress})
+    // Done
+    return { conductor, alexAddress }
+}
+
+

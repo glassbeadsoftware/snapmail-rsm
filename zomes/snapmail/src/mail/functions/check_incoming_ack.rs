@@ -14,7 +14,7 @@ use crate::mail;
 use crate::link_kind;
 
 /// Return list of outMail addresses for which we succesfully linked a new InAck out of PendingAcks
-pub fn check_incoming_ack() -> ExternResult<Vec<HeaderHash>> {
+pub fn check_incoming_ack(_:()) -> ExternResult<Vec<HeaderHash>> {
     let maybe_my_handle_address = crate::handle::get_my_handle_entry();
     if let None = maybe_my_handle_address {
         return Err(ZomeApiError::Internal("This agent does not have a Handle set up".to_string()));

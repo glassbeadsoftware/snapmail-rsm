@@ -13,6 +13,16 @@ use crate::{
 };
 
 /// Zome Function
+/// DEBUG / TESTING ONLY
+#[hdk_extern]
+pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
+    let new_handle = Handle::empty();
+    let hh = create_entry!(&new_handle)?;
+    Ok(hh)
+}
+
+
+/// Zome Function
 /// Set handle for this agent
 #[hdk_extern]
 pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {

@@ -6,7 +6,7 @@ use hdk3::prelude::*;
 // };
 
 use crate::{
-    send,
+    send_dm,
     ZomeBool,
     protocol::DirectMessageProtocol,
 };
@@ -17,7 +17,7 @@ use crate::{
 pub fn ping_agent(destination: AgentPubKey) -> ExternResult<ZomeBool> {
     /// 1. Send ping DM
     debug!(format!("ping_agent: {:?}", destination)).ok();
-    let response_dm = send(destination, DirectMessageProtocol::Ping)?;
+    let response_dm = send_dm(destination, DirectMessageProtocol::Ping)?;
     debug!(format!("ping response = {:?}", response_dm)).ok();
     /// 2. Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {

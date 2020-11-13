@@ -1,40 +1,26 @@
 use hdk3::prelude::*;
 
-// use hdk::{
-//     error::{ExternResult, ZomeApiError},
-//     holochain_persistence_api::{
-//         cas::content::Address
-//     },
-//     holochain_core_types::{
-//         entry::Entry,
-//     },
-//     holochain_json_api::json::JsonString,
-// };
-// use holochain_wasm_utils::{
-//     holochain_core_types::link::LinkMatch,
-// };
-
 use crate::{
     signal_protocol::*,
     file::dm::{request_chunk_by_dm, request_manifest_by_dm},
-    link_kind, entry_kind, mail::{self, entries::InMail}, file::{FileManifest}};
+    link_kind, entry_kind,
+    mail::{self, entries::InMail}, file::{FileManifest},
+};
 
 /// Zome Function
 /// Return list of new InMail addresses created after checking MailInbox links
 #[hdk_extern]
-pub fn check_incoming_mail() -> ExternResult<Vec<HeaderHash>> {
+pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
     let maybe_my_handle_address = crate::handle::get_my_handle_entry();
     if let None = maybe_my_handle_address {
         return Err(ZomeApiError::Internal("This agent does not have a Handle set up".to_string()));
     }
     let my_handle_address = maybe_my_handle_address.unwrap().0;
     // Lookup `mail_inbox` links on my agentId
-    let links_result = hdk::get_links(
-        // &*hdk::AGENT_ADDRESS,
+    let links_result = get_links!(
         &my_handle_address,
-        LinkMatch::Exactly(link_kind::MailInbox),
-        LinkMatch::Any,
-    )?;
+        link_tag(link_kind::MailInbox),
+    )?.into_inner();
     debug!(format!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address)).ok();
     // For each MailInbox link
     let mut new_inmails = Vec::new();

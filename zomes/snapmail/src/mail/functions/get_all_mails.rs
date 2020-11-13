@@ -32,7 +32,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         //return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
-    debug!(format!(" get_all_mails inmails: {:?}", inmails)).ok();
+    debug!(format!(" get_all_mails() inmails: {:?}", inmails)).ok();
     ///
     let outmail_query_args = ChainQueryFilter::default()
        .include_entries(true)

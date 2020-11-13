@@ -3,7 +3,7 @@ use hdk3::prelude::*;
 use std::collections::HashMap;
 
 use crate::{
-    send,
+    send_dm,
     link_kind, entry_kind,
     mail::entries::{PendingMail, ReceipientKind, Mail, OutMail},
     protocol::{
@@ -165,14 +165,14 @@ fn send_mail_by_dm(
     //let payload = serde_json::to_string(&DirectMessageProtocol::Mail(msg)).unwrap();
 
     /// Send DM
-    let response_dm = send(destination.clone(), DirectMessageProtocol::Mail(msg))?;
+    let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
     debug!(format!("send_mail_to() response_dm = {:?}", response_dm)).ok();
 
     /// Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(());
     }
-    Err(HdkError::Wasm(WasmError::Zome(format!("send() failed: {:?}", response_dm))))
+    Err(HdkError::Wasm(WasmError::Zome(format!("send_dm() failed: {:?}", response_dm))))
 }
 
 ///

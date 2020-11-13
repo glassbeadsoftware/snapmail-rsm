@@ -45,6 +45,10 @@ entry_defs![
    /// -- Mail
    InMail::entry_def(),
    OutMail::entry_def(),
+   OutAck::entry_def(),
+   InAck::entry_def(),
+   PendingAck::entry_def(),
+   PendingMail::entry_def(),
    /// -- Other
    Path::entry_def(),
    Post::entry_def(),
@@ -59,6 +63,10 @@ pub fn def_to_type(entry_name: &str) -> EntryType {
         entry_kind::Handle => 0,
         entry_kind::InMail => 1,
         entry_kind::OutMail => 2,
+        entry_kind::OutAck => 3,
+        entry_kind::InAck => 4,
+        entry_kind::PendingAck => 5,
+        entry_kind::PendingMail => 6,
         _  => unreachable!(),
     };
     let app_type = AppEntryType::new(
@@ -87,7 +95,7 @@ pub fn receive(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
 }
 
 ///
-pub(crate) fn send(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
+pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
     /// Pre-conditions: Don't call yourself
     let me = agent_info!()?.agent_latest_pubkey;
     if destination == me {
@@ -135,6 +143,8 @@ pub struct ZomeString(String);
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
 pub struct ZomeRaw(Vec<u8>);
 
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+pub struct ZomeHeaderHashVec(Vec<HeaderHash>);
 
 // -- Callbacks -- //
 

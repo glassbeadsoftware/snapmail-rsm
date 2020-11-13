@@ -35,18 +35,27 @@ fn validate_app_entry(
 ) -> ExternResult<ValidateCallbackResult>
 {
     debug!("*** validate_app_entry() called!").ok();
-    // Call validate Handle entry
     let sb = base_entry_bytes.into_sb();
+
+    /// Call validate Path entry
+    let maybe_path = Path::try_from(sb.clone());
+    if maybe_path.is_ok() {
+        // FIXME
+        return Ok(ValidateCallbackResult::Valid);
+    }
+    /// Try validate Handle entry
     let maybe_handle = Handle::try_from(sb.clone());
     if maybe_handle.is_ok() {
         let handle = maybe_handle.unwrap();
         return validate_handle_entry(handle, maybe_validation_package);
     }
-    /// Call validate Chunk entry
+
+    /// Try validate Chunk entry
     let maybe_chunk = FileChunk::try_from(sb.clone());
     if maybe_chunk.is_ok() {
         return Ok(ValidateCallbackResult::Valid);
     }
+
     // let maybe_inmail = InMail::try_from(sb.clone());
     // if maybe_inmail.is_ok() {
     //     let inmail = maybe_inmail.unwrap();
@@ -54,9 +63,9 @@ fn validate_app_entry(
     // }
     /// Add validate entry per type here...
     /// Done
+    // FIXME: should default to invalid
     //Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
-    // FIXME
-    return Ok(ValidateCallbackResult::Valid);
+    Ok(ValidateCallbackResult::Valid)
 }
 
 ///
