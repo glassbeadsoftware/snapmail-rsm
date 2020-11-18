@@ -17,7 +17,7 @@ use crate::{
 #[hdk_extern]
 pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
     let new_handle = Handle::empty();
-    let hh = create_entry!(&new_handle)?;
+    let hh = create_entry(&new_handle)?;
     Ok(hh)
 }
 
@@ -31,7 +31,7 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     //let app_entry = Entry::App(entry_kind::Handle.into(), new_handle.into());
 
     /// -- Check if already have Handle
-    let my_agent_address = agent_info!()?.agent_latest_pubkey;
+    let my_agent_address = agent_info()?.agent_latest_pubkey;
     let maybe_current_handle_element = get_handle_element(my_agent_address.clone());
     if let Some(handle_element) = maybe_current_handle_element {
         /// If new handle same as current, just return current entry address
@@ -42,15 +42,15 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
             return Ok(header_address);
         }
         /// Really new name so just update entry
-        return Ok(update_entry!(header_address, new_handle.clone())?);
+        return Ok(update_entry(header_address, new_handle.clone())?);
     }
 
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
-    let entry_address = hash_entry!(new_handle.clone())?;
+    let entry_address = hash_entry(new_handle.clone())?;
     debug!("First Handle for this agent!!!").ok();
-    let header_address = create_entry!(&new_handle)?;
-    let _ = create_link!(
+    let header_address = create_entry(&new_handle)?;
+    let _ = create_link(
         EntryHash::from(my_agent_address),
         entry_address.clone(),
         link_tag(link_kind::Handle)
@@ -76,7 +76,7 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     // let _ = create_link!(dna_entry_hash, entry_address, link_tag(link_kind::Members))?;
 
     let directory_address = Path::from(path_kind::Directory).hash().expect("Directory Path should hash");
-    let _ = create_link!(directory_address, entry_address, link_tag(link_kind::Members))?;
+    let _ = create_link(directory_address, entry_address, link_tag(link_kind::Members))?;
 
     /// Done
     return Ok(header_address);

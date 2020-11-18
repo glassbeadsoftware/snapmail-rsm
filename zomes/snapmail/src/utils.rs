@@ -26,7 +26,7 @@ pub fn snapmail_now() -> u64 {
 
 ///
 pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
-    let element = get!(hh)?.expect("Converting non existing HeaderHash");
+    let element = get(hh, GetOptions)?.expect("Converting non existing HeaderHash");
     let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
     Ok(eh.clone())
 }
@@ -36,7 +36,7 @@ pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
 pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(
     hash: HeaderHash,
 ) -> ExternResult<(EntryHash, T)> {
-    match get!(hash.clone())? {
+    match get(hash.clone(), GetOptions)? {
         Some(element) => {
             let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
             Ok((eh.clone(), try_from_element(element)?))
@@ -50,7 +50,7 @@ pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(
 pub fn try_get_and_convert<T: TryFrom<SerializedBytes>>(
     entry_hash: EntryHash,
 ) -> ExternResult<(EntryHash, T)> {
-    match get!(entry_hash.clone())? {
+    match get(entry_hash.clone(), GetOptions)? {
         Some(element) => Ok((entry_hash, try_from_element(element)?)),
         None => crate::error("Entry not found"),
     }
@@ -94,7 +94,7 @@ pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesE
     entry_hash: EntryHash,
 ) -> ExternResult<OptionEntryAndHash<T>> {
     // First, make sure we DO have the latest header_hash address
-    let maybe_latest_header_hash = match get_details!(entry_hash.clone())? {
+    let maybe_latest_header_hash = match get_details(entry_hash.clone())? {
         Some(Details::Entry(details)) => match details.entry_dht_status {
             metadata::EntryDhtStatus::Live => match details.updates.len() {
                 // pass out the header associated with this entry
@@ -116,7 +116,7 @@ pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesE
 
     // Second, go and get that element, and return it and its header_address
     match maybe_latest_header_hash {
-        Some(latest_header_hash) => match get!(latest_header_hash)? {
+        Some(latest_header_hash) => match get(latest_header_hash)? {
             Some(element) => match element.entry().to_app_option::<T>()? {
                 Some(entry) => Ok(Some((
                     entry,

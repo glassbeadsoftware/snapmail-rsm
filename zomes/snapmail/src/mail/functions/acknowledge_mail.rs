@@ -21,7 +21,7 @@ use crate::{
 pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
     let outack = OutAck::new();
     debug!("create_outack() called").ok();
-    let outack_hh = create_entry!(&outack)?;
+    let outack_hh = create_entry(&outack)?;
     debug!("create_outack() done").ok();
     Ok(outack_hh)
 }
@@ -33,17 +33,17 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     ///  1. Make sure its an InMail
     let (inmail_eh, inmail) = get_typed_entry::<InMail>(inmail_hh.clone())?;
     ///  2. Make sure it has not already been acknowledged
-    let res = get_links!(inmail_eh.clone(), link_tag(link_kind::Acknowledgment))?.into_inner();
+    let res = get_links(inmail_eh.clone(), Some(link_tag(link_kind::Acknowledgment)))?.into_inner();
     if res.len() > 0 {
         return Err(HdkError::Wasm(WasmError::Zome("Mail has already been acknowledged".to_string())));
     }
     debug!("No Acknowledgment yet").ok();
     /// 3. Write OutAck
     let outack = OutAck::new();
-    let outack_hh = create_entry!(&outack)?;
+    let outack_hh = create_entry(&outack)?;
     let outack_eh = hh_to_eh(outack_hh)?;
     debug!("Creating ack link...").ok();
-    let _ = create_link!(inmail_eh, outack_eh.clone(), link_tag(link_kind::Acknowledgment))?;
+    let _ = create_link(inmail_eh, outack_eh.clone(), link_tag(link_kind::Acknowledgment))?;
     /// 4. Try Direct sharing of Acknowledgment
     let res = acknowledge_mail_direct(&inmail.outmail_address, &inmail.from);
     if res.is_ok() {
@@ -51,7 +51,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
         return Ok(outack_eh);
     }
     let err = res.err().unwrap();
-    debug!(format!("Direct sharing of Acknowledgment failed: {}", err)).ok();
+    debug!("Direct sharing of Acknowledgment failed: {}", err).ok();
     /// 5. Otherwise share Acknowledgement via DHT
     // FIXME
     //let _ = acknowledge_mail_pending(&outack_address, &inmail.outmail_address, &inmail.from)?;
@@ -81,7 +81,7 @@ fn acknowledge_mail_direct(outmail_hh: &HeaderHash, from: &AgentPubKey) -> Exter
     // }
     // let response = result.unwrap();
     /// Check Response
-    debug!(format!("Received response for Ack: {:?}", response)).ok();
+    debug!("Received response for Ack: {:?}", response).ok();
     // let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
     // if let Err(err) = maybe_msg {
     //     debug!(format!("Received response -> Err: {}", err)).ok();

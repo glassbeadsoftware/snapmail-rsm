@@ -15,7 +15,7 @@ use crate::mail::entries::InMailState;
 
 
 pub fn receive(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessageProtocol {
-    debug!(format!("Received from: {}", from)).ok();
+    debug!("Received from: {}", from).ok();
     // let maybe_msg: Result<DirectMessageProtocol, _> = msg_json.try_into();
     // if let Err(err) = maybe_msg {
     //     return format!("error: {}", err);
@@ -145,7 +145,7 @@ pub fn receive_direct_chunk(_from: AgentAddress, chunk: FileChunk) -> DirectMess
 */
 
 fn create_entry_wrapper(inmail: InMail) -> ExternResult<HeaderHash> {
-   Ok(create_entry!(inmail.clone())?)
+   Ok(create_entry(&inmail)?)
 }
 
 /// Handle a MailMessage.
@@ -194,7 +194,7 @@ pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessa
     let res = mail::create_and_commit_inack(outmail_eh, &from);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
-        debug!(format!("{}: {}", response_str, err)).ok();
+        debug!("{}: {}", response_str, err).ok();
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     // // Emit Signal

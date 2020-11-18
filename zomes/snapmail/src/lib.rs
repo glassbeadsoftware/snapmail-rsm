@@ -17,8 +17,9 @@ mod protocol;
 
 mod playground;
 mod chunk;
-mod handle;
 mod signal_protocol;
+
+mod handle;
 mod mail;
 
 // mod file;
@@ -97,7 +98,7 @@ pub fn receive(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
 ///
 pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
     /// Pre-conditions: Don't call yourself
-    let me = agent_info!()?.agent_latest_pubkey;
+    let me = agent_info()?.agent_latest_pubkey;
     if destination == me {
         //return Err(HdkError::Wasm(WasmError::Zome("receive() aborted. Can't call yourself.".to_owned())));
     }
@@ -107,9 +108,9 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
     let payload: SerializedBytes = dm_packet.try_into().unwrap();
     /// Call peer
     debug!("calling remote receive() ; dm = {:?}", dm).ok();
-    let maybe_response = call_remote!(
+    let maybe_response = call_remote(
         destination,
-        zome_info!()?.zome_name,
+        zome_info()?.zome_name,
         "receive".to_string().into(),
         None,
         payload
@@ -164,8 +165,8 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Path::from(path_kind::Directory).ensure()?;
     /// Set access for receive/send
     let mut functions: GrantedFunctions = HashSet::new();
-    functions.insert((zome_info!()?.zome_name, "receive".into()));
-    create_cap_grant!(
+    functions.insert((zome_info()?.zome_name, "receive".into()));
+    create_cap_grant(
         CapGrantEntry {
             tag: "".into(),
             // empty access converts to unrestricted

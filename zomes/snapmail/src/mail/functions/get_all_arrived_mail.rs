@@ -16,14 +16,14 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHeaderHashVec> {
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .entry_type(def_to_type(entry_kind::InMail));
-    let maybe_inmail_result = query!(inmail_query_args);
+    let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
-        debug!(format!("get_all_mails() inmail_result failed: {:?}", err)).ok();
+        debug!("get_all_mails() inmail_result failed: {:?}", err).ok();
         return Err(hdk3::error::HdkError::SerializedBytes(err));
         //return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
-    debug!(format!(" get_all_arrived_mail() inmails: {:?}", inmails)).ok();
+    debug!(" get_all_arrived_mail() inmails: {:?}", inmails).ok();
 
     // DEBUG - Output dummy values instead
     // let mut unreads = Vec::new();
@@ -48,7 +48,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHeaderHashVec> {
         // if res.count > 0 {
         //     continue;
         // }
-        let links_result = get_links!(inmail_address.clone(), link_tag(link_kind::Acknowledgment))
+        let links_result = get_links(inmail_address.clone(), link_tag(link_kind::Acknowledgment))
            ?.into_inner();
         /// If link found, it means Ack has not been received
         if links_result.len() > 0 {

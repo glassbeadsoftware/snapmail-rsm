@@ -17,7 +17,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
     }
     let my_handle_address = maybe_my_handle_address.unwrap().0;
     // Lookup `mail_inbox` links on my agentId
-    let links_result = get_links!(
+    let links_result = get_links(
         &my_handle_address,
         link_tag(link_kind::MailInbox),
     )?.into_inner();
@@ -36,7 +36,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
         //  2. Convert and Commit as InMail
         let inmail = InMail::from_pending(pending, author);
         //let inmail_entry = Entry::App(entry_kind::InMail.into(), inmail.clone().into());
-        let maybe_inmail_address = create_entry!(&inmail);
+        let maybe_inmail_address = create_entry(&inmail);
         if maybe_inmail_address.is_err() {
             debug!("Failed committing InMail").ok();
             continue;
@@ -58,16 +58,16 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
         //  4. Delete PendingMail entry
         let res = hdk::remove_entry(pending_address);
         if let Err(err) = res {
-            debug!(format!("Delete PendingMail failed: {:?}", err)).ok();
+            debug!("Delete PendingMail failed: {:?}", err).ok();
             //continue; // TODO: figure out why delete entry fails
         }
-        debug!(format!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len())).ok();
+        debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len()).ok();
         //  5. Retrieve and write FileManifest for each attachment
         let mut manifest_list: Vec<FileManifest> = Vec::new();
         for attachment_info in inmail.clone().mail.attachments {
             let manifest_address = attachment_info.manifest_address;
             // Retrieve
-            debug!(format!("Retrieving manifest: {}", manifest_address)).ok();
+            debug!("Retrieving manifest: {}", manifest_address).ok();
             let maybe_maybe_manifest = request_manifest_by_dm(inmail.clone().from, manifest_address);
             if let Err(_err) = maybe_maybe_manifest {
                 break;
@@ -79,10 +79,10 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
             let manifest = maybe_manifest.unwrap();
             // Write
             //let file_entry = Entry::App(entry_kind::FileManifest.into(), manifest.clone().into());
-            let maybe_file_address = create_entry!(&manifest);
+            let maybe_file_address = create_entry(&manifest);
             if let Err(err) = maybe_file_address {
                 let response_str = "Failed committing FileManifest";
-                debug!(format!("{}: {}", response_str, err)).ok();
+                debug!("{}: {}", response_str, err).ok();
                 break;
             }
             // Add to list
@@ -103,10 +103,10 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
                 let chunk = maybe_chunk.unwrap();
                 // Write
                 //let file_entry = Entry::App(entry_kind::FileChunk.into(), chunk.into());
-                let maybe_address = create_entry!(&chunk);
+                let maybe_address = create_entry(&chunk);
                 if let Err(err) = maybe_address {
                     let response_str = "Failed committing FileChunk";
-                    debug!(format!("{}: {}", response_str, err)).ok();
+                    debug!("{}: {}", response_str, err).ok();
                     break;
                 }
             }
@@ -115,7 +115,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
             let signal_json = serde_json::to_string(&signal).expect("Should stringify");
             let res = hdk::emit_signal("received_file", JsonString::from_json(&signal_json));
             if let Err(err) = res {
-                debug!(format!("Emit signal failed: {}", err)).ok();
+                debug!("Emit signal failed: {}", err).ok();
             }
         }
     }

@@ -25,26 +25,26 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .entry_type(def_to_type(entry_kind::InMail));
-    let maybe_inmail_result = query!(inmail_query_args);
+    let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
-        debug!(format!("get_all_mails() inmail_result failed: {:?}", err)).ok();
+        debug!("get_all_mails() inmail_result failed: {:?}", err).ok();
         return Err(hdk3::error::HdkError::SerializedBytes(err));
         //return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
-    debug!(format!(" get_all_mails() inmails: {:?}", inmails)).ok();
+    debug!(" get_all_mails() inmails: {:?}", inmails).ok();
     ///
     let outmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .entry_type(def_to_type(entry_kind::OutMail));
-    let maybe_outmail_result = query!(outmail_query_args);
+    let maybe_outmail_result = query(outmail_query_args);
     if let Err(err) = maybe_outmail_result {
-        debug!(format!("get_all_mails() outmail_result failed: {:?}", err)).ok();
+        debug!("get_all_mails() outmail_result failed: {:?}", err).ok();
         return Err(hdk3::error::HdkError::SerializedBytes(err));
         //return Err(err);
     }
     let outmails: Vec<Element> = maybe_outmail_result.unwrap().0;
-    debug!(format!(" get_all_mails outmails: {:?}", outmails)).ok();
+    debug!(" get_all_mails outmails: {:?}", outmails).ok();
     //let all_mails = inmails.concat(outmails);
 
     // ///
@@ -55,7 +55,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
 
     /// 2. Change all mails into MailItems
     let mut item_list = Vec::new();
-    let my_agent_address = agent_info!()?.agent_latest_pubkey;
+    let my_agent_address = agent_info()?.agent_latest_pubkey;
 
     /// Change all InMail into a MailItem
     for element in outmails {
@@ -106,6 +106,6 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
 
     /// Done
-    debug!(format!(" get_all_mails() size = {}", item_list.len())).ok();
+    debug!(" get_all_mails() size = {}", item_list.len()).ok();
     Ok(ZomeMailItemVec(item_list))
 }

@@ -59,7 +59,7 @@ pub(crate) fn get_handle_entry(agentId: &AgentPubKey) -> Option<(EntryHash, Entr
 /// Return Element of latest Handle Entry for agent
 pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
     /// Get All Handle links on agent ; should have only one
-    let handle_links = get_links!(agent_id.into(), link_tag(link_kind::Handle))
+    let handle_links = get_links(agent_id.into(), link_tag(link_kind::Handle))
        .expect("No reason for this to fail")
        .into_inner();
     assert!(handle_links.len() <= 1);
@@ -69,7 +69,7 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
     }
     /// Get the Element from the link
     let handle_entry_hash = handle_links[0].target.clone();
-    let element = get!(handle_entry_hash)
+    let element = get(handle_entry_hash, GetOptions)
         .expect("No reason for get_entry to crash")
         .expect("Should have it");
 

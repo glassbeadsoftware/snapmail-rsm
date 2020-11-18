@@ -20,7 +20,7 @@ pub struct Post(String);
 // returns the current agent info
 #[hdk_extern]
 fn whoami(_: ()) -> Result<AgentInfo, WasmError> {
-    Ok(agent_info!()?)
+    Ok(agent_info()?)
 }
 
 
@@ -28,8 +28,8 @@ fn whoami(_: ()) -> Result<AgentInfo, WasmError> {
 fn set_access(_: ()) -> ExternResult<()> {
     let mut functions: GrantedFunctions = HashSet::new();
     //functions.insert((zome_info!()?.zome_name, "whoami".into()));
-    functions.insert((zome_info!()?.zome_name, "write_chunk".into()));
-    create_cap_grant!(
+    functions.insert((zome_info()?.zome_name, "write_chunk".into()));
+    create_cap_grant(
         CapGrantEntry {
             tag: "".into(),
             // empty access converts to unrestricted
@@ -42,9 +42,9 @@ fn set_access(_: ()) -> ExternResult<()> {
 
 #[hdk_extern]
 fn whoarethey(agent_pubkey: AgentPubKey) -> ExternResult<AgentInfo> {
-    let response: ZomeCallResponse = call_remote!(
+    let response: ZomeCallResponse = call_remote(
         agent_pubkey,
-        zome_info!()?.zome_name,
+        zome_info()?.zome_name,
         "whoami".to_string().into(),
         None,
         ().try_into()?

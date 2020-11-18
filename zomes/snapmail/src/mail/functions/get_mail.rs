@@ -16,7 +16,7 @@ pub struct GetMailOutput(Option<Result<InMail, OutMail>>);
 #[hdk_extern]
 pub fn get_mail(address: HeaderHash) -> ExternResult<GetMailOutput>{
     /// Get Element at address
-    let element = match get!(address)? {
+    let element = match get(address, GetOptions)? {
         Some(element) => element,
         None => return Ok(GetMailOutput(None)),
     };

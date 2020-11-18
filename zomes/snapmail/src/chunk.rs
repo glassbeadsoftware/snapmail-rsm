@@ -58,7 +58,7 @@ pub fn write_chunk(
     file_chunk: FileChunk
 ) -> ExternResult<HeaderHash> {
     debug!("fileChunk: {:?}", file_chunk).ok();
-    let res = create_entry!(file_chunk.clone())?;
+    let res = create_entry(file_chunk.clone())?;
     debug!("commit_result: {:?}", res).ok();
     Ok(res)
 }
@@ -70,7 +70,7 @@ pub fn get_chunk_hash(
     file_chunk: FileChunk
 ) -> ExternResult<EntryHash> {
     debug!("fileChunk: {:?}", file_chunk).ok();
-    let res = hash_entry!(file_chunk.clone())?;
+    let res = hash_entry(file_chunk.clone())?;
     debug!("entry_hash_result: {:?}", res).ok();
     Ok(res)
 }
@@ -84,7 +84,7 @@ pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<ZomeString> {
         //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
     //let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
     debug!("chunk_address: {:?}", chunk_address).ok();
-    let maybe_element = get!(chunk_address)
+    let maybe_element = get(chunk_address, GetOptions)
         .expect("No reason for get() to crash");
     if maybe_element.is_none() {
         return Ok(ZomeString(String::new().into()));
@@ -111,9 +111,9 @@ fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
     debug!("to_agent: {:?}", input.agent_pubkey).ok();
     let chunk = input.file_chunk.try_into()?;
     debug!("dbg chunk: {:?}", chunk).ok();
-    let response: ZomeCallResponse = call_remote!(
+    let response: ZomeCallResponse = call_remote(
         input.agent_pubkey,
-        zome_info!()?.zome_name,
+        zome_info()?.zome_name,
         "write_chunk".to_string().into(),
         None,
         chunk

@@ -166,13 +166,13 @@ fn send_mail_by_dm(
 
     /// Send DM
     let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
-    debug!(format!("send_mail_to() response_dm = {:?}", response_dm)).ok();
+    debug!("send_mail_to() response_dm = {:?}", response_dm).ok();
 
     /// Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(());
     }
-    Err(HdkError::Wasm(WasmError::Zome(format!("send_dm() failed: {:?}", response_dm))))
+    Err(HdkError::Wasm(WasmError::Zome("send_dm() failed: {:?}", response_dm)))
 }
 
 ///
@@ -183,7 +183,7 @@ fn send_mail_to(
     //manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<SendSuccessKind> {
 
-    debug!(format!("sending mail to... {}", destination)).ok();
+    debug!("sending mail to... {}", destination).ok();
 
     // 1. First try sending directly to other Agent if Online
     let result = send_mail_by_dm(outmail_address, mail, destination/*, manifest_list*/);
@@ -191,7 +191,7 @@ fn send_mail_to(
         return Ok(SendSuccessKind::OK_DIRECT);
     } else {
         let err = result.err().unwrap();
-        debug!(format!("send_mail_by_dm() failed: {:?}", err)).ok();
+        debug!("send_mail_by_dm() failed: {:?}", err).ok();
     }
 
     // -- Send to DHT -- //
@@ -259,7 +259,7 @@ pub fn send_mail(
     input: SendMailInput
 ) -> ExternResult<SendMailOutput> {
 
-    debug!(format!("Sending mail: {}", input.subject)).ok();
+    debug!("Sending mail: {}", input.subject).ok();
 
     /// Get file manifests from addresses
     // // FIXME
@@ -281,8 +281,8 @@ pub fn send_mail(
 //        input.file_manifest_pair_list.clone(),
     );
     //let outmail_entry = Entry::App(entry_kind::OutMail.into(), outmail.clone().into());
-    let outmail_address = create_entry!(&outmail)?;
-    debug!(format!("OutMail created: {:?}", outmail_address)).ok();
+    let outmail_address = create_entry(&outmail)?;
+    debug!("OutMail created: {:?}", outmail_address).ok();
 
     /// Send to each recepient
     let mut total_result = SendMailOutput::new(outmail_address.clone());
@@ -309,6 +309,6 @@ pub fn send_mail(
     }
 
     /// Done
-    debug!(format!("total_result: {:?}", total_result)).ok();
+    debug!("total_result: {:?}", total_result).ok();
     Ok(total_result)
 }

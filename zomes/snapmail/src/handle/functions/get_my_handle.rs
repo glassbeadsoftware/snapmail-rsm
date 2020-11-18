@@ -19,7 +19,7 @@ pub fn get_my_handle(_: ()) -> ExternResult<ZomeString> {
 /// Return Element holding the agent's handle entry
 pub(crate) fn get_my_handle_element() -> Option<Element> {
     /// Get my agent address
-    let agent_info = agent_info!().ok()?;
+    let agent_info = agent_info().ok()?;
     /// Get handle on that agent address
     return get_handle_element(agent_info.agent_latest_pubkey);
 }
