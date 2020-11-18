@@ -47,6 +47,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     /// 4. Try Direct sharing of Acknowledgment
     let res = acknowledge_mail_direct(&inmail.outmail_address, &inmail.from);
     if res.is_ok() {
+        debug!("Acknowledgment shared !").ok();
         return Ok(outack_eh);
     }
     let err = res.err().unwrap();
@@ -80,7 +81,7 @@ fn acknowledge_mail_direct(outmail_hh: &HeaderHash, from: &AgentPubKey) -> Exter
     // }
     // let response = result.unwrap();
     /// Check Response
-    debug!(format!("Received response: {:?}", response)).ok();
+    debug!(format!("Received response for Ack: {:?}", response)).ok();
     // let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
     // if let Err(err) = maybe_msg {
     //     debug!(format!("Received response -> Err: {}", err)).ok();

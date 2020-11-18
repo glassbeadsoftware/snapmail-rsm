@@ -91,7 +91,7 @@ pub fn receive(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
     debug!("*** receive() called from {:?}", dm_packet.from).ok();
     let response = mail::receive(dm_packet.from, dm_packet.dm);
     debug!("*** receive() response to send back: {:?}", response).ok();
-    return Ok(response)
+    Ok(response)
 }
 
 ///
@@ -103,27 +103,36 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
     }
     // FIXME: Check AgentPubKey is valid, i.e. exists in Directory
     /// Prepare payload
-    let dm_packet = DmPacket { from: me, dm, };
+    let dm_packet = DmPacket { from: me, dm: dm.clone() };
     let payload: SerializedBytes = dm_packet.try_into().unwrap();
     /// Call peer
-    debug!("calling remote receive()...".to_string()).ok();
-    let response = call_remote!(
+    debug!("calling remote receive() ; dm = {:?}", dm).ok();
+    let maybe_response = call_remote!(
         destination,
         zome_info!()?.zome_name,
         "receive".to_string().into(),
         None,
         payload
-    )?;
+    );
+    debug!("calling remote receive() DONE ; dm = {:?}", dm).ok();
+    if let Err(err) = maybe_response {
+        let fail_str = format!("Failed call_remote() during send_dm(): {:?}", err);
+        debug!(fail_str).ok();
+        return Err(HdkError::Wasm(WasmError::Zome(fail_str)));
+    }
+
     /// Check and convert response to DirectMessageProtocol
-    match response {
+    match maybe_response.unwrap() {
         ZomeCallResponse::Ok(output) => {
-            debug!("Received response from receive()".to_string()).ok();
-            // let maybe_msg: Result<DirectMessageProtocol, _> = output.into_inner().try_into()?;
+            debug!(format!("Received response from receive() : {:?}", output).to_string()).ok();
+            //let maybe_msg: Result<DirectMessageProtocol, _> = output.into_inner().try_into()?;
             // if maybe_msg.is_err() {
             //     return Err(HdkError::Wasm(WasmError::Zome("receive() response failed to deserialize.".to_owned())));
             // }
             // Ok(maybe_msg.unwrap())
+
             let msg: DirectMessageProtocol = output.into_inner().try_into()?;
+            debug!(format!("msg_output: {:?} ; dm was: {:?}", msg, dm)).ok();
             Ok(msg)
         },
         ZomeCallResponse::Unauthorized => {

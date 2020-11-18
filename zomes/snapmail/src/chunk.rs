@@ -57,9 +57,9 @@ impl FileChunk {
 pub fn write_chunk(
     file_chunk: FileChunk
 ) -> ExternResult<HeaderHash> {
-    debug!(format!("fileChunk: {:?}", file_chunk)).ok();
+    debug!("fileChunk: {:?}", file_chunk).ok();
     let res = create_entry!(file_chunk.clone())?;
-    debug!(format!("commit_result: {:?}", res)).ok();
+    debug!("commit_result: {:?}", res).ok();
     Ok(res)
 }
 
@@ -69,9 +69,9 @@ pub fn write_chunk(
 pub fn get_chunk_hash(
     file_chunk: FileChunk
 ) -> ExternResult<EntryHash> {
-    debug!(format!("fileChunk: {:?}", file_chunk)).ok();
+    debug!("fileChunk: {:?}", file_chunk).ok();
     let res = hash_entry!(file_chunk.clone())?;
-    debug!(format!("entry_hash_result: {:?}", res)).ok();
+    debug!("entry_hash_result: {:?}", res).ok();
     Ok(res)
 }
 
@@ -83,7 +83,7 @@ pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<ZomeString> {
 //pub fn _get_chunk(chunk_address: EntryHash) -> Result<MyString, WasmError> {
         //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
     //let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
-    debug!(format!("chunk_address: {:?}", chunk_address)).ok();
+    debug!("chunk_address: {:?}", chunk_address).ok();
     let maybe_element = get!(chunk_address)
         .expect("No reason for get() to crash");
     if maybe_element.is_none() {
@@ -108,9 +108,9 @@ pub struct SendChunkInput {
 /// Zome function
 #[hdk_extern]
 fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
-    debug!(format!("to_agent: {:?}", input.agent_pubkey)).ok();
+    debug!("to_agent: {:?}", input.agent_pubkey).ok();
     let chunk = input.file_chunk.try_into()?;
-    debug!(format!("dbg chunk: {:?}", chunk)).ok();
+    debug!("dbg chunk: {:?}", chunk).ok();
     let response: ZomeCallResponse = call_remote!(
         input.agent_pubkey,
         zome_info!()?.zome_name,
@@ -118,12 +118,12 @@ fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
         None,
         chunk
     )?;
-    debug!(format!("response2: {:?}", response)).ok();
+    debug!("response2: {:?}", response).ok();
     match response {
         ZomeCallResponse::Ok(guest_output) => {
-            debug!(format!("guest_output: {:?}", guest_output)).ok();
+            debug!("guest_output: {:?}", guest_output).ok();
             let hash: HeaderHash = guest_output.into_inner().try_into()?;
-            debug!(format!("hash_output: {:?}", hash)).ok();
+            debug!("hash_output: {:?}", hash).ok();
             Ok(hash)
         },
         // we're just panicking here because our simple tests can always call set_access before

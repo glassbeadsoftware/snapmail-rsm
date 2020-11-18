@@ -120,17 +120,28 @@ pub(crate) fn get_inmail_state(inmail_eh: &EntryHash) -> ExternResult<InMailStat
 
 /// Return address of created InAck
 pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
-    debug!(format!("Create inAck for: {} ({})", outmail_eh, from)).ok();
+    debug!("Create inAck for: {} ({})", outmail_eh, from).ok();
     /// Create InAck
     let inack = InAck::new();
     let inack_hh = create_entry!(&inack)?;
     let inack_eh = hash_entry!(&inack)?;
+    //debug!("inack_eh: {}", inack_eh).ok();
     /// Create link tag
     let vec = from.clone().into_inner();
-    let recepient = match str::from_utf8(&vec) {
-        Ok(v) => v,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
+    let recepient = format!("{}", from);
+
+    //let recepient = str::from_utf8_lossy(&vec);
+    debug!("recepient: {}", recepient).ok();
+
+    // let recepient = match str::from_utf8(&vec) {
+    //     Ok(v) => v,
+    //     Err(e) => {
+    //         let err_msg = format!("Invalid UTF-8 sequence: {}", e);
+    //         debug!(err_msg).ok();
+    //         return Err(HdkError::Wasm(WasmError::Zome(err_msg)));
+    //
+    //     },
+    // };
     let tag = link_tag(format!("{}___{}", link_kind::Receipt, recepient).as_str());
     /// Create link from OutMail
     let link_address = create_link!(outmail_eh, inack_eh, tag)?;

@@ -21,15 +21,15 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
         &my_handle_address,
         link_tag(link_kind::MailInbox),
     )?.into_inner();
-    debug!(format!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address)).ok();
+    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address).ok();
     // For each MailInbox link
     let mut new_inmails = Vec::new();
     for pending_address in &links_result.addresses() {
         //  1. Get entry on the DHT
-        debug!(format!("pending mail address: {}", pending_address)).ok();
+        debug!("pending mail address: {}", pending_address).ok();
         let maybe_pending_mail = mail::get_pending_mail(pending_address);
         if let Err(err) = maybe_pending_mail {
-            debug!(format!("Getting PendingMail from DHT failed: {}", err)).ok();
+            debug!("Getting PendingMail from DHT failed: {}", err).ok();
             continue;
         }
         let (author, pending) = maybe_pending_mail.unwrap();

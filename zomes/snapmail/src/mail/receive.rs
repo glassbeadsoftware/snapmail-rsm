@@ -188,7 +188,9 @@ pub fn receive_direct_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMe
 /// Returns Success or Failure.
 pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
     /// Create InAck
+    debug!("receive_direct_ack() from: {:?}", from).ok();
     let outmail_eh = hh_to_eh(ack_msg.outmail_address).expect("Should have valid HeaderHash");
+    debug!("outmail_eh = {:?}", outmail_eh).ok();
     let res = mail::create_and_commit_inack(outmail_eh, &from);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
@@ -206,5 +208,6 @@ pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessa
     //     debug!(format!("Emit signal failed: {}", err)).ok();
     // }
     // Return Success response
-    return DirectMessageProtocol::Success(String::new());
+    debug!("receive_direct_ack() success!").ok();
+    return DirectMessageProtocol::Success("Ack received".to_string());
 }

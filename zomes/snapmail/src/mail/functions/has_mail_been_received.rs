@@ -30,7 +30,7 @@ pub fn has_mail_been_received(outmail_address: HeaderHash) -> ExternResult<HasMa
     /// 4. Make list of Receipt authors
     let receipt_authors: Vec<AgentPubKey> = links_result.iter().map(|link| {
         let raw_data = link.tag.as_ref().clone();
-        HoloHash::from_raw_bytes_and_type(raw_data, hash_type::Agent)
+        HoloHash::from_raw_36_and_type(raw_data, hash_type::Agent)
     })
     .collect();
     debug!(format!("receipt_authors: {:?}", receipt_authors)).ok();

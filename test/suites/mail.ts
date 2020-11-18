@@ -222,6 +222,8 @@ const send_dm_test = async (s, t) => {
 
     // -- ACK -- //
 
+    //await delay(1000);
+
     const received_result = await conductor.call(BILLY_NICK, "snapmail", "has_mail_been_received", send_result.outmail)
     console.log('received_result1 : ' + JSON.stringify(received_result))
     t.deepEqual(received_result.Err.length, 1)
