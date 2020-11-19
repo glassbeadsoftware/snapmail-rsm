@@ -1,7 +1,8 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind, link_kind,
+    entry_kind,
+    link_kind::*,
     protocol::{DirectMessageProtocol, AckMessage},
     mail::{
         utils::*,
@@ -10,7 +11,6 @@ use crate::{
         },
     },
     utils::*,
-    link_tag,
     send_dm,
 };
 
@@ -33,9 +33,9 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     ///  1. Make sure its an InMail
     let (inmail_eh, inmail) = get_typed_entry::<InMail>(inmail_hh.clone())?;
     ///  2. Make sure it has not already been acknowledged
-    let res = get_links(inmail_eh.clone(), Some(link_tag(link_kind::Acknowledgment)))?.into_inner();
+    let res = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
     if res.len() > 0 {
-        return Err(HdkError::Wasm(WasmError::Zome("Mail has already been acknowledged".to_string())));
+        return error("Mail has already been acknowledged");
     }
     debug!("No Acknowledgment yet").ok();
     /// 3. Write OutAck
@@ -43,7 +43,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     let outack_hh = create_entry(&outack)?;
     let outack_eh = hh_to_eh(outack_hh)?;
     debug!("Creating ack link...").ok();
-    let _ = create_link(inmail_eh, outack_eh.clone(), link_tag(link_kind::Acknowledgment))?;
+    let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
     /// 4. Try Direct sharing of Acknowledgment
     let res = acknowledge_mail_direct(&inmail.outmail_address, &inmail.from);
     if res.is_ok() {
@@ -89,7 +89,7 @@ fn acknowledge_mail_direct(outmail_hh: &HeaderHash, from: &AgentPubKey) -> Exter
     // }
     match response {
         DirectMessageProtocol::Success(_) => Ok(()),
-        _ => Err(HdkError::Wasm(WasmError::Zome("ACK by DM Failed".to_string()))),
+        _ => error("ACK by DM Failed"),
     }
 }
 //

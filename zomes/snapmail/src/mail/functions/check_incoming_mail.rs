@@ -3,7 +3,7 @@ use hdk3::prelude::*;
 use crate::{
     signal_protocol::*,
     file::dm::{request_chunk_by_dm, request_manifest_by_dm},
-    link_kind, entry_kind,
+    link_kind::*, entry_kind,
     mail::{self, entries::InMail}, file::{FileManifest},
 };
 
@@ -19,7 +19,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
     // Lookup `mail_inbox` links on my agentId
     let links_result = get_links(
         &my_handle_address,
-        link_tag(link_kind::MailInbox),
+        LinkKind::MailInbox.as_tag(),
     )?.into_inner();
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address).ok();
     // For each MailInbox link

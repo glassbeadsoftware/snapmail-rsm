@@ -16,7 +16,7 @@ use crate::{
 #[hdk_extern]
 pub fn get_my_handle_history(initial_handle_address: HeaderHash) -> Vec<String> {
 
-    let history_result = get_details(&initial_handle_address);
+    let history_result = get_details(&initial_handle_address, GetOptions);
     if let Err(_e) = history_result {
         debug!("get_entry_history() failed").ok();
         return Vec::new();

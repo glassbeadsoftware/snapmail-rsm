@@ -21,10 +21,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<Vec<HeaderHash>> {
     }
     let my_handle_address = maybe_my_handle_address.unwrap().0;
     // Lookup `ack_inbox` links on my agentId
-    let links_result = get_links(
-        &my_handle_address,
-        link_tag(link_kind::AckInbox),
-    )?;
+    let links_result = get_links(&my_handle_address, LinkKind::AckInbox.as_tag_opt())?;
     debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_handle_address).ok();
     // For each link
     let mut updated_outmails = Vec::new();
@@ -46,7 +43,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<Vec<HeaderHash>> {
         let res = remove_link(
             &my_handle_address,
             &pending_ack_address,
-            link_tag(link_kind::AckInbox),
+            LinkKind::AckInbox.as_tag(),
         );
         if let Err(err) = res {
             debug!("Remove ``ack_inbox`` link failed:").ok();

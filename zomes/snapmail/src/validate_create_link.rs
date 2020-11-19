@@ -3,7 +3,7 @@ use hdk3::prelude::*;
 use crate::{
    handle::*,
    utils::*,
-   link_kind,
+   link_kind::*,
 };
 
 #[hdk_extern]
@@ -30,19 +30,19 @@ fn validate_create_link_from_app(
     debug!("*** validate_create_link_from_app() called! {:?}", submission.link_add).ok();
 
    /// Check Members
-   if submission.link_add.tag == link_tag(link_kind::Members) {
+   if submission.link_add.tag == LinkKind::Members.as_tag() {
       // FIXME
       return Ok(ValidateLinkCallbackResult::Valid);
    }
 
    /// Check Acknolwedgment
-   if submission.link_add.tag == link_tag(link_kind::Acknowledgment) {
+   if submission.link_add.tag == LinkKind::Acknowledgment.as_tag() {
       // TODO: check from InMail and unicity
       return Ok(ValidateLinkCallbackResult::Valid);
    }
 
    /// Check Receipt
-   if submission.link_add.tag == link_tag(link_kind::Receipt) {
+   if submission.link_add.tag == LinkKind::Receipt.as_tag() {
       // TODO: check from OutMail and unicity per recepient
       return Ok(ValidateLinkCallbackResult::Valid);
    }
@@ -74,7 +74,7 @@ fn validate_create_link_from_agent(
 {
     debug!("*** validate_create_link_from_agent() called!").ok();
     /// -- Check if its a Handle link
-    if submission.link_add.tag == link_tag(link_kind::Handle) {
+    if submission.link_add.tag == LinkKind::Handle.as_tag() {
        // FIXME: Only one handle per agent
        //let my_agent_address = agent_info!()?.agent_latest_pubkey;
        //let maybe_current_handle_element = get_handle_element(my_agent_address.clone());

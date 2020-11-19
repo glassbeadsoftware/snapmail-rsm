@@ -19,7 +19,7 @@ pub struct Post(String);
 
 // returns the current agent info
 #[hdk_extern]
-fn whoami(_: ()) -> Result<AgentInfo, WasmError> {
+fn whoami(_: ()) -> ExternResult<AgentInfo> {
     Ok(agent_info()?)
 }
 
@@ -47,7 +47,7 @@ fn whoarethey(agent_pubkey: AgentPubKey) -> ExternResult<AgentInfo> {
         zome_info()?.zome_name,
         "whoami".to_string().into(),
         None,
-        ().try_into()?
+        &(),
     )?;
 
     match response {

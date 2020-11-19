@@ -28,8 +28,8 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
         debug!("get_all_mails() inmail_result failed: {:?}", err).ok();
-        return Err(hdk3::error::HdkError::SerializedBytes(err));
-        //return Err(err);
+        //return Err(hdk3::error::HdkError::SerializedBytes(err));
+        return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
     debug!(" get_all_mails() inmails: {:?}", inmails).ok();
@@ -40,8 +40,8 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     let maybe_outmail_result = query(outmail_query_args);
     if let Err(err) = maybe_outmail_result {
         debug!("get_all_mails() outmail_result failed: {:?}", err).ok();
-        return Err(hdk3::error::HdkError::SerializedBytes(err));
-        //return Err(err);
+        //return Err(hdk3::error::HdkError::SerializedBytes(err));
+        return Err(err);
     }
     let outmails: Vec<Element> = maybe_outmail_result.unwrap().0;
     debug!(" get_all_mails outmails: {:?}", outmails).ok();

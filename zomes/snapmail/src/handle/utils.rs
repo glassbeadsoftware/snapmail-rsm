@@ -4,7 +4,8 @@ use hdk3::prelude::link::Link;
 use crate::{
     ZomeString,
     utils::*,
-    link_kind, path_kind,
+    link_kind::*,
+    path_kind,
     handle::Handle,
 };
 
@@ -22,6 +23,6 @@ pub(crate) fn get_handle_string(maybe_handle_element: Option<Element>) -> Extern
 /// Get 'Members' links on the DNA entry
 pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
     let path_hash = Path::from(path_kind::Directory).hash()?;
-    let entry_results = get_links(path_hash, link_tag(link_kind::Members))?;
+    let entry_results = get_links(path_hash, LinkKind::Members.as_tag_opt())?;
     Ok(entry_results.into_inner())
 }

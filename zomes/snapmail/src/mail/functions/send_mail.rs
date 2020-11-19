@@ -3,8 +3,9 @@ use hdk3::prelude::*;
 use std::collections::HashMap;
 
 use crate::{
+    utils::*,
     send_dm,
-    link_kind, entry_kind,
+    link_kind::*, entry_kind,
     mail::entries::{PendingMail, ReceipientKind, Mail, OutMail},
     protocol::{
         MailMessage, DirectMessageProtocol,
@@ -172,7 +173,7 @@ fn send_mail_by_dm(
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(());
     }
-    Err(HdkError::Wasm(WasmError::Zome("send_dm() failed: {:?}", response_dm)))
+    return error(&format!("send_dm() failed: {:?}", response_dm));
 }
 
 ///

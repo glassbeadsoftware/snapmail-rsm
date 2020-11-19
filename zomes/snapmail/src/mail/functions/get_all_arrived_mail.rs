@@ -3,7 +3,7 @@ use hdk3::prelude::query::ChainQueryFilter;
 
 use crate::{
     ZomeHeaderHashVec,
-    link_kind, entry_kind,
+    link_kind::*, entry_kind,
     def_to_type,
     utils::*,
 };
@@ -19,8 +19,8 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHeaderHashVec> {
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
         debug!("get_all_mails() inmail_result failed: {:?}", err).ok();
-        return Err(hdk3::error::HdkError::SerializedBytes(err));
-        //return Err(err);
+        //return Err(hdk3::error::HdkError::SerializedBytes(err));
+        return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
     debug!(" get_all_arrived_mail() inmails: {:?}", inmails).ok();
@@ -48,8 +48,10 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHeaderHashVec> {
         // if res.count > 0 {
         //     continue;
         // }
-        let links_result = get_links(inmail_address.clone(), link_tag(link_kind::Acknowledgment))
-           ?.into_inner();
+        let links_result = get_links(
+            inmail_address.clone(),
+            LinkKind::Acknowledgment.as_tag_opt(),
+        )?.into_inner();
         /// If link found, it means Ack has not been received
         if links_result.len() > 0 {
             continue;

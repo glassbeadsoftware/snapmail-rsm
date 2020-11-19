@@ -2,9 +2,9 @@ use hdk3::prelude::*;
 
 use crate::{
     ZomeString,
-    link_kind, path_kind,
+    link_kind::*, path_kind,
     utils::{
-        try_from_element, link_tag,
+        try_from_element,
     },
     handle::{
         Handle,
@@ -42,18 +42,18 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
             return Ok(header_address);
         }
         /// Really new name so just update entry
-        return Ok(update_entry(header_address, new_handle.clone())?);
+        return Ok(update_entry(header_address, &new_handle)?);
     }
 
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
-    let entry_address = hash_entry(new_handle.clone())?;
+    let entry_address = hash_entry(&new_handle)?;
     debug!("First Handle for this agent!!!").ok();
     let header_address = create_entry(&new_handle)?;
     let _ = create_link(
         EntryHash::from(my_agent_address),
         entry_address.clone(),
-        link_tag(link_kind::Handle)
+        LinkKind::Handle.as_tag()
     )?;
     debug!("**** Handle linked to agent!").ok();
 
@@ -76,7 +76,7 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     // let _ = create_link!(dna_entry_hash, entry_address, link_tag(link_kind::Members))?;
 
     let directory_address = Path::from(path_kind::Directory).hash().expect("Directory Path should hash");
-    let _ = create_link(directory_address, entry_address, link_tag(link_kind::Members))?;
+    let _ = create_link(directory_address, entry_address, LinkKind::Members.as_tag())?;
 
     /// Done
     return Ok(header_address);

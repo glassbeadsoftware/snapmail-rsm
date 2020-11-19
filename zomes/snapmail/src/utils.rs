@@ -19,9 +19,8 @@ pub(crate) fn to_timestamp(duration: Duration) -> Timestamp {
 
 /// Returns number of seconds since UNIX_EPOCH
 pub fn snapmail_now() -> u64 {
-    //let now = sys_time!()?;
-    //now.secs()
-    42
+    let now = sys_time().expect("sys_time() should always work");
+    now.as_secs()
 }
 
 ///
@@ -75,14 +74,14 @@ pub fn try_from_entry<T: TryFrom<SerializedBytes>>(entry: Entry) -> ExternResult
     }
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes)]
-struct StringLinkTag(String);
-pub fn link_tag(tag: &str) -> LinkTag {
-    let sb: SerializedBytes = StringLinkTag(tag.into())
-       .try_into()
-       .expect("StringLinkTag should convert to SerializedBytes");
-    LinkTag(sb.bytes().clone())
-}
+// #[derive(Serialize, Deserialize, SerializedBytes)]
+// struct StringLinkTag(String);
+// pub fn link_tag(tag: &str) -> LinkTag {
+//     let sb: SerializedBytes = StringLinkTag(tag.into())
+//        .try_into()
+//        .expect("StringLinkTag should convert to SerializedBytes");
+//     LinkTag(sb.bytes().clone())
+// }
 
 /// From Connor @acorn ///
 
@@ -94,7 +93,7 @@ pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesE
     entry_hash: EntryHash,
 ) -> ExternResult<OptionEntryAndHash<T>> {
     // First, make sure we DO have the latest header_hash address
-    let maybe_latest_header_hash = match get_details(entry_hash.clone())? {
+    let maybe_latest_header_hash = match get_details(entry_hash, GetOptions)? {
         Some(Details::Entry(details)) => match details.entry_dht_status {
             metadata::EntryDhtStatus::Live => match details.updates.len() {
                 // pass out the header associated with this entry
@@ -116,7 +115,7 @@ pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesE
 
     // Second, go and get that element, and return it and its header_address
     match maybe_latest_header_hash {
-        Some(latest_header_hash) => match get(latest_header_hash)? {
+        Some(latest_header_hash) => match get(latest_header_hash, GetOptions)? {
             Some(element) => match element.entry().to_app_option::<T>()? {
                 Some(entry) => Ok(Some((
                     entry,

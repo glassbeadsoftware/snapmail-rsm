@@ -4,10 +4,9 @@ use holo_hash::hash_type;
 use holo_hash::HoloHash;
 
 use crate::{
-    link_kind,
+    link_kind::*,
     mail::entries::OutMail,
     utils::*,
-    link_tag,
 };
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
@@ -25,7 +24,7 @@ pub fn has_mail_been_received(outmail_address: HeaderHash) -> ExternResult<HasMa
     let all_recepients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
     debug!("all_recepients: {:?} ({})", all_recepients, outmail_address).ok();
     /// 3. get all ``receipt`` links
-    let links_result: Vec<Link> = get_links(entry_address, link_tag(link_kind::Receipt))?.into_inner();
+    let links_result: Vec<Link> = get_links(entry_address, LinkKind::Receipt.as_tag_opt())?.into_inner();
     debug!("links_result: {:?}", links_result).ok();
     /// 4. Make list of Receipt authors
     let receipt_authors: Vec<AgentPubKey> = links_result.iter().map(|link| {

@@ -1,7 +1,7 @@
 use hdk3::prelude::*;
 
 use crate::ZomeString;
-
+use crate::utils::*;
 
 //-------------------------------------------------------------------------------------------------
 // Definition
@@ -58,7 +58,7 @@ pub fn write_chunk(
     file_chunk: FileChunk
 ) -> ExternResult<HeaderHash> {
     debug!("fileChunk: {:?}", file_chunk).ok();
-    let res = create_entry(file_chunk.clone())?;
+    let res = create_entry(&file_chunk)?;
     debug!("commit_result: {:?}", res).ok();
     Ok(res)
 }
@@ -70,7 +70,7 @@ pub fn get_chunk_hash(
     file_chunk: FileChunk
 ) -> ExternResult<EntryHash> {
     debug!("fileChunk: {:?}", file_chunk).ok();
-    let res = hash_entry(file_chunk.clone())?;
+    let res = hash_entry(&file_chunk)?;
     debug!("entry_hash_result: {:?}", res).ok();
     Ok(res)
 }
@@ -109,14 +109,15 @@ pub struct SendChunkInput {
 #[hdk_extern]
 fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
     debug!("to_agent: {:?}", input.agent_pubkey).ok();
-    let chunk = input.file_chunk.try_into()?;
+    //let chunk = input.file_chunk.try_into().map_err(|err| Err(err));
+    let chunk = input.file_chunk;
     debug!("dbg chunk: {:?}", chunk).ok();
     let response: ZomeCallResponse = call_remote(
         input.agent_pubkey,
         zome_info()?.zome_name,
         "write_chunk".to_string().into(),
         None,
-        chunk
+        &chunk,
     )?;
     debug!("response2: {:?}", response).ok();
     match response {
@@ -130,8 +131,8 @@ fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
         // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
         // something meaningful to the extern's client
         //ZomeCallResponse::Unauthorized => unreachable!(),
-        ZomeCallResponse::Unauthorized => Err(HdkError::Wasm(WasmError::Zome(
-            "{\"code\": \"000\", \"message\": \"[Unauthorized] write_chunk\"}".to_owned()))),
+        ZomeCallResponse::Unauthorized => error(
+            "{\"code\": \"000\", \"message\": \"[Unauthorized] write_chunk\"}"),
     }
     //Ok(result.try_into()?)
 }

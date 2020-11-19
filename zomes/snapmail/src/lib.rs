@@ -1,6 +1,10 @@
 #![allow(non_upper_case_globals)]
 #![allow(unused_doc_comments)]
+#![allow(non_camel_case_types)]
 
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
 mod validate_create_link;
@@ -33,6 +37,7 @@ pub use playground::*;
 pub use protocol::*;
 pub use utils::*;
 pub use constants::*;
+pub use link_kind::*;
 pub use entry_kind::*;
 pub use path_kind::*;
 pub use signal_protocol::*;
@@ -105,21 +110,21 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
     // FIXME: Check AgentPubKey is valid, i.e. exists in Directory
     /// Prepare payload
     let dm_packet = DmPacket { from: me, dm: dm.clone() };
-    let payload: SerializedBytes = dm_packet.try_into().unwrap();
+    //let payload: SerializedBytes = dm_packet.try_into().unwrap();
     /// Call peer
     debug!("calling remote receive() ; dm = {:?}", dm).ok();
-    let maybe_response = call_remote(
+    let maybe_response/*: HdkResult<DirectMessageProtocol>*/  = call_remote(
         destination,
         zome_info()?.zome_name,
         "receive".to_string().into(),
         None,
-        payload
+        &dm_packet,
     );
     debug!("calling remote receive() DONE ; dm = {:?}", dm).ok();
     if let Err(err) = maybe_response {
         let fail_str = format!("Failed call_remote() during send_dm(): {:?}", err);
         debug!(fail_str).ok();
-        return Err(HdkError::Wasm(WasmError::Zome(fail_str)));
+        return error(&fail_str);
     }
 
     /// Check and convert response to DirectMessageProtocol
@@ -137,7 +142,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
             Ok(msg)
         },
         ZomeCallResponse::Unauthorized => {
-            Err(HdkError::Wasm(WasmError::Zome("[Unauthorized] call to receive().".to_owned())))
+            error("[Unauthorized] call to receive().")
         },
     }
 }

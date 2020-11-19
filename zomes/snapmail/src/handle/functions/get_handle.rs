@@ -2,9 +2,8 @@ use hdk3::prelude::*;
 
 use crate::{
     ZomeString,
-    link_kind,
+    link_kind::*,
     handle::utils::get_handle_string,
-    utils::link_tag,
 };
 
 /// Zome Function
@@ -59,7 +58,7 @@ pub(crate) fn get_handle_entry(agentId: &AgentPubKey) -> Option<(EntryHash, Entr
 /// Return Element of latest Handle Entry for agent
 pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
     /// Get All Handle links on agent ; should have only one
-    let handle_links = get_links(agent_id.into(), link_tag(link_kind::Handle))
+    let handle_links = get_links(agent_id.into(), LinkKind::Handle.as_tag_opt())
        .expect("No reason for this to fail")
        .into_inner();
     assert!(handle_links.len() <= 1);

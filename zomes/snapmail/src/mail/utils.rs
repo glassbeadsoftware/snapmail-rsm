@@ -4,7 +4,7 @@ use hdk3::prelude::link::Link;
 use std::str;
 
 use crate::{
-    link_kind, entry_kind,
+    link_kind::*, entry_kind,
     mail::entries::*,
     utils::*,
 };
@@ -61,16 +61,15 @@ pub(crate) fn get_inmail_state(inmail_eh: &EntryHash) -> ExternResult<InMailStat
     /// 2. Get OutAck
     let links_result: Vec<Link> = get_links(
     inmail_eh.clone(),
-    link_tag(link_kind::Acknowledgment,
-    ))
-    ?.into_inner();
+    LinkKind::Acknowledgment.as_tag_opt(),
+    )?.into_inner();
 
     if links_result.len() < 1 {
         return Ok(InMailState::Arrived);
     }
     let ack_link = links_result[0].clone();
     /// 3. Get PendingAck
-    let links_result = get_links(ack_link.target, link_tag(link_kind::Pending))
+    let links_result = get_links(ack_link.target, LinkKind::Pending.as_tag_opt())
        ?.into_inner();
     /// If link found, it means Ack has not been received
     if links_result.len() > 0 {
@@ -142,7 +141,7 @@ pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey)
     //
     //     },
     // };
-    let tag = link_tag(format!("{}___{}", link_kind::Receipt, recepient).as_str());
+    let tag = LinkKind::Receipt.concat(&recepient);
     /// Create link from OutMail
     let link_address = create_link(outmail_eh, inack_eh, tag)?;
     debug!("inAck link address: {}", link_address).ok();
