@@ -3,7 +3,7 @@ use hdk3::prelude::*;
 use crate::{
     entry_kind,
     link_kind::*,
-    protocol::{DirectMessageProtocol, AckMessage},
+    dm_protocol::{DirectMessageProtocol, AckMessage},
     mail::{
         utils::*,
         entries::{

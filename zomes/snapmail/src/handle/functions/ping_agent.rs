@@ -8,7 +8,7 @@ use hdk3::prelude::*;
 use crate::{
     send_dm,
     ZomeBool,
-    protocol::DirectMessageProtocol,
+    dm_protocol::DirectMessageProtocol,
 };
 
 /// Zome function

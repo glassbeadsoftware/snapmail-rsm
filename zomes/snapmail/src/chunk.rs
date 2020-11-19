@@ -109,7 +109,6 @@ pub struct SendChunkInput {
 #[hdk_extern]
 fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
     debug!("to_agent: {:?}", input.agent_pubkey).ok();
-    //let chunk = input.file_chunk.try_into().map_err(|err| Err(err));
     let chunk = input.file_chunk;
     debug!("dbg chunk: {:?}", chunk).ok();
     let response: ZomeCallResponse = call_remote(

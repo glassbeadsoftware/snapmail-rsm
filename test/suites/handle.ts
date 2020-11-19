@@ -18,7 +18,7 @@ module.exports = scenario => {
  */
 const test_getset_handle = async (s, t) => {
     // -- Setup conductor
-    const { conductor, alexAddress } = await setup_conductor(s, t)
+    const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
 
     // -- Start test
     //console.log(alex)
@@ -52,6 +52,10 @@ const test_getset_handle = async (s, t) => {
 
     const result4 = await conductor.call(BILLY_NICK, "snapmail", "ping_agent", alexAddress)
     console.log('result4: ' + JSON.stringify(result4))
+    t.deepEqual(result4, true)
+
+    const result5 = await conductor.call(ALEX_NICK, "snapmail", "ping_agent", billyAddress)
+    console.log('result5: ' + JSON.stringify(result5))
     t.deepEqual(result4, true)
 };
 

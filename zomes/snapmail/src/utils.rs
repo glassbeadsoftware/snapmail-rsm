@@ -25,9 +25,22 @@ pub fn snapmail_now() -> u64 {
 
 ///
 pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
-    let element = get(hh, GetOptions)?.expect("Converting non existing HeaderHash");
-    let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
-    Ok(eh.clone())
+    debug!("hh_to_eh(): START - get...").ok();
+    let maybe_element = get(hh, GetOptions)?;
+    debug!("hh_to_eh(): START - get DONE").ok();
+    if let None = maybe_element {
+        debug!("hh_to_eh(): Element not found").ok();
+        return error("hh_to_eh(): Element not found");
+    }
+    //.expect("Converting non existing HeaderHash");
+    let element = maybe_element.unwrap();
+    let maybe_eh = element.header().entry_hash();
+    if let None = maybe_eh {
+        debug!("hh_to_eh(): entry_hash not found").ok();
+        return error("hh_to_eh(): entry_hash not found");
+    }
+    //.expect("Converting HeaderHash which does not have an Entry");
+    Ok(maybe_eh.unwrap().clone())
 }
 
 

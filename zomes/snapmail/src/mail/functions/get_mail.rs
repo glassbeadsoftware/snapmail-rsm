@@ -31,6 +31,6 @@ pub fn get_mail(address: HeaderHash) -> ExternResult<GetMailOutput>{
         return Ok(GetMailOutput(Some(Err(outmail))));
     }
     /// Something is wrong...
-    debug!("get_mail(): Error. Item found but it is not a Mail!");
+    debug!("get_mail(): Error. Item found but it is not a Mail!").ok();
     Ok(GetMailOutput(None))
 }

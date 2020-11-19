@@ -7,7 +7,7 @@ use crate::{
     send_dm,
     link_kind::*, entry_kind,
     mail::entries::{PendingMail, ReceipientKind, Mail, OutMail},
-    protocol::{
+    dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
     //file::{FileManifest, FileChunk, get_manifest},

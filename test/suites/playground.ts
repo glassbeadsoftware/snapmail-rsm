@@ -30,7 +30,7 @@ const test_writeget_chunk = async (s, t) => {
     console.log('agent_latest_pubkey: ', result.agent_latest_pubkey.hash)
 
     //console.log('agent_pubkey:', result.agent_pubkey.hash.toString())
-    const chunk_size = 1 * 1024 * 1024;
+    const chunk_size = 1 * 1024 /** 1024*/;
     const data_string = "0123465789".repeat( chunk_size / 10)
     //const data_string = "toto"
     const chunk = {

@@ -17,7 +17,8 @@ mod link_kind;
 mod entry_kind;
 mod path_kind;
 
-mod protocol;
+mod dm;
+mod dm_protocol;
 
 mod playground;
 mod chunk;
@@ -34,7 +35,8 @@ use handle::*;
 use mail::entries::*;
 
 pub use playground::*;
-pub use protocol::*;
+pub use dm::*;
+pub use dm_protocol::*;
 pub use utils::*;
 pub use constants::*;
 pub use link_kind::*;
@@ -83,70 +85,6 @@ pub fn def_to_type(entry_name: &str) -> EntryType {
     EntryType::App(app_type)
 }
 
-// -- Send & Receive Hack -- //
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
-pub struct DmPacket {
-    pub from: AgentPubKey,
-    pub dm: DirectMessageProtocol,
-}
-
-#[hdk_extern]
-pub fn receive(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
-    // let (from, dm): (AgentPubKey, DirectMessageProtocol) = dm_packet.into();
-    debug!("*** receive() called from {:?}", dm_packet.from).ok();
-    let response = mail::receive(dm_packet.from, dm_packet.dm);
-    debug!("*** receive() response to send back: {:?}", response).ok();
-    Ok(response)
-}
-
-///
-pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
-    /// Pre-conditions: Don't call yourself
-    let me = agent_info()?.agent_latest_pubkey;
-    if destination == me {
-        //return Err(HdkError::Wasm(WasmError::Zome("receive() aborted. Can't call yourself.".to_owned())));
-    }
-    // FIXME: Check AgentPubKey is valid, i.e. exists in Directory
-    /// Prepare payload
-    let dm_packet = DmPacket { from: me, dm: dm.clone() };
-    //let payload: SerializedBytes = dm_packet.try_into().unwrap();
-    /// Call peer
-    debug!("calling remote receive() ; dm = {:?}", dm).ok();
-    let maybe_response/*: HdkResult<DirectMessageProtocol>*/  = call_remote(
-        destination,
-        zome_info()?.zome_name,
-        "receive".to_string().into(),
-        None,
-        &dm_packet,
-    );
-    debug!("calling remote receive() DONE ; dm = {:?}", dm).ok();
-    if let Err(err) = maybe_response {
-        let fail_str = format!("Failed call_remote() during send_dm(): {:?}", err);
-        debug!(fail_str).ok();
-        return error(&fail_str);
-    }
-
-    /// Check and convert response to DirectMessageProtocol
-    match maybe_response.unwrap() {
-        ZomeCallResponse::Ok(output) => {
-            debug!(format!("Received response from receive() : {:?}", output).to_string()).ok();
-            //let maybe_msg: Result<DirectMessageProtocol, _> = output.into_inner().try_into()?;
-            // if maybe_msg.is_err() {
-            //     return Err(HdkError::Wasm(WasmError::Zome("receive() response failed to deserialize.".to_owned())));
-            // }
-            // Ok(maybe_msg.unwrap())
-
-            let msg: DirectMessageProtocol = output.into_inner().try_into()?;
-            debug!(format!("msg_output: {:?} ; dm was: {:?}", msg, dm)).ok();
-            Ok(msg)
-        },
-        ZomeCallResponse::Unauthorized => {
-            error("[Unauthorized] call to receive().")
-        },
-    }
-}
-
 // -- Wrapped Common types -- //
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
@@ -170,7 +108,7 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Path::from(path_kind::Directory).ensure()?;
     /// Set access for receive/send
     let mut functions: GrantedFunctions = HashSet::new();
-    functions.insert((zome_info()?.zome_name, "receive".into()));
+    functions.insert((zome_info()?.zome_name, "receive_dm".into()));
     create_cap_grant(
         CapGrantEntry {
             tag: "".into(),

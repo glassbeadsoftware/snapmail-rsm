@@ -2,6 +2,7 @@ use hdk3::prelude::*;
 
 use crate::{
     utils::*,
+    dm::*,
     entry_kind, signal_protocol::*,
             //file::{FileChunk, FileManifest},
             mail::{
@@ -14,7 +15,7 @@ use std::convert::TryInto;
 use crate::mail::entries::InMailState;
 
 
-pub fn receive(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessageProtocol {
+pub fn receive_dm(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessageProtocol {
     debug!("Received from: {}", from).ok();
     // let maybe_msg: Result<DirectMessageProtocol, _> = msg_json.try_into();
     // if let Err(err) = maybe_msg {
@@ -188,8 +189,15 @@ pub fn receive_direct_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMe
 /// Returns Success or Failure.
 pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
     /// Create InAck
-    debug!("receive_direct_ack() from: {:?}", from).ok();
-    let outmail_eh = hh_to_eh(ack_msg.outmail_address).expect("Should have valid HeaderHash");
+    debug!("receive_direct_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_address).ok();
+    let maybe_outmail_eh = hh_to_eh(ack_msg.outmail_address);
+    if let Err(err) = maybe_outmail_eh {
+        let response_str = "hh_to_eh(): Failed to find Element or Entry at given HeaderHash";
+        debug!("{}: {}", response_str, err).ok();
+        return DirectMessageProtocol::Failure(response_str.to_string());
+    }
+    let outmail_eh = maybe_outmail_eh.unwrap();
+    //.expect("Should have valid HeaderHash");
     debug!("outmail_eh = {:?}", outmail_eh).ok();
     let res = mail::create_and_commit_inack(outmail_eh, &from);
     if let Err(err) = res {
