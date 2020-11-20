@@ -29,10 +29,11 @@ pub fn receive_dm(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessage
         //     mail::receive_direct_manifest(from, manifest)
         // },
         DirectMessageProtocol::Mail(mail) => {
-            mail::receive_direct_mail(from, mail)
+            mail::receive_dm_mail(from, mail)
         },
         DirectMessageProtocol::Ack(ack) => {
-            mail::receive_direct_ack(from, ack)
+            mail::receive_dm_ack(from, ack)
+            //DirectMessageProtocol::Success(String::new())
         },
         // DirectMessageProtocol::RequestChunk(address) => {
         //     mail::receive_direct_request_chunk(from, address)
@@ -152,7 +153,7 @@ fn create_entry_wrapper(inmail: InMail) -> ExternResult<HeaderHash> {
 /// Handle a MailMessage.
 /// Emits `received_mail` signal.
 /// Returns Success or Failure.
-pub fn receive_direct_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessageProtocol {
+pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessageProtocol {
     /// Create InMail
     let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
     /// Commit InMail
@@ -181,23 +182,30 @@ pub fn receive_direct_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMe
     //     debug!(format!("Emit signal failed: {}", err)).ok();
     // }
     // Return Success response
-    return DirectMessageProtocol::Success(String::new());
+    return DirectMessageProtocol::Success("Mail received".to_string());
 }
 
 /// Handle a AckMessage.
 /// Emits `received_ack` signal.
 /// Returns Success or Failure.
-pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
+pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
     /// Create InAck
-    debug!("receive_direct_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_address).ok();
-    let maybe_outmail_eh = hh_to_eh(ack_msg.outmail_address);
+    debug!("receive_dm_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_address).ok();
+    let maybe_outmail = get_local(ack_msg.outmail_address);
+    if let Err(err) = maybe_outmail {
+        let response_str = "get_local(): Failed to find Element at given HeaderHash";
+        debug!("{}: {}", response_str, err).ok();
+        return DirectMessageProtocol::Failure(response_str.to_string());
+    }
+    let maybe_outmail_eh = get_eh(&maybe_outmail.unwrap());
     if let Err(err) = maybe_outmail_eh {
-        let response_str = "hh_to_eh(): Failed to find Element or Entry at given HeaderHash";
+        let response_str = "get_eh(): Failed to find Element or Entry at given HeaderHash";
         debug!("{}: {}", response_str, err).ok();
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let outmail_eh = maybe_outmail_eh.unwrap();
     //.expect("Should have valid HeaderHash");
+
     debug!("outmail_eh = {:?}", outmail_eh).ok();
     let res = mail::create_and_commit_inack(outmail_eh, &from);
     if let Err(err) = res {
@@ -205,6 +213,7 @@ pub fn receive_direct_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessa
         debug!("{}: {}", response_str, err).ok();
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
+
     // // Emit Signal
     // let signal = SignalProtocol::ReceivedAck(ReceivedAck {
     //     from: from.clone(),

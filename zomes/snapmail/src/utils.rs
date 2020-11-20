@@ -23,7 +23,35 @@ pub fn snapmail_now() -> u64 {
     now.as_secs()
 }
 
-///
+/// Get Element at address using query()
+pub fn get_local(hh: HeaderHash) -> ExternResult<Element> {
+    let inmail_query_args = ChainQueryFilter::default()
+       .include_entries(true);
+    let maybe_vec = query(inmail_query_args);
+    if let Err(err) = maybe_vec {
+        return error(&format!("{:?}",err));
+    }
+    let vec = maybe_vec.unwrap().0;
+    for element in vec {
+        if element.header_address() == &hh {
+            return Ok(element.clone());
+        }
+    }
+    return error("Element not found at given HeaderHash");
+}
+
+
+/// Get EntryHash for Element
+pub fn get_eh(element: &Element) -> ExternResult<EntryHash> {
+    let maybe_eh = element.header().entry_hash();
+    if let None = maybe_eh {
+        debug!("get_eh(): entry_hash not found").ok();
+        return error("get_eh(): entry_hash not found");
+    }
+    Ok(maybe_eh.unwrap().clone())
+}
+
+/// Call get() to obtain EntryHash from a HeaderHash
 pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
     debug!("hh_to_eh(): START - get...").ok();
     let maybe_element = get(hh, GetOptions)?;
@@ -32,22 +60,14 @@ pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
         debug!("hh_to_eh(): Element not found").ok();
         return error("hh_to_eh(): Element not found");
     }
-    //.expect("Converting non existing HeaderHash");
-    let element = maybe_element.unwrap();
-    let maybe_eh = element.header().entry_hash();
-    if let None = maybe_eh {
-        debug!("hh_to_eh(): entry_hash not found").ok();
-        return error("hh_to_eh(): entry_hash not found");
-    }
-    //.expect("Converting HeaderHash which does not have an Entry");
-    Ok(maybe_eh.unwrap().clone())
+    return get_eh(&maybe_element.unwrap());
 }
 
 
-///
-pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(
-    hash: HeaderHash,
-) -> ExternResult<(EntryHash, T)> {
+/// Call get() to obtain EntryHash and AppEntry from a HeaderHash
+pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
+    -> ExternResult<(EntryHash, T)>
+{
     match get(hash.clone(), GetOptions)? {
         Some(element) => {
             let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
@@ -58,17 +78,17 @@ pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(
 }
 
 
-///
-pub fn try_get_and_convert<T: TryFrom<SerializedBytes>>(
-    entry_hash: EntryHash,
-) -> ExternResult<(EntryHash, T)> {
+/// Call get() to obtain EntryHash and AppEntry from an EntryHash
+pub fn try_get_and_convert<T: TryFrom<SerializedBytes>>(entry_hash: EntryHash)
+    -> ExternResult<(EntryHash, T)>
+{
     match get(entry_hash.clone(), GetOptions)? {
         Some(element) => Ok((entry_hash, try_from_element(element)?)),
         None => crate::error("Entry not found"),
     }
 }
 
-///
+/// Obtain AppEntry from Element
 pub fn try_from_element<T: TryFrom<SerializedBytes>>(element: Element) -> ExternResult<T> {
     match element.entry() {
         element::ElementEntry::Present(entry) => try_from_entry::<T>(entry.clone()),
@@ -76,7 +96,7 @@ pub fn try_from_element<T: TryFrom<SerializedBytes>>(element: Element) -> Extern
     }
 }
 
-///
+/// Obtain AppEntry from Entry
 pub fn try_from_entry<T: TryFrom<SerializedBytes>>(entry: Entry) -> ExternResult<T> {
     match entry {
         Entry::App(content) => match T::try_from(content.into_sb()) {

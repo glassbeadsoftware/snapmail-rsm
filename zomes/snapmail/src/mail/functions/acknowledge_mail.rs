@@ -45,7 +45,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     debug!("Creating ack link...").ok();
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
     /// 4. Try Direct sharing of Acknowledgment
-    let res = acknowledge_mail_direct(&inmail.outmail_address, &inmail.from);
+    let res = send_dm_ack(&inmail.outmail_address, &inmail.from);
     if res.is_ok() {
         debug!("Acknowledgment shared !").ok();
         return Ok(outack_eh);
@@ -59,7 +59,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
 }
 
 /// Try sending directly to other Agent if Online
-fn acknowledge_mail_direct(outmail_hh: &HeaderHash, from: &AgentPubKey) -> ExternResult<()> {
+fn send_dm_ack(outmail_hh: &HeaderHash, from: &AgentPubKey) -> ExternResult<()> {
     debug!("acknowledge_mail_direct() START").ok();
     /// Create DM
     let msg = AckMessage {
