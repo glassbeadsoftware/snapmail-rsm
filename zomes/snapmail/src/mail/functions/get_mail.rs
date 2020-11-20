@@ -8,14 +8,23 @@ use crate::{
 };
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
-pub struct GetMailOutput(Option<Result<InMail, OutMail>>);
+pub struct GetMailOutput(pub Option<Result<InMail, OutMail>>);
 
 
 /// Zome Function
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
 pub fn get_mail(address: HeaderHash) -> ExternResult<GetMailOutput>{
+    return try_into_mail(address);
+}
+
+/// Get InMail or OutMail at address
+pub(crate) fn try_into_mail(address: HeaderHash) -> ExternResult<GetMailOutput> {
     /// Get Element at address
+    // let element = match get_local(address) {
+    //     Ok(element) => element,
+    //     Err(_) => return Ok(GetMailOutput(None)),
+    // };
     let element = match get(address, GetOptions)? {
         Some(element) => element,
         None => return Ok(GetMailOutput(None)),
@@ -31,6 +40,6 @@ pub fn get_mail(address: HeaderHash) -> ExternResult<GetMailOutput>{
         return Ok(GetMailOutput(Some(Err(outmail))));
     }
     /// Something is wrong...
-    debug!("get_mail(): Error. Item found but it is not a Mail!").ok();
+    debug!("try_into_mail(): Error. Item found but it is not a Mail!").ok();
     Ok(GetMailOutput(None))
 }

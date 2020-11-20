@@ -32,7 +32,9 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
-    debug!(" get_all_mails() inmails: {:?}", inmails).ok();
+    debug!(" get_all_mails() inmails count = {}", inmails.len()).ok();
+    //debug!(" get_all_mails() inmails: {:?}", inmails).ok();
+
     ///
     let outmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
@@ -44,7 +46,8 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         return Err(err);
     }
     let outmails: Vec<Element> = maybe_outmail_result.unwrap().0;
-    debug!(" get_all_mails outmails: {:?}", outmails).ok();
+    debug!(" get_all_mails() outmails count = {}", outmails.len()).ok();
+    //debug!(" get_all_mails outmails: {:?}", outmails).ok();
     //let all_mails = inmails.concat(outmails);
 
     // ///
@@ -57,9 +60,15 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     let mut item_list = Vec::new();
     let my_agent_address = agent_info()?.agent_latest_pubkey;
 
-    /// Change all InMail into a MailItem
+    /// Change all OutMail into a MailItem
     for element in outmails {
         let header_address = element.header_hashed().as_hash().to_owned();
+        // Make sure element has not been deleted
+        let maybe_el = get(header_address.clone(), GetOptions)?;
+        if maybe_el.is_none() {
+            continue;
+        }
+        //
         let header = element.header();
         let entry_address = header.entry_hash().expect("Should have an Entry");
         let date: i64 = header.timestamp().0;
@@ -81,9 +90,17 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         item_list.push(item.clone());
     }
 
+    debug!(" get_all_mails() final outmail count = {}", item_list.len()).ok();
+
     /// Change all InMail into a MailItem
     for element in inmails {
         let header_address = element.header_hashed().as_hash().to_owned();
+        // Make sure element has not been deleted
+        let maybe_el = get(header_address.clone(), GetOptions)?;
+        if maybe_el.is_none() {
+            continue;
+        }
+        //
         let header = element.header();
         let entry_address = header.entry_hash().expect("Should have an Entry");
         let date: i64 = header.timestamp().0;
@@ -106,6 +123,6 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
 
     /// Done
-    debug!(" get_all_mails() size = {}", item_list.len()).ok();
+    debug!(" get_all_mails() total count = {}", item_list.len()).ok();
     Ok(ZomeMailItemVec(item_list))
 }
