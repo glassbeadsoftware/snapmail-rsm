@@ -1,33 +1,45 @@
 use hdk3::prelude::*;
 
 use crate::{
+    mail::entries::PendingMail,
+    ZomeHeaderHashVec,
+    utils::*,
     signal_protocol::*,
-    file::dm::{request_chunk_by_dm, request_manifest_by_dm},
+    //file::dm::{request_chunk_by_dm, request_manifest_by_dm},
     link_kind::*, entry_kind,
-    mail::{self, entries::InMail}, file::{FileManifest},
+    mail::{self, entries::InMail},
+    //file::{FileManifest},
 };
 
 /// Zome Function
 /// Return list of new InMail addresses created after checking MailInbox links
 #[hdk_extern]
 pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
-    let maybe_my_handle_address = crate::handle::get_my_handle_entry();
-    if let None = maybe_my_handle_address {
-        return Err(ZomeApiError::Internal("This agent does not have a Handle set up".to_string()));
+    let maybe_element = crate::handle::get_my_handle_element();
+    if let None = maybe_element {
+        return error("This agent does not have a Handle set up");
     }
-    let my_handle_address = maybe_my_handle_address.unwrap().0;
-    // Lookup `mail_inbox` links on my agentId
+    let my_handle_element = maybe_element.unwrap();
+    let my_handle_address = get_eh(&my_handle_element)?;
+    /// Lookup `mail_inbox` links on my agentId
     let links_result = get_links(
-        &my_handle_address,
-        LinkKind::MailInbox.as_tag(),
-    )?.into_inner();
+        my_handle_address.clone(),
+        Some(LinkKind::MailInbox.as_tag()),
+        )?.into_inner();
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address).ok();
     // For each MailInbox link
     let mut new_inmails = Vec::new();
-    for pending_address in &links_result.addresses() {
+    for link in &links_result {
+        let pending_mail_eh = link.target.clone();
+        let maybe_hh = get_latest_for_entry::<PendingMail>(pending_mail_eh.clone())?;
+        if maybe_hh.is_none() {
+            debug!("Header not found for pending mail entry").ok();
+            continue;
+        }
+        let pending_hh = maybe_hh.unwrap().1;
         //  1. Get entry on the DHT
-        debug!("pending mail address: {}", pending_address).ok();
-        let maybe_pending_mail = mail::get_pending_mail(pending_address);
+        debug!("pending mail address: {}", pending_mail_eh).ok();
+        let maybe_pending_mail = mail::get_pending_mail(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
             debug!("Getting PendingMail from DHT failed: {}", err).ok();
             continue;
@@ -43,81 +55,74 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
         }
         new_inmails.push(maybe_inmail_address.unwrap());
         //  3. Remove link from this agentId
-        let res = hdk::remove_link(
-            //*hdk::AGENT_ADDRESS,
-            &my_handle_address,
-            &pending_address,
-            link_kind::MailInbox,
-            "",
-        );
+        let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
             debug!("Remove ``mail_inbox`` link failed:").ok();
             debug!(err).ok();
             continue;
         }
         //  4. Delete PendingMail entry
-        let res = hdk::remove_entry(pending_address);
+        let res = delete_entry(pending_hh);
         if let Err(err) = res {
             debug!("Delete PendingMail failed: {:?}", err).ok();
             //continue; // TODO: figure out why delete entry fails
         }
-        debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len()).ok();
-        //  5. Retrieve and write FileManifest for each attachment
-        let mut manifest_list: Vec<FileManifest> = Vec::new();
-        for attachment_info in inmail.clone().mail.attachments {
-            let manifest_address = attachment_info.manifest_address;
-            // Retrieve
-            debug!("Retrieving manifest: {}", manifest_address).ok();
-            let maybe_maybe_manifest = request_manifest_by_dm(inmail.clone().from, manifest_address);
-            if let Err(_err) = maybe_maybe_manifest {
-                break;
-            }
-            let maybe_manifest = maybe_maybe_manifest.unwrap();
-            if let None = maybe_manifest {
-                break;
-            }
-            let manifest = maybe_manifest.unwrap();
-            // Write
-            //let file_entry = Entry::App(entry_kind::FileManifest.into(), manifest.clone().into());
-            let maybe_file_address = create_entry(&manifest);
-            if let Err(err) = maybe_file_address {
-                let response_str = "Failed committing FileManifest";
-                debug!("{}: {}", response_str, err).ok();
-                break;
-            }
-            // Add to list
-            manifest_list.push(manifest);
-        }
-        //  6. Retrieve and write each FileChunk for each attachment
-        for manifest in manifest_list {
-            for chunk_address in manifest.clone().chunks {
-                // Retrieve
-                let maybe_maybe_chunk = request_chunk_by_dm(inmail.clone().from, chunk_address);
-                if let Err(_err) = maybe_maybe_chunk {
-                    break;
-                }
-                let maybe_chunk = maybe_maybe_chunk.unwrap();
-                if let None = maybe_chunk {
-                    break;
-                }
-                let chunk = maybe_chunk.unwrap();
-                // Write
-                //let file_entry = Entry::App(entry_kind::FileChunk.into(), chunk.into());
-                let maybe_address = create_entry(&chunk);
-                if let Err(err) = maybe_address {
-                    let response_str = "Failed committing FileChunk";
-                    debug!("{}: {}", response_str, err).ok();
-                    break;
-                }
-            }
-            // Emit Signal
-            let signal = SignalProtocol::ReceivedFile(manifest);
-            let signal_json = serde_json::to_string(&signal).expect("Should stringify");
-            let res = hdk::emit_signal("received_file", JsonString::from_json(&signal_json));
-            if let Err(err) = res {
-                debug!("Emit signal failed: {}", err).ok();
-            }
-        }
+        // debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len()).ok();
+        // //  5. Retrieve and write FileManifest for each attachment
+        // let mut manifest_list: Vec<FileManifest> = Vec::new();
+        // for attachment_info in inmail.clone().mail.attachments {
+        //     let manifest_address = attachment_info.manifest_address;
+        //     // Retrieve
+        //     debug!("Retrieving manifest: {}", manifest_address).ok();
+        //     let maybe_maybe_manifest = request_manifest_by_dm(inmail.clone().from, manifest_address);
+        //     if let Err(_err) = maybe_maybe_manifest {
+        //         break;
+        //     }
+        //     let maybe_manifest = maybe_maybe_manifest.unwrap();
+        //     if let None = maybe_manifest {
+        //         break;
+        //     }
+        //     let manifest = maybe_manifest.unwrap();
+        //     // Write
+        //     let maybe_file_address = create_entry(&manifest);
+        //     if let Err(err) = maybe_file_address {
+        //         let response_str = "Failed committing FileManifest";
+        //         debug!("{}: {}", response_str, err).ok();
+        //         break;
+        //     }
+        //     // Add to list
+        //     manifest_list.push(manifest);
+        // }
+        // //  6. Retrieve and write each FileChunk for each attachment
+        // for manifest in manifest_list {
+        //     for chunk_address in manifest.clone().chunks {
+        //         // Retrieve
+        //         let maybe_maybe_chunk = request_chunk_by_dm(inmail.clone().from, chunk_address);
+        //         if let Err(_err) = maybe_maybe_chunk {
+        //             break;
+        //         }
+        //         let maybe_chunk = maybe_maybe_chunk.unwrap();
+        //         if let None = maybe_chunk {
+        //             break;
+        //         }
+        //         let chunk = maybe_chunk.unwrap();
+        //         // Write
+        //         let maybe_address = create_entry(&chunk);
+        //         if let Err(err) = maybe_address {
+        //             let response_str = "Failed committing FileChunk";
+        //             debug!("{}: {}", response_str, err).ok();
+        //             break;
+        //         }
+        //     }
+        //     // FIXME
+        //     // // Emit Signal
+        //     // let signal = SignalProtocol::ReceivedFile(manifest);
+        //     // let signal_json = serde_json::to_string(&signal).expect("Should stringify");
+        //     // let res = hdk::emit_signal("received_file", JsonString::from_json(&signal_json));
+        //     // if let Err(err) = res {
+        //     //     debug!("Emit signal failed: {}", err).ok();
+        //     // }
+        // }
     }
-    Ok(new_inmails)
+    Ok(ZomeHeaderHashVec(new_inmails))
 }

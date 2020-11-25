@@ -77,45 +77,45 @@ pub(crate) fn get_inmail_state(inmail_eh: &EntryHash) -> ExternResult<InMailStat
     }
     Ok(InMailState::AckReceived)
 }
-//
-// /// Conditions: Must be a single author entry type
-// pub(crate) fn get_entry_and_author(address: &Address) -> ExternResult<(AgentPubKey, Entry)> {
-//     let get_options = GetEntryOptions {
-//         status_request: StatusRequestKind::Latest,
-//         entry: true,
-//         headers: true,
-//         timeout: Timeout::default(),
-//     };
-//     let maybe_entry_result = hdk::get_entry_result(address, get_options);
-//     if let Err(err) = maybe_entry_result {
-//         debug!(format!("Failed getting address: {}", err)).ok();
-//         return Err(err);
-//     }
-//     let entry_result = maybe_entry_result.unwrap();
-//     let entry_item = match entry_result.result {
-//         GetEntryResultType::Single(item) => {
-//             item
-//         },
-//         _ => panic!("Asked for latest so should get Single"),
-//     };
-//     assert!(entry_item.headers.len() > 0);
-//     assert!(entry_item.headers[0].provenances().len() > 0);
-//     let author = entry_item.headers[0].provenances()[0].source();
-//     let entry = entry_item.entry.expect("Should have Entry");
-//     Ok((author, entry))
-// }
-//
-// pub(crate) fn get_pending_mail(pending_address: &Address) -> ExternResult<(AgentAddress, PendingMail)> {
-//     let (author, entry) = get_entry_and_author(pending_address)?;
-//     let pending = crate::into_typed::<PendingMail>(entry).expect("Should be PendingMail");
-//     Ok((author, pending))
-// }
-//
-// pub(crate) fn get_pending_ack(ack_address: &Address) -> ExternResult<(AgentAddress, PendingAck)> {
-//     let (author, entry) = get_entry_and_author(ack_address)?;
-//     let ack = crate::into_typed::<PendingAck>(entry).expect("Should be PendingAck");
-//     Ok((author, ack))
-// }
+
+/// Conditions: Must be a single author entry type
+pub(crate) fn get_entry_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
+    -> ExternResult<(AgentPubKey, T)>
+{
+    // let get_options = GetEntryOptions {
+    //     status_request: StatusRequestKind::Latest,
+    //     entry: true,
+    //     headers: true,
+    //     timeout: Timeout::default(),
+    // };
+    let maybe_maybe_element = get(eh.clone(), GetOptions);
+    if let Err(err) = maybe_maybe_element {
+        debug!("Failed getting address: {}", err).ok();
+        return Err(err);
+    }
+    let maybe_element = maybe_maybe_element.unwrap();
+    if maybe_element.is_none() {
+        return error("no element found at address");
+    }
+    let element = maybe_element.unwrap();
+    //assert!(entry_item.headers.len() > 0);
+    //assert!(entry_item.headers[0].provenances().len() > 0);
+    let author = element.header().author();
+    let app_entry = try_from_element::<T>(element.clone())?;
+    Ok((author.clone(), app_entry))
+}
+
+///
+pub(crate) fn get_pending_mail(pending_eh: &EntryHash) -> ExternResult<(AgentPubKey, PendingMail)> {
+    let (author, pending_mail) = get_entry_and_author::<PendingMail>(pending_eh)?;
+    Ok((author, pending_mail))
+}
+
+///
+pub(crate) fn get_pending_ack(pending_eh: &EntryHash) -> ExternResult<(AgentPubKey, PendingAck)> {
+    let (author, ack) = get_entry_and_author::<PendingAck>(pending_eh)?;
+    Ok((author, ack))
+}
 
 /// Return address of created InAck
 pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
@@ -129,18 +129,6 @@ pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey)
     let vec = from.clone().into_inner();
     let recepient = format!("{}", from);
 
-    //let recepient = str::from_utf8_lossy(&vec);
-    debug!("recepient: {}", recepient).ok();
-
-    // let recepient = match str::from_utf8(&vec) {
-    //     Ok(v) => v,
-    //     Err(e) => {
-    //         let err_msg = format!("Invalid UTF-8 sequence: {}", e);
-    //         debug!(err_msg).ok();
-    //         return Err(HdkError::Wasm(WasmError::Zome(err_msg)));
-    //
-    //     },
-    // };
     let tag = LinkKind::Receipt.concat(&recepient);
     /// Create link from OutMail
     let link_address = create_link(outmail_eh, inack_eh, tag)?;
