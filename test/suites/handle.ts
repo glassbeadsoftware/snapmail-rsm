@@ -1,4 +1,4 @@
-import { setup_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } from '../config';
+import {setup_2_conductors, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
 import { delay } from '../utils';
 
 // -- Export scenarios -- //
@@ -18,45 +18,55 @@ module.exports = scenario => {
  */
 const test_getset_handle = async (s, t) => {
     // -- Setup conductor
-    const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
+    //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
+    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
-    // -- Start test
-    //console.log(alex)
-    const name = "alex"
-    const handle_address = await conductor.call(ALEX_NICK, "snapmail", "set_handle", name)
+    // -- Set Handles -- //
+
+    const name = ALEX_NICK
+    const handle_address = await alexCell.call("snapmail", "set_handle", name)
     console.log('handle_address: ' + JSON.stringify(handle_address))
     //console.log({handle_address})
     console.log('handle_address.hash: ' + handle_address.hash)
     //t.deepEqual(result.Ok, name)
     //t.match(handle_address.hash, RegExp('Qm*'))
 
-    await delay(10);
+    // const handle_address2 = await billyCell.call("snapmail", "set_handle", BILLY_NICK)
+    // console.log('handle_address2: ' + JSON.stringify(handle_address2))
+    // //console.log({handle_address})
+    // console.log('handle_address2.hash: ' + handle_address2.hash)
+    // //t.deepEqual(result.Ok, name)
+    // //t.match(handle_address.hash, RegExp('Qm*'))
+
+    // -- Ping -- //
+
+    const result4 = await billyCell.call("snapmail", "ping_agent", alexAddress)
+    console.log('result4: ' + JSON.stringify(result4))
+    t.deepEqual(result4, true)
+
+    //await delay(6000);
+
+    const result5 = await alexCell.call("snapmail", "ping_agent", billyAddress)
+    console.log('result5: ' + JSON.stringify(result5))
+    t.deepEqual(result4, true)
+
+    // -- Get Handles -- //
 
     //let playerArray = new Array(alex, billy)
     //const succeeded = await s.simpleConsistency("__snapmail", playerArray)
 
-    const result = await conductor.call(ALEX_NICK, "snapmail", "get_my_handle", undefined)
+    const result = await alexCell.call("snapmail", "get_my_handle", undefined)
     console.log('result1: ' + JSON.stringify(result))
     t.deepEqual(result, name)
 
     //const params2 = { agentId: alexAddress }
-    const result2 = await conductor.call(ALEX_NICK, "snapmail", "get_handle", alexAddress)
+    const result2 = await alexCell.call("snapmail", "get_handle", alexAddress)
     console.log('result2: ' + JSON.stringify(result2))
     t.deepEqual(result2, name)
 
-    const result3 = await conductor.call(BILLY_NICK, "snapmail", "get_handle", alexAddress)
+    const result3 = await billyCell.call("snapmail", "get_handle", alexAddress)
     console.log('result3: ' + JSON.stringify(result3))
     t.deepEqual(result3, name)
-
-    // -- Ping -- //
-
-    const result4 = await conductor.call(BILLY_NICK, "snapmail", "ping_agent", alexAddress)
-    console.log('result4: ' + JSON.stringify(result4))
-    t.deepEqual(result4, true)
-
-    const result5 = await conductor.call(ALEX_NICK, "snapmail", "ping_agent", billyAddress)
-    console.log('result5: ' + JSON.stringify(result5))
-    t.deepEqual(result4, true)
 };
 
 
@@ -65,46 +75,48 @@ const test_getset_handle = async (s, t) => {
  */
 const test_handle_list = async (s, t) => {
     // -- Setup conductor
-    const { conductor } = await setup_conductor(s, t)
+    // const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
+    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+
 
     // Set Alex
-    let name = "alex"
-    let handle_address = await conductor.call(ALEX_NICK, "snapmail", "set_handle", name)
+    let name = ALEX_NICK
+    let handle_address = await alexCell.call("snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
     // Set billy
-    name = "billy"
-    handle_address = await conductor.call(BILLY_NICK, "snapmail", "set_handle", name)
+    name = BILLY_NICK
+    handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address2: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
 
-    let result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
+    let result = await billyCell.call("snapmail", "get_all_handles", undefined)
     console.log('handle_list: ' + JSON.stringify(result))
     t.deepEqual(result.length, 2)
 
     // Set camille
-    name = "camille"
-    handle_address = await conductor.call(CAMILLE_NICK, "snapmail", "set_handle", name)
+    name = CAMILLE_NICK
+    handle_address = await camilleCell.call("snapmail", "set_handle", name)
     console.log('handle_address3: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
-    result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
+    result = await billyCell.call("snapmail", "get_all_handles", undefined)
     console.log('handle_list: ' + JSON.stringify(result))
     t.deepEqual(result.length, 3)
 
     // Update Billy
     name = "bob"
-    handle_address = await conductor.call(BILLY_NICK, "snapmail", "set_handle", name)
+    handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address4: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
     await delay(10);
 
-    result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
+    result = await billyCell.call("snapmail", "get_all_handles", undefined)
     console.log('handle_list updated: ' + JSON.stringify(result))
     t.deepEqual(result.length, 3)
 };

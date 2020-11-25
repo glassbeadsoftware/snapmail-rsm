@@ -1,4 +1,6 @@
-const { setup_conductor, setup_alex_only, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } = require('../config')
+import {setup_3_conductors, setup_conductor_3p} from "../config";
+
+const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } = require('../config')
 
 const { sleep, filterMailList, delay } = require('../utils')
 
@@ -6,8 +8,8 @@ const { sleep, filterMailList, delay } = require('../utils')
 
 module.exports = scenario => {
     //scenario("send pending test", send_pending_test)
-    //scenario("send via DM test", send_dm_test)
-    scenario("get all mails test", test_get_all_mails)
+    scenario("send via DM test", send_dm_test)
+    //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
     //scenario("outack test", debug_test)
@@ -18,18 +20,18 @@ module.exports = scenario => {
 /**
  *
  */
-async function setup_handles(s, t, conductor) {
+async function setup_handles(s, t, alexCell, billyCell) {
     // Make sure Billy has a handle entry
-    let name = "billy"
-    let handle_address = await conductor.call(BILLY_NICK, "snapmail", "set_handle", name)
+    let name = BILLY_NICK
+    let handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
 
     await delay(10);
 
     // Make sure Alex has a handle entry
-    name = "alex"
-    handle_address = await conductor.call(ALEX_NICK, "snapmail", "set_handle", name)
+    name = ALEX_NICK
+    handle_address = await alexCell.call("snapmail", "set_handle", name)
     console.log('handle_address2: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
 
@@ -39,7 +41,7 @@ async function setup_handles(s, t, conductor) {
 
     let handle_count = 0
     for (let i = 0; handle_count != 2 && i < 10; i++) {
-        const result = await conductor.call(BILLY_NICK, "snapmail", "get_all_handles", undefined)
+        const result = await billyCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_list: ' + JSON.stringify(result))
         handle_count = result.length
     }
@@ -54,13 +56,14 @@ async function setup_handles(s, t, conductor) {
  */
 const send_pending_test = async (s, t) => {
     // -- Setup -- //
-    const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
+    const { alex, billy, camille, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
+    //const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
-    await setup_handles(s, t, conductor)
+    await setup_handles(s, t, alexCell, billyCell)
 
     // -- Billy goes offline -- //
 
-    await conductor.kill(BILLY_NICK)
+    await billy.shutdown()
     await delay(1000);
 
     // -- Alex sends mail to Billy -- //
@@ -75,14 +78,14 @@ const send_pending_test = async (s, t) => {
     }
 
     console.log('** CALLING: send_mail()')
-    const send_result = await conductor.call(ALEX_NICK, "snapmail", "send_mail", send_params)
+    const send_result = await alexCell.call("snapmail", "send_mail", send_params)
     console.log('send_result: ' + JSON.stringify(send_result))
     // Should have no pendings
     t.deepEqual(send_result.Ok.cc_pendings, {})
 
     // -- Billy goes online -- //
 
-    await conductor.spawn(BILLY_NICK)
+    await billy.spawn()
 
     // handle_address = await billy.call("app", "snapmail", "set_handle", params)
     // console.log('handle_address2: ' + JSON.stringify(handle_address))
@@ -92,18 +95,18 @@ const send_pending_test = async (s, t) => {
 
     // -- Billy checks inbox -- //
 
-    const check_result = await conductor.call(BILLY_NICK, "snapmail", "check_incoming_mail", {})
+    const check_result = await billyCell.call("snapmail", "check_incoming_mail", undefined)
     console.log('check_result2      : ' + JSON.stringify(check_result))
     t.deepEqual(check_result.Ok.length, 1)
     t.match(check_result.Ok[0], RegExp('Qm*'))
 
-    const arrived_result = await conductor.call(BILLY_NICK, "snapmail", "get_all_arrived_mail", {})
+    const arrived_result = await billyCell.call("snapmail", "get_all_arrived_mail", undefined)
     console.log('arrived_result : ' + JSON.stringify(arrived_result.Ok[0]))
     t.deepEqual(arrived_result.Ok.length, 1)
     const mail_adr = arrived_result.Ok[0]
     t.match(mail_adr, RegExp('Qm*'))
 
-    const mail_result = await conductor.call(BILLY_NICK, "snapmail", "get_mail", mail_adr)
+    const mail_result = await billyCell.call("snapmail", "get_mail", mail_adr)
     console.log('mail_result : ' + JSON.stringify(mail_result.Ok))
     const result_obj = mail_result.Ok.mail
     console.log('result_obj : ' + JSON.stringify(result_obj))
@@ -122,37 +125,36 @@ const send_pending_test = async (s, t) => {
 
     await delay(10);
 
-    const received_result = await conductor.call(ALEX_NICK, "snapmail", "has_mail_been_received", {"outmail_address": send_result.Ok.outmail})
+    const received_result = await alexCell.call("snapmail", "has_mail_been_received", {"outmail_address": send_result.Ok.outmail})
     console.log('received_result1 : ' + JSON.stringify(received_result.Ok))
     t.deepEqual(received_result.Ok.Err.length, 1)
     t.deepEqual(received_result.Ok.Err[0], billyAddress)
 
     // -- Alex goes offline -- //
 
-    await conductor.kill(ALEX_NICK)
+    await alex.shutdown()
     //await s.consistency()
     await delay(2000);
 
     // -- Billy sends Acknowledgment -- //
 
-    const ack_result = await conductor.call(BILLY_NICK, "snapmail", "acknowledge_mail", {"inmail_address": mail_adr})
+    const ack_result = await billyCell.call("snapmail", "acknowledge_mail", mail_adr)
     console.log('ack_result1 : ' + ack_result.Ok)
     const ack_adr = ack_result.Ok
 
     // -- Alex goes online -- //
 
-    await conductor.spawn(ALEX_NICK)
-    await s.consistency()
+    await alex.startup()
     await delay(2000);
 
     // -- Alex checks for acknowledgement -- //
 
-    const check_result2 = await conductor.call(ALEX_NICK, "snapmail", "check_incoming_ack", {})
+    const check_result2 = await alexCell.call("snapmail", "check_incoming_ack", undefined)
     console.log('check_result2      : ' + JSON.stringify(check_result2))
     t.deepEqual(check_result2.Ok.length, 1)
     t.match(check_result2.Ok[0], RegExp('Qm*'))
 
-    const received_result2 = await conductor.call(ALEX_NICK, "snapmail", "has_mail_been_received", {"outmail_address": send_result.Ok.outmail})
+    const received_result2 = await alexCell.call("snapmail", "has_mail_been_received", send_result.Ok.outmail)
     console.log('received_result2 : ' + JSON.stringify(received_result2.Ok))
     t.deepEqual(received_result2.Ok.Ok, null)
 
@@ -165,20 +167,20 @@ const send_pending_test = async (s, t) => {
 };
 
 
-/**
- *
- */
-const debug_test = async (s, t) => {
-    const { conductor } = await setup_alex_only(s, t)
-
-    console.log('sending...')
-    //const create_result = await conductor.call(ALEX_NICK, "snapmail", "create_outack", undefined)
-
-    // Validation should fail
-    const create_result = await conductor.call(ALEX_NICK, "snapmail", "create_empty_handle", undefined)
-
-    console.log('create_result: ' + JSON.stringify(create_result))
-}
+// /**
+//  *
+//  */
+// const debug_test = async (s, t) => {
+//     const { conductor } = await setup_alex_only(s, t)
+//
+//     console.log('sending...')
+//     //const create_result = await conductor.call(ALEX_NICK, "snapmail", "create_outack", undefined)
+//
+//     // Validation should fail
+//     const create_result = await conductor.call(ALEX_NICK, "snapmail", "create_empty_handle", undefined)
+//
+//     console.log('create_result: ' + JSON.stringify(create_result))
+// }
 
 
 /**
@@ -186,9 +188,10 @@ const debug_test = async (s, t) => {
  */
 const send_dm_test = async (s, t) => {
 
-    const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
+    //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
+    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
-    await setup_handles(s, t, conductor)
+    await setup_handles(s, t, alexCell, billyCell)
 
     // Make a call to a Zome function
     // Indicating the function, and passing it an input
@@ -201,7 +204,7 @@ const send_dm_test = async (s, t) => {
         //manifest_address_list: []
     }
     console.log('sending...')
-    const send_result = await conductor.call(BILLY_NICK, "snapmail", "send_mail", send_params)
+    const send_result = await billyCell.call("snapmail", "send_mail", send_params)
     console.log('send_result: ' + JSON.stringify(send_result))
     // Should receive via DM, so no pendings
     t.deepEqual(send_result.to_pendings, {})
@@ -209,13 +212,13 @@ const send_dm_test = async (s, t) => {
     // Wait for all network activity to settle
     await delay(10);
 
-    const arrived_result = await conductor.call(ALEX_NICK, "snapmail", "get_all_arrived_mail", undefined)
+    const arrived_result = await alexCell.call("snapmail", "get_all_arrived_mail", undefined)
 
     console.log('arrived_result : ' + JSON.stringify(arrived_result))
     t.deepEqual(arrived_result.length, 1)
     const mail_adr = arrived_result[0]
 
-    const get_mail_result = await conductor.call(ALEX_NICK, "snapmail", "get_mail", mail_adr)
+    const get_mail_result = await alexCell.call("snapmail", "get_mail", mail_adr)
     console.log('mail_result : ' + JSON.stringify(get_mail_result))
     const mail = get_mail_result.Ok.mail
 
@@ -226,12 +229,12 @@ const send_dm_test = async (s, t) => {
 
     //await delay(1000);
 
-    const received_result = await conductor.call(BILLY_NICK, "snapmail", "has_mail_been_received", send_result.outmail)
+    const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
     console.log('received_result1 : ' + JSON.stringify(received_result))
     t.deepEqual(received_result.Err.length, 1)
     t.deepEqual(received_result.Err[0], alexAddress)
 
-    const ack_result = await conductor.call(ALEX_NICK, "snapmail", "acknowledge_mail", mail_adr)
+    const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
     console.log('ack_result1 : ' + JSON.stringify(ack_result))
 
     // await delay(10);
@@ -251,9 +254,11 @@ const send_dm_test = async (s, t) => {
  */
 const test_get_all_mails = async (s, t) => {
     // -- SETUP
-    const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
+    //const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
+    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
-    await setup_handles(s, t, conductor)
+
+    await setup_handles(s, t, alexCell, billyCell)
 
     console.log('test_get_all_mails START')
 
@@ -268,7 +273,7 @@ const test_get_all_mails = async (s, t) => {
     }
     const inMail1Payload = send_params.payload;
 
-    let send_result = await conductor.call(BILLY_NICK, "snapmail", "send_mail", send_params)
+    let send_result = await billyCell.call("snapmail", "send_mail", send_params)
     console.log('send_result1: ' + JSON.stringify(send_result))
     t.deepEqual(send_result.to_pendings, {})
     await delay(10);
@@ -282,7 +287,7 @@ const test_get_all_mails = async (s, t) => {
         bcc: [],
         //manifest_address_list: []
     }
-    send_result = await conductor.call(BILLY_NICK, "snapmail", "send_mail", send_params)
+    send_result = await billyCell.call("snapmail", "send_mail", send_params)
     console.log('send_result2: ' + JSON.stringify(send_result))
     t.deepEqual(send_result.to_pendings, {})
     const inMail2 = send_result.outmail;
@@ -297,18 +302,18 @@ const test_get_all_mails = async (s, t) => {
         bcc: [],
         //manifest_address_list: []
     }
-    send_result = await conductor.call(ALEX_NICK, "snapmail", "send_mail", send_params)
+    send_result = await alexCell.call("snapmail", "send_mail", send_params)
     console.log('send_result3: ' + JSON.stringify(send_result))
     t.deepEqual(send_result.to_pendings, {})
     await delay(10);
 
     // Get all mails
-    let mail_list_result = await conductor.call(ALEX_NICK, "snapmail", "get_all_mails", undefined)
+    let mail_list_result = await alexCell.call("snapmail", "get_all_mails", undefined)
     console.log('mail_list_result1 : ' + JSON.stringify(mail_list_result))
     t.deepEqual(mail_list_result.length, 3)
     t.deepEqual(mail_list_result[0].mail.payload, send_params.payload)
 
-    mail_list_result = await conductor.call(BILLY_NICK, "snapmail", "get_all_mails", undefined)
+    mail_list_result = await billyCell.call("snapmail", "get_all_mails", undefined)
     console.log('mail_list_result12 : ' + JSON.stringify(mail_list_result))
     t.deepEqual(mail_list_result.length, 3)
     //t.deepEqual(mail_list_result[0].mail.payload, send_params.payload)
@@ -317,31 +322,31 @@ const test_get_all_mails = async (s, t) => {
 
     // -- delete outmail --//
 
-    send_result = await conductor.call(BILLY_NICK, "snapmail", "delete_mail", inMail2)
+    send_result = await billyCell.call("snapmail", "delete_mail", inMail2)
     console.log('send_result4: ' + JSON.stringify(send_result))
     //t.match(send_result, RegExp('Qm*'))
     await delay(10);
 
     // Get mail should fail
-    let mail_result = await conductor.call(BILLY_NICK, "snapmail", "get_mail", inMail2)
+    let mail_result = await billyCell.call("snapmail", "get_mail", inMail2)
     console.log('mail_result1 : ' + JSON.stringify(mail_result))
     t.deepEqual(mail_result, null)
 
     // Get all mails
-    mail_list_result = await conductor.call(BILLY_NICK, "snapmail", "get_all_mails", undefined)
+    mail_list_result = await billyCell.call("snapmail", "get_all_mails", undefined)
     console.log('mail_list_result2 : ' + JSON.stringify(mail_list_result))
     let live_mail_list = filterMailList(mail_list_result);
     t.deepEqual(live_mail_list.length, 2)
     //t.deepEqual(live_mail_list[0].mail.payload, send_params.payload)
 
     // delete same mail twice should fail
-    send_result = await conductor.call(BILLY_NICK, "snapmail", "delete_mail", inMail2)
+    send_result = await billyCell.call("snapmail", "delete_mail", inMail2)
     console.log('send_result5: ' + JSON.stringify(send_result))
     // FIXME
     //t.deepEqual(send_result.Err, {Internal: "Entry Could Not Be Found"})
 
     // Get all mails - Alex should still see 3
-    mail_list_result = await conductor.call(ALEX_NICK, "snapmail", "get_all_mails", undefined)
+    mail_list_result = await alexCell.call("snapmail", "get_all_mails", undefined)
     console.log('mail_list_result3 : ' + JSON.stringify(mail_list_result))
     live_mail_list = filterMailList(mail_list_result);
     t.deepEqual(live_mail_list.length, 3)
@@ -349,31 +354,31 @@ const test_get_all_mails = async (s, t) => {
 
     // -- delete inmail --//
 
-    send_result = await conductor.call(BILLY_NICK, "snapmail", "delete_mail", outMail3)
+    send_result = await billyCell.call("snapmail", "delete_mail", outMail3)
     console.log('send_result6: ' + JSON.stringify(send_result))
     //t.match(send_result, RegExp('Qm*'))
     await delay(10);
 
     // Get mail should fail
-    mail_result = await conductor.call(BILLY_NICK, "snapmail", "get_mail", outMail3)
+    mail_result = await billyCell.call("snapmail", "get_mail", outMail3)
     console.log('mail_result2 : ' + JSON.stringify(mail_result))
     t.deepEqual(mail_result, null)
 
     // Get all mails
-    mail_list_result = await conductor.call(BILLY_NICK, "snapmail", "get_all_mails", undefined)
+    mail_list_result = await billyCell.call("snapmail", "get_all_mails", undefined)
     console.log('mail_list_result4 : ' + JSON.stringify(mail_list_result))
     live_mail_list = filterMailList(mail_list_result);
     t.deepEqual(live_mail_list.length, 1)
     t.deepEqual(live_mail_list[0].mail.payload, inMail1Payload)
 
     // delete same mail twice should fail
-    send_result = await conductor.call(BILLY_NICK, "snapmail", "delete_mail", outMail3)
+    send_result = await billyCell.call("snapmail", "delete_mail", outMail3)
     console.log('send_result7: ' + JSON.stringify(send_result))
     // FIXME
     // t.deepEqual(send_result.Err, {Internal: "Entry Could Not Be Found"})
 
     // Get all mails - Alex should still see 3
-    mail_list_result = await conductor.call(ALEX_NICK, "snapmail", "get_all_mails", undefined)
+    mail_list_result = await alexCell.call("snapmail", "get_all_mails", undefined)
     console.log('mail_list_result3 : ' + JSON.stringify(mail_list_result))
     live_mail_list = filterMailList(mail_list_result);
     t.deepEqual(live_mail_list.length, 3)

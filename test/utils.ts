@@ -10,7 +10,7 @@ export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
  */
 export function sleep(milliseconds) {
     const date = Date.now();
-    let currentDate = null;
+    let currentDate = 0;
     do {
         currentDate = Date.now();
     } while (currentDate - date < milliseconds);
@@ -20,7 +20,7 @@ export function sleep(milliseconds) {
  * Removed deleted mails from input mail list
  */
 export function filterMailList(mail_list) {
-    let new_list = [];
+    let new_list = new Array();
     for (let mailItem of mail_list) {
         if (mailItem.state.hasOwnProperty('In')) {
             if (mailItem.state.In === 'Deleted') {

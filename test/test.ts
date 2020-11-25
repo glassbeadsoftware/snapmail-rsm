@@ -1,7 +1,7 @@
 // See README.md for prerequisites for this to run
 
-import { Orchestrator } from '../../tryorama/src';
-//import { Orchestrator } from '../../tryorama-rsm/src';
+//import { Orchestrator } from '../../tryorama/src';
+import { Orchestrator } from '../../tryorama-rsm/src';
 //import { Orchestrator } from "@holochain/tryorama";
 
 // -- SETUP -- //

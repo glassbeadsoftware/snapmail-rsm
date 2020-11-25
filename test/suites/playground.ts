@@ -1,4 +1,6 @@
-const { config, ALEX_NICK, BILLY_MICK } = require('../config')
+import {setup_1_conductor} from "../config";
+
+const { config, ALEX_NICK, BILLY_NICK } = require('../config')
 
 // -- Export scenarios -- //
 
@@ -15,17 +17,16 @@ module.exports = scenario => {
  */
 const test_writeget_chunk = async (s, t) => {
 
-    const { conductor } = await s.players({ conductor: config })
+    const { alex, alexAddress, alexCell } = await setup_1_conductor(s, t)
     //console.log({conductor})
 
-    await conductor.spawn()
+    //const [_dnaHash, agentAddress] = alex.cellId(ALEX_NICK)
+    console.log({alexAddress})
 
-    const [_dnaHash, agentAddress] = conductor.cellId(ALEX_NICK)
-    console.log({agentAddress})
     // const dump = await alex.stateDump(ALEX_NICK)
     // console.log(dump)
 
-    const result = await conductor.call(ALEX_NICK, 'snapmail', 'whoami', undefined)
+    const result = await alexCell.call('snapmail', 'whoami', undefined)
     console.log({result})
     console.log('agent_latest_pubkey: ', result.agent_latest_pubkey.hash)
 
@@ -40,19 +41,19 @@ const test_writeget_chunk = async (s, t) => {
     };
 
     const start = Date.now();
-    let loop_avg = [];
+    let loop_avg = new Array<number>();
 
     for (let i = 0 ; i < 2; ++i) {
         const loop_start = Date.now();
-        let result = await conductor.call(ALEX_NICK, 'snapmail', 'write_chunk', chunk)
+        let result = await alexCell.call('snapmail', 'write_chunk', chunk)
         const write_end = Date.now();
         console.log( '['+(write_end - start) +'] (' + (write_end - loop_start)  + ') result0:' + JSON.stringify(result))
-        result = await conductor.call(ALEX_NICK, 'snapmail', 'get_chunk_hash', chunk)
+        result = await alexCell.call('snapmail', 'get_chunk_hash', chunk)
         console.log('result1:', result)
         //let entry_hash = [...result.hash];
         //console.log('result1 hash:', entry_hash)
         //t.equal(result, 'foo')
-        const result2 = await conductor.call(ALEX_NICK, 'snapmail', 'get_chunk', result)
+        const result2 = await alexCell.call('snapmail', 'get_chunk', result)
         const loop_end = Date.now();
         loop_avg.push(loop_end - loop_start);
         console.log('['+ (loop_end - loop_start) +'] (' + (loop_end - write_end)  + ') result2:', result2.length)
