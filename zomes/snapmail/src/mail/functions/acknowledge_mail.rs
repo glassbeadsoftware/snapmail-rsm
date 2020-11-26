@@ -111,8 +111,8 @@ fn acknowledge_mail_pending(
     let pending_ack_hh = create_entry(&pending_ack)?;
     /// Create links between PendingAck and Outack & recepient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
-    let recepient = format!("{}", original_sender);
-    let tag = LinkKind::AckInbox.concat(&recepient);
+    //let recepient = format!("{}", original_sender);
+    let tag = LinkKind::AckInbox.concat_hash(original_sender);
     let _ = create_link(outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
     let _ = create_link(EntryHash::from(original_sender.clone()), pending_ack_eh, tag)?;
     debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, original_sender).ok();

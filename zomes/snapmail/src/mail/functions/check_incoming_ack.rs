@@ -45,7 +45,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
         }
         let (author, pending_ack) = maybe_pending_ack.unwrap();
         /// Create InAck
-        let maybe_inack_hh = mail::create_and_commit_inack(pending_ack.outmail_eh.clone(), &author);
+        let maybe_inack_hh = mail::commit_inack(pending_ack.outmail_eh.clone(), &author);
         if let Err(err) = maybe_inack_hh {
             debug!("Creating InAck from PendignAck failed: {}", err).ok();
             continue;

@@ -116,7 +116,7 @@ pub(crate) fn get_pending_ack(pending_eh: &EntryHash) -> ExternResult<(AgentPubK
 }
 
 /// Return address of created InAck
-pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
+pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
     debug!("Create inAck for: {} ({})", outmail_eh, from).ok();
     /// Create InAck
     let inack = InAck::new();
@@ -125,8 +125,8 @@ pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey)
     //debug!("inack_eh: {}", inack_eh).ok();
     /// Create link tag
     //let vec = from.clone().into_inner();
-    let recepient = format!("{}", from);
-    let tag = LinkKind::Receipt.concat(&recepient);
+    //let recepient = format!("{}", from);
+    let tag = LinkKind::Receipt.concat_hash(&from);
     /// Create link from OutMail
     let link_hh = create_link(outmail_eh, inack_eh, tag)?;
     debug!("inAck link_hh = {}", link_hh).ok();

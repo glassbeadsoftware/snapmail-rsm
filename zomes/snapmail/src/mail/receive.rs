@@ -211,7 +211,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
 
     let outmail_eh = ack_msg.outmail_eh.clone();
     debug!("outmail_eh = {:?}", outmail_eh).ok();
-    let res = mail::create_and_commit_inack(outmail_eh, &from);
+    let res = mail::commit_inack(outmail_eh, &from);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
         debug!("{}: {}", response_str, err).ok();

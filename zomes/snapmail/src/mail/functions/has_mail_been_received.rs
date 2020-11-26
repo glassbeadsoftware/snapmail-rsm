@@ -1,7 +1,5 @@
 use hdk3::prelude::*;
 use hdk3::prelude::link::Link;
-use holo_hash::hash_type;
-use holo_hash::HoloHash;
 
 use crate::{
     link_kind::*,
@@ -19,19 +17,25 @@ pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
 #[hdk_extern]
 pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenReceivedOutput> {
     /// 1. get OutMail
-    let (entry_address, outmail) = get_typed_entry::<OutMail>(outmail_hh.clone())?;
+    let (outmail_eh, outmail) = get_typed_entry::<OutMail>(outmail_hh.clone())?;
     /// 2. Merge all recepients lists into one
     let all_recepients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
     debug!("all_recepients: {:?} ({})", all_recepients, outmail_hh).ok();
     /// 3. get all ``receipt`` links
-    let links_result: Vec<Link> = get_links(entry_address, LinkKind::Receipt.as_tag_opt())?.into_inner();
+    // FIXME: have tag filtering working when calling get_links
+    // let links_result: Vec<Link> = get_links(outmail_eh, LinkKind::Receipt.as_tag_opt())?.into_inner();
+    let links_result: Vec<Link> = get_links(outmail_eh, None)?.into_inner();
     debug!("links_result: {:?}", links_result).ok();
     /// 4. Make list of Receipt authors
-    let receipt_authors: Vec<AgentPubKey> = links_result.iter().map(|link| {
-        let raw_data = link.tag.as_ref().clone();
-        HoloHash::from_raw_36_and_type(raw_data, hash_type::Agent)
-    })
-    .collect();
+    let mut receipt_authors: Vec<AgentPubKey> = Vec::new();
+    for receipt_link in links_result {
+        let maybe_hash = LinkKind::Receipt.unconcat_hash(&receipt_link.tag);
+        if let Err(_err) = maybe_hash {
+            continue;
+        }
+        debug!("maybe_hash suffix = {:?}", maybe_hash).ok();
+        receipt_authors.push(maybe_hash.unwrap());
+    }
     debug!("receipt_authors: {:?}", receipt_authors).ok();
     /// 5. Diff lists
     let diff: Vec<AgentPubKey>  = all_recepients.into_iter()

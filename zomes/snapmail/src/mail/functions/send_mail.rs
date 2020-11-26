@@ -221,7 +221,7 @@ fn send_mail_to(
     debug!("pending_mail_hh = {}", pending_mail_hh).ok();
     /// Commit Pendings Link
     //let recepient = format!("{}", original_sender);
-    let tag = LinkKind::Pendings.concat(&pending_mail_hh.to_string());
+    let tag = LinkKind::Pendings.concat_hash(&pending_mail_hh);
     let maybe_link1_hh = create_link(outmail_eh.clone(), pending_mail_eh.clone(), tag);
     if let Err(err) = maybe_link1_hh.clone() {
         debug!("link1 failed = {:?}", err).ok();
@@ -230,8 +230,9 @@ fn send_mail_to(
     let link1_hh = maybe_link1_hh.unwrap();
     debug!("link1_hh = {}", link1_hh).ok();
     /// Commit MailInbox Link
-    let from = format!("{}", agent_info()?.agent_latest_pubkey);
-    let tag = LinkKind::MailInbox.concat(&from);
+    //let from = format!("{}", agent_info()?.agent_latest_pubkey);
+    let from = agent_info()?.agent_latest_pubkey;
+    let tag = LinkKind::MailInbox.concat_hash(&from);
     let maybe_link2_hh = create_link(EntryHash::from(destination.clone()), pending_mail_eh, tag);
     if let Err(err) = maybe_link2_hh.clone() {
         debug!("link2 failed = {:?}", err).ok();
