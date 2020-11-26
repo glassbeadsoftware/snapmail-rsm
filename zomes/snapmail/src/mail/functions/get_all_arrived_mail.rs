@@ -34,9 +34,9 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
     /// For each InMail
     let mut unreads = Vec::new();
     for inmail in inmails {
-        let header_address = inmail.header_hashed().as_hash().to_owned();
-        let header = inmail.header();
-        let inmail_address = header.entry_hash().expect("Should have an Entry");
+        let inmail_hh = inmail.header_hashed().as_hash().to_owned();
+        let inmail_header = inmail.header();
+        let inmail_eh = inmail_header.entry_hash().expect("Should have an Entry");
 
         /// 2. Get Acknowledgment private link
         // let res = hdk::get_links_count(
@@ -48,7 +48,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
         //     continue;
         // }
         let links_result = get_links(
-            inmail_address.clone(),
+            inmail_eh.clone(),
             LinkKind::Acknowledgment.as_tag_opt(),
         )?.into_inner();
         /// If link found, it means Ack has not been received
@@ -57,7 +57,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
         }
 
         /// Add to result list
-        unreads.push(header_address.clone());
+        unreads.push(inmail_hh.clone());
     }
     Ok(ZomeHhVec(unreads))
 }

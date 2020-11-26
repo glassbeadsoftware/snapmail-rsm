@@ -36,7 +36,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
             continue;
         }
         let (_pending_ack, pending_ack_hh, _) = maybe_latest.unwrap();
-        debug!("pending ack address: {}", pending_ack_hh).ok();
+        debug!("pending_ack_hh: {}", pending_ack_hh).ok();
         /// Get entry on the DHT
         let maybe_pending_ack = mail::get_pending_ack(&pending_ack_eh);
         if let Err(err) = maybe_pending_ack {
@@ -45,8 +45,8 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
         }
         let (author, pending_ack) = maybe_pending_ack.unwrap();
         /// Create InAck
-        let maybe_inack_address = mail::create_and_commit_inack(pending_ack.outmail_eh.clone(), &author);
-        if let Err(err) = maybe_inack_address {
+        let maybe_inack_hh = mail::create_and_commit_inack(pending_ack.outmail_eh.clone(), &author);
+        if let Err(err) = maybe_inack_hh {
             debug!("Creating InAck from PendignAck failed: {}", err).ok();
             continue;
         }

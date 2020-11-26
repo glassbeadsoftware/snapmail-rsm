@@ -33,25 +33,25 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     let maybe_current_handle_element = get_handle_element(my_agent_address.clone());
     if let Some(handle_element) = maybe_current_handle_element {
         /// If new handle same as current, just return current entry address
-        let header_address = handle_element.header_address().clone();
+        let handle_hh = handle_element.header_address().clone();
         let current_handle: Handle = try_from_element(handle_element)
             .expect("Should be a Handle entry");
         if current_handle.name == name.to_string() {
-            return Ok(header_address);
+            return Ok(handle_hh);
         }
         /// Really new name so just update entry
-        return Ok(update_entry(header_address, &new_handle)?);
+        return Ok(update_entry(handle_hh, &new_handle)?);
     }
 
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
-    let entry_address = hash_entry(&new_handle)?;
+    let new_handle_eh = hash_entry(&new_handle)?;
     debug!("First Handle for this agent!!!").ok();
-    let header_address = create_entry(&new_handle)?;
+    let new_handle_hh = create_entry(&new_handle)?;
     let _ = create_link(
         EntryHash::from(my_agent_address),
-        entry_address.clone(),
-        LinkKind::Handle.as_tag()
+        new_handle_eh.clone(),
+        LinkKind::Handle.as_tag(),
     )?;
     debug!("**** Handle linked to agent!").ok();
 
@@ -74,10 +74,10 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     // let _ = create_link!(dna_entry_hash, entry_address, link_tag(link_kind::Members))?;
 
     let directory_address = Path::from(path_kind::Directory).hash().expect("Directory Path should hash");
-    let _ = create_link(directory_address, entry_address, LinkKind::Members.as_tag())?;
+    let _ = create_link(directory_address, new_handle_eh, LinkKind::Members.as_tag())?;
 
     /// Done
-    return Ok(header_address);
+    return Ok(new_handle_hh);
 }
 
 /*

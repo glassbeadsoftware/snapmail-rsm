@@ -88,7 +88,7 @@ pub(crate) fn get_entry_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
     // };
     let maybe_maybe_element = get(eh.clone(), GetOptions);
     if let Err(err) = maybe_maybe_element {
-        debug!("Failed getting address: {}", err).ok();
+        debug!("Failed getting element: {}", err).ok();
         return Err(err);
     }
     let maybe_element = maybe_maybe_element.unwrap();
@@ -128,8 +128,8 @@ pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey)
     let recepient = format!("{}", from);
     let tag = LinkKind::Receipt.concat(&recepient);
     /// Create link from OutMail
-    let link_address = create_link(outmail_eh, inack_eh, tag)?;
-    debug!("inAck link address: {}", link_address).ok();
+    let link_hh = create_link(outmail_eh, inack_eh, tag)?;
+    debug!("inAck link_hh = {}", link_hh).ok();
     /// Done
     Ok(inack_hh)
 }

@@ -38,11 +38,11 @@ impl SendMailOutput {
         }
     }
 
-    pub fn add_pending(&mut self, kind: ReceipientKind, agent_id: &AgentPubKey, address: HeaderHash) {
+    pub fn add_pending(&mut self, kind: ReceipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
         match kind {
-            ReceipientKind::TO => self.to_pendings.insert(agent_id.clone(), address),
-            ReceipientKind::CC => self.cc_pendings.insert(agent_id.clone(), address),
-            ReceipientKind::BCC => self.bcc_pendings.insert(agent_id.clone(), address),
+            ReceipientKind::TO => self.to_pendings.insert(agent_id.clone(), hh),
+            ReceipientKind::CC => self.cc_pendings.insert(agent_id.clone(), hh),
+            ReceipientKind::BCC => self.bcc_pendings.insert(agent_id.clone(), hh),
         };
     }
 }

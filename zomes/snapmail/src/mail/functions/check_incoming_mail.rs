@@ -21,13 +21,13 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         return error("This agent does not have a Handle set up");
     }
     let my_handle_element = maybe_element.unwrap();
-    let my_handle_address = get_eh(&my_handle_element)?;
+    let my_handle_eh = get_eh(&my_handle_element)?;
     /// Lookup `mail_inbox` links on my agentId
     let links_result = get_links(
-        my_handle_address.clone(),
+        my_handle_eh.clone(),
         LinkKind::MailInbox.as_tag_opt(),
         )?.into_inner();
-    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address).ok();
+    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_eh).ok();
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();
     for link in &links_result {
@@ -38,7 +38,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             continue;
         }
         let pending_hh = maybe_hh.unwrap().1;
-        debug!("pending mail address: {}", pending_mail_eh).ok();
+        debug!("pending_mail_eh: {}", pending_mail_eh).ok();
         /// Get entry on the DHT
         let maybe_pending_mail = mail::get_pending_mail(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
@@ -48,12 +48,12 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         let (author, pending) = maybe_pending_mail.unwrap();
         /// Convert and Commit as InMail
         let inmail = InMail::from_pending(pending, author);
-        let maybe_inmail_address = create_entry(&inmail);
-        if maybe_inmail_address.is_err() {
+        let maybe_inmail_hh = create_entry(&inmail);
+        if maybe_inmail_hh.is_err() {
             debug!("Failed committing InMail").ok();
             continue;
         }
-        new_inmails.push(maybe_inmail_address.unwrap());
+        new_inmails.push(maybe_inmail_hh.unwrap());
         /// Remove link from this agent address
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {

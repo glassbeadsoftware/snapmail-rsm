@@ -25,7 +25,7 @@ pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
 }
 
 /// Zome function
-/// Return address of newly created OutAck
+/// Return EntryHash of newly created OutAck
 #[hdk_extern]
 pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     /// Make sure its an InMail ...
@@ -92,8 +92,7 @@ fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
 }
 
 /// Create & Commit PendingAck
-/// Return address of newly created PendingAck
-/// Return PendingAck's address
+/// Return HeaderHash of newly created PendingAck
 fn acknowledge_mail_pending(
     outack_eh: &EntryHash,
     outmail_eh: &EntryHash,

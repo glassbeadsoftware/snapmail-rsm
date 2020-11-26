@@ -8,14 +8,14 @@ use crate::{
 pub struct DeleteMailOutput(pub Option<HeaderHash>);
 
 #[hdk_extern]
-pub fn delete_mail(address: HeaderHash) -> ExternResult<DeleteMailOutput> {
-    /// Make sure address is a valid mail
-    let maybe_mail = try_into_mail(address.clone())?;
+pub fn delete_mail(hh: HeaderHash) -> ExternResult<DeleteMailOutput> {
+    /// Make sure HeaderHash points to a Mail
+    let maybe_mail = try_into_mail(hh.clone())?;
     debug!("delete_mail(): maybe_mail = {:?}", maybe_mail).ok();
     if maybe_mail.is_none() {
         return Ok(DeleteMailOutput(None));
     }
     ///
-    let hh = delete_entry(address)?;
-    Ok(DeleteMailOutput(Some(hh)))
+    let deletion_hh = delete_entry(hh)?;
+    Ok(DeleteMailOutput(Some(deletion_hh)))
 }
