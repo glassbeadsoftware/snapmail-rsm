@@ -5,13 +5,13 @@ use hdk3::prelude::*;
 #[derive(Clone, Debug, PartialEq)]
 pub struct OutAck {
     // n/a
-    pub name: String,
+    //pub name: String,
 }
 
 impl OutAck {
     pub fn new() -> Self {
         Self {
-            name: "empty".to_string(),
+            //name: "empty".to_string(),
         }
     }
 }

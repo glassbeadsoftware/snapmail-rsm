@@ -42,6 +42,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     let outack_eh = hh_to_eh(outack_hh)?;
     debug!("Creating ack link...").ok();
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
+    debug!("ack link DONE ; sending ack via DM ...").ok();
     /// Try Direct sharing of Acknowledgment
     let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
     if res.is_ok() {

@@ -61,9 +61,14 @@ fn validate_create_link_from_app(
     //     return Ok(ValidateLinkCallbackResult::Valid);
     // }
 
-    /// Add link per app entry here ...
-    /// Done
-    Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    /// Add link per app entry here
+    /// ...
+
+   /// Done
+   debug!("*** validate_create_link_from_app() DONE").ok();
+   // FIXME should not be valid by default
+   //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+   Ok(ValidateLinkCallbackResult::Valid)
 }
 
 ///
@@ -72,7 +77,7 @@ fn validate_create_link_from_agent(
     submission: ValidateCreateLinkData,
 ) -> ExternResult<ValidateLinkCallbackResult>
 {
-    debug!("*** validate_create_link_from_agent() called!").ok();
+    debug!("*** validate_create_link_from_agent() START").ok();
     /// -- Check if its a Handle link
     if submission.link_add.tag == LinkKind::Handle.as_tag() {
        // FIXME: Only one handle per agent
@@ -91,7 +96,10 @@ fn validate_create_link_from_agent(
         return  Ok(ValidateLinkCallbackResult::Valid);
     }
     /// Done
-    Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    // FIXME: should not be valid by default
+    debug!("*** validate_create_link_from_agent() DONE").ok();
+    //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    Ok(ValidateLinkCallbackResult::Valid)
 }
 
 ///
