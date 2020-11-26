@@ -42,7 +42,9 @@ fn validate_create_link_from_app(
    }
 
    /// Check Receipt
-   if submission.link_add.tag == LinkKind::Receipt.as_tag() {
+   //if submission.link_add.tag == LinkKind::Receipt.as_tag() {
+   let maybe_hash: ExternResult<AgentPubKey> = LinkKind::Receipt.unconcat_hash(&submission.link_add.tag);
+   if let Ok(_from) = maybe_hash {
       // TODO: check from OutMail and unicity per recepient
       return Ok(ValidateLinkCallbackResult::Valid);
    }
@@ -67,8 +69,8 @@ fn validate_create_link_from_app(
    /// Done
    debug!("*** validate_create_link_from_app() DONE").ok();
    // FIXME should not be valid by default
-   //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
-   Ok(ValidateLinkCallbackResult::Valid)
+   //Ok(ValidateLinkCallbackResult::Valid)
+   Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
 }
 
 ///

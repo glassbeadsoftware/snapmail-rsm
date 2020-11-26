@@ -1,5 +1,4 @@
 use hdk3::prelude::*;
-//use hdk3::prelude::hash_type::HashType;
 use holo_hash::hash_type::HashType;
 
 use strum::AsStaticRef;
