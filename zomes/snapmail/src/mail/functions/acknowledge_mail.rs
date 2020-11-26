@@ -1,17 +1,15 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind,
     link_kind::*,
     dm_protocol::{DirectMessageProtocol, AckMessage},
     mail::{
-        utils::*,
         entries::{
             InMail, PendingAck, OutAck,
         },
     },
-    utils::*,
     send_dm,
+    utils::*,
 };
 
 
@@ -30,40 +28,40 @@ pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
 /// Return address of newly created OutAck
 #[hdk_extern]
 pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
-    ///  1. Make sure its an InMail
+    /// Make sure its an InMail ...
     let (inmail_eh, inmail) = get_typed_entry::<InMail>(inmail_hh.clone())?;
-    ///  2. Make sure it has not already been acknowledged
+    /// ... has not already been acknowledged
     let res = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
     if res.len() > 0 {
         return error("Mail has already been acknowledged");
     }
-    debug!("No Acknowledgment yet").ok();
-    /// 3. Write OutAck
+    debug!("Not acknowledged yet").ok();
+    /// Write OutAck
     let outack = OutAck::new();
     let outack_hh = create_entry(&outack)?;
     let outack_eh = hh_to_eh(outack_hh)?;
     debug!("Creating ack link...").ok();
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
-    /// 4. Try Direct sharing of Acknowledgment
-    let res = send_dm_ack(&inmail.outmail_address, &inmail.from);
+    /// Try Direct sharing of Acknowledgment
+    let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
     if res.is_ok() {
         debug!("Acknowledgment shared !").ok();
         return Ok(outack_eh);
     }
+    /// Otherwise share Acknowledgement via DHT
     let err = res.err().unwrap();
     debug!("Direct sharing of Acknowledgment failed: {}", err).ok();
-    /// 5. Otherwise share Acknowledgement via DHT
-    // FIXME
-    //let _ = acknowledge_mail_pending(&outack_address, &inmail.outmail_address, &inmail.from)?;
+    let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
+    /// Done
     Ok(outack_eh)
 }
 
 /// Try sending directly to other Agent if Online
-fn send_dm_ack(outmail_hh: &HeaderHash, from: &AgentPubKey) -> ExternResult<()> {
+fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     debug!("acknowledge_mail_direct() START").ok();
     /// Create DM
     let msg = AckMessage {
-        outmail_address: outmail_hh.clone(),
+        outmail_eh: outmail_eh.clone(),
     };
     //let payload = serde_json::to_string(&DirectMessageProtocol::Ack(msg)).unwrap();
     //let payload: SerializedBytes = DirectMessageProtocol::Ack(msg).try_into().unwrap();
@@ -92,23 +90,32 @@ fn send_dm_ack(outmail_hh: &HeaderHash, from: &AgentPubKey) -> ExternResult<()> 
         _ => error("ACK by DM Failed"),
     }
 }
-//
-// /// Create & Commit PendingAck
-// /// Return address of newly created PendingAck
-// /// Return PendingAck's address
-// fn acknowledge_mail_pending(outack_hh: &HeaderHash, outmail_hh: &HeaderHash, from: &AgentPubKey) -> ExternResult<EntryHash> {
-//     // Get Handle address first
-//     let maybe_handle_address = crate::handle::get_handle_entry(from);
-//     if let None = maybe_handle_address {
-//         return Err(ZomeApiError::Internal("No handle has been set for ack receiving agent".to_string()));
-//     }
-//     let handle_address = maybe_handle_address.unwrap().0;
-//     // Commit PendingAck
-//     let pending_ack = PendingAck::new(outmail_hh.clone());
-//     //let pending_ack_entry = Entry::App(entry_kind::PendingAck.into(), pending_ack.into());
-//     let pending_ack_address = create_entry!(&pending_ack)?;
-//     let _ = create_link!(&outack_address, &pending_ack_address, link_tag(link_kind::Pending))?;
-//     let _ = create_link!(&handle_address, &pending_ack_address, link_tag(link_kind::AckInbox + &*hdk::AGENT_ADDRESS.to_string()))?;
-//     debug!(format!("pending_ack_address: {:?} (for {} ; from: {})", pending_ack_address, handle_address, from)).ok();
-//     Ok(pending_ack_address)
-// }
+
+/// Create & Commit PendingAck
+/// Return address of newly created PendingAck
+/// Return PendingAck's address
+fn acknowledge_mail_pending(
+    outack_eh: &EntryHash,
+    outmail_eh: &EntryHash,
+    original_sender: &AgentPubKey,
+) -> ExternResult<HeaderHash> {
+    // /// Get Handle address first
+    // let maybe_element = crate::handle::get_handle_element(from);
+    // if let None = maybe_element {
+    //     return error("No handle has been set for ack receiving agent");
+    // }
+    // let handle_element = maybe_element.unwrap();
+    // let handle_eh = get_eh(&handle_element)?;
+    /// Commit PendingAck
+    let pending_ack = PendingAck::new(outmail_eh.clone());
+    let pending_ack_hh = create_entry(&pending_ack)?;
+    /// Create links between PendingAck and Outack & recepient inbox
+    let pending_ack_eh = hash_entry(&pending_ack)?;
+    let recepient = format!("{}", original_sender);
+    let tag = LinkKind::AckInbox.concat(&recepient);
+    let _ = create_link(outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
+    let _ = create_link(EntryHash::from(original_sender.clone()), pending_ack_eh, tag)?;
+    debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, original_sender).ok();
+    /// Done
+    Ok(pending_ack_hh)
+}

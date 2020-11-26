@@ -1,10 +1,8 @@
 use hdk3::prelude::*;
 use hdk3::prelude::link::Link;
 
-use std::str;
-
 use crate::{
-    link_kind::*, entry_kind,
+    link_kind::*,
     mail::entries::*,
     utils::*,
 };
@@ -126,9 +124,8 @@ pub(crate) fn create_and_commit_inack(outmail_eh: EntryHash, from: &AgentPubKey)
     let inack_eh = hash_entry(&inack)?;
     //debug!("inack_eh: {}", inack_eh).ok();
     /// Create link tag
-    let vec = from.clone().into_inner();
+    //let vec = from.clone().into_inner();
     let recepient = format!("{}", from);
-
     let tag = LinkKind::Receipt.concat(&recepient);
     /// Create link from OutMail
     let link_address = create_link(outmail_eh, inack_eh, tag)?;

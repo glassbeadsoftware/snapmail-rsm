@@ -9,14 +9,14 @@ use super::Mail;
 #[derive(Clone, Debug, PartialEq)]
 pub struct PendingMail {
     pub mail: Mail,
-    pub outmail_address: HeaderHash,
+    pub outmail_eh: EntryHash,
 }
 
 impl PendingMail {
-    pub fn new(mail: Mail, outmail_address: HeaderHash) -> Self {
+    pub fn new(mail: Mail, outmail_eh: EntryHash) -> Self {
         Self {
             mail,
-            outmail_address,
+            outmail_eh,
         }
     }
 
@@ -39,7 +39,7 @@ impl PendingMail {
 //
 //    pub fn decrypt(self, _from: AgentId) -> Result<Mail, ()> {
 //        // decrypt
-//        let maybe_decrypted = Ok(self.outmail_address);
+//        let maybe_decrypted = Ok(self.outmail_eh);
 //        // FIXME should be:
 //        // const maybe_decrypted = hdk::decrypt(self.encrypted_mail, from);
 //        // if maybe_decrypted.is_err() {

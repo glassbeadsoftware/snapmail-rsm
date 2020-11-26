@@ -1,20 +1,23 @@
 use hdk3::prelude::*;
 
 use crate::{
-    utils::*,
-    dm::*,
-    entry_kind, signal_protocol::*,
+    //utils::*,
+    //dm::*,
+    //entry_kind, signal_protocol::*,
             //file::{FileChunk, FileManifest},
-            mail::{
-    self,
-    entries::{InMail, MailItem, MailState},
+    mail::{
+        self,
+        entries::{
+            InMail,
+            // InMailState,
+            // MailItem, MailState,
+        },
     },
-    DirectMessageProtocol, MailMessage, AckMessage, ReceivedAck, snapmail_now,
+    DirectMessageProtocol, MailMessage, AckMessage,
+    //ReceivedAck, snapmail_now,
 };
-use std::convert::TryInto;
-use crate::mail::entries::InMailState;
 
-
+///
 pub fn receive_dm(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessageProtocol {
     debug!("Received from: {}", from).ok();
     // let maybe_msg: Result<DirectMessageProtocol, _> = msg_json.try_into();
@@ -157,14 +160,14 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     /// Create InMail
     let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
     /// Commit InMail
-    let maybe_inmail_address = create_entry_wrapper(inmail);
-    if let Err(err) = maybe_inmail_address {
+    let maybe_inmail_hh = create_entry_wrapper(inmail);
+    if let Err(err) = maybe_inmail_hh {
         let response_str = "Failed committing InMail";
         debug!(format!("{}: {}", response_str, err)).ok();
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-    let inmail_address =  maybe_inmail_address.unwrap();
-    debug!(format!("inmail_address: {:?}", inmail_address)).ok();
+    let inmail_hh =  maybe_inmail_hh.unwrap();
+    debug!(format!("inmail_address: {:?}", inmail_hh)).ok();
 
     // // Emit signal
     // let item = MailItem {
@@ -190,22 +193,23 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
 /// Returns Success or Failure.
 pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
     /// Create InAck
-    debug!("receive_dm_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_address).ok();
-    let maybe_outmail = get_local(ack_msg.outmail_address);
-    if let Err(err) = maybe_outmail {
-        let response_str = "get_local(): Failed to find Element at given HeaderHash";
-        debug!("{}: {}", response_str, err).ok();
-        return DirectMessageProtocol::Failure(response_str.to_string());
-    }
-    let maybe_outmail_eh = get_eh(&maybe_outmail.unwrap());
-    if let Err(err) = maybe_outmail_eh {
-        let response_str = "get_eh(): Failed to find Element or Entry at given HeaderHash";
-        debug!("{}: {}", response_str, err).ok();
-        return DirectMessageProtocol::Failure(response_str.to_string());
-    }
-    let outmail_eh = maybe_outmail_eh.unwrap();
+    debug!("receive_dm_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_eh).ok();
+    // let maybe_outmail = get_local(ack_msg.outmail_eh);
+    // if let Err(err) = maybe_outmail {
+    //     let response_str = "get_local(): Failed to find Element at given HeaderHash";
+    //     debug!("{}: {}", response_str, err).ok();
+    //     return DirectMessageProtocol::Failure(response_str.to_string());
+    // }
+    // let maybe_outmail_eh = get_eh(&maybe_outmail.unwrap());
+    // if let Err(err) = maybe_outmail_eh {
+    //     let response_str = "get_eh(): Failed to find Element or Entry at given HeaderHash";
+    //     debug!("{}: {}", response_str, err).ok();
+    //     return DirectMessageProtocol::Failure(response_str.to_string());
+    // }
+    // let outmail_eh = maybe_outmail_eh.unwrap();
     //.expect("Should have valid HeaderHash");
 
+    let outmail_eh = ack_msg.outmail_eh.clone();
     debug!("outmail_eh = {:?}", outmail_eh).ok();
     let res = mail::create_and_commit_inack(outmail_eh, &from);
     if let Err(err) = res {

@@ -1,15 +1,13 @@
 use hdk3::prelude::*;
 use hdk3::prelude::query::ChainQueryFilter;
 
-use chrono::DateTime;
 use std::convert::TryFrom;
-
 
 use crate::{
     // link_kind,
     entry_kind,
     def_to_type,
-    mail::entries::{*, self},
+    mail::entries::*,
     mail::utils::{get_inmail_state, get_outmail_state},
     utils::*,
 };

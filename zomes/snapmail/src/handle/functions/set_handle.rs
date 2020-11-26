@@ -28,8 +28,6 @@ pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
 pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     /// -- Create Handle Entry
     let new_handle = Handle::new(name.to_string());
-    //let app_entry = Entry::App(entry_kind::Handle.into(), new_handle.into());
-
     /// -- Check if already have Handle
     let my_agent_address = agent_info()?.agent_latest_pubkey;
     let maybe_current_handle_element = get_handle_element(my_agent_address.clone());

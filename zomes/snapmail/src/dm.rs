@@ -2,7 +2,6 @@ use hdk3::prelude::*;
 use crate::{
    mail,
    dm_protocol::*,
-   utils::*,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]

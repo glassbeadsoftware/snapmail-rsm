@@ -14,18 +14,18 @@ pub struct GetMailOutput(pub Option<Result<InMail, OutMail>>);
 /// Zome Function
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
-pub fn get_mail(address: HeaderHash) -> ExternResult<GetMailOutput>{
-    return try_into_mail(address);
+pub fn get_mail(hh: HeaderHash) -> ExternResult<GetMailOutput>{
+    return try_into_mail(hh);
 }
 
 /// Get InMail or OutMail at address
-pub(crate) fn try_into_mail(address: HeaderHash) -> ExternResult<GetMailOutput> {
+pub(crate) fn try_into_mail(hh: HeaderHash) -> ExternResult<GetMailOutput> {
     /// Get Element at address
     // let element = match get_local(address) {
     //     Ok(element) => element,
     //     Err(_) => return Ok(GetMailOutput(None)),
     // };
-    let element = match get(address, GetOptions)? {
+    let element = match get(hh, GetOptions)? {
         Some(element) => element,
         None => return Ok(GetMailOutput(None)),
     };

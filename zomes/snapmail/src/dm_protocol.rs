@@ -23,12 +23,12 @@ pub enum DirectMessageProtocol {
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub struct MailMessage {
-    pub outmail_address: HeaderHash,
+    pub outmail_eh: EntryHash,
     pub mail: Mail,
     //pub manifest_address_list: Vec<HeaderHash>,
 }
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub struct AckMessage {
-    pub outmail_address: HeaderHash,
+    pub outmail_eh: EntryHash,
 }

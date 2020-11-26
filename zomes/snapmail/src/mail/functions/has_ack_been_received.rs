@@ -4,9 +4,6 @@ use hdk3::prelude::metadata::EntryDhtStatus;
 use crate::{
     ZomeBool,
     link_kind::*,
-    mail::entries::{
-        InMail,
-    },
     utils::*,
 };
 

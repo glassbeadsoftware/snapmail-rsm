@@ -1,6 +1,7 @@
 #![allow(non_upper_case_globals)]
 #![allow(unused_doc_comments)]
 #![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 
 extern crate strum;
 #[macro_use]
@@ -97,7 +98,11 @@ pub struct ZomeString(String);
 pub struct ZomeRaw(Vec<u8>);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
-pub struct ZomeHeaderHashVec(Vec<HeaderHash>);
+pub struct ZomeHhVec(Vec<HeaderHash>);
+
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+pub struct ZomeEhVec(Vec<EntryHash>);
+
 
 // -- Callbacks -- //
 

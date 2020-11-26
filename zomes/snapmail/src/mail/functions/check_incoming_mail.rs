@@ -2,19 +2,20 @@ use hdk3::prelude::*;
 
 use crate::{
     mail::entries::PendingMail,
-    ZomeHeaderHashVec,
+    ZomeHhVec,
     utils::*,
-    signal_protocol::*,
+    //signal_protocol::*,
     //file::dm::{request_chunk_by_dm, request_manifest_by_dm},
-    link_kind::*, entry_kind,
+    link_kind::*,
     mail::{self, entries::InMail},
     //file::{FileManifest},
 };
 
 /// Zome Function
-/// Return list of new InMail addresses created after checking MailInbox links
+/// Check for PendingMails and convert to InMails
+/// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
-pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
+pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
     let maybe_element = crate::handle::get_my_handle_element();
     if let None = maybe_element {
         return error("This agent does not have a Handle set up");
@@ -24,10 +25,10 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
     /// Lookup `mail_inbox` links on my agentId
     let links_result = get_links(
         my_handle_address.clone(),
-        Some(LinkKind::MailInbox.as_tag()),
+        LinkKind::MailInbox.as_tag_opt(),
         )?.into_inner();
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_address).ok();
-    // For each MailInbox link
+    /// Check each MailInbox link
     let mut new_inmails = Vec::new();
     for link in &links_result {
         let pending_mail_eh = link.target.clone();
@@ -37,31 +38,30 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
             continue;
         }
         let pending_hh = maybe_hh.unwrap().1;
-        //  1. Get entry on the DHT
         debug!("pending mail address: {}", pending_mail_eh).ok();
+        /// Get entry on the DHT
         let maybe_pending_mail = mail::get_pending_mail(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
             debug!("Getting PendingMail from DHT failed: {}", err).ok();
             continue;
         }
         let (author, pending) = maybe_pending_mail.unwrap();
-        //  2. Convert and Commit as InMail
+        /// Convert and Commit as InMail
         let inmail = InMail::from_pending(pending, author);
-        //let inmail_entry = Entry::App(entry_kind::InMail.into(), inmail.clone().into());
         let maybe_inmail_address = create_entry(&inmail);
         if maybe_inmail_address.is_err() {
             debug!("Failed committing InMail").ok();
             continue;
         }
         new_inmails.push(maybe_inmail_address.unwrap());
-        //  3. Remove link from this agentId
+        /// Remove link from this agent address
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
             debug!("Remove ``mail_inbox`` link failed:").ok();
             debug!(err).ok();
             continue;
         }
-        //  4. Delete PendingMail entry
+        /// Delete PendingMail entry
         let res = delete_entry(pending_hh);
         if let Err(err) = res {
             debug!("Delete PendingMail failed: {:?}", err).ok();
@@ -124,5 +124,5 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHeaderHashVec> {
         //     // }
         // }
     }
-    Ok(ZomeHeaderHashVec(new_inmails))
+    Ok(ZomeHhVec(new_inmails))
 }

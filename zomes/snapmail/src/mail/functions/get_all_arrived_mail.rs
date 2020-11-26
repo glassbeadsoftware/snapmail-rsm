@@ -2,16 +2,15 @@ use hdk3::prelude::*;
 use hdk3::prelude::query::ChainQueryFilter;
 
 use crate::{
-    ZomeHeaderHashVec,
+    ZomeHhVec,
     link_kind::*, entry_kind,
     def_to_type,
-    utils::*,
 };
 
 /// Zome Function
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
-pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHeaderHashVec> {
+pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
     /// 1. Get all InMails with query
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
@@ -60,5 +59,5 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHeaderHashVec> {
         /// Add to result list
         unreads.push(header_address.clone());
     }
-    Ok(ZomeHeaderHashVec(unreads))
+    Ok(ZomeHhVec(unreads))
 }

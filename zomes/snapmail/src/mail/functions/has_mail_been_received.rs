@@ -17,12 +17,12 @@ pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
 /// Check if agent received receipts from all receipients of one of its OutMail.
 /// If false, returns list of agents who's receipt is missing.
 #[hdk_extern]
-pub fn has_mail_been_received(outmail_address: HeaderHash) -> ExternResult<HasMailBeenReceivedOutput> {
+pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenReceivedOutput> {
     /// 1. get OutMail
-    let (entry_address, outmail) = get_typed_entry::<OutMail>(outmail_address.clone())?;
+    let (entry_address, outmail) = get_typed_entry::<OutMail>(outmail_hh.clone())?;
     /// 2. Merge all recepients lists into one
     let all_recepients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
-    debug!("all_recepients: {:?} ({})", all_recepients, outmail_address).ok();
+    debug!("all_recepients: {:?} ({})", all_recepients, outmail_hh).ok();
     /// 3. get all ``receipt`` links
     let links_result: Vec<Link> = get_links(entry_address, LinkKind::Receipt.as_tag_opt())?.into_inner();
     debug!("links_result: {:?}", links_result).ok();

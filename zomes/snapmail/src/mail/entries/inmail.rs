@@ -12,7 +12,7 @@ pub struct InMail {
     pub mail: Mail,
     pub from: AgentPubKey,
     pub date_received: u64,
-    pub outmail_address: HeaderHash,
+    pub outmail_eh: EntryHash,
 }
 
 impl InMail {
@@ -20,19 +20,19 @@ impl InMail {
         mail: Mail,
         from: AgentPubKey,
         date_received: u64,
-        outmail_address: HeaderHash,
+        outmail_eh: EntryHash,
     ) -> Self {
         Self {
             mail,
             from,
             date_received,
-            outmail_address,
+            outmail_eh,
         }
     }
 
     pub fn from_direct(from: AgentPubKey, dm: MailMessage) -> Self {
         let received_date = crate::snapmail_now();
-        Self::new(dm.mail, from.clone(), received_date, dm.outmail_address)
+        Self::new(dm.mail, from.clone(), received_date, dm.outmail_eh)
     }
 
     pub fn from_pending(pending: PendingMail, from: AgentPubKey) -> Self {
@@ -41,6 +41,6 @@ impl InMail {
 //            return ZomeApiError();
 //        }
         let received_date = crate::snapmail_now();
-        Self::new(pending.mail, from.clone(), received_date, pending.outmail_address)
+        Self::new(pending.mail, from.clone(), received_date, pending.outmail_eh)
     }
 }

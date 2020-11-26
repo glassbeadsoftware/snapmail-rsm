@@ -125,7 +125,7 @@ const send_pending_test = async (s, t) => {
 
     await delay(10);
 
-    const received_result = await alexCell.call("snapmail", "has_mail_been_received", {"outmail_address": send_result.Ok.outmail})
+    const received_result = await alexCell.call("snapmail", "has_mail_been_received", send_result.Ok.outmail)
     console.log('received_result1 : ' + JSON.stringify(received_result.Ok))
     t.deepEqual(received_result.Ok.Err.length, 1)
     t.deepEqual(received_result.Ok.Err[0], billyAddress)
