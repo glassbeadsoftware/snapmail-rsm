@@ -3,8 +3,7 @@ use hdk3::prelude::query::ChainQueryFilter;
 
 use crate::{
     ZomeHhVec,
-    link_kind::*, entry_kind,
-    def_to_type,
+    link_kind::*, entry_kind::*,
 };
 
 /// Zome Function
@@ -14,7 +13,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
     /// 1. Get all InMails with query
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(def_to_type(entry_kind::InMail));
+       .entry_type(EntryKind::InMail.as_type());
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
         debug!("get_all_mails() inmail_result failed: {:?}", err).ok();

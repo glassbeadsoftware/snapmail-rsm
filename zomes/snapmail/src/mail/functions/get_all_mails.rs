@@ -5,8 +5,7 @@ use std::convert::TryFrom;
 
 use crate::{
     // link_kind,
-    entry_kind,
-    def_to_type,
+    entry_kind::*,
     mail::entries::*,
     mail::utils::{get_inmail_state, get_outmail_state},
     utils::*,
@@ -22,7 +21,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     /// 1. Get all mails with query (InMail & OutMail)
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(def_to_type(entry_kind::InMail));
+       .entry_type(EntryKind::InMail.as_type());
     let maybe_inmails = query(inmail_query_args);
     if let Err(err) = maybe_inmails {
         debug!("get_all_mails() query failed: {:?}", err).ok();
@@ -36,7 +35,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     ///
     let outmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(def_to_type(entry_kind::OutMail));
+       .entry_type(EntryKind::OutMail.as_type());
     let maybe_outmails = query(outmail_query_args);
     if let Err(err) = maybe_outmails {
         debug!("get_all_mails() outmail_result failed: {:?}", err).ok();

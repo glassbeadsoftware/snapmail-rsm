@@ -10,7 +10,7 @@ extern crate strum_macros;
 
 mod validate_create_link;
 mod validate_delete_link;
-mod validate;
+mod validate_entry;
 mod utils;
 
 mod constants;
@@ -47,44 +47,6 @@ pub use signal_protocol::*;
 
 holochain_externs!();
 
-/// Careful of order
-entry_defs![
-   /// --  Handle
-   Handle::entry_def(),
-   /// -- Mail
-   InMail::entry_def(),
-   OutMail::entry_def(),
-   OutAck::entry_def(),
-   InAck::entry_def(),
-   PendingAck::entry_def(),
-   PendingMail::entry_def(),
-   /// -- Other
-   Path::entry_def(),
-   Post::entry_def(),
-   FileChunk::entry_def()
-];
-
-
-/// Get EntryType out of a EntryDef
-pub fn def_to_type(entry_name: &str) -> EntryType {
-    /// Sadly hardcoded since index is based on vec above.
-    let entry_index = match entry_name {
-        entry_kind::Handle => 0,
-        entry_kind::InMail => 1,
-        entry_kind::OutMail => 2,
-        entry_kind::OutAck => 3,
-        entry_kind::InAck => 4,
-        entry_kind::PendingAck => 5,
-        entry_kind::PendingMail => 6,
-        _  => unreachable!(),
-    };
-    let app_type = AppEntryType::new(
-        EntryDefIndex::from(entry_index),
-        ZomeId::from(0), // since we have only one zome in our DNA (thank god)
-        EntryVisibility::Public, // Everything Public for now...
-    );
-    EntryType::App(app_type)
-}
 
 // -- Wrapped Common types -- //
 

@@ -24,6 +24,17 @@ pub fn snapmail_now() -> u64 {
 }
 
 /// Get Element at address using query()
+pub fn get_entry_type(eh: EntryHash) -> ExternResult<EntryType> {
+    let maybe_element = get(eh, GetOptions)?;
+    if maybe_element.is_none() {
+        return error("no element found for entry_hash");
+    }
+    let element = maybe_element.unwrap();
+    let entry_type = element.header().entry_type().expect("should have entry type").clone();
+    Ok(entry_type)
+}
+
+/// Get Element at address using query()
 pub fn get_local(hh: HeaderHash) -> ExternResult<Element> {
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true);

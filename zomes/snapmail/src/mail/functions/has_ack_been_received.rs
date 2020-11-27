@@ -34,7 +34,7 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
     }
     let history = match maybe_pending_history.unwrap() {
         Details::Entry(entry_details) => entry_details,
-        Details::Element(_) => unreachable!(),
+        Details::Element(_) => unreachable!("in has_ack_been_received()"),
     };
     //let history = maybe_pending_history.unwrap();
     debug!(" has_ack_been_received() history: {:?}", history).ok();

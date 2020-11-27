@@ -11,10 +11,10 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
 
     let maybe_package = input.validation_package;
     let element = input.element;
-    let entry = element.into_inner().1;
+    let entry = element.clone().into_inner().1;
     let entry = match entry {
         ElementEntry::Present(e) => e,
-        _ => return Ok(ValidateCallbackResult::Valid), // Why not invalid?
+        _ => return Ok(ValidateCallbackResult::Valid), // WARN - Why not invalid?
     };
 
     // Determine where to dispatch according to base
@@ -22,21 +22,27 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
         Entry::Agent(agent_hash) => validate_agent_entry(agent_hash, maybe_package),
         Entry::CapClaim(claim) => validate_claim_entry(claim, maybe_package),
         Entry::CapGrant(grant) => validate_grant_entry(grant, maybe_package),
-        Entry::App(entry_bytes) => validate_app_entry(entry_bytes, maybe_package),
+        Entry::App(entry_bytes) => {
+            let entry_type = element.header().entry_type().unwrap();
+            let app_type_id = if let EntryType::App(app_entry_type) = entry_type {
+                app_entry_type.id()
+            } else { unreachable!()};
+            validate_app_entry(app_type_id, entry_bytes, maybe_package)
+        },
     };
     debug!(format!("*** validate() called ; result = {:?}", result)).ok();
     result
 }
 
-
 ///
 fn validate_app_entry(
-    base_entry_bytes: AppEntryBytes,
+    _entry_type_id: EntryDefIndex,
+    entry_bytes: AppEntryBytes,
     maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
     debug!("*** validate_app_entry() called!").ok();
-    let sb = base_entry_bytes.into_sb();
+    let sb = entry_bytes.into_sb();
 
     /// Validate Path entry
     let maybe_path = Path::try_from(sb.clone());
