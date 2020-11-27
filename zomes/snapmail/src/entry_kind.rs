@@ -31,18 +31,6 @@ entry_defs![
    FileChunk::entry_def()
 ];
 
-// /// Listing all Holochain Entry kinds in this DNA
-// pub const Handle: &'static str = "handle";
-// pub const InMail: &'static str = "inmail";
-// pub const InAck: &'static str = "inack";
-// pub const PendingMail: &'static str = "pending_mail";
-// pub const PendingAck: &'static str = "pending_ack";
-// pub const OutMail: &'static str = "outmail";
-// pub const OutAck: &'static str = "outack";
-// // pub const File: &'static str = "file";
-// pub const FileChunk: &'static str = "file_chunk";
-// pub const FileManifest: &'static str = "file_manifest";
-
 /// Listing all Link kinds for this DNA
 #[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
 pub enum EntryKind {
@@ -180,29 +168,6 @@ impl EntryKind {
       EntryType::App(app_type)
    }
 }
-
-
-// /// Get EntryType out of a string
-// pub fn entry_name_to_type(entry_name: &str) -> EntryType {
-//    /// Sadly hardcoded since index is based on vec above.
-//    let entry_index = match entry_name {
-//       entry_kind::Handle => 0,
-//       entry_kind::InMail => 1,
-//       entry_kind::OutMail => 2,
-//       entry_kind::OutAck => 3,
-//       entry_kind::InAck => 4,
-//       entry_kind::PendingAck => 5,
-//       entry_kind::PendingMail => 6,
-//       _  => unreachable!(),
-//    };
-//    let app_type = AppEntryType::new(
-//       EntryDefIndex::from(entry_index),
-//       ZomeId::from(0), // since we have only one zome in our DNA (thank god)
-//       EntryVisibility::Public, // Everything Public for now...
-//    );
-//    EntryType::App(app_type)
-// }
-
 
 /// Get EntryType out of an Entry
 pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryType> {

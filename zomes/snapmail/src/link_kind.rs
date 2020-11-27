@@ -14,7 +14,7 @@ use crate::{
 
 pub const LinkSeparator: &'static str = "___";
 
-/// Listing all Link kinds for this DNA
+/// List of all Link kinds handled by this Zome
 #[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
 pub enum LinkKind {
    #[strum(props(BaseType = "Path", TargetType = "Handle"))]
@@ -35,32 +35,34 @@ pub enum LinkKind {
    Receipt,
 }
 
+/// Public
 impl LinkKind {
-   pub fn validate_create(candidat: ValidateCreateLinkData)
-      -> ExternResult<ValidateLinkCallbackResult>
-   {
-      let tag_str = String::from_utf8_lossy(&candidat.link_add.tag.0);
-      for link_kind in LinkKind::iter() {
-         if tag_str == link_kind.as_static() {
-            return link_kind.validate_create_types(candidat, None);
-         }
-         let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&candidat.link_add.tag);
-         if let Ok(from) = maybe_hash {
-            return link_kind.validate_create_types(candidat, Some(from));
-         }
-      }
-      Ok(ValidateLinkCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
+
+   /// Convert to LinkTag
+   pub fn as_tag(&self) -> LinkTag {
+      let str = self.as_static();
+      LinkTag::new(str.as_bytes().clone())
    }
 
+   /// Convert to Option<LinkTag>
+   pub fn as_tag_opt(&self) -> Option<LinkTag> {
+      Some(self.as_tag())
+   }
+
+   ///
    pub fn allowed_base_type(&self) -> EntryType {
       return self.prop_to_type("BaseType");
    }
 
+   ///
    pub fn allowed_target_type(&self) -> EntryType {
       return self.prop_to_type("TargetType");
    }
+}
 
-   ///
+/// Private
+impl LinkKind {
+   /// Convert an EnumProperty to an EntryType
    fn prop_to_type(&self, prop_name: &str) -> EntryType {
       let kind_str = self.get_str(prop_name).unwrap();
       let maybe_kind = EntryKind::from_str(kind_str);
@@ -74,9 +76,8 @@ impl LinkKind {
       unreachable!()
    }
 
-
    ///
-   pub fn validate_create_types(
+   fn validate_types(
       self,
       candidat: ValidateCreateLinkData,
       maybe_hash: Option<AgentPubKey>,
@@ -98,16 +99,8 @@ impl LinkKind {
    }
 }
 
+/// Concat
 impl LinkKind {
-   pub fn as_tag(&self) -> LinkTag {
-      let str = self.as_static();
-      LinkTag::new(str.as_bytes().clone())
-   }
-
-   pub fn as_tag_opt(&self) -> Option<LinkTag> {
-      Some(self.as_tag())
-   }
-
    /// Create LinkTag with concatenated raw data
    pub fn concat(&self, suffix: &[u8]) -> LinkTag {
       let mut vec = self.as_static().as_bytes().to_vec();
@@ -168,3 +161,29 @@ impl LinkKind {
    //    Ok(substrs[1].to_string())
    // }
 }
+
+
+// ///
+// fn validate_handle_link(
+//    agent_hash: AgentPubKey,
+//    submission: ValidateCreateLinkData,
+// ) -> ExternResult<ValidateLinkCallbackResult>
+// {
+//    debug!("*** validate_handle_link() START").ok();
+//    assert!(submission.link_add.tag == LinkKind::Handle.as_tag());
+//
+//    // FIXME: Only one handle per agent
+//    //let my_agent_address = agent_info!()?.agent_latest_pubkey;
+//    //let maybe_current_handle_element = get_handle_element(my_agent_address.clone());
+//    let maybe_current_handle: ExternResult<Handle> = try_from_entry(submission.target);
+//    if maybe_current_handle.is_err() {
+//       return Ok(ValidateLinkCallbackResult::Invalid("Not linked to a Handle Entry".into()));
+//    }
+//    let _handle_entry = maybe_current_handle.unwrap();
+//    /// Can only set handle for self
+//    if submission.link_add.author != agent_hash {
+//       return Ok(ValidateLinkCallbackResult::Invalid("Not self authored".into()));
+//    }
+//    // FIXME: Check if new Handle is different from currrent
+//    Ok(ValidateLinkCallbackResult::Valid);
+// }
