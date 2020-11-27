@@ -8,8 +8,7 @@ extern crate strum;
 extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
-mod validate_create_link;
-mod validate_delete_link;
+mod validate_link;
 mod validate_entry;
 mod utils;
 
@@ -31,9 +30,6 @@ mod mail;
 // mod file;
 
 use hdk3::prelude::*;
-use chunk::*;
-use handle::*;
-use mail::entries::*;
 
 pub use playground::*;
 pub use dm::*;
@@ -48,7 +44,7 @@ pub use signal_protocol::*;
 holochain_externs!();
 
 
-// -- Wrapped Common types -- //
+/// -- Wrapped Common types -- ///
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
 pub struct ZomeBool(bool);
@@ -66,7 +62,7 @@ pub struct ZomeHhVec(Vec<HeaderHash>);
 pub struct ZomeEhVec(Vec<EntryHash>);
 
 
-// -- Callbacks -- //
+/// -- Callbacks -- ///
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {

@@ -77,10 +77,10 @@ impl LinkKind {
    }
 
    ///
-   fn validate_types(
+   fn _validate_types(
       self,
       candidat: ValidateCreateLinkData,
-      maybe_hash: Option<AgentPubKey>,
+      _maybe_hash: Option<AgentPubKey>,
    ) -> ExternResult<ValidateLinkCallbackResult> {
       /// Get types used in link candidat
       let base_type = determine_entry_type(candidat.link_add.base_address, &candidat.base)?;

@@ -3,8 +3,8 @@ use hdk3::prelude::*;
 use std::str::FromStr;
 
 use strum::AsStaticRef;
-use strum::IntoEnumIterator; // 0.17.1
-use strum_macros::EnumIter; // 0.17.1
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 use crate::{
    playground::*,
@@ -32,7 +32,8 @@ entry_defs![
 ];
 
 /// Listing all Link kinds for this DNA
-#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
+#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize,
+   SerializedBytes, PartialEq)]
 pub enum EntryKind {
    /// !! Keep Order !!
    Handle,
@@ -83,6 +84,17 @@ impl FromStr for EntryKind {
 
 
 impl EntryKind {
+
+   /// Hackish but works
+   pub fn from_index(index: &EntryDefIndex) -> Self {
+      for entry_kind in EntryKind::iter() {
+         if entry_kind.index() == index.index() as u8 {
+            return entry_kind;
+         }
+      }
+      unreachable!()
+   }
+
    ///
    pub fn from_entry_bytes(entry_bytes: AppEntryBytes) -> Self {
 

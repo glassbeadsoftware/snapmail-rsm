@@ -1,10 +1,15 @@
 use hdk3::prelude::*;
 use hdk3::prelude::element::ElementEntry;
+
 use crate::{
-    handle::*, chunk::*,
+    handle::*,
+    chunk::*,
     mail::entries::*,
+    entry_kind::*,
+    utils::*,
 };
 
+/// Zome Callback
 #[hdk_extern]
 fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
     debug!("*** validate() called!").ok();
@@ -36,107 +41,105 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
 
 ///
 fn validate_app_entry(
-    _entry_type_id: EntryDefIndex,
+    entry_type_id: EntryDefIndex,
     entry_bytes: AppEntryBytes,
     maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
     debug!("*** validate_app_entry() called!").ok();
     let sb = entry_bytes.into_sb();
+    let entry_kind = EntryKind::from_index(&entry_type_id);
 
-    /// Validate Path entry
-    let maybe_path = Path::try_from(sb.clone());
-    if maybe_path.is_ok() {
-        // FIXME
-        return Ok(ValidateCallbackResult::Valid);
+    match entry_kind {
+        EntryKind::Handle => {
+            let maybe_handle = Handle::try_from(sb.clone());
+            if let Err(_err) = maybe_handle {
+                return error("Failed to deserialize Handle");
+            }
+            let handle = maybe_handle.unwrap();
+            return validate_handle_entry(handle, maybe_validation_package);
+        },
+        EntryKind::Path => {
+            let maybe_content = Path::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize Path");
+            }
+            // FIXME
+            Ok(ValidateCallbackResult::Valid)
+        },
+        EntryKind::InMail => {
+            let maybe_content = InMail::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize InMail");
+            }
+            // FIXME
+            // return validate_inmail_entry(inmail, maybe_validation_package);
+            return Ok(ValidateCallbackResult::Valid);
+        },
+        EntryKind::InAck => {
+            let maybe_content = InAck::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize InAck");
+            }
+            // FIXME
+            return Ok(ValidateCallbackResult::Valid);
+        },
+        EntryKind::PendingMail => {
+            let maybe_content = PendingMail::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize PendingMail");
+            }
+            // FIXME
+            return Ok(ValidateCallbackResult::Valid);
+        },
+        EntryKind::PendingAck => {
+            let maybe_content = PendingAck::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize PendingAck");
+            }
+            // FIXME
+            return Ok(ValidateCallbackResult::Valid);
+        },
+        EntryKind::OutMail => {
+            let maybe_content = OutMail::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize OutMail");
+            }
+            // FIXME
+            return Ok(ValidateCallbackResult::Valid);
+        },
+        EntryKind::OutAck => {
+            let maybe_content = OutAck::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize OutAck");
+            }
+            // FIXME
+            return Ok(ValidateCallbackResult::Valid);
+        },
+        EntryKind::FileManifest => {
+            // let maybe_content = FileManifest::try_from(sb.clone());
+            // if let Err(err) = maybe_content {
+            //     return error("Failed to deserialize FileManifest");
+            // }
+            // FIXME
+            return Ok(ValidateCallbackResult::Valid);
+        },
+
+        /// DEBUG
+        EntryKind::FileChunk => {
+            let maybe_content = FileChunk::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize FileChunk");
+            }
+            return Ok(ValidateCallbackResult::Valid);
+        },
+
+        /// Add entry validation per type here
+        /// ..
+
+        /// Unreachable but doesnt compile without it. Yay Rust
+        _ => Ok(ValidateCallbackResult::Invalid("Not authorized".into())),
     }
-
-    /// Validate Chunk entry
-    /// DEBUG
-    let maybe_chunk = FileChunk::try_from(sb.clone());
-    if maybe_chunk.is_ok() {
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    /// Validate Handle entry
-    let maybe_handle = Handle::try_from(sb.clone());
-    if maybe_handle.is_ok() {
-        let handle = maybe_handle.unwrap();
-        return validate_handle_entry(handle, maybe_validation_package);
-    }
-
-    /// Validate InMail entry
-    let maybe_app_entry = InMail::try_from(sb.clone());
-    if maybe_app_entry.is_ok() {
-        let _inmail = maybe_app_entry.unwrap();
-        // FIXME
-        // return validate_inmail_entry(inmail, maybe_validation_package);
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    /// Validate InAck entry
-    let maybe_app_entry = InAck::try_from(sb.clone());
-    if maybe_app_entry.is_ok() {
-        let _inack = maybe_app_entry.unwrap();
-        // FIXME
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    /// Validate PendingMail entry
-    let maybe_app_entry = PendingMail::try_from(sb.clone());
-    if maybe_app_entry.is_ok() {
-        let _pending_mail = maybe_app_entry.unwrap();
-        // FIXME
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    /// Validate PendingAck entry
-    let maybe_app_entry = PendingAck::try_from(sb.clone());
-    if maybe_app_entry.is_ok() {
-        let _pending_ack = maybe_app_entry.unwrap();
-        // FIXME
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    /// Validate OutMail entry
-    let maybe_app_entry = OutMail::try_from(sb.clone());
-    if maybe_app_entry.is_ok() {
-        let _outmail = maybe_app_entry.unwrap();
-        // FIXME
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    /// Validate OutAck entry
-    let maybe_app_entry = OutAck::try_from(sb.clone());
-    if maybe_app_entry.is_ok() {
-        let _outack = maybe_app_entry.unwrap();
-        // FIXME
-        return Ok(ValidateCallbackResult::Valid);
-    }
-
-    // /// Validate FileChunk entry
-    // let maybe_app_entry = FileChunk::try_from(sb.clone());
-    // if maybe_app_entry.is_ok() {
-    //     let _filechunk = maybe_app_entry.unwrap();
-    //     // FIXME
-    //     return Ok(ValidateCallbackResult::Valid);
-    // }
-    //
-    // /// Validate FileChunk entry
-    // let maybe_app_entry = FileManifest::try_from(sb.clone());
-    // if maybe_app_entry.is_ok() {
-    //     let _manifest = maybe_app_entry.unwrap();
-    //     // FIXME
-    //     return Ok(ValidateCallbackResult::Valid);
-    // }
-
-    /// Add entry validation per type here
-    /// ..
-
-    /// Done
-    // FIXME: should default to invalid
-    Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
-    //Ok(ValidateCallbackResult::Valid)
 }
 
 ///

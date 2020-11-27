@@ -47,28 +47,3 @@ fn validate_handle_delete(_: ValidateData) -> ExternResult<ValidateCallbackResul
 //     }
 //     return validate_name(new_handle.name);
 // }
-
-
-///
-pub(crate) fn validate_create_link_from_handle(
-    _handle: Handle,
-    _submission: ValidateCreateLinkData,
-) -> ExternResult<ValidateLinkCallbackResult>
-{
-    debug!("*** validate_create_link_from_handle() called!").ok();
-    // FIXME
-    //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
-    Ok(ValidateLinkCallbackResult::Valid)
-}
-
-///
-pub(crate) fn _validate_delete_link_from_handle(
-    _handle: Handle,
-    _submission: ValidateCreateLinkData,
-) -> ExternResult<ValidateLinkCallbackResult>
-{
-    debug!("*** validate_delete_link_from_handle() called!").ok();
-    // FIXME
-    //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
-    Ok(ValidateLinkCallbackResult::Valid)
-}
