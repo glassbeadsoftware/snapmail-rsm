@@ -57,7 +57,8 @@ pub(crate) fn validate_create_link_from_handle(
 {
     debug!("*** validate_create_link_from_handle() called!").ok();
     // FIXME
-    Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    Ok(ValidateLinkCallbackResult::Valid)
 }
 
 ///
@@ -68,5 +69,6 @@ pub(crate) fn _validate_delete_link_from_handle(
 {
     debug!("*** validate_delete_link_from_handle() called!").ok();
     // FIXME
-    Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    //Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
+    Ok(ValidateLinkCallbackResult::Valid)
 }

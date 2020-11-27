@@ -2,6 +2,10 @@ use hdk3::prelude::*;
 use holo_hash::hash_type::HashType;
 
 use strum::AsStaticRef;
+//use strum::IntoEnumIterator; // 0.17.1
+//use strum_macros::EnumIter; // 0.17.1
+//#[derive(EnumIter)]
+
 use crate::utils::*;
 
 pub const LinkSeparator: &'static str = "___";
@@ -9,25 +13,20 @@ pub const LinkSeparator: &'static str = "___";
 /// Listing all Link kinds for this DNA
 #[derive(AsStaticStr, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
 pub enum LinkKind {
+   Members,
    Acknowledgment,
    AckInbox,
    MailInbox,
-   Members,
    Handle,
    Pending,
    Pendings,
    Receipt,
 }
 
-#[derive(Serialize, Deserialize, SerializedBytes)]
-struct StringLinkTag(String);
-
 impl LinkKind {
    pub fn as_tag(self) -> LinkTag {
-      let sb: SerializedBytes = StringLinkTag(self.as_static().into())
-         .try_into()
-         .expect("StringLinkTag should convert to SerializedBytes");
-      LinkTag(sb.bytes().clone())
+      let str = self.as_static();
+      LinkTag::new(str.as_bytes().clone())
    }
 
    pub fn as_tag_opt(self) -> Option<LinkTag> {

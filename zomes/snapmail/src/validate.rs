@@ -2,6 +2,7 @@ use hdk3::prelude::*;
 use hdk3::prelude::element::ElementEntry;
 use crate::{
     handle::*, chunk::*,
+    mail::entries::*,
 };
 
 #[hdk_extern]
@@ -37,35 +38,99 @@ fn validate_app_entry(
     debug!("*** validate_app_entry() called!").ok();
     let sb = base_entry_bytes.into_sb();
 
-    /// Call validate Path entry
+    /// Validate Path entry
     let maybe_path = Path::try_from(sb.clone());
     if maybe_path.is_ok() {
         // FIXME
         return Ok(ValidateCallbackResult::Valid);
     }
-    /// Try validate Handle entry
+
+    /// Validate Chunk entry
+    /// DEBUG
+    let maybe_chunk = FileChunk::try_from(sb.clone());
+    if maybe_chunk.is_ok() {
+        return Ok(ValidateCallbackResult::Valid);
+    }
+
+    /// Validate Handle entry
     let maybe_handle = Handle::try_from(sb.clone());
     if maybe_handle.is_ok() {
         let handle = maybe_handle.unwrap();
         return validate_handle_entry(handle, maybe_validation_package);
     }
 
-    /// Try validate Chunk entry
-    let maybe_chunk = FileChunk::try_from(sb.clone());
-    if maybe_chunk.is_ok() {
+    /// Validate InMail entry
+    let maybe_app_entry = InMail::try_from(sb.clone());
+    if maybe_app_entry.is_ok() {
+        let _inmail = maybe_app_entry.unwrap();
+        // FIXME
+        // return validate_inmail_entry(inmail, maybe_validation_package);
         return Ok(ValidateCallbackResult::Valid);
     }
 
-    // let maybe_inmail = InMail::try_from(sb.clone());
-    // if maybe_inmail.is_ok() {
-    //     let inmail = maybe_inmail.unwrap();
-    //     return validate_inmail_entry(inmail, maybe_validation_package);
+    /// Validate InAck entry
+    let maybe_app_entry = InAck::try_from(sb.clone());
+    if maybe_app_entry.is_ok() {
+        let _inack = maybe_app_entry.unwrap();
+        // FIXME
+        return Ok(ValidateCallbackResult::Valid);
+    }
+
+    /// Validate PendingMail entry
+    let maybe_app_entry = PendingMail::try_from(sb.clone());
+    if maybe_app_entry.is_ok() {
+        let _pending_mail = maybe_app_entry.unwrap();
+        // FIXME
+        return Ok(ValidateCallbackResult::Valid);
+    }
+
+    /// Validate PendingAck entry
+    let maybe_app_entry = PendingAck::try_from(sb.clone());
+    if maybe_app_entry.is_ok() {
+        let _pending_ack = maybe_app_entry.unwrap();
+        // FIXME
+        return Ok(ValidateCallbackResult::Valid);
+    }
+
+    /// Validate OutMail entry
+    let maybe_app_entry = OutMail::try_from(sb.clone());
+    if maybe_app_entry.is_ok() {
+        let _outmail = maybe_app_entry.unwrap();
+        // FIXME
+        return Ok(ValidateCallbackResult::Valid);
+    }
+
+    /// Validate OutAck entry
+    let maybe_app_entry = OutAck::try_from(sb.clone());
+    if maybe_app_entry.is_ok() {
+        let _outack = maybe_app_entry.unwrap();
+        // FIXME
+        return Ok(ValidateCallbackResult::Valid);
+    }
+
+    // /// Validate FileChunk entry
+    // let maybe_app_entry = FileChunk::try_from(sb.clone());
+    // if maybe_app_entry.is_ok() {
+    //     let _filechunk = maybe_app_entry.unwrap();
+    //     // FIXME
+    //     return Ok(ValidateCallbackResult::Valid);
     // }
-    /// Add validate entry per type here...
+    //
+    // /// Validate FileChunk entry
+    // let maybe_app_entry = FileManifest::try_from(sb.clone());
+    // if maybe_app_entry.is_ok() {
+    //     let _manifest = maybe_app_entry.unwrap();
+    //     // FIXME
+    //     return Ok(ValidateCallbackResult::Valid);
+    // }
+
+    /// Add entry validation per type here
+    /// ..
+
     /// Done
     // FIXME: should default to invalid
-    //Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
-    Ok(ValidateCallbackResult::Valid)
+    Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
+    //Ok(ValidateCallbackResult::Valid)
 }
 
 ///
