@@ -156,7 +156,7 @@ fn send_mail_by_dm(
     // }
 
     /// --  Send Mail
-    debug!("Send Mail".to_string()).ok();
+    debug!("send_mail_by_dm()").ok();
     /// Create DM
     let msg = MailMessage {
         outmail_eh: outmail_eh.clone(),

@@ -19,7 +19,7 @@ module.exports = scenario => {
 const test_getset_handle = async (s, t) => {
     // -- Setup conductor
     //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
     // -- Set Handles -- //
 
@@ -40,13 +40,13 @@ const test_getset_handle = async (s, t) => {
 
     // -- Ping -- //
 
-    const result4 = await billyCell.call("snapmail", "ping_agent", alexAddress)
+    const result4 = await billyCell.call("snapmail", "ping_agent", alexHapp.agent)
     console.log('result4: ' + JSON.stringify(result4))
     t.deepEqual(result4, true)
 
     //await delay(6000);
 
-    const result5 = await alexCell.call("snapmail", "ping_agent", billyAddress)
+    const result5 = await alexCell.call("snapmail", "ping_agent", billyHapp.agent)
     console.log('result5: ' + JSON.stringify(result5))
     t.deepEqual(result4, true)
 
@@ -60,11 +60,11 @@ const test_getset_handle = async (s, t) => {
     t.deepEqual(result, name)
 
     //const params2 = { agentId: alexAddress }
-    const result2 = await alexCell.call("snapmail", "get_handle", alexAddress)
+    const result2 = await alexCell.call("snapmail", "get_handle", alexHapp.agent)
     console.log('result2: ' + JSON.stringify(result2))
     t.deepEqual(result2, name)
 
-    const result3 = await billyCell.call("snapmail", "get_handle", alexAddress)
+    const result3 = await billyCell.call("snapmail", "get_handle", alexHapp.agent)
     console.log('result3: ' + JSON.stringify(result3))
     t.deepEqual(result3, name)
 };
@@ -76,7 +76,7 @@ const test_getset_handle = async (s, t) => {
 const test_handle_list = async (s, t) => {
     // -- Setup conductor
     // const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
 
     // Set Alex

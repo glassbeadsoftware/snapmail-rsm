@@ -7,8 +7,8 @@ const { sleep, filterMailList, delay } = require('../utils')
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    //scenario("send pending test", send_pending_test)
-    scenario("send via DM test", send_dm_test)
+    scenario("send pending test", send_pending_test)
+    //scenario("send via DM test", send_dm_test)
     //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
@@ -35,7 +35,7 @@ async function setup_handles(s, t, alexCell, billyCell) {
     console.log('handle_address2: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
 
-    await delay(10);
+    await delay(2000);
 
     // -- Make sure handles are set -- //
 
@@ -47,7 +47,7 @@ async function setup_handles(s, t, alexCell, billyCell) {
     }
     t.deepEqual(handle_count, 2)
 
-    console.log('\n**** HANDLES HAVE BEEN SET **** \n\n')
+    console.log('\n**** '+ handle_count + ' HANDLES HAVE BEEN SET **** \n\n')
 }
 
 
@@ -56,22 +56,24 @@ async function setup_handles(s, t, alexCell, billyCell) {
  */
 const send_pending_test = async (s, t) => {
     // -- Setup -- //
-    const { alex, billy, camille, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
-    //const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductor(s, t)
+    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
     await setup_handles(s, t, alexCell, billyCell)
 
     // -- Billy goes offline -- //
 
-    await billy.shutdown()
-    await delay(1000);
+    //await billy.shutdown()
+    await billyCell.deactivate(billyHapp.hAppId)
+
+    await delay(4000);
 
     // -- Alex sends mail to Billy -- //
 
     const send_params = {
         subject: "test-outmail",
         payload: "blablabla",
-        to: [billyAddress],
+        to: [billyHapp.agent],
         cc: [],
         bcc: [],
         //manifest_address_list: []
@@ -85,7 +87,8 @@ const send_pending_test = async (s, t) => {
 
     // -- Billy goes online -- //
 
-    await billy.spawn()
+    //await billy.startup()
+    await billyCell.activate(billyHapp.hAppId)
 
     // handle_address = await billy.call("app", "snapmail", "set_handle", params)
     // console.log('handle_address2: ' + JSON.stringify(handle_address))
@@ -128,12 +131,13 @@ const send_pending_test = async (s, t) => {
     const received_result = await alexCell.call("snapmail", "has_mail_been_received", send_result.Ok.outmail)
     console.log('received_result1 : ' + JSON.stringify(received_result.Ok))
     t.deepEqual(received_result.Ok.Err.length, 1)
-    t.deepEqual(received_result.Ok.Err[0], billyAddress)
+    t.deepEqual(received_result.Ok.Err[0], billyHapp.agent)
 
     // -- Alex goes offline -- //
 
-    await alex.shutdown()
-    //await s.consistency()
+    //await alex.shutdown()
+    await alexCell.deactivate(alexHapp.hAppId)
+
     await delay(2000);
 
     // -- Billy sends Acknowledgment -- //
@@ -144,7 +148,9 @@ const send_pending_test = async (s, t) => {
 
     // -- Alex goes online -- //
 
-    await alex.startup()
+    //await alex.startup()
+    await alexCell.activate(alexHapp.hAppId)
+
     await delay(2000);
 
     // -- Alex checks for acknowledgement -- //
@@ -189,7 +195,7 @@ const send_pending_test = async (s, t) => {
 const send_dm_test = async (s, t) => {
 
     //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
     await setup_handles(s, t, alexCell, billyCell)
 
@@ -198,7 +204,7 @@ const send_dm_test = async (s, t) => {
     const send_params = {
         subject: "test-outmail",
         payload: "blablabla",
-        to: [alexAddress],
+        to: [alexHapp.agent],
         cc: [],
         bcc: [],
         //manifest_address_list: []
@@ -232,7 +238,7 @@ const send_dm_test = async (s, t) => {
     const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
     console.log('received_result1 : ' + JSON.stringify(received_result))
     t.deepEqual(received_result.Err.length, 1)
-    t.deepEqual(received_result.Err[0], alexAddress)
+    t.deepEqual(received_result.Err[0], alexHapp.agent)
 
     const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
     console.log('ack_result1 : ' + JSON.stringify(ack_result))
@@ -255,7 +261,7 @@ const send_dm_test = async (s, t) => {
 const test_get_all_mails = async (s, t) => {
     // -- SETUP
     //const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
-    const { conductor, alexAddress, billyAddress, camilleAddress, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
 
     await setup_handles(s, t, alexCell, billyCell)
@@ -266,7 +272,7 @@ const test_get_all_mails = async (s, t) => {
     let send_params = {
         subject: "inmail 1",
         payload: "aaaaaaaa",
-        to: [alexAddress],
+        to: [alexHapp.agent],
         cc: [],
         bcc: [],
         //manifest_address_list: []
@@ -282,7 +288,7 @@ const test_get_all_mails = async (s, t) => {
     send_params = {
         subject: "inmail 2",
         payload: "bbbb",
-        to: [alexAddress],
+        to: [alexHapp.agent],
         cc: [],
         bcc: [],
         //manifest_address_list: []
@@ -297,7 +303,7 @@ const test_get_all_mails = async (s, t) => {
     send_params = {
         subject: "outmail 3",
         payload: "ccccccc",
-        to: [billyAddress],
+        to: [billyHapp.agent],
         cc: [],
         bcc: [],
         //manifest_address_list: []

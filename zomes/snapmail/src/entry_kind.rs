@@ -161,7 +161,7 @@ impl EntryKind {
       let mut index = 0;
       for entry_kind in EntryKind::iter() {
          if self == &entry_kind {
-            debug!("!!! EntryKind::index({:?}) = {}", self, index).ok();
+            // debug!("!!! EntryKind::index({:?}) = {}", self, index).ok();
             return index;
          }
          index += 1;
