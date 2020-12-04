@@ -14,7 +14,7 @@ use crate::{
    utils::*,
 };
 
-/// !! Keep Order !!
+/// !! Keep Order with EntryKind !!
 entry_defs![
    /// --  Handle
    Handle::entry_def(),
@@ -32,10 +32,9 @@ entry_defs![
 ];
 
 /// Listing all Link kinds for this DNA
-#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize,
-   SerializedBytes, PartialEq)]
+#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
 pub enum EntryKind {
-   /// !! Keep Order !!
+   /// !! Keep Order with entry_defs!() !!
    Handle,
    InMail,
    OutMail,

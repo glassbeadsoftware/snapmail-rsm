@@ -7,6 +7,14 @@ export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**
  *
+ * @param wtf
+ */
+export function htos(wtf) {
+    return Buffer.from(wtf).toString('base64')
+}
+
+/**
+ *
  */
 export function sleep(milliseconds) {
     const date = Date.now();
@@ -67,4 +75,40 @@ export function split_file(full_data_string) {
         numChunks: chunks.length,
         chunks: chunks,
     }
+}
+
+
+function padStr(str, len) {
+    let result = str;
+    let diff = len - str.length
+    if (diff > 0) {
+        let pad = ' '.repeat(diff)
+        result += pad
+    }
+    return result
+}
+
+export function logDump(name, dump) {
+    console.log(' ====== ' + name + ' - SOURCE-CHAIN STATE DUMP START ===== ' + dump.length)
+    for(let i = 0; i < dump.length; i++) {
+        let element = dump[i].element
+        let str = ' ' + (dump.length - i) + '. ' + element.header.type
+        if (element.header.type === 'CreateLink') {
+            str += ' "' + Buffer.from(element.header.tag).toString('utf-8') + '"'
+        } else {
+            if (element.header.entry_type) {
+                if (typeof element.header.entry_type === 'object') {
+                    str += ' - AppEntry ; id = ' + element.header.entry_type.App.id
+                } else {
+                    str += ' - ' + element.header.entry_type
+                }
+            }
+        }
+        str = padStr(str, 40)
+        let hh = htos(element.header_address)
+        str += ' (' + hh + ')'
+        console.log(str)
+        //console.log(element)
+    }
+    console.log(' ====== ' + name + ' - SOURCE-CHAIN STATE DUMP END   =====')
 }

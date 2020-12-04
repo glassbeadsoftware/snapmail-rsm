@@ -2,6 +2,7 @@ use hdk3::prelude::*;
 use crate::{
    mail,
    dm_protocol::*,
+   utils::*,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
@@ -24,7 +25,8 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    /// Pre-conditions: Don't call yourself
    let me = agent_info()?.agent_latest_pubkey;
    if destination == me {
-      //return error("send_dm() aborted. Can't send to self.");
+      /// FOR DEBUGGING ONLY?
+      return error("send_dm() aborted. Can't send to self.");
    }
    // FIXME: Check AgentPubKey is valid, i.e. exists in Directory
    /// Prepare payload

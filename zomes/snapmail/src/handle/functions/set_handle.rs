@@ -48,6 +48,7 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     let new_handle_eh = hash_entry(&new_handle)?;
     debug!("First Handle for this agent!!!").ok();
     let new_handle_hh = create_entry(&new_handle)?;
+    debug!("new_handle_hh = {:?}", new_handle_hh).ok();
     let _ = create_link(
         EntryHash::from(my_agent_address),
         new_handle_eh.clone(),

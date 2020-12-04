@@ -2,11 +2,11 @@
 import { Config, InstallAgentsHapps } from '../../tryorama-rsm/src';
 //import { Config } from "@holochain/tryorama";
 import path from "path";
-import { TransportConfigType} from "../../tryorama-rsm/src/types";
+import { TransportConfigType, ProxyConfigType } from "../../tryorama-rsm/src/types";
 
 
 
-export const ALEX_NICK = 'alice'
+export const ALEX_NICK = 'alex'
 export const BILLY_NICK = 'billy'
 export const CAMILLE_NICK = 'camille'
 
@@ -14,7 +14,21 @@ const quicConfig = {
     transport_pool: [{
         type: TransportConfigType.Quic,
     }],
-    bootstrap_service: "https://bootstrap.holo.host"
+    bootstrap_service: "https://bootstrap.holo.host",
+}
+
+const proxyConfig = {
+    bootstrap_service: "https://bootstrap.holo.host",
+    transport_pool: [{
+        type: TransportConfigType.Proxy,
+        sub_transport: {
+            type: TransportConfigType.Quic,
+        },
+        proxy_config: {
+            type: ProxyConfigType.RemoteProxyClient,
+            proxy_url: "kitsune-proxy://CIW6PxKxsPPlcuvUCbMcKwUpaMSmB7kLD8xyyj4mqcw/kitsune-quic/h/proxy.holochain.org/p/5778/--",
+        }
+    }],
 }
 
 const memConfig = {
@@ -23,7 +37,8 @@ const memConfig = {
     }],
 }
 
-const quicConductorConfig = Config.gen({network: quicConfig});
+const quicConductorConfig = Config.gen({network: proxyConfig});
+//const quicConductorConfig = Config.gen({network: quicConfig});
 const memConductorConfig = Config.gen({network: memConfig});
 
 
@@ -93,7 +108,7 @@ export async function setup_2_conductors(s, t) {
     // Done
     return {
         alex, billy,
-        alexHapp:  billyHapp,
+        alexHapp,  billyHapp,
         alexCell: alexHapp.cells[0], billyCell: billyHapp.cells[0],
     }
 }

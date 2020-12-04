@@ -132,6 +132,9 @@ impl SendMailOutput {
 //     return send_manifest_by_dm(destination, manifest, chunk_address_list);
 // }
 
+
+// FIXME use post-commit callback to send the mail via DM
+
 /// Attempt sending Mail and attachments via Direct Messaging
 fn send_mail_by_dm(
     outmail_eh: &EntryHash,

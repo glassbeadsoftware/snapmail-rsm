@@ -2,13 +2,13 @@ import {setup_3_conductors, setup_conductor_3p} from "../config";
 
 const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } = require('../config')
 
-const { sleep, filterMailList, delay } = require('../utils')
+const { sleep, filterMailList, delay, logDump, htos } = require('../utils')
 
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    scenario("send pending test", send_pending_test)
-    //scenario("send via DM test", send_dm_test)
+    //scenario("send pending test", send_pending_test)
+    scenario("send via DM test", send_dm_test)
     //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
@@ -23,30 +23,35 @@ module.exports = scenario => {
 async function setup_handles(s, t, alexCell, billyCell) {
     // Make sure Billy has a handle entry
     let name = BILLY_NICK
-    let handle_address = await billyCell.call("snapmail", "set_handle", name)
-    console.log('handle_address1: ' + JSON.stringify(handle_address))
+    let handleAddress = await billyCell.call("snapmail", "set_handle", name)
+    console.log('handle_address1: ' + JSON.stringify(handleAddress))
+    console.log('billy handle hh =  ' + htos(handleAddress))
     //t.match(handle_address.Ok, RegExp('Qm*'))
 
     await delay(10);
 
     // Make sure Alex has a handle entry
     name = ALEX_NICK
-    handle_address = await alexCell.call("snapmail", "set_handle", name)
-    console.log('handle_address2: ' + JSON.stringify(handle_address))
+    handleAddress = await alexCell.call("snapmail", "set_handle", name)
+    console.log('handle_address2: ' + JSON.stringify(handleAddress))
     //t.match(handle_address.Ok, RegExp('Qm*'))
-
-    await delay(2000);
+    console.log('Alex\'s handle hh = ' + htos(handleAddress))
 
     // -- Make sure handles are set -- //
 
     let handle_count = 0
     for (let i = 0; handle_count != 2 && i < 10; i++) {
+        await delay(2000);
         const result = await billyCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_list: ' + JSON.stringify(result))
         handle_count = result.length
     }
     t.deepEqual(handle_count, 2)
-
+    if (handle_count != 2) {
+        //t.end('setup_handles() failed')
+        //throw new Error("Something went badly wrong!")
+        return Promise.reject(new Error('setup_handles() failed'))
+    }
     console.log('\n**** '+ handle_count + ' HANDLES HAVE BEEN SET **** \n\n')
 }
 
@@ -56,15 +61,15 @@ async function setup_handles(s, t, alexCell, billyCell) {
  */
 const send_pending_test = async (s, t) => {
     // -- Setup -- //
-    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductor(s, t)
-    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
     await setup_handles(s, t, alexCell, billyCell)
 
     // -- Billy goes offline -- //
 
-    //await billy.shutdown()
-    await billyCell.deactivate(billyHapp.hAppId)
+    await billy.shutdown()
+    //await billyCell.deactivate(billyHapp.hAppId)
 
     await delay(4000);
 
@@ -188,16 +193,33 @@ const send_pending_test = async (s, t) => {
 //     console.log('create_result: ' + JSON.stringify(create_result))
 // }
 
-
 /**
  *
  */
 const send_dm_test = async (s, t) => {
 
-    //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    console.log(alexHapp)
+    console.log(billyHapp)
+    //await delay(8000);
 
     await setup_handles(s, t, alexCell, billyCell)
+
+    // -- State dumps -- //
+
+    let alexDump = await alexCell.stateDump();
+    logDump(ALEX_NICK, alexDump);
+    console.log('alexAddress  = ' + htos(alexHapp.agent))
+
+    let billyDump = await billyCell.stateDump();
+    logDump(BILLY_NICK, billyDump);
+    console.log('billyAddress  = ' + htos(billyHapp.agent))
+
+    //console.log('alexCell.stateDump = ' + JSON.stringify(alexDump))
+
+
+    // -- send_mail -- //
 
     // Make a call to a Zome function
     // Indicating the function, and passing it an input
@@ -214,44 +236,44 @@ const send_dm_test = async (s, t) => {
     console.log('send_result: ' + JSON.stringify(send_result))
     // Should receive via DM, so no pendings
     t.deepEqual(send_result.to_pendings, {})
-
-    // Wait for all network activity to settle
-    await delay(10);
-
-    const arrived_result = await alexCell.call("snapmail", "get_all_arrived_mail", undefined)
-
-    console.log('arrived_result : ' + JSON.stringify(arrived_result))
-    t.deepEqual(arrived_result.length, 1)
-    const mail_adr = arrived_result[0]
-
-    const get_mail_result = await alexCell.call("snapmail", "get_mail", mail_adr)
-    console.log('mail_result : ' + JSON.stringify(get_mail_result))
-    const mail = get_mail_result.Ok.mail
-
-    // check for equality of the actual and expected results
-    t.deepEqual(send_params.payload, mail.payload)
-
-    // -- ACK -- //
-
-    //await delay(3000);
-
-    const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
-    console.log('received_result1 : ' + JSON.stringify(received_result))
-    t.deepEqual(received_result.Err.length, 1)
-    t.deepEqual(received_result.Err[0], alexHapp.agent)
-
-    const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
-    console.log('ack_result1 : ' + JSON.stringify(ack_result))
-
-    await delay(10);
-
-    const received_result2 = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
-    console.log('received_result2 : ' + JSON.stringify(received_result2))
-    t.deepEqual(received_result2.Ok, null)
-
-    const ack_result2 = await alexCell.call("snapmail", "has_ack_been_received", mail_adr)
-    console.log('ack_result2 : ' + JSON.stringify(ack_result2))
-    t.deepEqual(ack_result2, true)
+    //
+    // // Wait for all network activity to settle
+    // await delay(10);
+    //
+    // const arrived_result = await alexCell.call("snapmail", "get_all_arrived_mail", undefined)
+    //
+    // console.log('arrived_result : ' + JSON.stringify(arrived_result))
+    // t.deepEqual(arrived_result.length, 1)
+    // const mail_adr = arrived_result[0]
+    //
+    // const get_mail_result = await alexCell.call("snapmail", "get_mail", mail_adr)
+    // console.log('mail_result : ' + JSON.stringify(get_mail_result))
+    // const mail = get_mail_result.Ok.mail
+    //
+    // // check for equality of the actual and expected results
+    // t.deepEqual(send_params.payload, mail.payload)
+    //
+    // // -- ACK -- //
+    //
+    // //await delay(3000);
+    //
+    // const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
+    // console.log('received_result1 : ' + JSON.stringify(received_result))
+    // t.deepEqual(received_result.Err.length, 1)
+    // t.deepEqual(received_result.Err[0], alexHapp.agent)
+    //
+    // const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
+    // console.log('ack_result1 : ' + JSON.stringify(ack_result))
+    //
+    // await delay(10);
+    //
+    // const received_result2 = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
+    // console.log('received_result2 : ' + JSON.stringify(received_result2))
+    // t.deepEqual(received_result2.Ok, null)
+    //
+    // const ack_result2 = await alexCell.call("snapmail", "has_ack_been_received", mail_adr)
+    // console.log('ack_result2 : ' + JSON.stringify(ack_result2))
+    // t.deepEqual(ack_result2, true)
 };
 
 

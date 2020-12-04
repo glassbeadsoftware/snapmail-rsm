@@ -11,6 +11,7 @@ extern crate strum_macros;
 mod validate_link;
 mod validate_entry;
 mod utils;
+mod post_commit;
 
 mod constants;
 mod link_kind;

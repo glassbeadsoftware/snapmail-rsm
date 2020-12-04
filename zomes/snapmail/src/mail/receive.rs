@@ -149,18 +149,15 @@ pub fn receive_direct_chunk(_from: AgentAddress, chunk: FileChunk) -> DirectMess
 }
 */
 
-fn create_entry_wrapper(inmail: InMail) -> ExternResult<HeaderHash> {
-   Ok(create_entry(&inmail)?)
-}
-
 /// Handle a MailMessage.
 /// Emits `received_mail` signal.
 /// Returns Success or Failure.
 pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessageProtocol {
     /// Create InMail
     let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
+
     /// Commit InMail
-    let maybe_inmail_hh = create_entry_wrapper(inmail);
+    let maybe_inmail_hh = create_entry(&inmail);
     if let Err(err) = maybe_inmail_hh {
         let response_str = "Failed committing InMail";
         debug!(format!("{}: {}", response_str, err)).ok();
