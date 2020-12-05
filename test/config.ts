@@ -72,6 +72,11 @@ export async function setup_conductor_3p(s, t) {
     // array structure as you created in your installation array.
     const [[alexHapp], [billyHapp], [camilleHapp]] = await conductor.installAgentsHapps(tripleAgentInstall);
 
+    // Dummy calls so Init is performed
+    await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
+    await billyHapp.cells[0].call("snapmail", "get_handle", billyHapp.agent)
+    await camilleHapp.cells[0].call("snapmail", "get_handle", camilleHapp.agent)
+
     // Done
     return { conductor, alexHapp, billyHapp, camilleHapp,
          alexCell: alexHapp.cells[0], billyCell: billyHapp.cells[0], camilleCell: camilleHapp.cells[0],
@@ -89,6 +94,11 @@ export async function setup_3_conductors(s, t) {
     const [[billyHapp]] = await billy.installAgentsHapps(monoAgentInstall);
     const [[camilleHapp]] = await camille.installAgentsHapps(monoAgentInstall);
 
+    // Dummy calls so Init is performed
+    await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
+    await billyHapp.cells[0].call("snapmail", "get_handle", billyHapp.agent)
+    await camilleHapp.cells[0].call("snapmail", "get_handle", camilleHapp.agent)
+
     // Done
     return { alex, billy, camille, alexHapp, billyHapp, camilleHapp,
         alexCell: alexHapp.cells[0], billyCell: billyHapp.cells[0], camilleCell: camilleHapp.cells[0],
@@ -104,6 +114,10 @@ export async function setup_2_conductors(s, t) {
     // array structure as you created in your installation array.
     const [[alexHapp]] = await alex.installAgentsHapps(monoAgentInstall);
     const [[billyHapp]] = await billy.installAgentsHapps(monoAgentInstall);
+
+    // Dummy calls so Init is performed
+    await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
+    await billyHapp.cells[0].call("snapmail", "get_handle", billyHapp.agent)
 
     // Done
     return {
@@ -121,6 +135,9 @@ export async function setup_1_conductor(s, t) {
     // install your happs into the coductors and destructuring the returned happ data using the same
     // array structure as you created in your installation array.
     const [[alexHapp]] = await alex.installAgentsHapps(monoAgentInstall);
+
+    // Dummy calls so Init is performed
+    await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
 
     // Done
     return { alex, alexAddress: alexHapp.agent, alexCell: alexHapp.cells[0] }

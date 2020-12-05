@@ -200,11 +200,11 @@ const send_dm_test = async (s, t) => {
 
     const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
     //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
-    console.log(alexHapp)
-    console.log(billyHapp)
+    //console.log(alexHapp)
+    //console.log(billyHapp)
     //await delay(8000);
 
-    await setup_handles(s, t, alexCell, billyCell)
+    //await setup_handles(s, t, alexCell, billyCell)
 
     // -- State dumps -- //
 
@@ -213,7 +213,7 @@ const send_dm_test = async (s, t) => {
     console.log('alexAddress  = ' + htos(alexHapp.agent))
 
     let billyDump = await billyCell.stateDump();
-    logDump(BILLY_NICK, billyDump);
+    //logDump(BILLY_NICK, billyDump);
     console.log('billyAddress  = ' + htos(billyHapp.agent))
 
     //console.log('alexCell.stateDump = ' + JSON.stringify(alexDump))
@@ -236,44 +236,44 @@ const send_dm_test = async (s, t) => {
     console.log('send_result: ' + JSON.stringify(send_result))
     // Should receive via DM, so no pendings
     t.deepEqual(send_result.to_pendings, {})
-    //
-    // // Wait for all network activity to settle
-    // await delay(10);
-    //
-    // const arrived_result = await alexCell.call("snapmail", "get_all_arrived_mail", undefined)
-    //
-    // console.log('arrived_result : ' + JSON.stringify(arrived_result))
-    // t.deepEqual(arrived_result.length, 1)
-    // const mail_adr = arrived_result[0]
-    //
-    // const get_mail_result = await alexCell.call("snapmail", "get_mail", mail_adr)
-    // console.log('mail_result : ' + JSON.stringify(get_mail_result))
-    // const mail = get_mail_result.Ok.mail
-    //
-    // // check for equality of the actual and expected results
-    // t.deepEqual(send_params.payload, mail.payload)
-    //
-    // // -- ACK -- //
-    //
-    // //await delay(3000);
-    //
-    // const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
-    // console.log('received_result1 : ' + JSON.stringify(received_result))
-    // t.deepEqual(received_result.Err.length, 1)
-    // t.deepEqual(received_result.Err[0], alexHapp.agent)
-    //
-    // const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
-    // console.log('ack_result1 : ' + JSON.stringify(ack_result))
-    //
-    // await delay(10);
-    //
-    // const received_result2 = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
-    // console.log('received_result2 : ' + JSON.stringify(received_result2))
-    // t.deepEqual(received_result2.Ok, null)
-    //
-    // const ack_result2 = await alexCell.call("snapmail", "has_ack_been_received", mail_adr)
-    // console.log('ack_result2 : ' + JSON.stringify(ack_result2))
-    // t.deepEqual(ack_result2, true)
+
+    // Wait for all network activity to settle
+    await delay(10);
+
+    const arrived_result = await alexCell.call("snapmail", "get_all_arrived_mail", undefined)
+
+    console.log('arrived_result : ' + JSON.stringify(arrived_result))
+    t.deepEqual(arrived_result.length, 1)
+    const mail_adr = arrived_result[0]
+
+    const get_mail_result = await alexCell.call("snapmail", "get_mail", mail_adr)
+    console.log('mail_result : ' + JSON.stringify(get_mail_result))
+    const mail = get_mail_result.Ok.mail
+
+    // check for equality of the actual and expected results
+    t.deepEqual(send_params.payload, mail.payload)
+
+    // -- ACK -- //
+
+    //await delay(3000);
+
+    const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
+    console.log('received_result1 : ' + JSON.stringify(received_result))
+    t.deepEqual(received_result.Err.length, 1)
+    t.deepEqual(received_result.Err[0], alexHapp.agent)
+
+    const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
+    console.log('ack_result1 : ' + JSON.stringify(ack_result))
+
+    await delay(10);
+
+    const received_result2 = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
+    console.log('received_result2 : ' + JSON.stringify(received_result2))
+    t.deepEqual(received_result2.Ok, null)
+
+    const ack_result2 = await alexCell.call("snapmail", "has_ack_been_received", mail_adr)
+    console.log('ack_result2 : ' + JSON.stringify(ack_result2))
+    t.deepEqual(ack_result2, true)
 };
 
 
