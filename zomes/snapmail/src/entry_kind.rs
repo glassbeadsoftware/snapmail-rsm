@@ -2,7 +2,6 @@ use hdk3::prelude::*;
 
 use std::str::FromStr;
 
-use strum::AsStaticRef;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 

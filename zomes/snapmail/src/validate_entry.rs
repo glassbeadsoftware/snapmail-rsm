@@ -57,7 +57,8 @@ fn validate_app_entry(
                 return error("Failed to deserialize Handle");
             }
             let handle = maybe_handle.unwrap();
-            return validate_handle_entry(handle, maybe_validation_package);
+            let res = validate_handle_entry(handle, maybe_validation_package);
+            res
         },
         EntryKind::Path => {
             let maybe_content = Path::try_from(sb.clone());
@@ -74,7 +75,7 @@ fn validate_app_entry(
             }
             // FIXME
             // return validate_inmail_entry(inmail, maybe_validation_package);
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::InAck => {
             let maybe_content = InAck::try_from(sb.clone());
@@ -82,7 +83,7 @@ fn validate_app_entry(
                 return error("Failed to deserialize InAck");
             }
             // FIXME
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::PendingMail => {
             let maybe_content = PendingMail::try_from(sb.clone());
@@ -90,7 +91,7 @@ fn validate_app_entry(
                 return error("Failed to deserialize PendingMail");
             }
             // FIXME
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::PendingAck => {
             let maybe_content = PendingAck::try_from(sb.clone());
@@ -98,7 +99,7 @@ fn validate_app_entry(
                 return error("Failed to deserialize PendingAck");
             }
             // FIXME
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::OutMail => {
             let maybe_content = OutMail::try_from(sb.clone());
@@ -106,7 +107,7 @@ fn validate_app_entry(
                 return error("Failed to deserialize OutMail");
             }
             // FIXME
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::OutAck => {
             let maybe_content = OutAck::try_from(sb.clone());
@@ -114,7 +115,7 @@ fn validate_app_entry(
                 return error("Failed to deserialize OutAck");
             }
             // FIXME
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::FileManifest => {
             // let maybe_content = FileManifest::try_from(sb.clone());
@@ -122,7 +123,7 @@ fn validate_app_entry(
             //     return error("Failed to deserialize FileManifest");
             // }
             // FIXME
-            return Ok(ValidateCallbackResult::Valid);
+            Ok(ValidateCallbackResult::Valid)
         },
 
         /// DEBUG
@@ -131,9 +132,8 @@ fn validate_app_entry(
             if let Err(_err) = maybe_content {
                 return error("Failed to deserialize FileChunk");
             }
-            return Ok(ValidateCallbackResult::Valid);
-        },
-
+            Ok(ValidateCallbackResult::Valid)
+        }
         /// Add entry validation per type here
         /// ..
 

@@ -4,7 +4,6 @@ use holo_hash::hash_type::HashType;
 use std::str::FromStr;
 
 use strum::AsStaticRef;
-use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 use strum::EnumProperty;
 
