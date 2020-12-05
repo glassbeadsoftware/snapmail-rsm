@@ -77,21 +77,24 @@ impl LinkKind {
    }
 
    ///
-   fn _validate_types(
+   pub fn validate_types(
       self,
       candidat: ValidateCreateLinkData,
       _maybe_hash: Option<AgentPubKey>,
    ) -> ExternResult<ValidateLinkCallbackResult> {
       /// Get types used in link candidat
-      let base_type = determine_entry_type(candidat.link_add.base_address, &candidat.base)?;
-      let target_type = determine_entry_type(candidat.link_add.target_address, &candidat.target)?;
+      //let base_type = determine_entry_type(candidat.link_add.base_address, &candidat.base)?;
+      //let target_type = determine_entry_type(candidat.link_add.target_address, &candidat.target)?;
+
       /// Check correctness
-      if base_type != self.allowed_base_type() {
-         let msg = format!("Invalid base type for link kind `{}` : {:?}", self.as_static(), base_type).into();
+      // if base_type != self.allowed_base_type() {
+      if is_valid_type(candidat.base, self.allowed_base_type()) {
+         let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
-      if target_type != self.allowed_target_type() {
-         let msg = format!("Invalid target type for link kind `{}` : {:?}", self.as_static(), target_type).into();
+      // if target_type != self.allowed_target_type() {
+      if is_valid_type(candidat.target, self.allowed_target_type()) {
+         let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
       /// Done

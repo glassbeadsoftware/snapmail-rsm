@@ -198,8 +198,8 @@ const send_pending_test = async (s, t) => {
  */
 const send_dm_test = async (s, t) => {
 
-    const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
-    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    //const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
+    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
     //console.log(alexHapp)
     //console.log(billyHapp)
     //await delay(8000);

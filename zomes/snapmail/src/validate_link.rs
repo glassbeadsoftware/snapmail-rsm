@@ -1,33 +1,38 @@
 use hdk3::prelude::*;
 
-// use crate::{
-//    handle::*,
-//    utils::*,
-//    link_kind::*,
-// };
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+use strum::AsStaticRef;
+
+use crate::{
+   handle::*,
+   utils::*,
+   link_kind::*,
+   entry_kind::*,
+};
 
 /// Zome Callback
 #[hdk_extern]
-fn validate_create_link(_candidat: ValidateCreateLinkData)
+fn validate_create_link(candidat: ValidateCreateLinkData)
    -> ExternResult<ValidateLinkCallbackResult>
 {
    // TODO
-   return Ok(ValidateLinkCallbackResult::Valid);
+   //return Ok(ValidateLinkCallbackResult::Valid);
 
    // FIXME: Link validation is currently unfeasible with current state of Holochain
    // We don't entry entry type and can't call get() in call_remote()
 
-   // let tag_str = String::from_utf8_lossy(&candidat.link_add.tag.0);
-   // for link_kind in LinkKind::iter() {
-   //    if tag_str == link_kind.as_static() {
-   //       return link_kind.validate_create_types(candidat, None);
-   //    }
-   //    let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&candidat.link_add.tag);
-   //    if let Ok(from) = maybe_hash {
-   //       return link_kind.validate_create_types(candidat, Some(from));
-   //    }
-   // }
-   // Ok(ValidateLinkCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
+   let tag_str = String::from_utf8_lossy(&candidat.link_add.tag.0);
+   for link_kind in LinkKind::iter() {
+      if tag_str == link_kind.as_static() {
+         return link_kind.validate_types(candidat, None);
+      }
+      let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&candidat.link_add.tag);
+      if let Ok(from) = maybe_hash {
+         return link_kind.validate_types(candidat, Some(from));
+      }
+   }
+   Ok(ValidateLinkCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
 }
 
 /// Zome Callback

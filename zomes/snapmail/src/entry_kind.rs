@@ -14,7 +14,7 @@ use crate::{
    utils::*,
 };
 
-/// !! Keep Order with EntryKind !!
+/// !! Keep Order synced with EntryKind !!
 entry_defs![
    /// --  Handle
    Handle::entry_def(),
@@ -34,7 +34,7 @@ entry_defs![
 /// Listing all Link kinds for this DNA
 #[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
 pub enum EntryKind {
-   /// !! Keep Order with entry_defs!() !!
+   /// !! Keep Order synced with entry_defs!() !!
    Handle,
    InMail,
    OutMail,
@@ -84,74 +84,13 @@ impl FromStr for EntryKind {
 
 impl EntryKind {
 
-   /// Hackish but works
+   /// Not optimal but works
    pub fn from_index(index: &EntryDefIndex) -> Self {
       for entry_kind in EntryKind::iter() {
          if entry_kind.index() == index.index() as u8 {
             return entry_kind;
          }
       }
-      unreachable!()
-   }
-
-   ///
-   pub fn from_entry_bytes(entry_bytes: AppEntryBytes) -> Self {
-
-      let sb = entry_bytes.into_sb();
-
-      let maybe_handle = Handle::try_from(sb.clone());
-      if maybe_handle.is_ok() {
-         return EntryKind::Handle;
-      }
-
-      let maybe_app_entry = InMail::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::InMail;
-      }
-
-      let maybe_app_entry = InAck::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::InAck;
-      }
-
-      let maybe_app_entry = PendingMail::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::PendingMail;
-      }
-
-      let maybe_app_entry = PendingAck::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::PendingAck;
-      }
-
-      let maybe_app_entry = OutMail::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::OutMail;
-      }
-
-      let maybe_app_entry = OutAck::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::OutAck;
-      }
-
-      let maybe_app_entry = FileChunk::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         return EntryKind::FileChunk;
-      }
-
-      // let maybe_app_entry = FileManifest::try_from(sb.clone());
-      // if maybe_app_entry.is_ok() {
-      //    return EntryKind::FileManifest;
-      // }
-
-      let maybe_app_entry = Path::try_from(sb.clone());
-      if maybe_app_entry.is_ok() {
-         debug!("EntryKind::from_entry_bytes() Path !!!").ok();
-
-         return EntryKind::Path;
-      }
-
-      debug!("!!! EntryKind::from_entry_bytes() Failed !!!").ok();
       unreachable!()
    }
 
@@ -193,4 +132,39 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
    })
 }
 
+/// Try to deserialize entry to given type
+pub(crate) fn is_valid_type(entry: Entry, type_candidat: EntryType) -> bool {
+   return match entry {
+      Entry::Agent(_agent_hash) => EntryType::AgentPubKey == type_candidat,
+      Entry::CapClaim(_claim) => EntryType::CapClaim == type_candidat,
+      Entry::CapGrant(_grant) => EntryType::CapGrant == type_candidat,
+      Entry::App(entry_bytes) => {
+         if let EntryType::App(app_entry_type) = type_candidat {
+            return can_deserialize(app_entry_type.id(), entry_bytes);
+         }
+          false
+       },
+   };
+}
+
+///
+fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> bool {
+   debug!("*** can_deserialize() called!").ok();
+   let sb = entry_bytes.into_sb();
+   let entry_kind = EntryKind::from_index(&entry_type_id);
+
+   match entry_kind {
+      EntryKind::Handle => Handle::try_from(sb.clone()).is_err(),
+      EntryKind::Path => Path::try_from(sb.clone()).is_err(),
+      EntryKind::InMail => InMail::try_from(sb.clone()).is_err(),
+      EntryKind::InAck => InAck::try_from(sb.clone()).is_err(),
+      EntryKind::PendingMail => PendingMail::try_from(sb.clone()).is_err(),
+      EntryKind::PendingAck => PendingAck::try_from(sb.clone()).is_err(),
+      EntryKind::OutMail => OutMail::try_from(sb.clone()).is_err(),
+      EntryKind::OutAck => OutAck::try_from(sb.clone()).is_err(),
+      EntryKind::FileManifest => true, // FIXME FileManifest::try_from(sb.clone()).is_err(),
+      /// DEBUG
+      EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_err(),
+   }
+}
 
