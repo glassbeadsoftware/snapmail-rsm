@@ -14,9 +14,9 @@ pub struct DmPacket {
 #[hdk_extern]
 pub fn receive_dm(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
    // let (from, dm): (AgentPubKey, DirectMessageProtocol) = dm_packet.into();
-   debug!("*** receive_dm() called from {:?}", dm_packet.from).ok();
+   debug!("*** receive_dm() called from {:?}", dm_packet.from);
    let response = mail::receive_dm(dm_packet.from, dm_packet.dm);
-   debug!("*** receive_dm() response to send back: {:?}", response).ok();
+   debug!("*** receive_dm() response to send back: {:?}", response);
    Ok(response)
 }
 
@@ -32,7 +32,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    /// Prepare payload
    let dm_packet = DmPacket { from: me, dm: dm.clone() };
    /// Call peer
-   debug!("calling remote receive_dm() ; dm = {:?}", dm).ok();
+   debug!("calling remote receive_dm() ; dm = {:?}", dm);
    let response = call_remote(
       destination,
       zome_info()?.zome_name,
@@ -40,7 +40,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
       None,
       &dm_packet,
    );
-   debug!("calling remote receive_dm() DONE ; dm = {:?}", dm).ok();
+   debug!("calling remote receive_dm() DONE ; dm = {:?}", dm);
    return response;
    // if let Err(err) = maybe_response {
    //    let fail_str = format!("Failed call_remote() during send_dm(): {:?}", err);

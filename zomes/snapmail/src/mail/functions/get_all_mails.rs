@@ -24,12 +24,12 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
        .entry_type(EntryKind::InMail.as_type());
     let maybe_inmails = query(inmail_query_args);
     if let Err(err) = maybe_inmails {
-        debug!("get_all_mails() query failed: {:?}", err).ok();
+        debug!("get_all_mails() query failed: {:?}", err);
         //return Err(hdk3::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmails.unwrap().0;
-    debug!(" get_all_mails() inmails count = {}", inmails.len()).ok();
+    debug!(" get_all_mails() inmails count = {}", inmails.len());
     //debug!(" get_all_mails() inmails: {:?}", inmails).ok();
 
     ///
@@ -38,12 +38,12 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
        .entry_type(EntryKind::OutMail.as_type());
     let maybe_outmails = query(outmail_query_args);
     if let Err(err) = maybe_outmails {
-        debug!("get_all_mails() outmail_result failed: {:?}", err).ok();
+        debug!("get_all_mails() outmail_result failed: {:?}", err);
         //return Err(hdk3::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let outmails: Vec<Element> = maybe_outmails.unwrap().0;
-    debug!(" get_all_mails() outmails count = {}", outmails.len()).ok();
+    debug!(" get_all_mails() outmails count = {}", outmails.len());
     //debug!(" get_all_mails outmails: {:?}", outmails).ok();
     //let all_mails = inmails.concat(outmails);
 
@@ -61,7 +61,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     for outmail_element in outmails {
         let outmail_hh = outmail_element.header_hashed().as_hash().to_owned();
         /// Make sure element has not been deleted
-        let maybe_element = get(outmail_hh.clone(), GetOptions)?;
+        let maybe_element = get(outmail_hh.clone(), GetOptions::latest())?;
         if maybe_element.is_none() {
             continue;
         }
@@ -87,13 +87,13 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         item_list.push(item.clone());
     }
 
-    debug!(" get_all_mails() final outmail count = {}", item_list.len()).ok();
+    debug!(" get_all_mails() final outmail count = {}", item_list.len());
 
     /// Change all InMail into a MailItem
     for inmail_element in inmails {
         let inmail_hh = inmail_element.header_hashed().as_hash().to_owned();
         /// Make sure element has not been deleted
-        let maybe_element = get(inmail_hh.clone(), GetOptions)?;
+        let maybe_element = get(inmail_hh.clone(), GetOptions::latest())?;
         if maybe_element.is_none() {
             continue;
         }
@@ -120,6 +120,6 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
 
     /// Done
-    debug!(" get_all_mails() total count = {}", item_list.len()).ok();
+    debug!(" get_all_mails() total count = {}", item_list.len());
     Ok(ZomeMailItemVec(item_list))
 }

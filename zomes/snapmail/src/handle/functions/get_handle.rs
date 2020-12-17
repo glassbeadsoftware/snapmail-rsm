@@ -63,12 +63,12 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
        .into_inner();
     assert!(handle_links.len() <= 1);
     if handle_links.len() == 0 {
-        debug!("No handle found for this agent:").ok();
+        debug!("No handle found for this agent:");
         return None;
     }
     /// Get the Element from the link
     let handle_entry_hash = handle_links[0].target.clone();
-    let element = get(handle_entry_hash, GetOptions)
+    let element = get(handle_entry_hash, GetOptions::latest())
         .expect("No reason for get_entry to crash")
         .expect("Should have it");
 

@@ -55,6 +55,7 @@ fn whoarethey(agent_pubkey: AgentPubKey) -> ExternResult<AgentInfo> {
         // we're just panicking here because our simple tests can always call set_access before
         // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
         // something meaningful to the extern's client
-        ZomeCallResponse::Unauthorized => unreachable!(),
+        ZomeCallResponse::Unauthorized(_cell_id, _zome, _fn, _agentId) => unreachable!(),
+        ZomeCallResponse::NetworkError(_msg) => unreachable!(),
     }
 }

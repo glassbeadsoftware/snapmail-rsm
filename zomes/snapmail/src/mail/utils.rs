@@ -86,9 +86,9 @@ pub(crate) fn get_entry_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
     //     headers: true,
     //     timeout: Timeout::default(),
     // };
-    let maybe_maybe_element = get(eh.clone(), GetOptions);
+    let maybe_maybe_element = get(eh.clone(), GetOptions::latest());
     if let Err(err) = maybe_maybe_element {
-        debug!("Failed getting element: {}", err).ok();
+        debug!("Failed getting element: {}", err);
         return Err(err);
     }
     let maybe_element = maybe_maybe_element.unwrap();
@@ -117,7 +117,7 @@ pub(crate) fn get_pending_ack(pending_eh: &EntryHash) -> ExternResult<(AgentPubK
 
 /// Return address of created InAck
 pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
-    debug!("Create inAck for: {} ({})", outmail_eh, from).ok();
+    debug!("Create inAck for: {} ({})", outmail_eh, from);
     /// Create InAck
     let inack = InAck::new();
     let inack_hh = create_entry(&inack)?;
@@ -130,7 +130,7 @@ pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternR
     let tag = LinkKind::Receipt.concat_hash(&from);
     /// Create link from OutMail
     let link_hh = create_link(outmail_eh, inack_eh, tag)?;
-    debug!("inAck link_hh = {}", link_hh).ok();
+    debug!("inAck link_hh = {}", link_hh);
     /// Done
     Ok(inack_hh)
 }

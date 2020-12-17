@@ -16,9 +16,9 @@ use crate::{
 #[hdk_extern]
 pub fn ping_agent(destination: AgentPubKey) -> ExternResult<ZomeBool> {
     /// 1. Send ping DM
-    debug!("ping_agent: {:?}", destination).ok();
+    debug!("ping_agent: {:?}", destination);
     let response_dm = send_dm(destination, DirectMessageProtocol::Ping)?;
-    debug!("ping response = {:?}", response_dm).ok();
+    debug!("ping response = {:?}", response_dm);
     /// 2. Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(ZomeBool(true));

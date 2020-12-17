@@ -1,8 +1,10 @@
-//import { Config } from '../../tryorama/src';
-import { Config, InstallAgentsHapps } from '../../tryorama-rsm/src';
-//import { Config } from "@holochain/tryorama";
 import path from "path";
-import { TransportConfigType, ProxyConfigType } from "../../tryorama-rsm/src/types";
+
+import { Config, InstallAgentsHapps } from '../../tryorama/src';
+//import { Config, InstallAgentsHapps } from '../../tryorama-rsm/src';
+//import { Config } from "@holochain/tryorama";
+import { TransportConfigType, ProxyConfigType } from "../../tryorama/src/types";
+//import { TransportConfigType, ProxyConfigType } from "../../tryorama-rsm/src/types";
 
 
 
@@ -66,8 +68,20 @@ const tripleAgentInstall: InstallAgentsHapps = [
 /**
  *
  */
+export async function setup_conductor_test(s, t) {
+    const [conductor] = await s.players([memConductorConfig]);
+
+    const [[alexHapp], [billyHapp], [camilleHapp]] = await conductor.installAgentsHapps(tripleAgentInstall);
+
+    return conductor;
+}
+
+/**
+ *
+ */
 export async function setup_conductor_3p(s, t) {
     const [conductor] = await s.players([memConductorConfig]);
+
     // install your happs into the conductors and destructuring the returned happ data using the same
     // array structure as you created in your installation array.
     const [[alexHapp], [billyHapp], [camilleHapp]] = await conductor.installAgentsHapps(tripleAgentInstall);
@@ -94,10 +108,14 @@ export async function setup_3_conductors(s, t) {
     const [[billyHapp]] = await billy.installAgentsHapps(monoAgentInstall);
     const [[camilleHapp]] = await camille.installAgentsHapps(monoAgentInstall);
 
+    console.log("setup_3_conductors() - Happs installed")
+
     // Dummy calls so Init is performed
     await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
     await billyHapp.cells[0].call("snapmail", "get_handle", billyHapp.agent)
     await camilleHapp.cells[0].call("snapmail", "get_handle", camilleHapp.agent)
+
+    console.log("setup_3_conductors() - DONE")
 
     // Done
     return { alex, billy, camille, alexHapp, billyHapp, camilleHapp,

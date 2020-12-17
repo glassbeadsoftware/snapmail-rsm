@@ -25,42 +25,42 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
         my_handle_eh.clone(),
         LinkKind::AckInbox.as_tag_opt(),
     )?.into_inner();
-    debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_handle_eh).ok();
+    debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_handle_eh);
     /// Check each link
     let mut updated_outmails = Vec::new();
     for link in &links_result {
         let pending_ack_eh = link.target.clone();
         let maybe_latest = get_latest_for_entry::<PendingAck>(pending_ack_eh.clone())?;
         if maybe_latest.is_none() {
-            debug!("Header not found for pending mail entry").ok();
+            debug!("Header not found for pending mail entry");
             continue;
         }
         let (_pending_ack, pending_ack_hh, _) = maybe_latest.unwrap();
-        debug!("pending_ack_hh: {}", pending_ack_hh).ok();
+        debug!("pending_ack_hh: {}", pending_ack_hh);
         /// Get entry on the DHT
         let maybe_pending_ack = mail::get_pending_ack(&pending_ack_eh);
         if let Err(err) = maybe_pending_ack {
-            debug!("Getting PendingAck from DHT failed: {}", err).ok();
+            debug!("Getting PendingAck from DHT failed: {}", err);
             continue;
         }
         let (author, pending_ack) = maybe_pending_ack.unwrap();
         /// Create InAck
         let maybe_inack_hh = mail::commit_inack(pending_ack.outmail_eh.clone(), &author);
         if let Err(err) = maybe_inack_hh {
-            debug!("Creating InAck from PendignAck failed: {}", err).ok();
+            debug!("Creating InAck from PendignAck failed: {}", err);
             continue;
         }
         /// Delete link from this agent address
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
-            debug!("Remove ``ack_inbox`` link failed:").ok();
-            debug!(err).ok();
+            debug!("Remove ``ack_inbox`` link failed:");
+            debug!(err);
             continue;
         }
         /// Delete PendingAck
         let res = delete_entry(pending_ack_hh);
         if let Err(err) = res {
-            debug!("Delete PendignAck failed: {}", err).ok();
+            debug!("Delete PendignAck failed: {}", err);
         }
         /// Add to return list
         updated_outmails.push(pending_ack.outmail_eh.clone());

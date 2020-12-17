@@ -159,7 +159,7 @@ fn send_mail_by_dm(
     // }
 
     /// --  Send Mail
-    debug!("send_mail_by_dm()").ok();
+    debug!("send_mail_by_dm()");
     /// Create DM
     let msg = MailMessage {
         outmail_eh: outmail_eh.clone(),
@@ -170,7 +170,7 @@ fn send_mail_by_dm(
 
     /// Send DM
     let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
-    debug!("send_mail_to() response_dm = {:?}", response_dm).ok();
+    debug!("send_mail_to() response_dm = {:?}", response_dm);
 
     /// Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
@@ -186,14 +186,14 @@ fn send_mail_to(
     destination: &AgentPubKey,
     //manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<SendSuccessKind> {
-    debug!("send_mail_to() START - {}", destination).ok();
+    debug!("send_mail_to() START - {}", destination);
     /// First try sending directly to other Agent if Online
     let result = send_mail_by_dm(outmail_eh, mail, destination/*, manifest_list*/);
     if result.is_ok() {
         return Ok(SendSuccessKind::OK_DIRECT);
     } else {
         let err = result.err().unwrap();
-        debug!("send_mail_by_dm() failed: {:?}", err).ok();
+        debug!("send_mail_by_dm() failed: {:?}", err);
     }
 
     // FIXME
@@ -217,32 +217,32 @@ fn send_mail_to(
     let pending_mail_eh = hash_entry(&pending_mail)?;
     let maybe_pending_mail_hh = create_entry(&pending_mail);
     if let Err(err) = maybe_pending_mail_hh.clone() {
-        debug!("PendingMail create_entry() failed = {:?}", err).ok();
+        debug!("PendingMail create_entry() failed = {:?}", err);
         return Err(maybe_pending_mail_hh.err().unwrap());
     };
     let pending_mail_hh = maybe_pending_mail_hh.unwrap();
-    debug!("pending_mail_hh = {}", pending_mail_hh).ok();
+    debug!("pending_mail_hh = {}", pending_mail_hh);
     /// Commit Pendings Link
     //let recepient = format!("{}", original_sender);
     let tag = LinkKind::Pendings.concat_hash(&pending_mail_hh);
     let maybe_link1_hh = create_link(outmail_eh.clone(), pending_mail_eh.clone(), tag);
     if let Err(err) = maybe_link1_hh.clone() {
-        debug!("link1 failed = {:?}", err).ok();
+        debug!("link1 failed = {:?}", err);
         return Err(maybe_link1_hh.err().unwrap());
     };
     let link1_hh = maybe_link1_hh.unwrap();
-    debug!("link1_hh = {}", link1_hh).ok();
+    debug!("link1_hh = {}", link1_hh);
     /// Commit MailInbox Link
     //let from = format!("{}", agent_info()?.agent_latest_pubkey);
     let from = agent_info()?.agent_latest_pubkey;
     let tag = LinkKind::MailInbox.concat_hash(&from);
     let maybe_link2_hh = create_link(EntryHash::from(destination.clone()), pending_mail_eh, tag);
     if let Err(err) = maybe_link2_hh.clone() {
-        debug!("link2 failed = {:?}", err).ok();
+        debug!("link2 failed = {:?}", err);
         return Err(maybe_link2_hh.err().unwrap());
     };
     let link2_hh = maybe_link2_hh.unwrap();
-    debug!(format!("link2_hh = {}", link2_hh)).ok();
+    debug!(format!("link2_hh = {}", link2_hh));
     /// Done
     Ok(SendSuccessKind::OK_PENDING(pending_mail_hh))
 }
@@ -266,7 +266,7 @@ pub fn send_mail(
     input: SendMailInput
 ) -> ExternResult<SendMailOutput> {
 
-    debug!("Sending mail: {}", input.subject).ok();
+    debug!("Sending mail: {}", input.subject);
 
     /// Get file manifests from addresses
     // // FIXME
@@ -290,7 +290,7 @@ pub fn send_mail(
     //let outmail_entry = Entry::App(entry_kind::OutMail.into(), outmail.clone().into());
     let outmail_hh = create_entry(&outmail)?;
     let outmail_eh = hash_entry(&outmail)?;
-    debug!("OutMail created: {:?}", outmail_hh).ok();
+    debug!("OutMail created: {:?}", outmail_hh);
 
     /// Send to each recepient
     let mut total_result = SendMailOutput::new(outmail_hh.clone());
@@ -317,6 +317,6 @@ pub fn send_mail(
     }
 
     /// Done
-    debug!("total_result: {:?}", total_result).ok();
+    debug!("total_result: {:?}", total_result);
     Ok(total_result)
 }

@@ -64,16 +64,16 @@ impl FromStr for EntryKind {
          "Path" => Ok(EntryKind::Path),
          //
          "AppPubKey" => {
-            debug!("EntryKind::from_str() FAILED on AppPubKey").ok();
+            debug!("EntryKind::from_str() FAILED on AppPubKey");
             Err(())
          },
          "App" => {
-            debug!("EntryKind::from_str() FAILED on App").ok();
+            debug!("EntryKind::from_str() FAILED on App");
             Err(())
          },
          //
          _ => {
-            debug!("EntryKind::from_str() FAILED on input: {}", input).ok();
+            debug!("EntryKind::from_str() FAILED on input: {}", input);
             Err(())
          },
       }
@@ -103,7 +103,7 @@ impl EntryKind {
          }
          index += 1;
       }
-      debug!("!!! EntryKind::index() Failed !!!").ok();
+      debug!("!!! EntryKind::index() Failed !!!");
       unreachable!();
    }
 
@@ -148,7 +148,7 @@ pub(crate) fn is_valid_type(entry: Entry, type_candidat: EntryType) -> bool {
 
 ///
 fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> bool {
-   debug!("*** can_deserialize() called!").ok();
+   debug!("*** can_deserialize() called!");
    let sb = entry_bytes.into_sb();
    let entry_kind = EntryKind::from_index(&entry_type_id);
 

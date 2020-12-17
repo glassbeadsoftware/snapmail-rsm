@@ -27,22 +27,22 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         my_handle_eh.clone(),
         LinkKind::MailInbox.as_tag_opt(),
         )?.into_inner();
-    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_eh).ok();
+    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_eh);
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();
     for link in &links_result {
         let pending_mail_eh = link.target.clone();
         let maybe_hh = get_latest_for_entry::<PendingMail>(pending_mail_eh.clone())?;
         if maybe_hh.is_none() {
-            debug!("Header not found for pending mail entry").ok();
+            debug!("Header not found for pending mail entry");
             continue;
         }
         let pending_hh = maybe_hh.unwrap().1;
-        debug!("pending_mail_eh: {}", pending_mail_eh).ok();
+        debug!("pending_mail_eh: {}", pending_mail_eh);
         /// Get entry on the DHT
         let maybe_pending_mail = mail::get_pending_mail(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
-            debug!("Getting PendingMail from DHT failed: {}", err).ok();
+            debug!("Getting PendingMail from DHT failed: {}", err);
             continue;
         }
         let (author, pending) = maybe_pending_mail.unwrap();
@@ -50,21 +50,21 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         let inmail = InMail::from_pending(pending, author);
         let maybe_inmail_hh = create_entry(&inmail);
         if maybe_inmail_hh.is_err() {
-            debug!("Failed committing InMail").ok();
+            debug!("Failed committing InMail");
             continue;
         }
         new_inmails.push(maybe_inmail_hh.unwrap());
         /// Remove link from this agent address
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
-            debug!("Remove ``mail_inbox`` link failed:").ok();
-            debug!(err).ok();
+            debug!("Remove ``mail_inbox`` link failed:");
+            debug!(err);
             continue;
         }
         /// Delete PendingMail entry
         let res = delete_entry(pending_hh);
         if let Err(err) = res {
-            debug!("Delete PendingMail failed: {:?}", err).ok();
+            debug!("Delete PendingMail failed: {:?}", err);
             //continue; // TODO: figure out why delete entry fails
         }
         // debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len()).ok();

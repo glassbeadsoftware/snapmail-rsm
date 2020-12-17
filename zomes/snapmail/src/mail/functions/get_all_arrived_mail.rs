@@ -16,12 +16,12 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
        .entry_type(EntryKind::InMail.as_type());
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
-        debug!("get_all_mails() inmail_result failed: {:?}", err).ok();
+        debug!("get_all_mails() inmail_result failed: {:?}", err);
         //return Err(hdk3::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
-    debug!(" get_all_arrived_mail() inmails: {:?}", inmails).ok();
+    debug!(" get_all_arrived_mail() inmails: {:?}", inmails);
 
     // DEBUG - Output dummy values instead
     // let mut unreads = Vec::new();

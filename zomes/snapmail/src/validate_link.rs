@@ -30,7 +30,7 @@ fn validate_create_link(candidat: ValidateCreateLinkData)
 fn validate_delete_link(_delete_link_submission: ValidateDeleteLinkData)
    -> ExternResult<ValidateLinkCallbackResult>
 {
-   debug!("*** validate_delete_link() called!").ok();
+   debug!("*** validate_delete_link() called!");
    //let _delete_link = validate_delete_link.delete_link;
 
    // FIXME: Should not be valide by default

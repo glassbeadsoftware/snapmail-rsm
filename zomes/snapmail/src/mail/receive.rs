@@ -19,7 +19,7 @@ use crate::{
 
 ///
 pub fn receive_dm(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessageProtocol {
-    debug!("Received from: {}", from).ok();
+    debug!("Received from: {}", from);
     // let maybe_msg: Result<DirectMessageProtocol, _> = msg_json.try_into();
     // if let Err(err) = maybe_msg {
     //     return format!("error: {}", err);
@@ -160,11 +160,11 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     let maybe_inmail_hh = create_entry(&inmail);
     if let Err(err) = maybe_inmail_hh {
         let response_str = "Failed committing InMail";
-        debug!(format!("{}: {}", response_str, err)).ok();
+        debug!(format!("{}: {}", response_str, err));
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let inmail_hh =  maybe_inmail_hh.unwrap();
-    debug!(format!("inmail_address: {:?}", inmail_hh)).ok();
+    debug!(format!("inmail_address: {:?}", inmail_hh));
 
     // // Emit signal
     // let item = MailItem {
@@ -190,7 +190,7 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
 /// Returns Success or Failure.
 pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
     /// Create InAck
-    debug!("receive_dm_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_eh).ok();
+    debug!("receive_dm_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_eh);
     // let maybe_outmail = get_local(ack_msg.outmail_eh);
     // if let Err(err) = maybe_outmail {
     //     let response_str = "get_local(): Failed to find Element at given HeaderHash";
@@ -207,11 +207,11 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     //.expect("Should have valid HeaderHash");
 
     let outmail_eh = ack_msg.outmail_eh.clone();
-    debug!("outmail_eh = {:?}", outmail_eh).ok();
+    debug!("outmail_eh = {:?}", outmail_eh);
     let res = mail::commit_inack(outmail_eh, &from);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
-        debug!("{}: {}", response_str, err).ok();
+        debug!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
 
@@ -226,6 +226,6 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     //     debug!(format!("Emit signal failed: {}", err)).ok();
     // }
     // Return Success response
-    debug!("receive_direct_ack() success!").ok();
+    debug!("receive_direct_ack() success!");
     return DirectMessageProtocol::Success("Ack received".to_string());
 }

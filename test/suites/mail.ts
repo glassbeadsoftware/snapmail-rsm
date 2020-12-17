@@ -92,8 +92,8 @@ const send_pending_test = async (s, t) => {
 
     // -- Billy goes online -- //
 
-    //await billy.startup()
-    await billyCell.activate(billyHapp.hAppId)
+    await billy.startup()
+    //await billyCell.activate(billyHapp.hAppId)
 
     // handle_address = await billy.call("app", "snapmail", "set_handle", params)
     // console.log('handle_address2: ' + JSON.stringify(handle_address))
@@ -140,8 +140,8 @@ const send_pending_test = async (s, t) => {
 
     // -- Alex goes offline -- //
 
-    //await alex.shutdown()
-    await alexCell.deactivate(alexHapp.hAppId)
+    await alex.shutdown()
+    //await alexCell.deactivate(alexHapp.hAppId)
 
     await delay(2000);
 
@@ -153,8 +153,8 @@ const send_pending_test = async (s, t) => {
 
     // -- Alex goes online -- //
 
-    //await alex.startup()
-    await alexCell.activate(alexHapp.hAppId)
+    await alex.startup()
+    //await alexCell.activate(alexHapp.hAppId)
 
     await delay(2000);
 
@@ -198,8 +198,8 @@ const send_pending_test = async (s, t) => {
  */
 const send_dm_test = async (s, t) => {
 
-    //const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
     //console.log(alexHapp)
     //console.log(billyHapp)
     //await delay(8000);
@@ -255,7 +255,7 @@ const send_dm_test = async (s, t) => {
 
     // -- ACK -- //
 
-    //await delay(3000);
+    await delay(3000);
 
     const received_result = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
     console.log('received_result1 : ' + JSON.stringify(received_result))

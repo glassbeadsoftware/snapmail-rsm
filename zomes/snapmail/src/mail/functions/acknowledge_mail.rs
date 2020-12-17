@@ -18,9 +18,9 @@ use crate::{
 #[hdk_extern]
 pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
     let outack = OutAck::new();
-    debug!("create_outack() called").ok();
+    debug!("create_outack() called");
     let outack_hh = create_entry(&outack)?;
-    debug!("create_outack() done").ok();
+    debug!("create_outack() done");
     Ok(outack_hh)
 }
 
@@ -35,31 +35,36 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     if res.len() > 0 {
         return error("Mail has already been acknowledged");
     }
-    debug!("Not acknowledged yet").ok();
+    debug!("Not acknowledged yet");
+
     /// Write OutAck
+    // let outack_eh = inmail_eh.clone();
+    //
     let outack = OutAck::new();
     let outack_hh = create_entry(&outack)?;
     let outack_eh = hh_to_eh(outack_hh)?;
-    debug!("Creating ack link...").ok();
+    debug!("Creating ack link...");
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
-    debug!("ack link DONE ; sending ack via DM ...").ok();
-    /// Try Direct sharing of Acknowledgment
-    let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
-    if res.is_ok() {
-        debug!("Acknowledgment shared !").ok();
-        return Ok(outack_eh);
-    }
-    /// Otherwise share Acknowledgement via DHT
-    let err = res.err().unwrap();
-    debug!("Direct sharing of Acknowledgment failed: {}", err).ok();
-    let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
+
+    // debug!("ack link DONE ; sending ack via DM ...").ok();
+    // /// Try Direct sharing of Acknowledgment
+    // let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
+    // if res.is_ok() {
+    //     debug!("Acknowledgment shared !").ok();
+    //     return Ok(outack_eh);
+    // }
+    // /// Otherwise share Acknowledgement via DHT
+    // let err = res.err().unwrap();
+    // debug!("Direct sharing of Acknowledgment failed: {}", err).ok();
+    // let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
+
     /// Done
     Ok(outack_eh)
 }
 
 /// Try sending directly to other Agent if Online
 fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
-    debug!("acknowledge_mail_direct() START").ok();
+    debug!("acknowledge_mail_direct() START");
     /// Create DM
     let msg = AckMessage {
         outmail_eh: outmail_eh.clone(),
@@ -80,7 +85,7 @@ fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     // }
     // let response = result.unwrap();
     /// Check Response
-    debug!("Received response for Ack: {:?}", response).ok();
+    debug!("Received response for Ack: {:?}", response);
     // let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
     // if let Err(err) = maybe_msg {
     //     debug!(format!("Received response -> Err: {}", err)).ok();
@@ -115,7 +120,7 @@ fn acknowledge_mail_pending(
     let tag = LinkKind::AckInbox.concat_hash(original_sender);
     let _ = create_link(outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
     let _ = create_link(EntryHash::from(original_sender.clone()), pending_ack_eh, tag)?;
-    debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, original_sender).ok();
+    debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, original_sender);
     /// Done
     Ok(pending_ack_hh)
 }

@@ -25,7 +25,7 @@ pub(crate) fn try_into_mail(hh: HeaderHash) -> ExternResult<GetMailOutput> {
     //     Ok(element) => element,
     //     Err(_) => return Ok(GetMailOutput(None)),
     // };
-    let element = match get(hh, GetOptions)? {
+    let element = match get(hh, GetOptions::content())? {
         Some(element) => element,
         None => return Ok(GetMailOutput(None)),
     };
@@ -40,6 +40,6 @@ pub(crate) fn try_into_mail(hh: HeaderHash) -> ExternResult<GetMailOutput> {
         return Ok(GetMailOutput(Some(Err(outmail))));
     }
     /// Something is wrong...
-    debug!("try_into_mail(): Error. Item found but it is not a Mail!").ok();
+    debug!("try_into_mail(): Error. Item found but it is not a Mail!");
     Ok(GetMailOutput(None))
 }

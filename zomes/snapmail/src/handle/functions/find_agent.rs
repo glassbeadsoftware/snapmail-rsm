@@ -29,6 +29,6 @@ pub fn find_agent(handle: String) -> ExternResult<Vec<AgentAddress>> {
             }
         }
     }
-    debug!("agent_list size: {}", agent_list.len()).ok();
+    debug!("agent_list size: {}", agent_list.len());
     return Ok(agent_list)
 }

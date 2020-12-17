@@ -67,7 +67,7 @@ pub struct ZomeEhVec(Vec<EntryHash>);
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    debug!("*** init() called!").ok();
+    debug!("*** init() called!");
     /// Set Global Anchors
     Path::from(path_kind::Directory).ensure()?;
     /// Set access for receive/send
@@ -88,13 +88,13 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 #[hdk_extern]
 fn validation_package(_input: AppEntryType) -> ExternResult<ValidationPackageCallbackResult> {
-    debug!("*** validation_package() called!").ok();
+    debug!("*** validation_package() called!");
     let dummy = ValidationPackage(vec![]);
     Ok(ValidationPackageCallbackResult::Success(dummy))
 }
 
 #[hdk_extern]
 fn validate_agent(_: Element) -> ExternResult<ValidateCallbackResult> {
-    debug!("*** validate_agent() called!").ok();
+    debug!("*** validate_agent() called!");
     Ok(ValidateCallbackResult::Valid)
 }

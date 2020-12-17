@@ -28,7 +28,7 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
     }
     /// 4. Otherwise get PendingAck crud status
     let pending_eh = links_result[0].target.clone();
-    let maybe_pending_history = get_details(pending_eh, GetOptions)?;
+    let maybe_pending_history = get_details(pending_eh, GetOptions::latest())?;
     if maybe_pending_history.is_none() {
         return error("No history found for PendingAck");
     }
@@ -37,7 +37,7 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
         Details::Element(_) => unreachable!("in has_ack_been_received()"),
     };
     //let history = maybe_pending_history.unwrap();
-    debug!(" has_ack_been_received() history: {:?}", history).ok();
+    debug!(" has_ack_been_received() history: {:?}", history);
     /// 5. Return Ok if status == deleted
     if let EntryDhtStatus::Dead = history.entry_dht_status {
         return Ok(ZomeBool(true));

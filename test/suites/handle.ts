@@ -1,11 +1,11 @@
-import {setup_2_conductors, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
+import {setup_2_conductors, setup_conductor_test, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
 import { delay } from '../utils';
 
 // -- Export scenarios -- //
 
 module.exports = scenario => {
     scenario("test get/set handle", test_getset_handle)
-    scenario("test handle list", test_handle_list)
+    //scenario("test handle list", test_handle_list)
 
     // FAILING
     // scenario("test set 3 handles", test_set_3_handles)
@@ -19,8 +19,9 @@ module.exports = scenario => {
 const test_getset_handle = async (s, t) => {
     // -- Setup conductor
     //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
-
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    await setup_conductor_test(s, t)
+/*
     // -- Set Handles -- //
 
     const name = ALEX_NICK
@@ -67,6 +68,8 @@ const test_getset_handle = async (s, t) => {
     const result3 = await billyCell.call("snapmail", "get_handle", alexHapp.agent)
     console.log('result3: ' + JSON.stringify(result3))
     t.deepEqual(result3, name)
+
+ */
 };
 
 

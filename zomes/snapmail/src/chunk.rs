@@ -57,9 +57,9 @@ impl FileChunk {
 pub fn write_chunk(
     file_chunk: FileChunk
 ) -> ExternResult<HeaderHash> {
-    debug!("fileChunk: {:?}", file_chunk).ok();
+    debug!("fileChunk: {:?}", file_chunk);
     let res = create_entry(&file_chunk)?;
-    debug!("commit_result: {:?}", res).ok();
+    debug!("commit_result: {:?}", res);
     Ok(res)
 }
 
@@ -69,9 +69,9 @@ pub fn write_chunk(
 pub fn get_chunk_hash(
     file_chunk: FileChunk
 ) -> ExternResult<EntryHash> {
-    debug!("fileChunk: {:?}", file_chunk).ok();
+    debug!("fileChunk: {:?}", file_chunk);
     let res = hash_entry(&file_chunk)?;
-    debug!("entry_hash_result: {:?}", res).ok();
+    debug!("entry_hash_result: {:?}", res);
     Ok(res)
 }
 
@@ -83,8 +83,8 @@ pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<ZomeString> {
 //pub fn _get_chunk(chunk_address: EntryHash) -> Result<MyString, WasmError> {
         //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
     //let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
-    debug!("chunk_address: {:?}", chunk_address).ok();
-    let maybe_element = get(chunk_address, GetOptions)
+    debug!("chunk_address: {:?}", chunk_address);
+    let maybe_element = get(chunk_address, GetOptions::latest())
         .expect("No reason for get() to crash");
     if maybe_element.is_none() {
         return Ok(ZomeString(String::new().into()));
@@ -108,9 +108,9 @@ pub struct SendChunkInput {
 /// Zome function
 #[hdk_extern]
 fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
-    debug!("to_agent: {:?}", input.agent_pubkey).ok();
+    debug!("to_agent: {:?}", input.agent_pubkey);
     let chunk = input.file_chunk;
-    debug!("dbg chunk: {:?}", chunk).ok();
+    debug!("dbg chunk: {:?}", chunk);
     let response: ZomeCallResponse = call_remote(
         input.agent_pubkey,
         zome_info()?.zome_name,
@@ -118,19 +118,20 @@ fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
         None,
         &chunk,
     )?;
-    debug!("response2: {:?}", response).ok();
+    debug!("response2: {:?}", response);
     match response {
         ZomeCallResponse::Ok(guest_output) => {
-            debug!("guest_output: {:?}", guest_output).ok();
+            debug!("guest_output: {:?}", guest_output);
             let hash: HeaderHash = guest_output.into_inner().try_into()?;
-            debug!("hash_output: {:?}", hash).ok();
+            debug!("hash_output: {:?}", hash);
             Ok(hash)
         },
+        ZomeCallResponse::NetworkError(_msg) => unreachable!(), // FIXME
         // we're just panicking here because our simple tests can always call set_access before
         // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
         // something meaningful to the extern's client
         //ZomeCallResponse::Unauthorized => unreachable!(),
-        ZomeCallResponse::Unauthorized => error(
+        ZomeCallResponse::Unauthorized(_,_,_,_) => error(
             "{\"code\": \"000\", \"message\": \"[Unauthorized] write_chunk\"}"),
     }
     //Ok(result.try_into()?)

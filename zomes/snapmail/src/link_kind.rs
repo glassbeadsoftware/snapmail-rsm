@@ -71,7 +71,7 @@ impl LinkKind {
       if kind_str == "AgentPubKey" {
          return EntryType::AgentPubKey;
       }
-      debug!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str).ok();
+      debug!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str);
       unreachable!()
    }
 
@@ -96,6 +96,7 @@ impl LinkKind {
          let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
+
       /// Done
       Ok(ValidateLinkCallbackResult::Valid)
    }

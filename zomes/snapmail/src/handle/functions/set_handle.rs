@@ -46,15 +46,15 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
     let new_handle_eh = hash_entry(&new_handle)?;
-    debug!("First Handle for this agent!!!").ok();
+    debug!("First Handle for this agent!!!");
     let new_handle_hh = create_entry(&new_handle)?;
-    debug!("new_handle_hh = {:?}", new_handle_hh).ok();
+    debug!("new_handle_hh = {:?}", new_handle_hh);
     let _ = create_link(
         EntryHash::from(my_agent_address),
         new_handle_eh.clone(),
         LinkKind::Handle.as_tag(),
     )?;
-    debug!("**** Handle linked to agent!").ok();
+    debug!("**** Handle linked to agent!");
 
     /// Link Handle to DNA entry for a global directory
 

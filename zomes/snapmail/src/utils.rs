@@ -25,7 +25,7 @@ pub fn snapmail_now() -> u64 {
 
 /// Get Element at address using query()
 pub fn get_entry_type(eh: EntryHash) -> ExternResult<EntryType> {
-    let maybe_element = get(eh, GetOptions)?;
+    let maybe_element = get(eh, GetOptions::latest())?;
     if maybe_element.is_none() {
         return error("no element found for entry_hash");
     }
@@ -56,7 +56,7 @@ pub fn get_local(hh: HeaderHash) -> ExternResult<Element> {
 pub fn get_eh(element: &Element) -> ExternResult<EntryHash> {
     let maybe_eh = element.header().entry_hash();
     if let None = maybe_eh {
-        debug!("get_eh(): entry_hash not found").ok();
+        debug!("get_eh(): entry_hash not found");
         return error("get_eh(): entry_hash not found");
     }
     Ok(maybe_eh.unwrap().clone())
@@ -64,11 +64,11 @@ pub fn get_eh(element: &Element) -> ExternResult<EntryHash> {
 
 /// Call get() to obtain EntryHash from a HeaderHash
 pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
-    debug!("hh_to_eh(): START - get...").ok();
-    let maybe_element = get(hh, GetOptions)?;
-    debug!("hh_to_eh(): START - get DONE").ok();
+    debug!("hh_to_eh(): START - get...");
+    let maybe_element = get(hh, GetOptions::content())?;
+    debug!("hh_to_eh(): START - get DONE");
     if let None = maybe_element {
-        debug!("hh_to_eh(): Element not found").ok();
+        debug!("hh_to_eh(): Element not found");
         return error("hh_to_eh(): Element not found");
     }
     return get_eh(&maybe_element.unwrap());
@@ -79,7 +79,7 @@ pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
 pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
     -> ExternResult<(EntryHash, T)>
 {
-    match get(hash.clone(), GetOptions)? {
+    match get(hash.clone(), GetOptions::content())? {
         Some(element) => {
             let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
             Ok((eh.clone(), try_from_element(element)?))
@@ -93,7 +93,7 @@ pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
 pub fn try_get_and_convert<T: TryFrom<SerializedBytes>>(entry_hash: EntryHash)
     -> ExternResult<(EntryHash, T)>
 {
-    match get(entry_hash.clone(), GetOptions)? {
+    match get(entry_hash.clone(), GetOptions::latest())? {
         Some(element) => Ok((entry_hash, try_from_element(element)?)),
         None => crate::error("Entry not found"),
     }
@@ -137,7 +137,7 @@ pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesE
     entry_hash: EntryHash,
 ) -> ExternResult<OptionEntryAndHash<T>> {
     // First, make sure we DO have the latest header_hash address
-    let maybe_latest_header_hash = match get_details(entry_hash, GetOptions)? {
+    let maybe_latest_header_hash = match get_details(entry_hash, GetOptions::latest())? {
         Some(Details::Entry(details)) => match details.entry_dht_status {
             metadata::EntryDhtStatus::Live => match details.updates.len() {
                 // pass out the header associated with this entry
@@ -159,7 +159,7 @@ pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesE
 
     // Second, go and get that element, and return it and its header_address
     match maybe_latest_header_hash {
-        Some(latest_header_hash) => match get(latest_header_hash, GetOptions)? {
+        Some(latest_header_hash) => match get(latest_header_hash, GetOptions::latest())? {
             Some(element) => match element.entry().to_app_option::<T>()? {
                 Some(entry) => Ok(Some((
                     entry,
