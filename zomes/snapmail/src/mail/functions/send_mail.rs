@@ -23,9 +23,9 @@ pub enum SendSuccessKind {
 #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
 pub struct SendMailOutput {
     outmail: HeaderHash,
-    to_pendings: HashMap<AgentPubKey, HeaderHash>,
-    cc_pendings: HashMap<AgentPubKey, HeaderHash>,
-    bcc_pendings: HashMap<AgentPubKey, HeaderHash>,
+    to_pendings: HashMap<String, HeaderHash>,
+    cc_pendings: HashMap<String, HeaderHash>,
+    bcc_pendings: HashMap<String, HeaderHash>,
 }
 
 impl SendMailOutput {
@@ -39,10 +39,11 @@ impl SendMailOutput {
     }
 
     pub fn add_pending(&mut self, kind: ReceipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
+        let agent_str = format!("{}", agent_id);
         match kind {
-            ReceipientKind::TO => self.to_pendings.insert(agent_id.clone(), hh),
-            ReceipientKind::CC => self.cc_pendings.insert(agent_id.clone(), hh),
-            ReceipientKind::BCC => self.bcc_pendings.insert(agent_id.clone(), hh),
+            ReceipientKind::TO => self.to_pendings.insert(agent_str, hh),
+            ReceipientKind::CC => self.cc_pendings.insert(agent_str, hh),
+            ReceipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
         };
     }
 }
@@ -224,7 +225,10 @@ fn send_mail_to(
     debug!("pending_mail_hh = {}", pending_mail_hh);
     /// Commit Pendings Link
     //let recepient = format!("{}", original_sender);
-    let tag = LinkKind::Pendings.concat_hash(&pending_mail_hh);
+    //let tag = LinkKind::Pendings.concat_hash(&pending_mail_hh);
+    let tag = LinkKind::Pendings.concat_hash(destination);
+
+    debug!("pendings tag = {:?}", tag);
     let maybe_link1_hh = create_link(outmail_eh.clone(), pending_mail_eh.clone(), tag);
     if let Err(err) = maybe_link1_hh.clone() {
         debug!("link1 failed = {:?}", err);
@@ -294,6 +298,7 @@ pub fn send_mail(
 
     /// Send to each recepient
     let mut total_result = SendMailOutput::new(outmail_hh.clone());
+
     /// to
     for agent in input.to {
         let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, /*&file_manifest_list*/);

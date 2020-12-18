@@ -7,11 +7,23 @@ export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /**
  *
- * @param wtf
  */
 export function htos(wtf) {
     return Buffer.from(wtf).toString('base64')
 }
+
+/**
+ *
+ */
+export function cellIdToStr(cell) {
+    let res = '('
+    res += htos(cell.cellId[0])
+    res += ', '
+    res += htos(cell.cellId[1])
+    res += ')'
+    return res
+}
+
 
 /**
  *

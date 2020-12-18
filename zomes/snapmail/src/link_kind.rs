@@ -137,9 +137,11 @@ impl LinkKind {
    /// Retrieve hash from LinkTag
    pub fn unconcat_hash<T: HashType>(&self, tag: &LinkTag) -> ExternResult<HoloHash<T>> {
       let suffix = self.unconcat(tag)?;
+      //debug!("unconcat suffix = {:?}", suffix);
       let maybe_hash = HoloHash::from_raw_39(suffix);
-      if let Err(_err) = maybe_hash {
-         return error("unconcat_hash() failed");
+      //debug!("unconcat maybe_hash = {:?}", maybe_hash);
+      if let Err(err) = maybe_hash {
+         return error(&format!("unconcat_hash() failed: {:?}", err));
       }
       Ok(maybe_hash.unwrap())
    }

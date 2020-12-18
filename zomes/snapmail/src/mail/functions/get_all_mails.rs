@@ -1,8 +1,6 @@
 use hdk3::prelude::*;
 use hdk3::prelude::query::ChainQueryFilter;
 
-use std::convert::TryFrom;
-
 use crate::{
     // link_kind,
     entry_kind::*,

@@ -1,14 +1,14 @@
 import {setup_3_conductors, setup_conductor_3p} from "../config";
 
-const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK } = require('../config')
+const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, monoAgentInstall, snapmailDna } = require('../config')
 
-const { sleep, filterMailList, delay, logDump, htos } = require('../utils')
+const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('../utils')
 
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    //scenario("send pending test", send_pending_test)
-    scenario("send via DM test", send_dm_test)
+    scenario("send pending test", send_pending_test)
+    //scenario("send via DM test", send_dm_test)
     //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
@@ -55,16 +55,21 @@ async function setup_handles(s, t, alexCell, billyCell) {
     console.log('\n**** '+ handle_count + ' HANDLES HAVE BEEN SET **** \n\n')
 }
 
-
 /**
  * Send mail and acknowledgement while other party is offline
  */
 const send_pending_test = async (s, t) => {
     // -- Setup -- //
-    const { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
+    let { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
     //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
     await setup_handles(s, t, alexCell, billyCell)
+
+    console.log({billyCell})
+    
+    console.log('Alex cell    = ' + cellIdToStr(alexHapp.cells[0]))
+    console.log('Billy cell   = ' + cellIdToStr(billyHapp.cells[0]))
+    console.log('Camille cell = ' + cellIdToStr(camilleHapp.cells[0]))
 
     // -- Billy goes offline -- //
 
@@ -87,23 +92,41 @@ const send_pending_test = async (s, t) => {
     console.log('** CALLING: send_mail()')
     const send_result = await alexCell.call("snapmail", "send_mail", send_params)
     console.log('send_result: ' + JSON.stringify(send_result))
-    // Should have no pendings
-    t.deepEqual(send_result.Ok.cc_pendings, {})
+    // Should have no cc pendings
+    t.deepEqual(send_result.cc_pendings, {})
 
     // -- Billy goes online -- //
 
     await billy.startup()
+    console.log({billyHapp})
+    console.log({billyCell})
     //await billyCell.activate(billyHapp.hAppId)
+
+    //const wtf = await billy.installHapp([snapmailDna], billyHapp.agent)
+    //console.log({wtf})
+
+    //const shareResponse = await s.shareAllNodes([alex, billy, camille])
+    //console.log({shareResponse})
+    await delay(1000) // allow 1 second for gossiping
+
+    // console.log('** installAgentsHapps for Billy: ' + monoAgentInstall)
+    //
+    // const [[billyHapp2]] = await billy.installAgentsHapps(monoAgentInstall);
+    // console.log('** installAgentsHapps billyHapp2 = ' + billyHapp2)
+
+    //billyHapp = billyHapp2;
+    //billyCell = billyHapp2.cells[0];
 
     // handle_address = await billy.call("app", "snapmail", "set_handle", params)
     // console.log('handle_address2: ' + JSON.stringify(handle_address))
     // t.match(handle_address.Ok, RegExp('Qm*'))
 
-    await delay(10);
+    await delay(2000);
 
     // -- Billy checks inbox -- //
 
-    const check_result = await billyCell.call("snapmail", "check_incoming_mail", undefined)
+    console.log('** CALLING: Billy check_incoming_mail()')
+    const check_result = await billyHapp.cells[0].call("snapmail", "check_incoming_mail", undefined)
     console.log('check_result2      : ' + JSON.stringify(check_result))
     t.deepEqual(check_result.Ok.length, 1)
     t.match(check_result.Ok[0], RegExp('Qm*'))

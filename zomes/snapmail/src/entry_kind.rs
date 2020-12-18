@@ -146,7 +146,7 @@ pub(crate) fn is_type(entry: Entry, type_candidat: EntryType) -> bool {
          res
        },
    };
-   debug!("*** is_type({:?}) result = {}", type_candidat, res);
+   //debug!("*** is_type({:?}) result = {}", type_candidat, res);
    res
 }
 

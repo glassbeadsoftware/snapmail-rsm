@@ -50,11 +50,11 @@ const quicConductorConfig = Config.gen();
 const memConductorConfig = Config.gen({network: memConfig});
 
 
-const snapmailDna = path.join(__dirname, "../snapmail.dna.gz");
+export const snapmailDna = path.join(__dirname, "../snapmail.dna.gz");
 
 // create an InstallAgentsHapps array with your DNAs to tell tryorama what
 // to install into the conductor.
-const monoAgentInstall: InstallAgentsHapps = [
+export const monoAgentInstall: InstallAgentsHapps = [
     // agent 0
     [
         // happ 0
