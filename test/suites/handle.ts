@@ -18,10 +18,9 @@ module.exports = scenario => {
  */
 const test_getset_handle = async (s, t) => {
     // -- Setup conductor
-    //const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
+    const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
     //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
-    await setup_conductor_test(s, t)
-/*
+
     // -- Set Handles -- //
 
     const name = ALEX_NICK
@@ -68,8 +67,6 @@ const test_getset_handle = async (s, t) => {
     const result3 = await billyCell.call("snapmail", "get_handle", alexHapp.agent)
     console.log('result3: ' + JSON.stringify(result3))
     t.deepEqual(result3, name)
-
- */
 };
 
 

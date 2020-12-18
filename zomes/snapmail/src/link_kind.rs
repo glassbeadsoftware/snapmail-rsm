@@ -87,12 +87,12 @@ impl LinkKind {
 
       /// Check correctness
       // if base_type != self.allowed_base_type() {
-      if is_valid_type(candidat.base, self.allowed_base_type()) {
+      if !is_type(candidat.base, self.allowed_base_type()) {
          let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
       // if target_type != self.allowed_target_type() {
-      if is_valid_type(candidat.target, self.allowed_target_type()) {
+      if !is_type(candidat.target, self.allowed_target_type()) {
          let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }

@@ -132,38 +132,42 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
 }
 
 /// Try to deserialize entry to given type
-pub(crate) fn is_valid_type(entry: Entry, type_candidat: EntryType) -> bool {
-   return match entry {
+pub(crate) fn is_type(entry: Entry, type_candidat: EntryType) -> bool {
+   debug!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
+   let res =  match entry {
       Entry::Agent(_agent_hash) => EntryType::AgentPubKey == type_candidat,
       Entry::CapClaim(_claim) => EntryType::CapClaim == type_candidat,
       Entry::CapGrant(_grant) => EntryType::CapGrant == type_candidat,
       Entry::App(entry_bytes) => {
-         if let EntryType::App(app_entry_type) = type_candidat {
-            return can_deserialize(app_entry_type.id(), entry_bytes);
+         let mut res = false;
+         if let EntryType::App(app_entry_type) = type_candidat.clone() {
+            res = can_deserialize(app_entry_type.id(), entry_bytes)
          }
-          false
+         res
        },
    };
+   debug!("*** is_type({:?}) result = {}", type_candidat, res);
+   res
 }
 
 ///
 fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> bool {
-   debug!("*** can_deserialize() called!");
+   debug!("*** can_deserialize() called! ({:?})", entry_type_id);
    let sb = entry_bytes.into_sb();
    let entry_kind = EntryKind::from_index(&entry_type_id);
 
    match entry_kind {
-      EntryKind::Handle => Handle::try_from(sb.clone()).is_err(),
-      EntryKind::Path => Path::try_from(sb.clone()).is_err(),
-      EntryKind::InMail => InMail::try_from(sb.clone()).is_err(),
-      EntryKind::InAck => InAck::try_from(sb.clone()).is_err(),
-      EntryKind::PendingMail => PendingMail::try_from(sb.clone()).is_err(),
-      EntryKind::PendingAck => PendingAck::try_from(sb.clone()).is_err(),
-      EntryKind::OutMail => OutMail::try_from(sb.clone()).is_err(),
-      EntryKind::OutAck => OutAck::try_from(sb.clone()).is_err(),
-      EntryKind::FileManifest => true, // FIXME FileManifest::try_from(sb.clone()).is_err(),
+      EntryKind::Handle => Handle::try_from(sb.clone()).is_ok(),
+      EntryKind::Path => Path::try_from(sb.clone()).is_ok(),
+      EntryKind::InMail => InMail::try_from(sb.clone()).is_ok(),
+      EntryKind::InAck => InAck::try_from(sb.clone()).is_ok(),
+      EntryKind::PendingMail => PendingMail::try_from(sb.clone()).is_ok(),
+      EntryKind::PendingAck => PendingAck::try_from(sb.clone()).is_ok(),
+      EntryKind::OutMail => OutMail::try_from(sb.clone()).is_ok(),
+      EntryKind::OutAck => OutAck::try_from(sb.clone()).is_ok(),
+      EntryKind::FileManifest => true, // FIXME FileManifest::try_from(sb.clone()).is_ok(),
       /// DEBUG
-      EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_err(),
+      EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_ok(),
    }
 }
 
