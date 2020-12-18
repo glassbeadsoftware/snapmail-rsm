@@ -1,5 +1,5 @@
-import {setup_2_conductors, setup_conductor_test, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
-import { delay } from '../utils';
+import {setup_2_conductors, setup_3_conductors, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
+import { delay, htos } from '../utils';
 
 // -- Export scenarios -- //
 
@@ -38,6 +38,8 @@ const test_getset_handle = async (s, t) => {
     // //t.deepEqual(result.Ok, name)
     // //t.match(handle_address.hash, RegExp('Qm*'))
 
+    await delay(1000);
+
     // -- Ping -- //
 
     const result4 = await billyCell.call("snapmail", "ping_agent", alexHapp.agent)
@@ -75,8 +77,8 @@ const test_getset_handle = async (s, t) => {
  */
 const test_handle_list = async (s, t) => {
     // -- Setup conductor
-    // const { alex, billy, alexAddress, billyAddress, alexCell, billyCell } = await setup_2_conductors(s, t)
-    const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+    const { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
 
     // Set Alex
@@ -84,18 +86,19 @@ const test_handle_list = async (s, t) => {
     let handle_address = await alexCell.call("snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
-    await delay(10);
+    await delay(100);
 
     // Set billy
     name = BILLY_NICK
     handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address2: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
-    await delay(10);
+    await delay(1000);
 
+    //await delay(5000);
 
     let result = await billyCell.call("snapmail", "get_all_handles", undefined)
-    console.log('handle_list: ' + JSON.stringify(result))
+    console.log('handle_list1: ' + JSON.stringify(result))
     t.deepEqual(result.length, 2)
 
     // Set camille
@@ -103,10 +106,10 @@ const test_handle_list = async (s, t) => {
     handle_address = await camilleCell.call("snapmail", "set_handle", name)
     console.log('handle_address3: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
-    await delay(10);
+    await delay(1000);
 
     result = await billyCell.call("snapmail", "get_all_handles", undefined)
-    console.log('handle_list: ' + JSON.stringify(result))
+    console.log('handle_list2: ' + JSON.stringify(result))
     t.deepEqual(result.length, 3)
 
     // Update Billy
@@ -114,10 +117,10 @@ const test_handle_list = async (s, t) => {
     handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address4: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
-    await delay(10);
+    await delay(1000);
 
     result = await billyCell.call("snapmail", "get_all_handles", undefined)
-    console.log('handle_list updated: ' + JSON.stringify(result))
+    console.log('handle_list3 updated: ' + JSON.stringify(result))
     t.deepEqual(result.length, 3)
 };
 

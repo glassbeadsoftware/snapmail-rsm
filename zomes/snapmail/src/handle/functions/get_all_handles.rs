@@ -15,7 +15,7 @@ pub struct GetAllHandlesOutput(Vec<(String, AgentPubKey, EntryHash)>);
 pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
     /// Get all Members links
     let handle_links = get_members()?;
-    debug!("handle_links size: {:?}", handle_links.len());
+    debug!("get_all_handles() handle_links size: {:?}", handle_links.len());
 
     /// Find handle entry whose author is agentId
     let mut handle_list = Vec::new();
@@ -34,24 +34,14 @@ pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
              continue;
           }
          let element = maybe_element.unwrap();
-         /*
-     if let Ok(entry_result) = handle_link {
-         let item = match entry_result.result {
-             GetEntryResultType::Single(result_item) => result_item,
-             GetEntryResultType::All(history) => history.items[0].clone(),
-         };
-         let entry = item.entry.unwrap();
-         let handle_entry = crate::into_typed::<Handle>(entry).expect("Should be Handle");
-         let header = item.headers[0].clone();
-         let from = header.provenances()[0].clone();
-         */
+
          handle_list.push((
             handle_entry_hash.0.name.clone(),
             element.header().author().clone(),
             handle_entry_hash.2.clone(),
          ));
     }
-    debug!("handle_map size: {}", handle_list.len());
+    debug!("get_all_handles() handle_map size: {}", handle_list.len());
     /// Done
     return Ok(GetAllHandlesOutput(handle_list))
 }

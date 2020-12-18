@@ -1,6 +1,6 @@
 import path from "path";
 
-const { sleep } = require('./utils');
+const { delay } = require('./utils');
 
 //import { Config, InstallAgentsHapps } from "@holochain/tryorama";
 import { Config, InstallAgentsHapps } from '../../tryorama/src';
@@ -43,8 +43,10 @@ const memConfig = {
     }],
 }
 
-const quicConductorConfig = Config.gen({network: proxyConfig });
+const quicConductorConfig = Config.gen();
+//const quicConductorConfig = Config.gen({network: proxyConfig });
 //const quicConductorConfig = Config.gen({network: quicConfig});
+
 const memConductorConfig = Config.gen({network: memConfig});
 
 
@@ -120,7 +122,7 @@ export async function setup_3_conductors(s, t) {
     console.log("setup_3_conductors() - shareAllNodes... ")
 
     const r = await s.shareAllNodes([alex, billy, camille])
-    await sleep(1000) // allow 1 second for gossiping
+    await delay(1000) // allow 1 second for gossiping
 
     console.log("setup_3_conductors() - Dummy calls... ")
 
@@ -150,7 +152,7 @@ export async function setup_2_conductors(s, t) {
     console.log("setup_2_conductors() - shareAllNodes... ")
 
     const r = await s.shareAllNodes([alex, billy])
-    await sleep(1000) // allow 1 second for gossiping
+    await delay(1000) // allow 1 second for gossiping
 
     console.log("setup_2_conductors() - Dummy calls... ")
 
