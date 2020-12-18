@@ -265,7 +265,9 @@ const send_dm_test = async (s, t) => {
     const ack_result = await alexCell.call("snapmail", "acknowledge_mail", mail_adr)
     console.log('ack_result1 : ' + JSON.stringify(ack_result))
 
-    await delay(10);
+    await delay(1000);
+
+    //await delay(6000);
 
     const received_result2 = await billyCell.call("snapmail", "has_mail_been_received", send_result.outmail)
     console.log('received_result2 : ' + JSON.stringify(received_result2))

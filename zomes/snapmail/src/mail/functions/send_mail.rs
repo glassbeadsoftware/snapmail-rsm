@@ -53,7 +53,7 @@ impl SendMailOutput {
 //     sender_manifest: &FileManifest,
 //     chunk_address_list: Vec<Address>,
 // ) -> ExternResult<Address> {
-//     debug!(format!("send_manifest_by_dm(): {:?}", destination)).ok();
+//     debug!(format!("send_manifest_by_dm(): {:?}", destination));
 //
 //     // Create receiver manifest
 //     let mut receiver_manifest = sender_manifest.clone();
@@ -66,13 +66,13 @@ impl SendMailOutput {
 //         payload,
 //         Timeout::new(crate::DIRECT_SEND_TIMEOUT_MS),
 //     );
-//     debug!(format!("send_manifest result = {:?}", result)).ok();
+//     debug!(format!("send_manifest result = {:?}", result));
 //     //   Check Response
 //     if let Err(_e) = result {
 //         return Err(ZomeApiError::Internal("hdk::send() of manifest failed".into()))
 //     }
 //     let response = result.unwrap();
-//     debug!(format!("Received response: {:?}", response)).ok();
+//     debug!(format!("Received response: {:?}", response));
 //     let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
 //     if let Err(_e) = maybe_msg {
 //         return Err(ZomeApiError::Internal("hdk::send() of manifest failed 2".into()))
@@ -86,10 +86,10 @@ impl SendMailOutput {
 
 // FIXME
 // fn send_chunk_by_dm(destination: &AgentAddress, chunk_address: &Address) -> ExternResult<Address> {
-//     debug!(format!("send_chunk_by_dm(): {}", chunk_address)).ok();
+//     debug!(format!("send_chunk_by_dm(): {}", chunk_address));
 //     let maybe_entry = hdk::get_entry(&chunk_address)?;
 //         //.expect("No reason for get_entry() to crash");
-//     debug!(format!("maybe_entry =  {:?}", maybe_entry)).ok();
+//     debug!(format!("maybe_entry =  {:?}", maybe_entry));
 //     if maybe_entry.is_none() {
 //         return Err(ZomeApiError::Internal("No chunk found at given address".into()))
 //     }
@@ -103,13 +103,13 @@ impl SendMailOutput {
 //         payload,
 //         Timeout::new(crate::DIRECT_SEND_CHUNK_TIMEOUT_MS),
 //     );
-//     debug!(format!("send_chunk result = {:?}", result)).ok();
+//     debug!(format!("send_chunk result = {:?}", result));
 //     //   Check Response
 //     if let Err(e) = result {
 //         return Err(ZomeApiError::Internal(format!("hdk::send() of chunk failed: {}", e)));
 //     }
 //     let response = result.unwrap();
-//     debug!(format!("Received response: {:?}", response)).ok();
+//     debug!(format!("Received response: {:?}", response));
 //     let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
 //     if let Err(_e) = maybe_msg {
 //         return Err(ZomeApiError::Internal("hdk::send() of chunk failed 2".into()))
@@ -145,14 +145,14 @@ fn send_mail_by_dm(
 
     /// -- Send Attachments
     // FIXME
-    // debug!("Send Attachments".to_string()).ok();
+    // debug!("Send Attachments".to_string());
     // // For each attachment, send all the chunks
     // let mut manifest_address_list: Vec<Address> = Vec::new();
     // for manifest in manifest_list {
     //     let maybe_manifest_address = send_attachment_by_dm(destination, manifest);
     //     if let Err(e) = maybe_manifest_address {
     //         let err_msg = format!("Send attachment failed -> Err: {}", e);
-    //         debug!(err_msg.clone()).ok();
+    //         debug!(err_msg.clone());
     //         return Err(ZomeApiError::Internal(err_msg));
     //     }
     //     manifest_address_list.push(maybe_manifest_address.unwrap());
@@ -202,15 +202,15 @@ fn send_mail_to(
     /// DM failed, send to DHT instead by creating a PendingMail
 
     // /// Get Handle address first
-    // debug!("Sending mail by DM failed. Getting handle for... {}", destination).ok();
+    // debug!("Sending mail by DM failed. Getting handle for... {}", destination);
     // let maybe_destination_element = crate::handle::get_handle_element(destination);
     // if let None = maybe_destination_element {
-    //     debug!("No handle has been set for receiving agent").ok();
+    //     debug!("No handle has been set for receiving agent");
     //     return error("No handle has been set for receiving agent");
     // }
     // let destination_element = maybe_destination_element.unwrap();
     // let my_handle_address = get_eh(&my_handle_element)?;
-    // debug!("destination_element: {}", destination_element).ok();
+    // debug!("destination_element: {}", destination_element);
 
     /// Commit PendingMail
     let pending_mail = PendingMail::new(mail.clone(), outmail_eh.clone());

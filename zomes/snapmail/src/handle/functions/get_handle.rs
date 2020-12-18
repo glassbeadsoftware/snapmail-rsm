@@ -20,15 +20,15 @@ pub(crate) fn get_handle_entry(agentId: &AgentPubKey) -> Option<(EntryHash, Entr
     // -- Get DNA's header to retrieve the links on it
     let query_result = query!(EntryType::Dna.into());
     let dna_address = query_result.ok().unwrap()[0].clone();
-    debug!(format!("dna_address33: {:?}", dna_address)).ok();
-    debug!(format!("agentId33: {:?}", agentId)).ok();
+    debug!(format!("dna_address33: {:?}", dna_address));
+    debug!(format!("agentId33: {:?}", agentId));
     //let entry_opts = GetEntryOptions::new(StatusRequestKind::default(), false, true, Timeout::default());
     let member_links = get_links!(
         //&*hdk::DNA_ADDRESS,
         &dna_address,
         link_kind::Members
     ).expect("No reason for this to fail");
-    debug!(format!("member_links: {:?}", member_links)).ok();
+    debug!(format!("member_links: {:?}", member_links));
 
     // Find handle entry whose author is agentId
     for maybe_entry_result in member_links {
@@ -40,12 +40,12 @@ pub(crate) fn get_handle_entry(agentId: &AgentPubKey) -> Option<(EntryHash, Entr
             let header = item.headers[0].clone();
             let from = header.provenances()[0].clone();
             if from.source() == agentId.clone() {
-                debug!("agentId33 match").ok();
+                debug!("agentId33 match");
                 return Some((header.entry_address().clone(), item.entry.unwrap()))
             }
         }
     }
-    debug!("None33").ok();
+    debug!("None33");
     return None;
 }
 */

@@ -44,7 +44,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    return response;
    // if let Err(err) = maybe_response {
    //    let fail_str = format!("Failed call_remote() during send_dm(): {:?}", err);
-   //    debug!(fail_str).ok();
+   //    debug!(fail_str);
    //    return error(&fail_str);
    // }
 
@@ -52,7 +52,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    /*
    match maybe_response.unwrap() {
       ZomeCallResponse::Ok(output) => {
-         debug!(format!("Received response from receive_dm() : {:?}", output).to_string()).ok();
+         debug!(format!("Received response from receive_dm() : {:?}", output).to_string());
          //let maybe_msg: Result<DirectMessageProtocol, _> = output.into_inner().try_into()?;
          // if maybe_msg.is_err() {
          //     return Err(HdkError::Wasm(WasmError::Zome("receive() response failed to deserialize.".to_owned())));
@@ -60,7 +60,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
          // Ok(maybe_msg.unwrap())
 
          let msg: DirectMessageProtocol = output.into_inner().try_into()?;
-         debug!(format!("msg_output: {:?} ; dm was: {:?}", msg, dm)).ok();
+         debug!(format!("msg_output: {:?} ; dm was: {:?}", msg, dm));
          Ok(msg)
       },
       ZomeCallResponse::Unauthorized => {

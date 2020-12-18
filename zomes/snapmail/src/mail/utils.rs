@@ -122,8 +122,8 @@ pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternR
     let inack = InAck::new();
     let inack_hh = create_entry(&inack)?;
     let inack_eh = hash_entry(&inack)?;
-    //debug!("inack_hh: {}", inack_hh).ok();
-    //debug!("inack_eh: {}", inack_eh).ok();
+    //debug!("inack_hh: {}", inack_hh);
+    //debug!("inack_eh: {}", inack_eh);
     /// Create link tag
     //let vec = from.clone().into_inner();
     //let recepient = format!("{}", from);

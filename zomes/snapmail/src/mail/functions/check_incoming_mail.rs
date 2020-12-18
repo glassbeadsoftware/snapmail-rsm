@@ -67,13 +67,13 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             debug!("Delete PendingMail failed: {:?}", err);
             //continue; // TODO: figure out why delete entry fails
         }
-        // debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len()).ok();
+        // debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len());
         // //  5. Retrieve and write FileManifest for each attachment
         // let mut manifest_list: Vec<FileManifest> = Vec::new();
         // for attachment_info in inmail.clone().mail.attachments {
         //     let manifest_address = attachment_info.manifest_address;
         //     // Retrieve
-        //     debug!("Retrieving manifest: {}", manifest_address).ok();
+        //     debug!("Retrieving manifest: {}", manifest_address);
         //     let maybe_maybe_manifest = request_manifest_by_dm(inmail.clone().from, manifest_address);
         //     if let Err(_err) = maybe_maybe_manifest {
         //         break;
@@ -87,7 +87,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         //     let maybe_file_address = create_entry(&manifest);
         //     if let Err(err) = maybe_file_address {
         //         let response_str = "Failed committing FileManifest";
-        //         debug!("{}: {}", response_str, err).ok();
+        //         debug!("{}: {}", response_str, err);
         //         break;
         //     }
         //     // Add to list
@@ -110,7 +110,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         //         let maybe_address = create_entry(&chunk);
         //         if let Err(err) = maybe_address {
         //             let response_str = "Failed committing FileChunk";
-        //             debug!("{}: {}", response_str, err).ok();
+        //             debug!("{}: {}", response_str, err);
         //             break;
         //         }
         //     }
@@ -120,7 +120,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         //     // let signal_json = serde_json::to_string(&signal).expect("Should stringify");
         //     // let res = hdk::emit_signal("received_file", JsonString::from_json(&signal_json));
         //     // if let Err(err) = res {
-        //     //     debug!("Emit signal failed: {}", err).ok();
+        //     //     debug!("Emit signal failed: {}", err);
         //     // }
         // }
     }

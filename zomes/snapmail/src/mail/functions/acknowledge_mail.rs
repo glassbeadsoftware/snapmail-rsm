@@ -46,16 +46,16 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     debug!("Creating ack link...");
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
 
-    // debug!("ack link DONE ; sending ack via DM ...").ok();
-    // /// Try Direct sharing of Acknowledgment
-    // let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
-    // if res.is_ok() {
-    //     debug!("Acknowledgment shared !").ok();
-    //     return Ok(outack_eh);
-    // }
+    debug!("ack link DONE ; sending ack via DM ...");
+    /// Try Direct sharing of Acknowledgment
+    let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
+    if res.is_ok() {
+        debug!("Acknowledgment shared !");
+        return Ok(outack_eh);
+    }
     // /// Otherwise share Acknowledgement via DHT
     // let err = res.err().unwrap();
-    // debug!("Direct sharing of Acknowledgment failed: {}", err).ok();
+    // debug!("Direct sharing of Acknowledgment failed: {}", err);
     // let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
 
     /// Done
@@ -88,7 +88,7 @@ fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     debug!("Received response for Ack: {:?}", response);
     // let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
     // if let Err(err) = maybe_msg {
-    //     debug!(format!("Received response -> Err: {}", err)).ok();
+    //     debug!(format!("Received response -> Err: {}", err));
     //     return Err(HdkError::Wasm(WasmError::Zome(format!("{}", err))));
     // }
     match response {

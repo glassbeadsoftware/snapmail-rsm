@@ -81,7 +81,7 @@ pub fn get_chunk_hash(
 #[hdk_extern]
 pub fn get_chunk(chunk_address: EntryHash) -> ExternResult<ZomeString> {
 //pub fn _get_chunk(chunk_address: EntryHash) -> Result<MyString, WasmError> {
-        //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw)).ok();
+        //debug!(format!("chunk_address_raw: {:?}", chunk_address_raw));
     //let chunk_address = HoloHash::<hash_type::Entry>::from_raw_bytes_and_type(chunk_address_raw.to_vec(), hash_type::Entry::Content);
     debug!("chunk_address: {:?}", chunk_address);
     let maybe_element = get(chunk_address, GetOptions::latest())

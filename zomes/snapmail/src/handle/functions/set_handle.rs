@@ -59,19 +59,19 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     /// Link Handle to DNA entry for a global directory
 
     // TODO: hdk::DNA_ADDRESS doesnt work for linking, get the dna entry address
-    //debug!(format!("DNA_ADDRESS42: {:?}", &*hdk::DNA_ADDRESS)).ok();
+    //debug!(format!("DNA_ADDRESS42: {:?}", &*hdk::DNA_ADDRESS));
     // let dna_entry = hdk::get_entry(&*hdk::DNA_ADDRESS)?;
-    // debug!(format!("dna_entry1: {:?}", dna_entry)).ok();
+    // debug!(format!("dna_entry1: {:?}", dna_entry));
 
     //let query_result = query!(EntryType::Dna.into());
-    //debug!(format!("query_result42: {:?}", query_result)).ok();
+    //debug!(format!("query_result42: {:?}", query_result));
     //let dna_address = query_result.ok().unwrap()[0].clone();
 
     // let dna_entry_hash = EntryHash::from_raw_bytes_and_type(
     //     zome_info!()?.dna_hash.into_inner(),
     //     *entry_address.hash_type(),
     // );
-    // debug!(format!("dna_address31: {:?}", dna_entry_hash)).ok();
+    // debug!(format!("dna_address31: {:?}", dna_entry_hash));
     // let _ = create_link!(dna_entry_hash, entry_address, link_tag(link_kind::Members))?;
 
     let directory_address = Path::from(path_kind::Directory).hash().expect("Directory Path should hash");

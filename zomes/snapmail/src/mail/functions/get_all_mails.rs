@@ -30,7 +30,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
     let inmails: Vec<Element> = maybe_inmails.unwrap().0;
     debug!(" get_all_mails() inmails count = {}", inmails.len());
-    //debug!(" get_all_mails() inmails: {:?}", inmails).ok();
+    //debug!(" get_all_mails() inmails: {:?}", inmails);
 
     ///
     let outmail_query_args = ChainQueryFilter::default()
@@ -44,7 +44,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
     let outmails: Vec<Element> = maybe_outmails.unwrap().0;
     debug!(" get_all_mails() outmails count = {}", outmails.len());
-    //debug!(" get_all_mails outmails: {:?}", outmails).ok();
+    //debug!(" get_all_mails outmails: {:?}", outmails);
     //let all_mails = inmails.concat(outmails);
 
     // ///

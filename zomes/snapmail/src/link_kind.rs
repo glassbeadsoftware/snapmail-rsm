@@ -172,7 +172,7 @@ impl LinkKind {
 //    submission: ValidateCreateLinkData,
 // ) -> ExternResult<ValidateLinkCallbackResult>
 // {
-//    debug!("*** validate_handle_link() START").ok();
+//    debug!("*** validate_handle_link() START");
 //    assert!(submission.link_add.tag == LinkKind::Handle.as_tag());
 //
 //    // FIXME: Only one handle per agent
