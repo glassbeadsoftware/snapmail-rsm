@@ -43,12 +43,15 @@ export function filterMailList(mail_list) {
     let new_list = new Array();
     for (let mailItem of mail_list) {
         if (mailItem.state.hasOwnProperty('In')) {
-            if (mailItem.state.In === 'Deleted') {
+            if (mailItem.state.In.hasOwnProperty('Deleted')) {
+
+                //if (mailItem.state.In === 'Deleted') {
                 continue;
             }
         }
         if (mailItem.state.hasOwnProperty('Out')) {
-            if (mailItem.state.Out === 'Deleted') {
+            if (mailItem.state.Out.hasOwnProperty('Deleted')) {
+            // if (mailItem.state.Out === 'Deleted') {
                 continue;
             }
         }

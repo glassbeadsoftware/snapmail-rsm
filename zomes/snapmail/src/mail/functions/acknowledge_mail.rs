@@ -54,9 +54,9 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
         return Ok(outack_eh);
     }
     // /// Otherwise share Acknowledgement via DHT
-    // let err = res.err().unwrap();
-    // debug!("Direct sharing of Acknowledgment failed: {}", err);
-    // let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
+    let err = res.err().unwrap();
+    debug!("Direct sharing of Acknowledgment failed: {}", err);
+    let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
 
     /// Done
     Ok(outack_eh)

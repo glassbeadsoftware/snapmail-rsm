@@ -22,11 +22,11 @@ entry_defs![
    OutMail::entry_def(),
    OutAck::entry_def(),
    InAck::entry_def(),
-   PendingAck::entry_def(),
    PendingMail::entry_def(),
+   PendingAck::entry_def(),
    /// -- Other
    Path::entry_def(),
-   Post::entry_def(),
+   //Post::entry_def(),
    FileChunk::entry_def()
 ];
 
@@ -41,7 +41,7 @@ pub enum EntryKind {
    InAck,
    PendingMail,
    PendingAck,
-   //
+   /// -- Other
    Path,
    // Post,
    FileChunk,

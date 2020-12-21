@@ -1,6 +1,6 @@
 import path from "path";
 
-const { delay } = require('./utils');
+const { delay, cellIdToStr } = require('./utils');
 
 //import { Config, InstallAgentsHapps } from "@holochain/tryorama";
 import { Config, InstallAgentsHapps } from '../../tryorama/src';
@@ -109,7 +109,11 @@ export async function setup_conductor_3p(s, t) {
  *
  */
 export async function setup_3_conductors(s, t) {
-    const [alex, billy, camille] = await s.players([quicConductorConfig, quicConductorConfig, quicConductorConfig]);
+    const [alex, billy, camille] = await s.players([quicConductorConfig, quicConductorConfig, quicConductorConfig], false);
+
+    await alex.startup()
+    await billy.startup()
+    await camille.startup()
 
     console.log("setup_3_conductors() - Installing hApps...")
 
@@ -130,6 +134,10 @@ export async function setup_3_conductors(s, t) {
     await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
     await billyHapp.cells[0].call("snapmail", "get_handle", billyHapp.agent)
     await camilleHapp.cells[0].call("snapmail", "get_handle", camilleHapp.agent)
+
+    console.log('Alex cell    = ' + cellIdToStr(alexHapp.cells[0]))
+    console.log('Billy cell   = ' + cellIdToStr(billyHapp.cells[0]))
+    console.log('Camille cell = ' + cellIdToStr(camilleHapp.cells[0]))
 
     console.log("setup_3_conductors() - DONE")
 

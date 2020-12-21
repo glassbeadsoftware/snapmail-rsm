@@ -14,18 +14,22 @@ use crate::{
 /// Return list of OutMail EntryHashes for which we succesfully linked a new InAck out of PendingAcks
 #[hdk_extern]
 pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
-    let maybe_element = crate::handle::get_my_handle_element();
-    if let None = maybe_element {
-        return error("This agent does not have a Handle set up");
-    }
-    let my_handle_element = maybe_element.unwrap();
-    let my_handle_eh = get_eh(&my_handle_element)?;
+
+    // let maybe_element = crate::handle::get_my_handle_element();
+    // if let None = maybe_element {
+    //     return error("This agent does not have a Handle set up");
+    // }
+    // let my_handle_element = maybe_element.unwrap();
+    // let my_handle_eh = get_eh(&my_handle_element)?;
+
+    let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
+
     /// Lookup `ack_inbox` links on my agentId
     let links_result = get_links(
-        my_handle_eh.clone(),
-        LinkKind::AckInbox.as_tag_opt(),
+        my_agent_eh.clone(),
+        None, // LinkKind::AckInbox.as_tag_opt(),
     )?.into_inner();
-    debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_handle_eh);
+    debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each link
     let mut updated_outmails = Vec::new();
     for link in &links_result {
@@ -65,5 +69,6 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
         /// Add to return list
         updated_outmails.push(pending_ack.outmail_eh.clone());
     }
+    debug!("incoming_ack updated_outmails.len() = {} (for {})", updated_outmails.len(), &my_agent_eh);
     Ok(ZomeEhVec(updated_outmails))
 }

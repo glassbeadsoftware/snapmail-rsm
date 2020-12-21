@@ -7,68 +7,80 @@ use crate::{
     utils::*,
 };
 
-// FIXME: Hack
+/// Get State of an OutMail
+pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMailState> {
+    /// Get OutMail Details
+    let maybe_details = get_details(outmail_hh.clone(), GetOptions::latest())?;
+    if maybe_details.is_none() {
+        return error("No OutMail at given address");
+    }
+    let el_details = match maybe_details.unwrap() {
+        Details::Element(details) => details,
+        Details::Entry(_) => unreachable!("in get_outmail_state()"),
+    };
+    /// Check if deleted
+    if el_details.deletes.len() > 0 {
+        return Ok(OutMailState::Deleted);
+    }
 
-pub(crate) fn get_outmail_state(_outmail_address: &EntryHash) -> ExternResult<OutMailState> {
-    return Ok(OutMailState::Received);
+    /// Get OutMail Entry
+    let outmail: OutMail = try_from_element(el_details.element.clone())
+       .expect("Should be a OutMail entry");
+    let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
+
+    /// Grab info
+    let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
+    let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?.into_inner();
+    let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?.into_inner();
+
+    /// Determine state
+    if pendings.len() == receipient_count {
+        return Ok(OutMailState::Pending);
+    }
+    if pendings.len() == 0 {
+        if receipts.len() == 0 {
+            return Ok(OutMailState::Arrived_NoAcknowledgement);
+        }
+        if receipts.len() == receipient_count {
+            return Ok(OutMailState::Received);
+        }
+        return Ok(OutMailState::Arrived_PartiallyAcknowledged);
+    }
+    if receipts.len() == 0 {
+        return Ok(OutMailState::PartiallyArrived_NoAcknowledgement);
+    }
+    return Ok(OutMailState::PartiallyArrived_PartiallyAcknowledged);
 }
 
-// /// Get State of InMail at given address
-// /// If get_entry() returns nothing we presume the entry has been deleted
-// pub(crate) fn get_outmail_state(outmail_address: &HeaderHash) -> ExternResult<OutMailState> {
-//     // 1. Get OutMail
-//     let maybe_outmail = hdk::utils::get_as_type::<OutMail>(outmail_address.clone());
-//     if let Err(_) = maybe_outmail {
-//         // return Err(ZomeApiError::Internal("No OutMail at given address".to_string()));
-//         return Ok(OutMailState::Deleted);
-//     }
-//     let outmail = maybe_outmail.unwrap();
-//     let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
-//     // 2. Get Pendings links
-//     let pendings = hdk::get_links_count(&outmail_address, LinkMatch::Exactly(link_kind::Pendings), LinkMatch::Any)?;
-//     // 3. Get Receipt links
-//     let receipts = hdk::get_links_count(&outmail_address, LinkMatch::Exactly(link_kind::Receipt), LinkMatch::Any)?;
-//     // 4. Determine state
-//     if pendings.count == receipient_count {
-//         return Ok(OutMailState::Pending);
-//     }
-//     if pendings.count == 0 {
-//         if receipts.count == 0 {
-//             return Ok(OutMailState::Arrived_NoAcknowledgement);
-//         }
-//         if receipts.count == receipient_count {
-//             return Ok(OutMailState::Received);
-//         }
-//         return Ok(OutMailState::Arrived_PartiallyAcknowledged);
-//     }
-//     if receipts.count == 0 {
-//         return Ok(OutMailState::PartiallyArrived_NoAcknowledgement);
-//     }
-//     return Ok(OutMailState::PartiallyArrived_PartiallyAcknowledged);
-// }
 
-/// Get State of InMail at given address
-/// If get_entry() returns nothing we presume the entry has been deleted
-pub(crate) fn get_inmail_state(inmail_eh: &EntryHash) -> ExternResult<InMailState> {
-    // /// 1. Should have InMail
-    // let maybe_inmail = hdk::utils::get_as_type::<InMail>(inmail_eh.clone());
-    // if let Err(_) = maybe_inmail {
-    //     return Ok(InMailState::Deleted);
-    //     // return Err(ZomeApiError::Internal("No InMail at given address".to_string()));
-    // }
-    /// 2. Get OutAck
-    let links_result: Vec<Link> = get_links(
-    inmail_eh.clone(),
-    LinkKind::Acknowledgment.as_tag_opt(),
-    )?.into_inner();
+/// Get State of InMail
+pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailState> {
+    /// Get inMail Details
+    let maybe_details = get_details(inmail_hh.clone(), GetOptions::latest())?;
+    if maybe_details.is_none() {
+        return error("No InMail at given address");
+    }
+    let el_details = match maybe_details.unwrap() {
+        Details::Element(details) => details,
+        Details::Entry(_) => unreachable!("in get_outmail_state()"),
+    };
+    /// Check if deleted
+    if el_details.deletes.len() > 0 {
+        return Ok(InMailState::Deleted);
+    }
+
+    /// Get OutMail Entry
+    let inmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
+
+    /// Get OutAck
+    let links_result = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
 
     if links_result.len() < 1 {
         return Ok(InMailState::Arrived);
     }
     let ack_link = links_result[0].clone();
-    /// 3. Get PendingAck
-    let links_result = get_links(ack_link.target, LinkKind::Pending.as_tag_opt())
-       ?.into_inner();
+    /// Get PendingAck
+    let links_result = get_links(ack_link.target, LinkKind::Pending.as_tag_opt())?.into_inner();
     /// If link found, it means Ack has not been received
     if links_result.len() > 0 {
         return Ok(InMailState::Acknowledged);

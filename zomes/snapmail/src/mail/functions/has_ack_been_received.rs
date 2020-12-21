@@ -19,7 +19,6 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
         return error("No acknowledgment has been sent for this mail");
     }
     let outack_eh = links_result[0].target.clone();
-    //let outack = hdk::utils::get_as_type::<OutMail>(outack_address)?;
     /// 2. Get OutAck pending link
     let links_result = get_links(outack_eh, LinkKind::Pending.as_tag_opt())?.into_inner();
     /// 3. If no link than return OK
@@ -28,7 +27,7 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
     }
     /// 4. Otherwise get PendingAck crud status
     let pending_eh = links_result[0].target.clone();
-    let maybe_pending_history = get_details(pending_eh, GetOptions::latest())?;
+    let maybe_pending_history = get_details(pending_eh, GetOptions::content())?;
     if maybe_pending_history.is_none() {
         return error("No history found for PendingAck");
     }

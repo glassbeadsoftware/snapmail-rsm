@@ -16,18 +16,20 @@ use crate::{
 /// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
 pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
-    let maybe_element = crate::handle::get_my_handle_element();
-    if let None = maybe_element {
-        return error("This agent does not have a Handle set up");
-    }
-    let my_handle_element = maybe_element.unwrap();
-    let my_handle_eh = get_eh(&my_handle_element)?;
+    // let maybe_element = crate::handle::get_my_handle_element();
+    // if let None = maybe_element {
+    //     return error("This agent does not have a Handle set up");
+    // }
+    // let my_handle_element = maybe_element.unwrap();
+    // let my_handle_eh = get_eh(&my_handle_element)?;
+    let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
     /// Lookup `mail_inbox` links on my agentId
     let links_result = get_links(
-        my_handle_eh.clone(),
+        my_agent_eh.clone(),
+        //None,
         LinkKind::MailInbox.as_tag_opt(),
         )?.into_inner();
-    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_handle_eh);
+    debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();
     for link in &links_result {
@@ -38,7 +40,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             continue;
         }
         let pending_hh = maybe_hh.unwrap().1;
-        debug!("pending_mail_eh: {}", pending_mail_eh);
+        //debug!("pending_mail_eh: {}", pending_mail_eh);
         /// Get entry on the DHT
         let maybe_pending_mail = mail::get_pending_mail(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
@@ -53,6 +55,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             debug!("Failed committing InMail");
             continue;
         }
+        //debug!("inmail_hh: {}", maybe_inmail_hh.clone().unwrap());
         new_inmails.push(maybe_inmail_hh.unwrap());
         /// Remove link from this agent address
         let res = delete_link(link.create_link_hash.clone());
@@ -61,12 +64,15 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             debug!(err);
             continue;
         }
+        //debug!("delete_link res: {:?}", res);
         /// Delete PendingMail entry
         let res = delete_entry(pending_hh);
         if let Err(err) = res {
             debug!("Delete PendingMail failed: {:?}", err);
             //continue; // TODO: figure out why delete entry fails
         }
+        //debug!("delete_entry res: {:?}", res);
+
         // debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len());
         // //  5. Retrieve and write FileManifest for each attachment
         // let mut manifest_list: Vec<FileManifest> = Vec::new();
@@ -124,5 +130,6 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         //     // }
         // }
     }
+    debug!("incoming_mail new_inmails.len() = {} (for {})", new_inmails.len(), &my_agent_eh);
     Ok(ZomeHhVec(new_inmails))
 }

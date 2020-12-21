@@ -7,9 +7,10 @@ const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('..
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    scenario("send pending test", send_pending_test)
     //scenario("send via DM test", send_dm_test)
-    //scenario("get all mails test", test_get_all_mails)
+    //scenario("send pending test", send_pending_test)
+    //scenario("delete mail test", test_delete_mail)
+    scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
     //scenario("outack test", debug_test)
@@ -65,13 +66,13 @@ const send_pending_test = async (s, t) => {
 
     await setup_handles(s, t, alexCell, billyCell)
 
-    console.log({billyCell})
-    
-    console.log('Alex cell    = ' + cellIdToStr(alexHapp.cells[0]))
-    console.log('Billy cell   = ' + cellIdToStr(billyHapp.cells[0]))
-    console.log('Camille cell = ' + cellIdToStr(camilleHapp.cells[0]))
 
     // -- Billy goes offline -- //
+
+    // let cells = await billy.adminWs('').listCellIds();
+    // let dnas = await billy.adminWs('').listDnas();
+    // console.log({cells})
+    // console.log({dnas})
 
     await billy.shutdown()
     //await billyCell.deactivate(billyHapp.hAppId)
@@ -98,47 +99,28 @@ const send_pending_test = async (s, t) => {
     // -- Billy goes online -- //
 
     await billy.startup()
-    console.log({billyHapp})
-    console.log({billyCell})
     //await billyCell.activate(billyHapp.hAppId)
 
-    //const wtf = await billy.installHapp([snapmailDna], billyHapp.agent)
-    //console.log({wtf})
-
-    //const shareResponse = await s.shareAllNodes([alex, billy, camille])
-    //console.log({shareResponse})
+    // let shareResponse = await s.shareAllNodes([alex, billy, camille])
+    // console.log({shareResponse})
     await delay(1000) // allow 1 second for gossiping
-
-    // console.log('** installAgentsHapps for Billy: ' + monoAgentInstall)
-    //
-    // const [[billyHapp2]] = await billy.installAgentsHapps(monoAgentInstall);
-    // console.log('** installAgentsHapps billyHapp2 = ' + billyHapp2)
-
-    //billyHapp = billyHapp2;
-    //billyCell = billyHapp2.cells[0];
-
-    // handle_address = await billy.call("app", "snapmail", "set_handle", params)
-    // console.log('handle_address2: ' + JSON.stringify(handle_address))
-    // t.match(handle_address.Ok, RegExp('Qm*'))
-
-    await delay(2000);
 
     // -- Billy checks inbox -- //
 
     console.log('** CALLING: Billy check_incoming_mail()')
     const check_result = await billyHapp.cells[0].call("snapmail", "check_incoming_mail", undefined)
     console.log('check_result2      : ' + JSON.stringify(check_result))
-    t.deepEqual(check_result.Ok.length, 1)
-    t.match(check_result.Ok[0], RegExp('Qm*'))
+    t.deepEqual(check_result.length, 1)
+    //t.match(check_result[0], RegExp('Qm*'))
 
     const arrived_result = await billyCell.call("snapmail", "get_all_arrived_mail", undefined)
-    console.log('arrived_result : ' + JSON.stringify(arrived_result.Ok[0]))
-    t.deepEqual(arrived_result.Ok.length, 1)
-    const mail_adr = arrived_result.Ok[0]
-    t.match(mail_adr, RegExp('Qm*'))
+    console.log('arrived_result : ' + JSON.stringify(arrived_result))
+    t.deepEqual(arrived_result.length, 1)
+    const mail_adr = arrived_result[0]
+    //t.match(mail_adr, RegExp('Qm*'))
 
     const mail_result = await billyCell.call("snapmail", "get_mail", mail_adr)
-    console.log('mail_result : ' + JSON.stringify(mail_result.Ok))
+    console.log('mail_result : ' + JSON.stringify(mail_result))
     const result_obj = mail_result.Ok.mail
     console.log('result_obj : ' + JSON.stringify(result_obj))
 
@@ -147,19 +129,12 @@ const send_pending_test = async (s, t) => {
 
     // -- Alex should see that mail has been received -- //
 
-    // Make sure Alex has a handle entry
-    // name = "alex"
-    // const params2 = { name }
-    // let handle_address2 = await alex.call("app", "snapmail", "set_handle", params2)
-    // console.log('handle_address3: ' + JSON.stringify(handle_address2))
-    // t.match(handle_address2.Ok, RegExp('Qm*'))
-
     await delay(10);
 
-    const received_result = await alexCell.call("snapmail", "has_mail_been_received", send_result.Ok.outmail)
-    console.log('received_result1 : ' + JSON.stringify(received_result.Ok))
-    t.deepEqual(received_result.Ok.Err.length, 1)
-    t.deepEqual(received_result.Ok.Err[0], billyHapp.agent)
+    const received_result = await alexCell.call("snapmail", "has_mail_been_received", send_result.outmail)
+    console.log('received_result1 : ' + JSON.stringify(received_result))
+    t.deepEqual(received_result.Err.length, 1)
+    t.deepEqual(received_result.Err[0], billyHapp.agent)
 
     // -- Alex goes offline -- //
 
@@ -171,13 +146,16 @@ const send_pending_test = async (s, t) => {
     // -- Billy sends Acknowledgment -- //
 
     const ack_result = await billyCell.call("snapmail", "acknowledge_mail", mail_adr)
-    console.log('ack_result1 : ' + ack_result.Ok)
-    const ack_adr = ack_result.Ok
+    console.log('ack_result1 : ' + ack_result)
+    //const ack_adr = ack_result
 
     // -- Alex goes online -- //
 
     await alex.startup()
     //await alexCell.activate(alexHapp.hAppId)
+
+    // shareResponse = await s.shareAllNodes([alex, billy, camille])
+    // console.log({shareResponse})
 
     await delay(2000);
 
@@ -185,19 +163,19 @@ const send_pending_test = async (s, t) => {
 
     const check_result2 = await alexCell.call("snapmail", "check_incoming_ack", undefined)
     console.log('check_result2      : ' + JSON.stringify(check_result2))
-    t.deepEqual(check_result2.Ok.length, 1)
-    t.match(check_result2.Ok[0], RegExp('Qm*'))
+    t.deepEqual(check_result2.length, 1)
+    //t.match(check_result2[0], RegExp('Qm*'))
 
-    const received_result2 = await alexCell.call("snapmail", "has_mail_been_received", send_result.Ok.outmail)
-    console.log('received_result2 : ' + JSON.stringify(received_result2.Ok))
-    t.deepEqual(received_result2.Ok.Ok, null)
+    const received_result2 = await alexCell.call("snapmail", "has_mail_been_received", send_result.outmail)
+    console.log('received_result2 : ' + JSON.stringify(received_result2))
+    t.deepEqual(received_result2.Ok, null)
 
     // -- Billy checks if acknowledgement has been received -- //
-
-    // TODO: Fails because Tryorama's alex.spawn() breaks something
-    // const ack_result2 = await billy.call("app", "snapmail", "has_ack_been_received", {"inmail_address": mail_adr})
-    // console.log('ack_result2 : ' + JSON.stringify(ack_result2))
-    // t.deepEqual(ack_result2.Ok, true)
+    // TODO: Fails because Tryorama ?
+    await delay(2000);
+    const ack_result2 = await billyCell.call("snapmail", "has_ack_been_received", mail_adr)
+    console.log('ack_result2 : ' + JSON.stringify(ack_result2))
+    t.deepEqual(ack_result2.Ok, true)
 };
 
 
@@ -305,6 +283,51 @@ const send_dm_test = async (s, t) => {
 /**
  *
  */
+const test_delete_mail = async (s, t) => {
+    // -- SETUP
+    const {conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell} = await setup_conductor_3p(s, t)
+
+    await setup_handles(s, t, alexCell, billyCell)
+
+    console.log('test_delete_mail START')
+
+    // Send mail DM
+    let send_params = {
+        subject: "inmail 1",
+        payload: "aaaaaaaa",
+        to: [alexHapp.agent],
+        cc: [],
+        bcc: [],
+        //manifest_address_list: []
+    }
+    const inMail1Payload = send_params.payload;
+
+    let send_result = await billyCell.call("snapmail", "send_mail", send_params)
+    console.log('send_result1: ' + JSON.stringify(send_result))
+    t.deepEqual(send_result.to_pendings, {})
+    let outmail_hh = send_result.outmail
+    await delay(10);
+
+    let mail_result = await billyCell.call("snapmail", "get_mail", outmail_hh)
+    console.log('mail_result1 : ' + JSON.stringify(mail_result))
+    t.deepEqual(mail_result.Err.mail.payload, inMail1Payload)
+
+    // -- delete outmail --//
+
+    send_result = await billyCell.call("snapmail", "delete_mail", outmail_hh)
+    console.log('del_result: ' + JSON.stringify(send_result))
+    //t.match(send_result, RegExp('Qm*'))
+    await delay(10);
+
+    // Get mail should fail
+    mail_result = await billyCell.call("snapmail", "get_mail", outmail_hh)
+    console.log('mail_result2 : ' + JSON.stringify(mail_result))
+    t.deepEqual(mail_result, null)
+}
+
+/**
+ *
+ */
 const test_get_all_mails = async (s, t) => {
     // -- SETUP
     //const { conductor, alexAddress, billyAddress } = await setup_conductor(s, t)
@@ -331,7 +354,7 @@ const test_get_all_mails = async (s, t) => {
     t.deepEqual(send_result.to_pendings, {})
     await delay(10);
 
-    // Send mail DM
+    // Send 2nd mail DM
     send_params = {
         subject: "inmail 2",
         payload: "bbbb",
@@ -346,7 +369,7 @@ const test_get_all_mails = async (s, t) => {
     const inMail2 = send_result.outmail;
     await delay(10);
 
-    // Send mail DM
+    // Send 3rd mail DM
     send_params = {
         subject: "outmail 3",
         payload: "ccccccc",
@@ -370,7 +393,7 @@ const test_get_all_mails = async (s, t) => {
     console.log('mail_list_result12 : ' + JSON.stringify(mail_list_result))
     t.deepEqual(mail_list_result.length, 3)
     //t.deepEqual(mail_list_result[0].mail.payload, send_params.payload)
-    const outMail3 = mail_list_result[0].address;
+    const outMail3 = mail_list_result[2].address;
     console.log('outMail3 : ' + JSON.stringify(outMail3))
 
     // -- delete outmail --//
@@ -409,6 +432,7 @@ const test_get_all_mails = async (s, t) => {
 
     send_result = await billyCell.call("snapmail", "delete_mail", outMail3)
     console.log('send_result6: ' + JSON.stringify(send_result))
+    t.notDeepEqual(send_result, null)
     //t.match(send_result, RegExp('Qm*'))
     await delay(10);
 
