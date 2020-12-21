@@ -17,7 +17,8 @@ const orchestrator = new Orchestrator()
 //require('./suites/handle')(orchestrator.registerScenario)
 //require('./suites/playground')(orchestrator.registerScenario)
 
-require('./suites/stress')(orchestrator.registerScenario)
+//require('./suites/stress')(orchestrator.registerScenario)
+require('./suites/stress_multi')(orchestrator.registerScenario)
 
 
 // -- RUN -- //

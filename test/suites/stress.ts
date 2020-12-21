@@ -1,10 +1,7 @@
-// const { conductorConfig, conductorConfigPerf } = require('../config')
-// const { sleep, filterMailList } = require('../utils')
-
 import {setup_3_conductors, setup_conductor_3p} from "../config";
 
-const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, monoAgentInstall, snapmailDna } = require('../config')
-const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('../utils')
+//const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, monoAgentInstall, snapmailDna } = require('../config')
+//const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('../utils')
 
 // -- Export scenarios -- //
 

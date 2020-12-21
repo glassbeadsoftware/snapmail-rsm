@@ -43,7 +43,8 @@ const memConfig = {
     }],
 }
 
-const quicConductorConfig = Config.gen();
+export const expConfig = Config;
+export const quicConductorConfig = Config.gen();
 //const quicConductorConfig = Config.gen({network: proxyConfig });
 //const quicConductorConfig = Config.gen({network: quicConfig});
 
