@@ -1,16 +1,15 @@
 import {setup_3_conductors, setup_conductor_3p} from "../config";
 
 const { setup_2_conductors, setup_1_conductor, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, monoAgentInstall, snapmailDna } = require('../config')
-
 const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('../utils')
 
 // -- Export scenarios -- //
 
 module.exports = scenario => {
     //scenario("send via DM test", send_dm_test)
-    //scenario("send pending test", send_pending_test)
+    scenario("send pending test", send_pending_test)
     //scenario("delete mail test", test_delete_mail)
-    scenario("get all mails test", test_get_all_mails)
+    //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
     //scenario("outack test", debug_test)

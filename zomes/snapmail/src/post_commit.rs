@@ -1,0 +1,18 @@
+use hdk3::prelude::*;
+// use hdk3::prelude::element::ElementEntry;
+//
+// use crate::{
+//    handle::*,
+//    chunk::*,
+//    mail::entries::*,
+//    entry_kind::*,
+//    utils::*,
+// };
+
+/// Zome Callback
+#[hdk_extern]
+fn post_commit(_headers: HeaderHashes) -> ExternResult<PostCommitCallbackResult> {
+   //debug!("post_commit() called: {:?}", info);
+   debug!("post_commit() called");
+   Ok(PostCommitCallbackResult::Success)
+}
