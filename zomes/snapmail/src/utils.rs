@@ -51,6 +51,23 @@ pub fn get_local(hh: HeaderHash) -> ExternResult<Element> {
     return error("Element not found at given HeaderHash");
 }
 
+/// Get Element at address using query()
+pub fn get_local_eh(eh: EntryHash) -> ExternResult<Element> {
+    let inmail_query_args = ChainQueryFilter::default()
+       .include_entries(true);
+    let maybe_vec = query(inmail_query_args);
+    if let Err(err) = maybe_vec {
+        return error(&format!("{:?}",err));
+    }
+    let vec = maybe_vec.unwrap().0;
+    for element in vec {
+        if element.header().entry_hash() == Some(&eh) {
+            return Ok(element.clone());
+        }
+    }
+    return error("Element not found at given EntryHash");
+}
+
 
 /// Get EntryHash for Element
 pub fn get_eh(element: &Element) -> ExternResult<EntryHash> {

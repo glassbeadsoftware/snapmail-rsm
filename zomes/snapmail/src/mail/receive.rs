@@ -1,20 +1,20 @@
 use hdk3::prelude::*;
 
 use crate::{
-    //utils::*,
+    utils::*,
     //dm::*,
-    //entry_kind, signal_protocol::*,
-            //file::{FileChunk, FileManifest},
+    entry_kind, signal_protocol::*,
+    //file::{FileChunk, FileManifest},
     mail::{
         self,
         entries::{
             InMail,
-            // InMailState,
-            // MailItem, MailState,
+            InMailState,
+            MailItem, MailState,
         },
     },
     DirectMessageProtocol, MailMessage, AckMessage,
-    //ReceivedAck, snapmail_now,
+    ReceivedAck, snapmail_now,
 };
 
 ///
@@ -155,7 +155,6 @@ pub fn receive_direct_chunk(_from: AgentAddress, chunk: FileChunk) -> DirectMess
 pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessageProtocol {
     /// Create InMail
     let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
-
     /// Commit InMail
     let maybe_inmail_hh = create_entry(&inmail);
     if let Err(err) = maybe_inmail_hh {
@@ -165,23 +164,20 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     }
     let inmail_hh =  maybe_inmail_hh.unwrap();
     debug!(format!("inmail_address: {:?}", inmail_hh));
-
-    // // Emit signal
-    // let item = MailItem {
-    //     address: inmail_address,
-    //     author: from.clone(),
-    //     mail: mail_msg.mail.clone(),
-    //     state: MailState::In(InMailState::Arrived),
-    //     bcc: Vec::new(),
-    //     date: snapmail_now() as i64, // FIXME
-    // };
-    // let signal = SignalProtocol::ReceivedMail(item);
-    // let signal_json = serde_json::to_string(&signal).expect("Should stringify");
-    // let res = hdk::emit_signal("received_mail", JsonString::from_json(&signal_json));
-    // if let Err(err) = res {
-    //     debug!(format!("Emit signal failed: {}", err));
-    // }
-    // Return Success response
+    /// Emit signal
+    let item = MailItem {
+        address: inmail_hh,
+        author: from.clone(),
+        mail: mail_msg.mail.clone(),
+        state: MailState::In(InMailState::Arrived),
+        bcc: Vec::new(),
+        date: snapmail_now() as i64, // FIXME
+    };
+    let res = emit_signal(&SignalProtocol::ReceivedMail(item));
+    if let Err(err) = res {
+        debug!("Emit signal failed: {}", err);
+    }
+    /// Return Success response
     return DirectMessageProtocol::Success("Mail received".to_string());
 }
 
@@ -189,23 +185,17 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
 /// Emits `received_ack` signal.
 /// Returns Success or Failure.
 pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessageProtocol {
-    /// Create InAck
     debug!("receive_dm_ack() from: {:?} ; for {:?}", from, ack_msg.outmail_eh);
-    // let maybe_outmail = get_local(ack_msg.outmail_eh);
-    // if let Err(err) = maybe_outmail {
-    //     let response_str = "get_local(): Failed to find Element at given HeaderHash";
-    //     debug!("{}: {}", response_str, err);
-    //     return DirectMessageProtocol::Failure(response_str.to_string());
-    // }
-    // let maybe_outmail_eh = get_eh(&maybe_outmail.unwrap());
-    // if let Err(err) = maybe_outmail_eh {
-    //     let response_str = "get_eh(): Failed to find Element or Entry at given HeaderHash";
-    //     debug!("{}: {}", response_str, err);
-    //     return DirectMessageProtocol::Failure(response_str.to_string());
-    // }
-    // let outmail_eh = maybe_outmail_eh.unwrap();
-    //.expect("Should have valid HeaderHash");
 
+    /// Check if we have acked outmail
+    let maybe_outmail = get_local_eh(ack_msg.outmail_eh.clone());
+    if let Err(err) = maybe_outmail {
+        let response_str = "Failed to find OutMail from Ack";
+        debug!("{}: {}", response_str, err);
+        return DirectMessageProtocol::Failure(response_str.to_string());
+    }
+    let outmail_hh = maybe_outmail.unwrap().header_address().clone();
+    /// Create InAck
     let outmail_eh = ack_msg.outmail_eh.clone();
     debug!("outmail_eh = {:?}", outmail_eh);
     let res = mail::commit_inack(outmail_eh, &from);
@@ -214,18 +204,16 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
         debug!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-
-    // // Emit Signal
-    // let signal = SignalProtocol::ReceivedAck(ReceivedAck {
-    //     from: from.clone(),
-    //     for_mail: ack_msg.outmail_address.clone(),
-    // });
-    // let signal_json = serde_json::to_string(&signal).expect("Should stringify");
-    // let res = emit_signal!("received_ack", JsonString::from_json(&signal_json));
-    // if let Err(err) = res {
-    //     debug!(format!("Emit signal failed: {}", err));
-    // }
-    // Return Success response
+    /// Emit Signal
+    let signal = SignalProtocol::ReceivedAck(ReceivedAck {
+        from: from.clone(),
+        for_mail: outmail_hh,
+    });
+    let res = emit_signal(&signal);
+    if let Err(err) = res {
+        debug!(format!("Emit signal failed: {}", err));
+    }
+    /// Return Success response
     debug!("receive_direct_ack() success!");
     return DirectMessageProtocol::Success("Ack received".to_string());
 }
