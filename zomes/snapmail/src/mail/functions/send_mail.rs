@@ -156,7 +156,7 @@ fn send_mail_by_dm(
     //     if let Err(e) = maybe_manifest_address {
     //         let err_msg = format!("Send attachment failed -> Err: {}", e);
     //         debug!(err_msg.clone());
-    //         return Err(ZomeApiError::Internal(err_msg));
+    //         return error(err_msg));
     //     }
     //     manifest_address_list.push(maybe_manifest_address.unwrap());
     // }
@@ -169,12 +169,9 @@ fn send_mail_by_dm(
         mail: mail.clone(),
         //manifest_address_list,
     };
-    //let payload = serde_json::to_string(&DirectMessageProtocol::Mail(msg)).unwrap();
-
     /// Send DM
     let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
     debug!("send_mail_to() response_dm = {:?}", response_dm);
-
     /// Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(());
@@ -214,22 +211,7 @@ fn send_mail_to(
         debug!("send_mail_by_dm() failed: {:?}", err);
     }
 
-    // FIXME
-    //return Ok(SendSuccessKind::OK_PENDING(outmail_eh.clone()));
-
     /// DM failed, send to DHT instead by creating a PendingMail
-
-    // /// Get Handle address first
-    // debug!("Sending mail by DM failed. Getting handle for... {}", destination);
-    // let maybe_destination_element = crate::handle::get_handle_element(destination);
-    // if let None = maybe_destination_element {
-    //     debug!("No handle has been set for receiving agent");
-    //     return error("No handle has been set for receiving agent");
-    // }
-    // let destination_element = maybe_destination_element.unwrap();
-    // let my_handle_address = get_eh(&my_handle_element)?;
-    // debug!("destination_element: {}", destination_element);
-
     /// Commit PendingMail
     let pending_mail = PendingMail::new(mail.clone(), outmail_eh.clone());
     let pending_mail_eh = hash_entry(&pending_mail)?;

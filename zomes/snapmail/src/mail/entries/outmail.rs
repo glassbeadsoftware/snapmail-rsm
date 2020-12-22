@@ -3,14 +3,10 @@ use hdk3::prelude::*;
 use crate::{
     mail::entries::{
         Mail,
-        //            AttachmentInfo,
+        //AttachmentInfo,
     },
     //file::FileManifest,
 };
-
-//-------------------------------------------------------------------------------------------------
-// Definition
-//-------------------------------------------------------------------------------------------------
 
 /// Entry representing an authored mail. It is private.
 #[hdk_entry(id = "outmail")]
@@ -19,54 +15,6 @@ pub struct OutMail {
     pub mail: Mail,
     pub bcc: Vec<AgentPubKey>,
 }
-
-/// Entry definition
-/*
-pub fn outmail_def() -> ValidatingEntryType {
-    entry!(
-        name: entry_kind::OutMail,
-        description: "Entry for a mail authored by this agent",
-        sharing: Sharing::Public, // should be private
-        validation_package: || {
-            hdk::ValidationPackageDefinition::Entry
-        },
-        validation: | _validation_data: hdk::EntryValidationData<OutMail>| {
-            // FIXME: Check no duplicate recepient?
-            // FIXME: Check no duplicate attachment?
-            Ok(())
-        },
-        links: [
-            to!(
-                entry_kind::InAck,
-                link_type: link_kind::Receipt,
-                validation_package: || {
-                    hdk::ValidationPackageDefinition::Entry
-                },
-                validation: | _validation_data: hdk::LinkValidationData| {
-                    // FIXME: Check if receipt for this author already received?
-                    Ok(())
-                }
-            ),
-            to!(
-                entry_kind::PendingMail,
-                link_type: link_kind::Pendings,
-                validation_package: || {
-                    hdk::ValidationPackageDefinition::Entry
-                },
-                validation: | _validation_data: hdk::LinkValidationData| {
-                    // FIXME: Check that outmail_address within PendingMail corresponds
-                    // FIXME: Check PendingMail is authored by same agant
-                    Ok(())
-                }
-            )
-        ]
-    )
-}
-*/
-
-//-------------------------------------------------------------------------------------------------
-// Implementation
-//-------------------------------------------------------------------------------------------------
 
 ///
 impl OutMail {

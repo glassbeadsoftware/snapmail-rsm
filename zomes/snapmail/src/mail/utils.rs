@@ -1,5 +1,4 @@
 use hdk3::prelude::*;
-use hdk3::prelude::link::Link;
 
 use crate::{
     link_kind::*,

@@ -85,7 +85,7 @@ pub struct Mail {
     //pub attachments: Vec<AttachmentInfo>,
 }
 
-// FIXME
+// TODO: Attachments
 // /// Metadata for a mail attachment
 // #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
 // pub struct AttachmentInfo {

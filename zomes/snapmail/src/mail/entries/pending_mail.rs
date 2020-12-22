@@ -21,7 +21,7 @@ impl PendingMail {
     }
 
 
-// FIXME Encryption
+// TODO Encryption
 //    /// Create PendingMail from Mail and destination AgentId
 //    /// This will encrypt the Mail with the destination's key
 //    pub fn create(mail: Mail, _to: AgentId) -> Self {
@@ -30,7 +30,7 @@ impl PendingMail {
 //
 //        // Encrypt
 //        let encrypted = serialized;
-//        // FIXME should be:
+//        // TODO should be:
 //        // const encrypted = hdk::encrypt(mail, to);
 //
 //        // Create
@@ -40,7 +40,7 @@ impl PendingMail {
 //    pub fn decrypt(self, _from: AgentId) -> Result<Mail, ()> {
 //        // decrypt
 //        let maybe_decrypted = Ok(self.outmail_eh);
-//        // FIXME should be:
+//        // TODO should be:
 //        // const maybe_decrypted = hdk::decrypt(self.encrypted_mail, from);
 //        // if maybe_decrypted.is_err() {
 //        //     return Err();

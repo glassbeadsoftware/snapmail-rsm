@@ -16,14 +16,8 @@ use crate::{
 /// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
 pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
-    // let maybe_element = crate::handle::get_my_handle_element();
-    // if let None = maybe_element {
-    //     return error("This agent does not have a Handle set up");
-    // }
-    // let my_handle_element = maybe_element.unwrap();
-    // let my_handle_eh = get_eh(&my_handle_element)?;
-    let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
     /// Lookup `mail_inbox` links on my agentId
+    let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
     let links_result = get_links(
         my_agent_eh.clone(),
         //None,
@@ -120,7 +114,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         //             break;
         //         }
         //     }
-        //     // FIXME
+        //     // FIXME: Emit Signal
         //     // // Emit Signal
         //     // let signal = SignalProtocol::ReceivedFile(manifest);
         //     // let signal_json = serde_json::to_string(&signal).expect("Should stringify");

@@ -126,7 +126,7 @@ fn send_chunk(input: SendChunkInput) -> ExternResult<HeaderHash> {
             debug!("hash_output: {:?}", hash);
             Ok(hash)
         },
-        ZomeCallResponse::NetworkError(_msg) => unreachable!(), // FIXME
+        ZomeCallResponse::NetworkError(msg) => error(&format!("NetworkError: {:?}", msg)),
         // we're just panicking here because our simple tests can always call set_access before
         // calling whoami, but in a real app you'd want to handle this by returning an `Ok` with
         // something meaningful to the extern's client
