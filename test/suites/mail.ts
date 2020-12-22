@@ -6,10 +6,10 @@ const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('..
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    //scenario("send via DM test", send_dm_test)
-    scenario("send pending test", send_pending_test)
-    //scenario("delete mail test", test_delete_mail)
-    //scenario("get all mails test", test_get_all_mails)
+    scenario("send via DM test", send_dm_test)
+    //scenario("send pending test", send_pending_test)
+    scenario("delete mail test", test_delete_mail)
+    scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
     //scenario("outack test", debug_test)
