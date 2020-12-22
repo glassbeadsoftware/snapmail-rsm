@@ -9,12 +9,14 @@ use crate::{
     dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
+    mail::receive::*,
     LinkKind,
     //file::{FileManifest, FileChunk, get_manifest},
 };
 
 #[allow(non_camel_case_types)]
 pub enum SendSuccessKind {
+    OK_SELF,
     OK_DIRECT,
     OK_PENDING(HeaderHash),
 }
@@ -160,7 +162,7 @@ fn send_mail_by_dm(
     // }
 
     /// --  Send Mail
-    debug!("send_mail_by_dm()");
+    debug!("send_mail_by_dm() to {}", destination);
     /// Create DM
     let msg = MailMessage {
         outmail_eh: outmail_eh.clone(),
@@ -188,7 +190,22 @@ fn send_mail_to(
     //manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<SendSuccessKind> {
     debug!("send_mail_to() START - {}", destination);
-    /// First try sending directly to other Agent if Online
+
+    /// Shortcut to self
+    let me = agent_info()?.agent_latest_pubkey;
+    if destination.clone() == me {
+        debug!("send_mail_to() Self");
+        let msg = MailMessage {
+            outmail_eh: outmail_eh.clone(),
+            mail: mail.clone(),
+            //manifest_address_list,
+        };
+        let res = receive_dm_mail(me, msg);
+        assert!(res == DirectMessageProtocol::Success("Mail received".to_string()));
+        return Ok(SendSuccessKind::OK_SELF);
+    }
+
+    /// Try sending directly to other Agent if Online
     let result = send_mail_by_dm(outmail_eh, mail, destination/*, manifest_list*/);
     if result.is_ok() {
         return Ok(SendSuccessKind::OK_DIRECT);
@@ -224,8 +241,6 @@ fn send_mail_to(
     let pending_mail_hh = maybe_pending_mail_hh.unwrap();
     debug!("pending_mail_hh = {}", pending_mail_hh);
     /// Commit Pendings Link
-    //let recepient = format!("{}", original_sender);
-    //let tag = LinkKind::Pendings.concat_hash(&pending_mail_hh);
     let tag = LinkKind::Pendings.concat_hash(destination);
 
     debug!("pendings tag = {:?}", tag);
@@ -237,9 +252,7 @@ fn send_mail_to(
     let link1_hh = maybe_link1_hh.unwrap();
     debug!("link1_hh = {}", link1_hh);
     /// Commit MailInbox Link
-    //let from = format!("{}", agent_info()?.agent_latest_pubkey);
-    let from = agent_info()?.agent_latest_pubkey;
-    let tag = LinkKind::MailInbox.concat_hash(&from);
+    let tag = LinkKind::MailInbox.concat_hash(&me);
     let maybe_link2_hh = create_link(EntryHash::from(destination.clone()), pending_mail_eh, tag);
     if let Err(err) = maybe_link2_hh.clone() {
         debug!("link2 failed = {:?}", err);
@@ -322,6 +335,6 @@ pub fn send_mail(
     }
 
     /// Done
-    debug!("total_result: {:?}", total_result);
+    debug!("send's total_result: {:?}", total_result);
     Ok(total_result)
 }

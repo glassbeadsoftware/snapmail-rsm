@@ -4,6 +4,7 @@ use crate::{
     link_kind::*,
     dm_protocol::{DirectMessageProtocol, AckMessage},
     mail::{
+        receive::*,
         entries::{
             InMail, PendingAck, OutAck,
         },
@@ -38,22 +39,32 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     debug!("Not acknowledged yet");
 
     /// Write OutAck
-    // let outack_eh = inmail_eh.clone();
-    //
     let outack = OutAck::new();
     let outack_hh = create_entry(&outack)?;
     let outack_eh = hh_to_eh(outack_hh)?;
     debug!("Creating ack link...");
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
 
-    debug!("ack link DONE ; sending ack via DM ...");
+    /// Shortcut to self
+    let me = agent_info()?.agent_latest_pubkey;
+    if inmail.from.clone() == me {
+        debug!("send ack to Self");
+        let msg = AckMessage {
+            outmail_eh: inmail.outmail_eh.clone(),
+        };
+        let res = receive_dm_ack(me, msg);
+        assert!(res == DirectMessageProtocol::Success("Ack received".to_string()));
+        return Ok(outack_eh);
+    }
+
     /// Try Direct sharing of Acknowledgment
+    debug!("Sending ack via DM ...");
     let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
     if res.is_ok() {
         debug!("Acknowledgment shared !");
         return Ok(outack_eh);
     }
-    // /// Otherwise share Acknowledgement via DHT
+    /// Otherwise share Acknowledgement via DHT
     let err = res.err().unwrap();
     debug!("Direct sharing of Acknowledgment failed: {}", err);
     let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;

@@ -9,7 +9,8 @@ const { sleep, filterMailList, delay, logDump, htos, cellIdToStr, split_file } =
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    scenario("test stress 10 agents", test_stress_10_agents)
+    scenario("test stress 2 agents", test_stress_2_agents)
+    //scenario("test stress 10 agents", test_stress_10_agents)
     //scenario("test stress 30 agents", test_stress_30_agents)
 
     // CRASH TESTS
@@ -35,6 +36,10 @@ const test_stress_10_agents = async (s, t) => {
     await test_stress_multi(s, t, 10)
 }
 
+const test_stress_2_agents = async (s, t) => {
+    await test_stress_multi(s, t, 2)
+}
+
 /**
  *
  */
@@ -47,23 +52,25 @@ const test_stress_multi = async (s, t, count) => {
     // Generate list of player names
     let configArray = new Array()
     for (let i = 0; i < count; i++) {
-        let name = 'player' + i
+        //let name = 'player' + i
         configArray.push(quicConductorConfig)
     }
 
     // Spawn all players
     let spawn_start = Date.now()
-    let allPlayers = await s.players(configArray, true)
+    let allConductors = await s.players(configArray, true)
     let spawn_end = Date.now();
     let spawn_duration = (spawn_end - spawn_start) / 1000
+
+    const r = await s.shareAllNodes(allConductors)
+    await delay(4000) // allow 2 second for gossiping
 
     // Install Happ for each player
     let happArray = new Array()
     for (let i = 0; i < count; i++) {
-        const [[happ]] = await allPlayers[i].installAgentsHapps(monoAgentInstall);
+        const [[happ]] = await allConductors[i].installAgentsHapps(monoAgentInstall);
         happArray.push(happ)
     }
-
 
     // Create Map of AgentAddress -> PlayerName
     let playerMap = new Map()
@@ -74,11 +81,12 @@ const test_stress_multi = async (s, t, count) => {
         // }
         playerMap.set(name, happArray[i].agent)
     }
-    console.log({playerMap})
+    //console.log({playerMap})
     const playerCell0 = happArray[0].cells[0];
-    const playerCell2 = allPlayers['player' + count / 2];
-    const playerCell3 = allPlayers['player' + count / 3];
-    const allAddresses = [ ...playerMap.values() ];
+    const playerCell2 = happArray[count / 2].cells[0];
+    //const playerCell3 = allConductors['player' + count / 3];
+    const allAddresses = [ ...playerMap.values() ]
+    console.log({allAddresses})
 
     // -- Set Handles for each Player -- //
 
@@ -92,7 +100,7 @@ const test_stress_multi = async (s, t, count) => {
         console.log('** set_handle(): ' + name)
         let handle_hh = await playerCell.call("snapmail", "set_handle", name)
         //handlePromiseArray.push(handle_promise)
-        //console.log('handle_address: ' + JSON.stringify(handle_address))
+        console.log('handle_hh: ' + htos(handle_hh))
         //t.match(handle_address.Ok, RegExp('Qm*'))
     }
     await delay(100)
@@ -101,7 +109,7 @@ const test_stress_multi = async (s, t, count) => {
     let handleCount = 0
     for (let i = 0; handleCount != count && i < 10; i++) {
         let allHandles = await playerCell0.call("snapmail", "get_all_handles", undefined)
-        //console.log('handle_list: ' + JSON.stringify(result))
+        console.log('allHandles: ' + JSON.stringify(allHandles))
         handleCount = allHandles.length
     }
     t.deepEqual(handleCount, count)
@@ -122,7 +130,7 @@ const test_stress_multi = async (s, t, count) => {
             to: allAddresses,
             cc: [],
             bcc: [],
-            manifest_address_list: []
+            //manifest_address_list: []
         }
 
         console.log('** CALLING: send_mail() - BOMB')
@@ -131,7 +139,7 @@ const test_stress_multi = async (s, t, count) => {
         // Should have no pendings
         t.deepEqual(send_result.Ok.cc_pendings, {})
 
-        await s.consistency()
+        await delay(100)
 
         const arrived_result = await playerCell2.call("snapmail", "get_all_arrived_mail", undefined)
         console.log('arrived_result : ' + JSON.stringify(arrived_result[0]))
@@ -157,15 +165,17 @@ const test_stress_multi = async (s, t, count) => {
     if (canAllSend) {
         let prevAgent = allAddresses[count - 1];
         let prevName = 'player' + (count - 1)
-        for (const [playerName, agentAddress] of playerMap) {
-            const playa = allPlayers[playerName];
+        for (let i = 0; i < count; i++) {
+            let playerName = 'player' + i
+            const agentAddress = playerMap[playerName]
+            const playa = happArray[i].cells[0];
             const send_params = {
                 subject: "msg from " + playerName,
                 payload: "hello to " + prevName,
                 to: [prevAgent],
                 cc: [],
                 bcc: [],
-                manifest_address_list: []
+                //manifest_address_list: []
             }
 
             console.log('** CALLING: send_mail() - ' + playerName)
@@ -177,7 +187,7 @@ const test_stress_multi = async (s, t, count) => {
             prevName = playerName
         }
 
-        await s.consistency()
+        await delay(100)
 
         const arrived_result2 = await playerCell2.call("snapmail", "get_all_arrived_mail", undefined)
         console.log('arrived_result2 : ' + JSON.stringify(arrived_result2[0]))
@@ -203,8 +213,10 @@ const test_stress_multi = async (s, t, count) => {
     if (canAllAttach) {
         let prevAgent = allAddresses[count - 1];
         let prevName = 'player' + (count - 1)
-        for (const [playerName, agentAddress] of playerMap) {
-            const playa = allPlayers[playerName];
+        for (let i = 0; i < count; i++) {
+            let playerName = 'player' + i
+            const agentAddress = playerMap[playerName]
+            const playa = happArray[i].cells[0];
 
             // Create file
             const data_string = playerName.repeat(250 * 1024 / 10)
