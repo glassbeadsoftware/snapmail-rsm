@@ -75,29 +75,20 @@ impl LinkKind {
       unreachable!()
    }
 
-   ///
+   /// Check if link edges have correct types
    pub fn validate_types(
       self,
       candidat: ValidateCreateLinkData,
       _maybe_hash: Option<AgentPubKey>,
    ) -> ExternResult<ValidateLinkCallbackResult> {
-      /// Get types used in link candidat
-      //let base_type = determine_entry_type(candidat.link_add.base_address, &candidat.base)?;
-      //let target_type = determine_entry_type(candidat.link_add.target_address, &candidat.target)?;
-
-      /// Check correctness
-      // if base_type != self.allowed_base_type() {
       if !is_type(candidat.base, self.allowed_base_type()) {
          let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
-      // if target_type != self.allowed_target_type() {
       if !is_type(candidat.target, self.allowed_target_type()) {
          let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
-
-      /// Done
       Ok(ValidateLinkCallbackResult::Valid)
    }
 }
@@ -166,29 +157,3 @@ impl LinkKind {
    //    Ok(substrs[1].to_string())
    // }
 }
-
-
-// ///
-// fn validate_handle_link(
-//    agent_hash: AgentPubKey,
-//    submission: ValidateCreateLinkData,
-// ) -> ExternResult<ValidateLinkCallbackResult>
-// {
-//    debug!("*** validate_handle_link() START");
-//    assert!(submission.link_add.tag == LinkKind::Handle.as_tag());
-//
-//    // FIXME: Only one handle per agent
-//    //let my_agent_address = agent_info!()?.agent_latest_pubkey;
-//    //let maybe_current_handle_element = get_handle_element(my_agent_address.clone());
-//    let maybe_current_handle: ExternResult<Handle> = try_from_entry(submission.target);
-//    if maybe_current_handle.is_err() {
-//       return Ok(ValidateLinkCallbackResult::Invalid("Not linked to a Handle Entry".into()));
-//    }
-//    let _handle_entry = maybe_current_handle.unwrap();
-//    /// Can only set handle for self
-//    if submission.link_add.author != agent_hash {
-//       return Ok(ValidateLinkCallbackResult::Invalid("Not self authored".into()));
-//    }
-//    // FIXME: Check if new Handle is different from currrent
-//    Ok(ValidateLinkCallbackResult::Valid);
-// }

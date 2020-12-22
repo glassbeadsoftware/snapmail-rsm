@@ -12,8 +12,8 @@ use crate::{
 /// Zome Callback
 #[hdk_extern]
 fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    debug!("*** validate() called!");
-
+    debug!("`validate()` callback called!");
+    /// Get entry
     let maybe_package = input.validation_package;
     let element = input.element;
     let entry = element.clone().into_inner().1;
@@ -21,8 +21,7 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
         ElementEntry::Present(e) => e,
         _ => return Ok(ValidateCallbackResult::Valid), // WARN - Why not invalid?
     };
-
-    // Determine where to dispatch according to base
+    /// Determine where to dispatch according to base
     let result = match entry {
         Entry::Agent(agent_hash) => validate_agent_entry(agent_hash, maybe_package),
         Entry::CapClaim(claim) => validate_claim_entry(claim, maybe_package),

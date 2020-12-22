@@ -28,7 +28,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
       /// FOR DEBUGGING ONLY?
       return error("send_dm() aborted. Can't send to self.");
    }
-   // FIXME: Check AgentPubKey is valid, i.e. exists in Directory
+   // TODO: Check AgentPubKey is valid, i.e. exists in Directory
    /// Prepare payload
    let dm_packet = DmPacket { from: me, dm: dm.clone() };
    /// Call peer
