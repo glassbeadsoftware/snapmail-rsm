@@ -21,7 +21,6 @@ pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
     Ok(hh)
 }
 
-
 /// Zome Function
 /// Set handle for this agent
 #[hdk_extern]
@@ -42,7 +41,6 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
         /// Really new name so just update entry
         return Ok(update_entry(handle_hh, &new_handle)?);
     }
-
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
     let new_handle_eh = hash_entry(&new_handle)?;
@@ -55,31 +53,13 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
         LinkKind::Handle.as_tag(),
     )?;
     debug!("**** Handle linked to agent!");
-
     /// Link Handle to DNA entry for a global directory
-
-    // TODO: hdk::DNA_ADDRESS doesnt work for linking, get the dna entry address
-    //debug!(format!("DNA_ADDRESS42: {:?}", &*hdk::DNA_ADDRESS));
-    // let dna_entry = hdk::get_entry(&*hdk::DNA_ADDRESS)?;
-    // debug!(format!("dna_entry1: {:?}", dna_entry));
-
-    //let query_result = query!(EntryType::Dna.into());
-    //debug!(format!("query_result42: {:?}", query_result));
-    //let dna_address = query_result.ok().unwrap()[0].clone();
-
-    // let dna_entry_hash = EntryHash::from_raw_bytes_and_type(
-    //     zome_info!()?.dna_hash.into_inner(),
-    //     *entry_address.hash_type(),
-    // );
-    // debug!(format!("dna_address31: {:?}", dna_entry_hash));
-    // let _ = create_link!(dna_entry_hash, entry_address, link_tag(link_kind::Members))?;
-
     let directory_address = Path::from(path_kind::Directory).hash().expect("Directory Path should hash");
     let _ = create_link(directory_address, new_handle_eh, LinkKind::Members.as_tag())?;
-
     /// Done
     return Ok(new_handle_hh);
 }
+
 
 /*
 /// Zome function for testing the update_entry() API function.

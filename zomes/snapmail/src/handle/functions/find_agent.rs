@@ -1,7 +1,6 @@
 use hdk3::prelude::*;
 
 use crate::{
-    //AgentAddress,
     utils::try_from_entry,
     handle::Handle,
     handle::utils::get_members,
@@ -13,7 +12,7 @@ use crate::{
 pub fn find_agent(handle: String) -> ExternResult<Vec<AgentAddress>> {
     let entry_results = get_members();
     let mut agent_list = Vec::new();
-    // Find handle entry whose author is agentId
+    /// Find handle entry whose author is agentId
     for maybe_entry_result in entry_results {
         if let Ok(entry_result) = maybe_entry_result {
             let item = match entry_result.result {
@@ -29,6 +28,7 @@ pub fn find_agent(handle: String) -> ExternResult<Vec<AgentAddress>> {
             }
         }
     }
+    /// Done
     debug!("agent_list size: {}", agent_list.len());
     return Ok(agent_list)
 }

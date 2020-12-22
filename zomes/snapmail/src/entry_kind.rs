@@ -6,7 +6,7 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use crate::{
-   playground::*,
+   //playground::*,
    handle::*,
    mail::entries::*,
    chunk::*,
@@ -124,10 +124,7 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
       Entry::Agent(_agent_hash) => EntryType::AgentPubKey,
       Entry::CapClaim(_claim) => EntryType::CapClaim,
       Entry::CapGrant(_grant) => EntryType::CapGrant,
-      Entry::App(_entry_bytes) => {
-         // EntryKind::from_entry_bytes(entry_bytes.clone()).as_type()
-         get_entry_type(eh)?
-      },
+      Entry::App(_entry_bytes) => get_entry_type(eh)?,
    })
 }
 

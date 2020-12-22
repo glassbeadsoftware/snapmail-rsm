@@ -16,9 +16,14 @@ fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
 }
 
 ///
-pub(crate) fn validate_handle_entry(handle: Handle, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateCallbackResult> {
+pub fn validate_handle_entry(handle: Handle, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateCallbackResult> {
     debug!("*** validate_handle_entry() called!");
     return check_name(handle.name);
+}
+
+#[hdk_extern]
+fn validate_handle_delete(_: ValidateData) -> ExternResult<ValidateCallbackResult> {
+    Ok(ValidateCallbackResult::Invalid("Agent must always have a Handle".into()))
 }
 
 // #[hdk_extern]
@@ -33,11 +38,6 @@ pub(crate) fn validate_handle_entry(handle: Handle, _maybe_validation_package: O
 //     let handle: Handle = entry.try_into()?;
 //     return check_name(handle.name);
 // }
-
-#[hdk_extern]
-fn validate_handle_delete(_: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid("Agent must always have a Handle".into()))
-}
 
 // #[hdk_extern]
 // fn validate_handle_update(package: ValidateData) -> ExternResult<ValidateCallbackResult> {

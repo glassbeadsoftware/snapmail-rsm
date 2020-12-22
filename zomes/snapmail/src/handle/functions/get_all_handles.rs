@@ -16,7 +16,6 @@ pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
     /// Get all Members links
     let handle_links = get_members()?;
     debug!("get_all_handles() handle_links size: {:?}", handle_links.len());
-
     /// Find handle entry whose author is agentId
     let mut handle_list = Vec::new();
     for handle_link in handle_links {

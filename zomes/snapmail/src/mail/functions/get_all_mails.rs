@@ -29,7 +29,6 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     let created_inmails: Vec<Element> = maybe_inmails.unwrap().0;
     debug!(" get_all_mails() create inmails count = {}", created_inmails.len());
     //debug!(" get_all_mails() inmails: {:?}", inmails);
-
     /// Get all Create OutMail headers with query
     let outmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
@@ -42,13 +41,9 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
     let created_outmails: Vec<Element> = maybe_outmails.unwrap().0;
     debug!(" get_all_mails() outmails count = {}", created_outmails.len());
-    //debug!(" get_all_mails outmails: {:?}", outmails);
-    //let all_mails = inmails.concat(outmails);
-
-    /// 2. Change all mails into MailItems
+    /// Change all mails into MailItems
     let mut item_list = Vec::new();
     let my_agent_address = agent_info()?.agent_latest_pubkey;
-
     /// Change all OutMail into a MailItem
     for outmail_element in created_outmails {
         let outmail_hh = outmail_element.header_hashed().as_hash().to_owned();
@@ -70,9 +65,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         };
         item_list.push(item.clone());
     }
-
     debug!(" get_all_mails() final outmail count = {}", item_list.len());
-
     /// Change all InMail into a MailItem
     for inmail_element in created_inmails {
         let inmail_hh = inmail_element.header_hashed().as_hash().to_owned();
@@ -93,7 +86,6 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         };
         item_list.push(item.clone());
     }
-
     /// Done
     debug!(" get_all_mails() total count = {}", item_list.len());
     Ok(ZomeMailItemVec(item_list))

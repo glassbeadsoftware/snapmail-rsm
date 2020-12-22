@@ -187,7 +187,6 @@ fn send_mail_to(
     //manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<SendSuccessKind> {
     debug!("send_mail_to() START - {}", destination);
-
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
     if destination.clone() == me {
@@ -201,7 +200,6 @@ fn send_mail_to(
         assert!(res == DirectMessageProtocol::Success("Mail received".to_string()));
         return Ok(SendSuccessKind::OK_SELF);
     }
-
     /// Try sending directly to other Agent if Online
     let result = send_mail_by_dm(outmail_eh, mail, destination/*, manifest_list*/);
     if result.is_ok() {
@@ -210,7 +208,6 @@ fn send_mail_to(
         let err = result.err().unwrap();
         debug!("send_mail_by_dm() failed: {:?}", err);
     }
-
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Commit PendingMail
     let pending_mail = PendingMail::new(mail.clone(), outmail_eh.clone());
@@ -224,7 +221,6 @@ fn send_mail_to(
     debug!("pending_mail_hh = {}", pending_mail_hh);
     /// Commit Pendings Link
     let tag = LinkKind::Pendings.concat_hash(destination);
-
     debug!("pendings tag = {:?}", tag);
     let maybe_link1_hh = create_link(outmail_eh.clone(), pending_mail_eh.clone(), tag);
     if let Err(err) = maybe_link1_hh.clone() {
@@ -284,16 +280,13 @@ pub fn send_mail(
         input.to.clone(),
         input.cc.clone(),
         input.bcc.clone(),
-//        input.file_manifest_pair_list.clone(),
+        // input.file_manifest_pair_list.clone(),
     );
-    //let outmail_entry = Entry::App(entry_kind::OutMail.into(), outmail.clone().into());
     let outmail_hh = create_entry(&outmail)?;
     let outmail_eh = hash_entry(&outmail)?;
     debug!("OutMail created: {:?}", outmail_hh);
-
     /// Send to each recepient
     let mut total_result = SendMailOutput::new(outmail_hh.clone());
-
     /// to
     for agent in input.to {
         let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, /*&file_manifest_list*/);
@@ -315,7 +308,6 @@ pub fn send_mail(
             total_result.add_pending(ReceipientKind::BCC, &agent, pending_hh);
         }
     }
-
     /// Done
     debug!("send's total_result: {:?}", total_result);
     Ok(total_result)

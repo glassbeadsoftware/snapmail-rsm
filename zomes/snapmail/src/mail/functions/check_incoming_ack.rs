@@ -3,7 +3,6 @@ use hdk3::prelude::*;
 use crate::{
     mail,
     utils::*,
-    link_kind::*,
     ZomeEhVec,
     mail::entries::PendingAck,
 

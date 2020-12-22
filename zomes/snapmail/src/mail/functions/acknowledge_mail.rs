@@ -77,31 +77,11 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
 fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     debug!("acknowledge_mail_direct() START");
     /// Create DM
-    let msg = AckMessage {
-        outmail_eh: outmail_eh.clone(),
-    };
-    //let payload = serde_json::to_string(&DirectMessageProtocol::Ack(msg)).unwrap();
-    //let payload: SerializedBytes = DirectMessageProtocol::Ack(msg).try_into().unwrap();
+    let msg = AckMessage { outmail_eh: outmail_eh.clone() };
     /// Send DM
     let response = send_dm(from.clone(), DirectMessageProtocol::Ack(msg))?;
-    // let result = call_remote!(
-    //     from.clone(),
-    //     zome_info!()?.zome_name,
-    //     "receive".to_string().into(),
-    //     None,
-    //     payload,
-    // );
-    // if let Err(err) = result {
-    //     return Err(err);
-    // }
-    // let response = result.unwrap();
     /// Check Response
     debug!("Received response for Ack: {:?}", response);
-    // let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
-    // if let Err(err) = maybe_msg {
-    //     debug!(format!("Received response -> Err: {}", err));
-    //     return Err(HdkError::Wasm(WasmError::Zome(format!("{}", err))));
-    // }
     match response {
         DirectMessageProtocol::Success(_) => Ok(()),
         _ => error("ACK by DM Failed"),
@@ -115,19 +95,11 @@ fn acknowledge_mail_pending(
     outmail_eh: &EntryHash,
     original_sender: &AgentPubKey,
 ) -> ExternResult<HeaderHash> {
-    // /// Get Handle address first
-    // let maybe_element = crate::handle::get_handle_element(from);
-    // if let None = maybe_element {
-    //     return error("No handle has been set for ack receiving agent");
-    // }
-    // let handle_element = maybe_element.unwrap();
-    // let handle_eh = get_eh(&handle_element)?;
     /// Commit PendingAck
     let pending_ack = PendingAck::new(outmail_eh.clone());
     let pending_ack_hh = create_entry(&pending_ack)?;
     /// Create links between PendingAck and Outack & recepient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
-    //let recepient = format!("{}", original_sender);
     let tag = LinkKind::AckInbox.concat_hash(original_sender);
     let _ = create_link(outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
     let _ = create_link(EntryHash::from(original_sender.clone()), pending_ack_eh, tag)?;

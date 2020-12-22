@@ -13,7 +13,7 @@ fn validate_create_link(candidat: ValidateCreateLinkData)
    -> ExternResult<ValidateLinkCallbackResult>
 {
    let tag_str = String::from_utf8_lossy(&candidat.link_add.tag.0);
-   debug!("`validate_create_link()` callback called: {}", tag_str);
+   debug!("*** `validate_create_link()` callback called: {}", tag_str);
 
    for link_kind in LinkKind::iter() {
       /// Try validating static link kind
@@ -58,15 +58,13 @@ fn validate_create_link(candidat: ValidateCreateLinkData)
 // }
 
 /// Zome Callback
+/// TODO: Should not be valide by default
 #[hdk_extern]
 fn validate_delete_link(_delete_link_submission: ValidateDeleteLinkData)
    -> ExternResult<ValidateLinkCallbackResult>
 {
-   debug!("*** validate_delete_link() called!");
+   debug!("*** validate_delete_link() callback called!");
    //let _delete_link = validate_delete_link.delete_link;
-
-   // TODO: Should not be valide by default
    // Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
-
    Ok(ValidateLinkCallbackResult::Valid)
 }

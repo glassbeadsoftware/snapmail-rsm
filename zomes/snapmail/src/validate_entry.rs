@@ -12,7 +12,7 @@ use crate::{
 /// Zome Callback
 #[hdk_extern]
 fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    debug!("`validate()` callback called!");
+    debug!("*** `validate()` callback called!");
     /// Get entry
     let maybe_package = input.validation_package;
     let element = input.element;
@@ -34,7 +34,8 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
             validate_app_entry(app_type_id, entry_bytes, maybe_package)
         },
     };
-    debug!(format!("*** validate() called ; result = {:?}", result));
+    /// Done
+    debug!(format!("*** validate() result = {:?}", result));
     result
 }
 
@@ -45,7 +46,7 @@ fn validate_app_entry(
     maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
-    debug!("*** validate_app_entry() called!");
+    debug!("*** validate_app_entry() callback called!");
     let sb = entry_bytes.into_sb();
     let entry_kind = EntryKind::from_index(&entry_type_id);
 

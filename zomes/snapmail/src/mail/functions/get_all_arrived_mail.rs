@@ -10,7 +10,7 @@ use crate::{
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
 pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
-    /// 1. Get all InMails with query
+    /// Get all InMails with query
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .entry_type(EntryKind::InMail.as_type());
@@ -33,19 +33,11 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
     /// For each InMail
     let mut unreads = Vec::new();
     for inmail in inmails {
+        /// Get InMail's EntryHash
         let inmail_hh = inmail.header_hashed().as_hash().to_owned();
         let inmail_header = inmail.header();
         let inmail_eh = inmail_header.entry_hash().expect("Should have an Entry");
-
-        /// 2. Get Acknowledgment private link
-        // let res = hdk::get_links_count(
-        //     inmail_address,
-        //     LinkMatch::Exactly(link_kind::Acknowledgment),
-        //     LinkMatch::Any,
-        // )?;
-        // if res.count > 0 {
-        //     continue;
-        // }
+        /// Get Acknowledgment private link
         let links_result = get_links(
             inmail_eh.clone(),
             LinkKind::Acknowledgment.as_tag_opt(),
@@ -54,9 +46,9 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
         if links_result.len() > 0 {
             continue;
         }
-
         /// Add to result list
         unreads.push(inmail_hh.clone());
     }
+    /// Done
     Ok(ZomeHhVec(unreads))
 }

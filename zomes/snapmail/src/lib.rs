@@ -28,7 +28,7 @@ mod signal_protocol;
 mod handle;
 mod mail;
 
-// mod file;
+// mod file; FIXME
 
 use hdk3::prelude::*;
 
@@ -67,12 +67,12 @@ pub struct ZomeEhVec(Vec<EntryHash>);
 
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    debug!("*** init() called!");
+    debug!("*** init() callback called!");
     /// Set Global Anchors
     Path::from(path_kind::Directory).ensure()?;
     /// Set access for receive/send
     let mut functions: GrantedFunctions = HashSet::new();
-    functions.insert((zome_info()?.zome_name, "receive_dm".into()));
+    functions.insert((zome_info()?.zome_name, REMOTE_ENDPOINT.into()));
     create_cap_grant(
         CapGrantEntry {
             tag: "".into(),
@@ -88,13 +88,13 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 #[hdk_extern]
 fn validation_package(_input: AppEntryType) -> ExternResult<ValidationPackageCallbackResult> {
-    debug!("*** validation_package() called!");
+    debug!("*** validation_package() callback called!");
     let dummy = ValidationPackage(vec![]);
     Ok(ValidationPackageCallbackResult::Success(dummy))
 }
 
 #[hdk_extern]
 fn validate_agent(_: Element) -> ExternResult<ValidateCallbackResult> {
-    debug!("*** validate_agent() called!");
+    debug!("*** validate_agent() callback called!");
     Ok(ValidateCallbackResult::Valid)
 }

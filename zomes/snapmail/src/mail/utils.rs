@@ -21,17 +21,14 @@ pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMail
     if el_details.deletes.len() > 0 {
         return Ok(OutMailState::Deleted);
     }
-
     /// Get OutMail Entry
     let outmail: OutMail = try_from_element(el_details.element.clone())
        .expect("Should be a OutMail entry");
     let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
-
     /// Grab info
     let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
     let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?.into_inner();
     let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?.into_inner();
-
     /// Determine state
     if pendings.len() == receipient_count {
         return Ok(OutMailState::Pending);
@@ -67,13 +64,10 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
     if el_details.deletes.len() > 0 {
         return Ok(InMailState::Deleted);
     }
-
     /// Get OutMail Entry
     let inmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
-
     /// Get OutAck
     let links_result = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
-
     if links_result.len() < 1 {
         return Ok(InMailState::Arrived);
     }
@@ -91,12 +85,6 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
 pub(crate) fn get_entry_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
     -> ExternResult<(AgentPubKey, T)>
 {
-    // let get_options = GetEntryOptions {
-    //     status_request: StatusRequestKind::Latest,
-    //     entry: true,
-    //     headers: true,
-    //     timeout: Timeout::default(),
-    // };
     let maybe_maybe_element = get(eh.clone(), GetOptions::latest());
     if let Err(err) = maybe_maybe_element {
         debug!("Failed getting element: {}", err);
@@ -136,8 +124,6 @@ pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternR
     //debug!("inack_hh: {}", inack_hh);
     //debug!("inack_eh: {}", inack_eh);
     /// Create link tag
-    //let vec = from.clone().into_inner();
-    //let recepient = format!("{}", from);
     let tag = LinkKind::Receipt.concat_hash(&from);
     /// Create link from OutMail
     let link_hh = create_link(outmail_eh, inack_eh, tag)?;

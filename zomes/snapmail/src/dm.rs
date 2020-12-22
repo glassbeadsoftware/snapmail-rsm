@@ -5,12 +5,16 @@ use crate::{
    utils::*,
 };
 
+pub const REMOTE_ENDPOINT: &'static str = "receive_dm";
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
 pub struct DmPacket {
    pub from: AgentPubKey,
    pub dm: DirectMessageProtocol,
 }
 
+/// Start point for any remote call
+/// WARN: Name of function must match REMOTE_ENDPOINT const value
 #[hdk_extern]
 pub fn receive_dm(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
    // let (from, dm): (AgentPubKey, DirectMessageProtocol) = dm_packet.into();
@@ -22,13 +26,12 @@ pub fn receive_dm(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
 
 ///
 pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
-   /// Pre-conditions: Don't call yourself
+   /// Pre-conditions: Don't call yourself (otherwise we get concurrency issues)
    let me = agent_info()?.agent_latest_pubkey;
    if destination == me {
       /// FOR DEBUGGING ONLY?
       return error("send_dm() aborted. Can't send to self.");
    }
-   // TODO: Check AgentPubKey is valid, i.e. exists in Directory
    /// Prepare payload
    let dm_packet = DmPacket { from: me, dm: dm.clone() };
    /// Call peer
@@ -36,36 +39,11 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    let response = call_remote(
       destination,
       zome_info()?.zome_name,
-      "receive_dm".to_string().into(),
+      REMOTE_ENDPOINT.to_string().into(),
       None,
       &dm_packet,
    );
+   /// Done
    debug!("calling remote receive_dm() DONE ; dm = {:?}", dm);
    return response;
-   // if let Err(err) = maybe_response {
-   //    let fail_str = format!("Failed call_remote() during send_dm(): {:?}", err);
-   //    debug!(fail_str);
-   //    return error(&fail_str);
-   // }
-
-   // Check and convert response to DirectMessageProtocol
-   /*
-   match maybe_response.unwrap() {
-      ZomeCallResponse::Ok(output) => {
-         debug!(format!("Received response from receive_dm() : {:?}", output).to_string());
-         //let maybe_msg: Result<DirectMessageProtocol, _> = output.into_inner().try_into()?;
-         // if maybe_msg.is_err() {
-         //     return Err(HdkError::Wasm(WasmError::Zome("receive() response failed to deserialize.".to_owned())));
-         // }
-         // Ok(maybe_msg.unwrap())
-
-         let msg: DirectMessageProtocol = output.into_inner().try_into()?;
-         debug!(format!("msg_output: {:?} ; dm was: {:?}", msg, dm));
-         Ok(msg)
-      },
-      ZomeCallResponse::Unauthorized => {
-         error("[Unauthorized] call to receive_dm().")
-      },
-   }
-   */
 }
