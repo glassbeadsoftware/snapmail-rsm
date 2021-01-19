@@ -17,19 +17,16 @@ mod path_kind;
 mod dm;
 mod dm_protocol;
 
-mod playground;
 mod chunk;
 mod signal_protocol;
 
 mod callbacks;
 mod handle;
 mod mail;
-
-// mod file; FIXME
+mod file;
 
 use hdk3::prelude::*;
 
-pub use playground::*;
 pub use dm::*;
 pub use dm_protocol::*;
 pub use utils::*;

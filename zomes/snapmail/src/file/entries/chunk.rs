@@ -1,0 +1,43 @@
+use hdk::prelude::*;
+
+use hdk::{
+    entry_definition::ValidatingEntryType,
+    holochain_persistence_api::{
+        hash::HashString,
+    },
+};
+use crate::{
+    entry_kind,
+    CHUNK_MAX_SIZE,
+};
+
+/// Entry representing a file chunk.
+#[hdk_entry(id = "file_chunk")]
+#[derive(Debug, Clone)]
+pub struct FileChunk {
+    pub data_hash: HashString,
+    pub chunk_index: usize,
+    pub chunk: String,
+}
+
+impl FileChunk {
+    pub fn new(data_hash: HashString, chunk_index: usize, chunk: String) -> Self {
+        Self {
+            data_hash,
+            chunk_index,
+            chunk,
+        }
+    }
+}
+
+///
+pub(crate) fn validate_chunk(chunk: FileChunk, _maybe_validation_package: Option<ValidationPackage>)
+    -> ExternResult<ValidateCallbackResult>
+{
+    /// Check size
+    if chunk.chunk.len() > CHUNK_MAX_SIZE {
+        return Ok(ValidateCallbackResult::Invalid(
+            format!("A file chunk can't be bigger than {} KiB", CHUNK_MAX_SIZE / 1024)));
+    }
+    Ok(ValidateCallbackResult::Valid)
+}

@@ -6,7 +6,6 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use crate::{
-   //playground::*,
    handle::*,
    mail::entries::*,
    chunk::*,
@@ -24,10 +23,11 @@ entry_defs![
    InAck::entry_def(),
    PendingMail::entry_def(),
    PendingAck::entry_def(),
+   /// -- File
+   FileChunk::entry_def(),
+   FileManifest::entry_def(),
    /// -- Other
-   Path::entry_def(),
-   //Post::entry_def(),
-   FileChunk::entry_def()
+   Path::entry_def()
 ];
 
 /// Listing all Link kinds for this DNA
@@ -41,11 +41,9 @@ pub enum EntryKind {
    InAck,
    PendingMail,
    PendingAck,
-   /// -- Other
-   Path,
-   // Post,
    FileChunk,
    FileManifest,
+   Path,
 }
 
 impl FromStr for EntryKind {

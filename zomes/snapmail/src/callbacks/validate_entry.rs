@@ -118,12 +118,13 @@ fn validate_app_entry(
             Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::FileManifest => {
-            // let maybe_content = FileManifest::try_from(sb.clone());
-            // if let Err(err) = maybe_content {
-            //     return error("Failed to deserialize FileManifest");
-            // }
-            // FIXME
-            Ok(ValidateCallbackResult::Valid)
+            let maybe_content = FileManifest::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize FileManifest");
+            }
+            let manifest = maybe_content.unwrap();
+            let res = validate_file(manifest, maybe_validation_package);
+            res
         },
 
         /// DEBUG
@@ -132,7 +133,9 @@ fn validate_app_entry(
             if let Err(_err) = maybe_content {
                 return error("Failed to deserialize FileChunk");
             }
-            Ok(ValidateCallbackResult::Valid)
+            let chunk = maybe_content.unwrap();
+            let res = validate_chunk(chunk, maybe_validation_package);
+            res
         }
         /// Add entry validation per type here
         /// ..
