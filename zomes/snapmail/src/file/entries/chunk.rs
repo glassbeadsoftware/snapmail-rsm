@@ -1,7 +1,6 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind,
     CHUNK_MAX_SIZE,
 };
 
@@ -9,13 +8,13 @@ use crate::{
 #[hdk_entry(id = "file_chunk")]
 #[derive(Clone, Debug, PartialEq)]
 pub struct FileChunk {
-    pub data_hash: HashString,
+    pub data_hash: String,
     pub chunk_index: usize,
     pub chunk: String,
 }
 
 impl FileChunk {
-    pub fn new(data_hash: HashString, chunk_index: usize, chunk: String) -> Self {
+    pub fn new(data_hash: String, chunk_index: usize, chunk: String) -> Self {
         Self {
             data_hash,
             chunk_index,

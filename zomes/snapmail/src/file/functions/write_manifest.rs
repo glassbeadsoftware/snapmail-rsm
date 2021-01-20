@@ -1,17 +1,16 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind,
     file::FileManifest,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
 pub struct WriteManifestInput {
-    pub data_hash: HashString,
+    pub data_hash: String,
     pub filename: String,
     pub filetype: String,
     pub orig_filesize: usize,
-    pub chunks: Vec<Address>,
+    pub chunks: Vec<HeaderHash>,
 }
 
 /// Zome function
@@ -21,7 +20,7 @@ pub fn write_manifest(input: WriteManifestInput) -> ExternResult<HeaderHash> {
     let manifest = FileManifest {
         data_hash: input.data_hash,
         filename: input.filename,
-        filetype: inpuit.filetype,
+        filetype: input.filetype,
         orig_filesize: input.orig_filesize,
         chunks: input.chunks,
     };

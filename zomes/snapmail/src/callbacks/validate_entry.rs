@@ -3,10 +3,10 @@ use hdk3::prelude::element::ElementEntry;
 
 use crate::{
     handle::*,
-    chunk::*,
     mail::entries::*,
     entry_kind::*,
     utils::*,
+    //file::*,
 };
 
 /// Zome Callback
@@ -118,24 +118,24 @@ fn validate_app_entry(
             Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::FileManifest => {
-            let maybe_content = FileManifest::try_from(sb.clone());
-            if let Err(_err) = maybe_content {
-                return error("Failed to deserialize FileManifest");
-            }
-            let manifest = maybe_content.unwrap();
-            let res = validate_file(manifest, maybe_validation_package);
-            res
+            // let maybe_content = FileManifest::try_from(sb.clone());
+            // if let Err(_err) = maybe_content {
+            //     return error("Failed to deserialize FileManifest");
+            // }
+            // let manifest = maybe_content.unwrap();
+            // let res = validate_file(manifest, maybe_validation_package);
+            // res
+            Ok(ValidateCallbackResult::Valid)
         },
-
-        /// DEBUG
         EntryKind::FileChunk => {
-            let maybe_content = FileChunk::try_from(sb.clone());
-            if let Err(_err) = maybe_content {
-                return error("Failed to deserialize FileChunk");
-            }
-            let chunk = maybe_content.unwrap();
-            let res = validate_chunk(chunk, maybe_validation_package);
-            res
+            // let maybe_content = FileChunk::try_from(sb.clone());
+            // if let Err(_err) = maybe_content {
+            //     return error("Failed to deserialize FileChunk");
+            // }
+            // let chunk = maybe_content.unwrap();
+            // let res = validate_chunk(chunk, maybe_validation_package);
+            // res
+            Ok(ValidateCallbackResult::Valid)
         }
         /// Add entry validation per type here
         /// ..

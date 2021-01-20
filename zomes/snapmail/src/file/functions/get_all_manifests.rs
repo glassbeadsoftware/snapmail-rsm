@@ -1,8 +1,9 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind,
+    entry_kind::*,
     file::FileManifest,
+    utils::*,
 };
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]

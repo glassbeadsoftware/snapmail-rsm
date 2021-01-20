@@ -2,7 +2,7 @@ use hdk3::prelude::*;
 
 use crate::{
     mail::entries::Mail,
-    file::{FileChunk, FileManifest},
+    //file::{FileChunk, FileManifest},
 };
 
 
@@ -10,12 +10,12 @@ use crate::{
 pub enum DirectMessageProtocol {
     Failure(String),
     Success(String),
-    Chunk(FileChunk),
-    FileManifest(FileManifest),
     Mail(MailMessage),
     Ack(AckMessage),
-    RequestChunk(HeaderHash),
-    RequestManifest(HeaderHash),
+    // Chunk(FileChunk),
+    // FileManifest(FileManifest),
+    // RequestChunk(HeaderHash),
+    // RequestManifest(HeaderHash),
     UnknownEntry,
     Ping,
 }

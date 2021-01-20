@@ -17,13 +17,13 @@ mod path_kind;
 mod dm;
 mod dm_protocol;
 
-mod chunk;
 mod signal_protocol;
 
 mod callbacks;
 mod handle;
 mod mail;
-mod file;
+
+//mod file;
 
 use hdk3::prelude::*;
 

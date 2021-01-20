@@ -2,6 +2,7 @@ use hdk3::prelude::*;
 
 use crate::{
     file::FileChunk,
+    utils::*,
 };
 
 /// Zome function

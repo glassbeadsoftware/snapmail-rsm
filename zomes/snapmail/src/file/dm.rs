@@ -1,8 +1,10 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind, file::{FileManifest, FileChunk},
-    DirectMessageProtocol, DirectMessageProtocol::*, AgentAddress,
+    //file::{FileManifest, FileChunk},
+    DirectMessageProtocol, DirectMessageProtocol::*,
+    utils::*,
+    dm::*,
 };
 
 ///
@@ -15,7 +17,7 @@ pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_hh: HeaderHash
         destination,
         &DirectMessageProtocol::RequestChunk(chunk_hh),
     );
-    debug!("RequestChunk result = {:?}", result);
+    debug!("RequestChunk result = {:?}", maybe_response);
     /// Check response
     if let Err(e) = maybe_response {
         return error(format!("send_dm() of RequestChunk failed: {}", e));
@@ -41,7 +43,7 @@ pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_hh: HeaderHash
 
 ///
 pub(crate) fn request_manifest_by_dm(destination: AgentPubKey, manifest_hh: HeaderHash)
-    -> ZomeApiResult<Option<FileManifest>>
+    -> ExternResult<Option<FileManifest>>
 {
     debug!("request_manifest_by_dm(): {}", manifest_hh);
     /// Send DM

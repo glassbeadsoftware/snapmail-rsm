@@ -1,7 +1,6 @@
 use hdk3::prelude::*;
 
 use crate::{
-    entry_kind,
     file::{
         FileManifest,
         get_all_manifests,
@@ -11,7 +10,7 @@ use crate::{
 /// Zome function
 /// Get manifest from file content hash
 #[hdk_extern]
-pub fn find_manifest(data_hash: HashString) -> ExternResult<Option<FileManifest>> {
+pub fn find_manifest(data_hash: String) -> ExternResult<Option<FileManifest>> {
     debug!("find_manifest(): {}", data_hash);
     /// Get all FileManifest on local chain with query
     let manifest_list = get_all_manifests()?;
