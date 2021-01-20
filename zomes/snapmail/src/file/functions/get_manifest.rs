@@ -1,23 +1,25 @@
-use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::{
-    holochain_persistence_api::{
-        cas::content::Address,
-    },
-};
 use crate::{
     file::FileManifest,
 };
 
 /// Zome function
 /// Get manifest entry at given address
-pub fn get_manifest(manifest_address: Address) -> ZomeApiResult<FileManifest> {
-    hdk::debug(format!("get_manifest(): {}", manifest_address)).ok();
-    let maybe_entry = hdk::get_entry(&manifest_address)
-        .expect("No reason for get_entry() to crash");
-    if maybe_entry.is_none() {
-        return Err(ZomeApiError::Internal("No entry found at given address".into()))
+/// Must be a valid address
+#[hdk_extern]
+pub fn get_manifest(manifest_hh: HeaderHash) -> ExternResult<FileManifest> {
+    debug!("get_manifest(): {}", manifest_hh);
+    /// Look for element
+    let element = match get(manifest_hh, GetOptions::content())? {
+        Some(element) => element,
+        None => return error("No element found at given address"),
+    };
+    /// Check if element is a Manifest
+    let maybe_FileManifest: ExternResult<FileManifest> = try_from_element(element.clone());
+    if let Ok(manifest) = maybe_FileManifest {
+        return Ok(manifest);
     }
-    let manifest = crate::into_typed::<FileManifest>(maybe_entry.unwrap())?;
-    Ok(manifest)
+    /// Done
+    return error("Element at given address is not a FileManifest");
 }

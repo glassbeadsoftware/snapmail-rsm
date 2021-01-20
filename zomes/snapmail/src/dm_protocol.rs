@@ -2,7 +2,7 @@ use hdk3::prelude::*;
 
 use crate::{
     mail::entries::Mail,
-    //file::{FileChunk, FileManifest},
+    file::{FileChunk, FileManifest},
 };
 
 
@@ -10,12 +10,12 @@ use crate::{
 pub enum DirectMessageProtocol {
     Failure(String),
     Success(String),
-    // Chunk(FileChunk),
-    // FileManifest(FileManifest),
+    Chunk(FileChunk),
+    FileManifest(FileManifest),
     Mail(MailMessage),
     Ack(AckMessage),
-    // RequestChunk(Address),
-    // RequestManifest(Address),
+    RequestChunk(HeaderHash),
+    RequestManifest(HeaderHash),
     UnknownEntry,
     Ping,
 }
@@ -25,7 +25,7 @@ pub enum DirectMessageProtocol {
 pub struct MailMessage {
     pub outmail_eh: EntryHash,
     pub mail: Mail,
-    //pub manifest_address_list: Vec<HeaderHash>,
+    //pub manifest_address_list: Vec<HeaderHash>, FIXME
 }
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]

@@ -1,31 +1,30 @@
-use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::{
-    holochain_persistence_api::{
-        cas::content::Address, hash::HashString,
-    },
-    holochain_core_types::{
-        entry::Entry,
-    },
-};
 use crate::{
     entry_kind,
     file::FileManifest,
 };
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+pub struct WriteManifestInput {
+    pub data_hash: HashString,
+    pub filename: String,
+    pub filetype: String,
+    pub orig_filesize: usize,
+    pub chunks: Vec<Address>,
+}
+
 /// Zome function
 /// Write file manifest to source chain
-pub fn write_manifest(
-    data_hash: HashString,
-    filename: String,
-    filetype: String,
-    orig_filesize: usize,
-    chunks: Vec<Address>,
-) -> ZomeApiResult<Address> {
+#[hdk_extern]
+pub fn write_manifest(input: WriteManifestInput) -> ExternResult<HeaderHash> {
     let manifest = FileManifest {
-        data_hash, filename, filetype, orig_filesize, chunks
+        data_hash: input.data_hash,
+        filename: input.filename,
+        filetype: inpuit.filetype,
+        orig_filesize: input.orig_filesize,
+        chunks: input.chunks,
     };
-    let file_entry = Entry::App(entry_kind::FileManifest.into(), manifest.into());
-    let maybe_file_address = hdk::commit_entry(&file_entry);
-    maybe_file_address
+    let hh = create_entry(&manifest)?;
+    hh
 }

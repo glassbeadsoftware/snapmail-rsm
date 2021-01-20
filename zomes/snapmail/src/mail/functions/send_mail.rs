@@ -257,9 +257,7 @@ pub struct SendMailInput {
 /// Send Mail: Creates OutMail, tries to send directly to each receipient.
 /// if receipient not online, creates a PendingMail on the DHT.
 #[hdk_extern]
-pub fn send_mail(
-    input: SendMailInput
-) -> ExternResult<SendMailOutput> {
+pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
 
     debug!("Sending mail: {}", input.subject);
 

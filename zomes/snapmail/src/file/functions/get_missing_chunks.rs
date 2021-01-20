@@ -1,48 +1,51 @@
-use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::{
-    holochain_persistence_api::{
-        cas::content::Address,
-    },
-};
 use crate::{
     file::{FileManifest},
     AgentAddress,
 };
 use crate::file::dm::request_chunk_by_dm;
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+pub struct GetMissingChunksInput {
+    pub from: AgentPubKey,
+    pub manifest_hh: HeaderHash,
+}
 
 /// Zome Function
 /// Request missing chunks for an attachment
 /// Returns number of remaining missing chunks
-pub fn get_missing_chunks(from: AgentAddress, manifest_address: Address) -> ZomeApiResult<u32> {
-    let manifest = hdk::utils::get_as_type::<FileManifest>(manifest_address.clone())?;
+/// TODO: Return vec of missing chunk HeaderHash
+#[hdk_extern]
+pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {
+    let manifest = get_typed_entry::<FileManifest>(input.manifest_hh.clone())?;
     let chunk_count = manifest.chunks.len();
     let mut missing = 0;
     let mut i = -1;
-    for chunk_address in manifest.chunks {
+    for chunk_hh in manifest.chunks {
         i += 1;
         let chunk_str = format!("Chunk {}/{}", i, chunk_count);
-        // Skip if chunk already held
-        let maybe_entry = hdk::get_entry(&chunk_address)?;
+        /// Skip if chunk already held
+        let maybe_entry = get(&chunk_hh, GetOptions::content())?;
         if let Some(_) = maybe_entry {
-            hdk::debug(format!("{} already held", chunk_str)).ok();
+            debug!("{} already held", chunk_str);
             continue;
         }
-        // Request chunk
-        let maybe_maybe_chunk = request_chunk_by_dm(from.clone(), chunk_address);
-        // Notify failure
+        /// Request missing chunk
+        let maybe_maybe_chunk = request_chunk_by_dm(input.from.clone(), chunk_hh);
+        /// Notify failure
         if let Err(err) = maybe_maybe_chunk {
             let response_str = format!("{} failed", chunk_str);
-            hdk::debug(format!("{}: {}", response_str, err)).ok();
+            debug!("{}: {}", response_str, err);
             missing += 1;
             continue;
         }
         if let None = maybe_maybe_chunk.unwrap() {
-            hdk::debug(format!("{} unknown from source agent", chunk_str)).ok();
+            debug!("{} unknown from source agent", chunk_str);
             missing += 1;
             continue;
         }
     }
+    /// Done
     Ok(missing)
 }

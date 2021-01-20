@@ -1,11 +1,5 @@
-use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::{
-    entry_definition::ValidatingEntryType,
-    holochain_persistence_api::{
-        cas::content::Address
-    },
-};
 use crate::{
     entry_kind,
     FILE_MAX_SIZE,

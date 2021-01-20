@@ -1,11 +1,5 @@
-use hdk::prelude::*;
+use hdk3::prelude::*;
 
-use hdk::{
-    entry_definition::ValidatingEntryType,
-    holochain_persistence_api::{
-        hash::HashString,
-    },
-};
 use crate::{
     entry_kind,
     CHUNK_MAX_SIZE,
@@ -13,7 +7,7 @@ use crate::{
 
 /// Entry representing a file chunk.
 #[hdk_entry(id = "file_chunk")]
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FileChunk {
     pub data_hash: HashString,
     pub chunk_index: usize,

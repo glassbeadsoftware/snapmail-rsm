@@ -1,96 +1,73 @@
-use hdk::{
-    error::{ZomeApiResult, ZomeApiError},
-    holochain_persistence_api::{
-        cas::content::Address
-    },
-    holochain_core_types::{
-        entry::Entry,
-        time::Timeout,
-    },
+use hdk3::prelude::*;
+
+use crate::{
+    entry_kind, file::{FileManifest, FileChunk},
+    DirectMessageProtocol, DirectMessageProtocol::*, AgentAddress,
 };
 
-use crate::{entry_kind, file::{FileManifest, FileChunk}, DirectMessageProtocol, DirectMessageProtocol::*, AgentAddress};
-
-
 ///
-pub(crate) fn request_chunk_by_dm(destination: AgentAddress, chunk_address: Address) -> ZomeApiResult<Option<FileChunk>> {
-    hdk::debug(format!("request_manifest_by_dm(): {}", chunk_address)).ok();
-    //   Create DM
-    let payload = serde_json::to_string(&DirectMessageProtocol::RequestChunk(chunk_address)).unwrap();
-    //   Send DM
-    let result = hdk::send(
+pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_hh: HeaderHash)
+    -> ExternResult<Option<FileChunk>>
+{
+    debug!("request_manifest_by_dm(): {}", chunk_hh);
+    /// Send DM
+    let maybe_response = send_dm(
         destination,
-        payload,
-        Timeout::new(crate::DIRECT_SEND_CHUNK_TIMEOUT_MS),
+        &DirectMessageProtocol::RequestChunk(chunk_hh),
     );
-    hdk::debug(format!("RequestChunk result = {:?}", result)).ok();
-    //   Check Response
-    if let Err(e) = result {
-        return Err(ZomeApiError::Internal(format!("hdk::send() of RequestChunk failed: {}", e)));
+    debug!("RequestChunk result = {:?}", result);
+    /// Check response
+    if let Err(e) = maybe_response {
+        return error(format!("send_dm() of RequestChunk failed: {}", e));
     }
-    let response = result.unwrap();
-    hdk::debug(format!("Received response: {:?}", response)).ok();
-    let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
-    if let Err(_e) = maybe_msg {
-        return Err(ZomeApiError::Internal("hdk::send() of RequestChunk failed 2".into()))
-    }
-    match maybe_msg.unwrap() {
+    match maybe_response.unwrap() {
         DirectMessageProtocol::Chunk(chunk) => {
-            // Commit FileChunk
-            let chunk_entry = Entry::App(entry_kind::FileChunk.into(), chunk.clone().into());
-            let maybe_address = hdk::commit_entry(&chunk_entry);
+            /// Commit FileChunk
+            let maybe_address = create_entry(&chunk);
             if let Err(err) = maybe_address {
                 let response_str = "Failed committing RequestChunk";
-                hdk::debug(format!("{}: {}", response_str, err)).ok();
+                debug!("{}: {}", response_str, err);
                 return Err(err);
             }
             let chunk_address = maybe_address.unwrap();
-            hdk::debug(format!("received chunk_address: {}", chunk_address)).ok();
+            debug!("received chunk_address: {}", chunk_address);
             Ok(Some(chunk))
         },
-        UnknownEntry => Ok(None),
-        _ => Err(ZomeApiError::Internal("hdk::send() of RequestChunk failed 3".into())),
+        DirectMessageProtocol::UnknownEntry => Ok(None),
+        _ => error("send_dm() of RequestChunk failed 3".into()),
     }
 }
 
 
 ///
-pub(crate) fn request_manifest_by_dm(destination: AgentAddress, manifest_address: Address) -> ZomeApiResult<Option<FileManifest>> {
-    hdk::debug(format!("request_manifest_by_dm(): {}", manifest_address)).ok();
-    //   Create DM
-    let payload = serde_json::to_string(&DirectMessageProtocol::RequestManifest(manifest_address)).unwrap();
-    //   Send DM
-    let result = hdk::send(
+pub(crate) fn request_manifest_by_dm(destination: AgentPubKey, manifest_hh: HeaderHash)
+    -> ZomeApiResult<Option<FileManifest>>
+{
+    debug!("request_manifest_by_dm(): {}", manifest_hh);
+    /// Send DM
+    let maybe_response = send_dm(
         destination,
-        payload,
-        Timeout::new(crate::DIRECT_SEND_CHUNK_TIMEOUT_MS),
+        DirectMessageProtocol::RequestManifest(manifest_hh),
     );
-    hdk::debug(format!("RequestManifest result = {:?}", result)).ok();
-    //   Check Response
-    if let Err(e) = result {
-        return Err(ZomeApiError::Internal(format!("hdk::send() of RequestManifest failed: {}", e)));
+    debug!("RequestManifest result = {:?}", maybe_response);
+    /// Check Response
+    if let Err(e) = maybe_response {
+        return error(format!("send_dm() of RequestManifest failed: {}", e));
     }
-    let response = result.unwrap();
-    hdk::debug(format!("Received response: {:?}", response)).ok();
-    let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
-    if let Err(_e) = maybe_msg {
-        return Err(ZomeApiError::Internal("hdk::send() of RequestManifest failed 2".into()))
-    }
-    match maybe_msg.unwrap() {
+    match maybe_response.unwrap() {
         DirectMessageProtocol::FileManifest(manifest) => {
-            // Commit FileManifest
-            let manifest_entry = Entry::App(entry_kind::FileManifest.into(), manifest.clone().into());
-            let maybe_address = hdk::commit_entry(&manifest_entry);
+            /// Commit FileManifest
+            let maybe_address = create_entry(&manifest);
             if let Err(err) = maybe_address {
                 let response_str = "Failed committing FileManifest";
-                hdk::debug(format!("{}: {}", response_str, err)).ok();
+                debug!("{}: {}", response_str, err);
                 return Err(err);
             }
             let manifest_address = maybe_address.unwrap();
-            hdk::debug(format!("received manifest_address: {}",  manifest_address)).ok();
+            debug!("received manifest_address: {}",  manifest_address);
             Ok(Some(manifest))
         },
         UnknownEntry => Ok(None),
-        _ => Err(ZomeApiError::Internal("hdk::send() of FileManifest failed 3".into())),
+        _ => error("send_dm() of FileManifest failed 3".into()),
     }
 }
