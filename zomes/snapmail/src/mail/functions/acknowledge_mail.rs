@@ -30,7 +30,7 @@ pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
 #[hdk_extern]
 pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     /// Make sure its an InMail ...
-    let (inmail_eh, inmail) = get_typed_entry::<InMail>(inmail_hh.clone())?;
+    let (inmail_eh, inmail) = get_typed_from_hh::<InMail>(inmail_hh.clone())?;
     /// ... has not already been acknowledged
     let res = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
     if res.len() > 0 {

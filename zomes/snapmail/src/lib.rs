@@ -23,7 +23,7 @@ mod callbacks;
 mod handle;
 mod mail;
 
-//mod file;
+mod file;
 
 use hdk3::prelude::*;
 
@@ -43,10 +43,13 @@ holochain_externs!();
 /// -- Wrapped Common types -- ///
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+pub struct ZomeU32(pub u32);
+
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
 pub struct ZomeBool(bool);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
-pub struct ZomeString(String);
+pub struct ZomeString(pub String);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
 pub struct ZomeRaw(Vec<u8>);

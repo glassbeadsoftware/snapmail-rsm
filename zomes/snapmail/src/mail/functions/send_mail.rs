@@ -11,7 +11,7 @@ use crate::{
     },
     mail::receive::*,
     LinkKind,
-    //file::{FileManifest, FileChunk, get_manifest},
+    file::{FileManifest, FileChunk, get_manifest},
 };
 
 #[allow(non_camel_case_types)]
@@ -50,124 +50,94 @@ impl SendMailOutput {
     }
 }
 
-// FIXME
-// fn send_manifest_by_dm(
-//     destination: &AgentAddress,
-//     sender_manifest: &FileManifest,
-//     chunk_address_list: Vec<Address>,
-// ) -> ExternResult<Address> {
-//     debug!(format!("send_manifest_by_dm(): {:?}", destination));
-//
-//     // Create receiver manifest
-//     let mut receiver_manifest = sender_manifest.clone();
-//     receiver_manifest.chunks = chunk_address_list;
-//     //   Create DM
-//     let payload = serde_json::to_string(&DirectMessageProtocol::FileManifest(receiver_manifest)).unwrap();
-//     //   Send DM
-//     let result = hdk::send(
-//         destination.clone(),
-//         payload,
-//         Timeout::new(crate::DIRECT_SEND_TIMEOUT_MS),
-//     );
-//     debug!(format!("send_manifest result = {:?}", result));
-//     //   Check Response
-//     if let Err(_e) = result {
-//         return Err(ZomeApiError::Internal("hdk::send() of manifest failed".into()))
-//     }
-//     let response = result.unwrap();
-//     debug!(format!("Received response: {:?}", response));
-//     let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
-//     if let Err(_e) = maybe_msg {
-//         return Err(ZomeApiError::Internal("hdk::send() of manifest failed 2".into()))
-//     }
-//     // Return manifest's entry address on receiver's source chain
-//     match maybe_msg.unwrap() {
-//         DirectMessageProtocol::Success(manifest_address) => Ok(manifest_address.into()),
-//         _ => Err(ZomeApiError::Internal("hdk::send() of manifest failed 3".into())),
-//     }
-// }
+///
+fn send_manifest_by_dm(
+    destination: &AgentPubKey,
+    manifest: &FileManifest,
+) -> ExternResult<()> {
+    debug!("send_manifest_by_dm(): {:?}", destination);
+    /// Send DM
+    let response = send_dm(
+        destination.clone(),
+        DirectMessageProtocol::FileManifest(manifest.clone()),
+    );
+    debug!("send_manifest result = {:?}", response);
+    /// Check Response
+    if let Err(e) = response {
+        return error(&format!("send_dm() of manifest failed: {}", e));
+    }
+    /// Return manifest's entry address on receiver's source chain
+    match response.unwrap() {
+        DirectMessageProtocol::Success(_manifest_address) => Ok(()),
+        _ => error("hdk::send() of manifest failed".into())
+    }
+}
 
-// FIXME
-// fn send_chunk_by_dm(destination: &AgentAddress, chunk_address: &Address) -> ExternResult<Address> {
-//     debug!(format!("send_chunk_by_dm(): {}", chunk_address));
-//     let maybe_entry = hdk::get_entry(&chunk_address)?;
-//         //.expect("No reason for get_entry() to crash");
-//     debug!(format!("maybe_entry =  {:?}", maybe_entry));
-//     if maybe_entry.is_none() {
-//         return Err(ZomeApiError::Internal("No chunk found at given address".into()))
-//     }
-//     let chunk = crate::into_typed::<FileChunk>(maybe_entry.unwrap())?;
-//
-//     //   Create DM
-//     let payload = serde_json::to_string(&DirectMessageProtocol::Chunk(chunk)).unwrap();
-//     //   Send DM
-//     let result = hdk::send(
-//         destination.clone(),
-//         payload,
-//         Timeout::new(crate::DIRECT_SEND_CHUNK_TIMEOUT_MS),
-//     );
-//     debug!(format!("send_chunk result = {:?}", result));
-//     //   Check Response
-//     if let Err(e) = result {
-//         return Err(ZomeApiError::Internal(format!("hdk::send() of chunk failed: {}", e)));
-//     }
-//     let response = result.unwrap();
-//     debug!(format!("Received response: {:?}", response));
-//     let maybe_msg: Result<DirectMessageProtocol, _> = serde_json::from_str(&response);
-//     if let Err(_e) = maybe_msg {
-//         return Err(ZomeApiError::Internal("hdk::send() of chunk failed 2".into()))
-//     }
-//     match maybe_msg.unwrap() {
-//         DirectMessageProtocol::Success(chunk_address) => Ok(chunk_address.into()),
-//         _ => Err(ZomeApiError::Internal("hdk::send() of chunk failed 3".into())),
-//     }
-// }
+///
+fn send_chunk_by_dm(destination: &AgentPubKey, chunk_eh: &EntryHash) -> ExternResult<()> {
+    debug!("send_chunk_by_dm(): {}", chunk_eh);
+    let maybe_el = get(chunk_eh.clone(), GetOptions::content())?;
+        //.expect("No reason for get_entry() to crash");
+    debug!("maybe_entry =  {:?}", maybe_el);
+    if maybe_el.is_none() {
+        return error("No chunk found at given address".into());
+    }
+    let chunk = get_typed_from_el::<FileChunk>(maybe_el.unwrap())?;
+    /// Send DM
+    let response = send_dm(
+        destination.clone(),
+        DirectMessageProtocol::Chunk(chunk),
+    );
+    debug!("send_chunk result = {:?}", response);
+    /// Check Response
+    if let Err(e) = response {
+        return error(&format!("hdk::send() of chunk failed: {}", e));
+    }
+    match response.unwrap() {
+        DirectMessageProtocol::Success(_) => Ok(()),
+        _ => error("hdk::send() of chunk failed".into()),
+    }
+}
 
-// FIXME
-// fn send_attachment_by_dm(destination: &AgentAddress, manifest: &FileManifest) -> ExternResult<Address> {
-//     // Send each chunk and receive chunk entry address in return
-//     let mut chunk_address_list: Vec<Address> = Vec::new();
-//     for chunk_address in &manifest.chunks {
-//         let receiver_chunk_address = send_chunk_by_dm(destination, chunk_address)?;
-//         chunk_address_list.push(receiver_chunk_address);
-//     }
-//     // Create and Send FileManifest
-//     return send_manifest_by_dm(destination, manifest, chunk_address_list);
-// }
+///
+fn send_attachment_by_dm(destination: &AgentPubKey, manifest: &FileManifest) -> ExternResult<()> {
+    /// Send each chunk first
+    for chunk_eh in &manifest.chunks {
+        send_chunk_by_dm(destination, chunk_eh)?;
+    }
+    /// Send FileManifest
+    send_manifest_by_dm(destination, manifest)?;
+    /// Done
+    Ok(())
+}
 
 
-// FIXME use post-commit callback to send the mail via DM
+// TODO: use post-commit callback to send the mail via DM
 
 /// Attempt sending Mail and attachments via Direct Messaging
 fn send_mail_by_dm(
     outmail_eh: &EntryHash,
     mail: &Mail,
     destination: &AgentPubKey,
-    //manifest_list: &Vec<FileManifest>,
+    manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<()> {
-
     /// -- Send Attachments
-    // FIXME
-    // debug!("Send Attachments".to_string());
-    // // For each attachment, send all the chunks
-    // let mut manifest_address_list: Vec<Address> = Vec::new();
-    // for manifest in manifest_list {
-    //     let maybe_manifest_address = send_attachment_by_dm(destination, manifest);
-    //     if let Err(e) = maybe_manifest_address {
-    //         let err_msg = format!("Send attachment failed -> Err: {}", e);
-    //         debug!(err_msg.clone());
-    //         return error(err_msg));
-    //     }
-    //     manifest_address_list.push(maybe_manifest_address.unwrap());
-    // }
-
+    debug!("Send Attachments".to_string());
+    /// For each attachment, send all the chunks
+    for manifest in manifest_list {
+        let result = send_attachment_by_dm(destination, manifest);
+        if let Err(e) = result {
+            let err_msg = format!("Send attachment failed -> Err: {}", e);
+            debug!(err_msg.clone());
+            return error(&err_msg);
+        }
+    }
     /// --  Send Mail
     debug!("send_mail_by_dm() to {}", destination);
     /// Create DM
     let msg = MailMessage {
         outmail_eh: outmail_eh.clone(),
         mail: mail.clone(),
-        //manifest_address_list,
     };
     /// Send DM
     let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
@@ -184,7 +154,7 @@ fn send_mail_to(
     outmail_eh: &EntryHash,
     mail: &Mail,
     destination: &AgentPubKey,
-    //manifest_list: &Vec<FileManifest>,
+    manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<SendSuccessKind> {
     debug!("send_mail_to() START - {}", destination);
     /// Shortcut to self
@@ -194,14 +164,13 @@ fn send_mail_to(
         let msg = MailMessage {
             outmail_eh: outmail_eh.clone(),
             mail: mail.clone(),
-            //manifest_address_list,
         };
         let res = receive_dm_mail(me, msg);
         assert!(res == DirectMessageProtocol::Success("Mail received".to_string()));
         return Ok(SendSuccessKind::OK_SELF);
     }
     /// Try sending directly to other Agent if Online
-    let result = send_mail_by_dm(outmail_eh, mail, destination/*, manifest_list*/);
+    let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
     if result.is_ok() {
         return Ok(SendSuccessKind::OK_DIRECT);
     } else {
@@ -250,7 +219,7 @@ pub struct SendMailInput {
     pub to: Vec<AgentPubKey>,
     pub cc: Vec<AgentPubKey>,
     pub bcc: Vec<AgentPubKey>,
-    //pub manifest_address_list: Vec<HeaderHash>,
+    pub manifest_address_list: Vec<HeaderHash>,
 }
 
 /// Zone Function
@@ -258,19 +227,16 @@ pub struct SendMailInput {
 /// if receipient not online, creates a PendingMail on the DHT.
 #[hdk_extern]
 pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
-
     debug!("Sending mail: {}", input.subject);
-
     /// Get file manifests from addresses
-    // // FIXME
-    //let mut file_manifest_list = Vec::new();
-    //let mut file_manifest_pair_list = Vec::new();
-    // for manifest_address in manifest_address_list.clone() {
-    //     let manifest = get_manifest(manifest_address.clone())?;
-    //     file_manifest_list.push(manifest.clone());
-    //     file_manifest_pair_list.push((manifest_address.clone(), manifest))
-    // }
-
+    let mut file_manifest_list = Vec::new();
+    let mut file_manifest_pair_list = Vec::new();
+    for manifest_hh in input.manifest_address_list.clone() {
+        let manifest_eh = hh_to_eh(manifest_hh.clone())?;
+        let manifest = get_manifest(manifest_hh.clone())?;
+        file_manifest_list.push(manifest.clone());
+        file_manifest_pair_list.push((manifest_eh, manifest))
+    }
     /// Create and commit OutMail
     let outmail = OutMail::create(
         input.subject,
@@ -278,7 +244,7 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
         input.to.clone(),
         input.cc.clone(),
         input.bcc.clone(),
-        // input.file_manifest_pair_list.clone(),
+        file_manifest_pair_list.clone(),
     );
     let outmail_hh = create_entry(&outmail)?;
     let outmail_eh = hash_entry(&outmail)?;
@@ -287,21 +253,21 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
     let mut total_result = SendMailOutput::new(outmail_hh.clone());
     /// to
     for agent in input.to {
-        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, /*&file_manifest_list*/);
+        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
         if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
             total_result.add_pending(ReceipientKind::TO, &agent, pending_hh);
         }
     }
     /// cc
     for agent in input.cc {
-        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, /*&file_manifest_list*/);
+        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
         if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
             total_result.add_pending(ReceipientKind::CC, &agent, pending_hh);
         }
     }
     /// bcc
     for agent in input.bcc {
-        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, /*&file_manifest_list*/);
+        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
         if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
             total_result.add_pending(ReceipientKind::BCC, &agent, pending_hh);
         }

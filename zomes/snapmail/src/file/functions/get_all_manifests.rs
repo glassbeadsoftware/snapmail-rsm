@@ -12,7 +12,7 @@ pub struct ZomeManifestVec(Vec<FileManifest>);
 /// Zome function
 /// Get all manifests stored in our source chain
 #[hdk_extern]
-pub fn get_all_manifests() -> ExternResult<ZomeManifestVec> {
+pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
     debug!("get_all_manifests()");
     /// Get all FileManifest on local chain with query
     let query_args = ChainQueryFilter::default()
@@ -28,7 +28,7 @@ pub fn get_all_manifests() -> ExternResult<ZomeManifestVec> {
     /// For each File Manifest element, get its entry
     let mut manifest_list = Vec::new();
     for manifest_el in &manifest_elements {
-        let manifest: FileManifest = try_from_element(manifest_el)?;
+        let manifest: FileManifest = get_typed_from_el(manifest_el.clone())?;
         manifest_list.push(manifest);
     }
     /// Done

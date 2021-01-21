@@ -17,7 +17,7 @@ pub fn get_manifest(manifest_hh: HeaderHash) -> ExternResult<FileManifest> {
         None => return error("No element found at given address"),
     };
     /// Check if element is a Manifest
-    let maybe_FileManifest: ExternResult<FileManifest> = try_from_element(element.clone());
+    let maybe_FileManifest: ExternResult<FileManifest> = get_typed_from_el(element.clone());
     if let Ok(manifest) = maybe_FileManifest {
         return Ok(manifest);
     }

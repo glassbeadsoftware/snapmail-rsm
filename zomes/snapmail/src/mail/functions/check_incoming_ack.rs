@@ -25,7 +25,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
     let mut updated_outmails = Vec::new();
     for link in &links_result {
         let pending_ack_eh = link.target.clone();
-        let maybe_latest = get_latest_for_entry::<PendingAck>(pending_ack_eh.clone())?;
+        let maybe_latest = get_latest_entry_from_eh::<PendingAck>(pending_ack_eh.clone())?;
         if maybe_latest.is_none() {
             debug!("Header not found for pending mail entry");
             continue;

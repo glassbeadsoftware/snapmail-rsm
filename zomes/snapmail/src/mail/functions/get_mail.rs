@@ -30,12 +30,12 @@ pub(crate) fn try_into_mail(hh: HeaderHash) -> ExternResult<GetMailOutput> {
         None => return Ok(GetMailOutput(None)),
     };
     /// Check if it is an InMail
-    let maybe_InMail: ExternResult<InMail> = try_from_element(element.clone());
+    let maybe_InMail: ExternResult<InMail> = get_typed_from_el(element.clone());
     if let Ok(inmail) = maybe_InMail {
         return Ok(GetMailOutput(Some(Ok(inmail))));
     }
     /// Check if it is an OutMail
-    let maybe_OutMail: ExternResult<OutMail> = try_from_element(element);
+    let maybe_OutMail: ExternResult<OutMail> = get_typed_from_el(element);
     if let Ok(outmail) = maybe_OutMail {
         return Ok(GetMailOutput(Some(Err(outmail))));
     }

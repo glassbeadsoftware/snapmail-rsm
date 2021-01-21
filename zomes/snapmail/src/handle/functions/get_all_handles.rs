@@ -3,7 +3,7 @@ use hdk3::prelude::*;
 use crate::{
     handle::utils::*,
     handle::Handle,
-   utils::*,
+    utils::*,
 };
 
 #[derive(Serialize, Deserialize, SerializedBytes)]
@@ -19,7 +19,7 @@ pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
     /// Find handle entry whose author is agentId
     let mut handle_list = Vec::new();
     for handle_link in handle_links {
-         let maybe_handle_entry_hash = get_latest_for_entry::<Handle>(handle_link.target)?;
+         let maybe_handle_entry_hash = get_latest_entry_from_eh::<Handle>(handle_link.target)?;
          if maybe_handle_entry_hash.is_none() {
              continue;
          }

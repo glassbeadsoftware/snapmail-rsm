@@ -17,7 +17,7 @@ pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
 #[hdk_extern]
 pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenReceivedOutput> {
     /// Get OutMail
-    let (outmail_eh, outmail) = get_typed_entry::<OutMail>(outmail_hh.clone())?;
+    let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;
     /// Merge all recepients lists into one
     let all_recepients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
     debug!("all_recepients: {:?} ({})", all_recepients, outmail_hh);

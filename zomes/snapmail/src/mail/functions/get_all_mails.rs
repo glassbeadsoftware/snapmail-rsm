@@ -53,7 +53,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
             continue;
         }
         debug!(" outmail_element = {:?}", outmail_element);
-        let outmail: OutMail = try_from_element(outmail_element)?;
+        let outmail: OutMail = get_typed_from_el(outmail_element)?;
         let state = MailState::Out(maybe_state.unwrap());
         let item = MailItem {
             address: outmail_hh.clone(),
@@ -75,7 +75,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
             continue;
         }
         let state = MailState::In(maybe_state.unwrap());
-        let inmail: InMail = try_from_element(inmail_element)?;
+        let inmail: InMail = get_typed_from_el(inmail_element)?;
         let item = MailItem {
             address: inmail_hh.clone(),
             author: inmail.from,

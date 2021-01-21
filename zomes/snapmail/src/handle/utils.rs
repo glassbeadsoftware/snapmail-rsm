@@ -12,7 +12,7 @@ use crate::{
 ///
 pub(crate) fn get_handle_string(maybe_handle_element: Option<Element>) -> ExternResult<ZomeString> {
     if let Some(current_handle_element) = maybe_handle_element {
-        let current_handle: Handle = try_from_element(current_handle_element)
+        let current_handle: Handle = get_typed_from_el(current_handle_element)
             .expect("Should be a Handle entry");
         return Ok(ZomeString(current_handle.name.into()));
     }

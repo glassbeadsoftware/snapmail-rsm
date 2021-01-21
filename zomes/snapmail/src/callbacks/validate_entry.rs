@@ -6,7 +6,7 @@ use crate::{
     mail::entries::*,
     entry_kind::*,
     utils::*,
-    //file::*,
+    file::*,
 };
 
 /// Zome Callback
@@ -65,7 +65,7 @@ fn validate_app_entry(
             if let Err(_err) = maybe_content {
                 return error("Failed to deserialize Path");
             }
-            // FIXME
+            // FIXME validation
             Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::InMail => {
@@ -73,7 +73,7 @@ fn validate_app_entry(
             if let Err(_err) = maybe_content {
                 return error("Failed to deserialize InMail");
             }
-            // FIXME
+            // FIXME validation
             // return validate_inmail_entry(inmail, maybe_validation_package);
             Ok(ValidateCallbackResult::Valid)
         },
@@ -82,7 +82,7 @@ fn validate_app_entry(
             if let Err(_err) = maybe_content {
                 return error("Failed to deserialize InAck");
             }
-            // FIXME
+            // FIXME validation
             Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::PendingMail => {
@@ -90,7 +90,7 @@ fn validate_app_entry(
             if let Err(_err) = maybe_content {
                 return error("Failed to deserialize PendingMail");
             }
-            // FIXME
+            // FIXME validation
             Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::PendingAck => {
@@ -118,24 +118,22 @@ fn validate_app_entry(
             Ok(ValidateCallbackResult::Valid)
         },
         EntryKind::FileManifest => {
-            // let maybe_content = FileManifest::try_from(sb.clone());
-            // if let Err(_err) = maybe_content {
-            //     return error("Failed to deserialize FileManifest");
-            // }
-            // let manifest = maybe_content.unwrap();
-            // let res = validate_file(manifest, maybe_validation_package);
-            // res
-            Ok(ValidateCallbackResult::Valid)
+            let maybe_content = FileManifest::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize FileManifest");
+            }
+            let manifest = maybe_content.unwrap();
+            let res = validate_file(manifest, maybe_validation_package);
+            res
         },
         EntryKind::FileChunk => {
-            // let maybe_content = FileChunk::try_from(sb.clone());
-            // if let Err(_err) = maybe_content {
-            //     return error("Failed to deserialize FileChunk");
-            // }
-            // let chunk = maybe_content.unwrap();
-            // let res = validate_chunk(chunk, maybe_validation_package);
-            // res
-            Ok(ValidateCallbackResult::Valid)
+            let maybe_content = FileChunk::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize FileChunk");
+            }
+            let chunk = maybe_content.unwrap();
+            let res = validate_chunk(chunk, maybe_validation_package);
+            res
         }
         /// Add entry validation per type here
         /// ..
@@ -163,7 +161,7 @@ fn validate_claim_entry(
 ) -> ExternResult<ValidateCallbackResult>
 {
     debug!("*** validate_claim_entry() called!");
-    // FIXME
+    // FIXME validation
     Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
 }
 
@@ -174,6 +172,6 @@ fn validate_grant_entry(
 ) -> ExternResult<ValidateCallbackResult>
 {
     debug!("*** validate_grant_entry() called!");
-    // FIXME
+    // FIXME validation
     Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
 }

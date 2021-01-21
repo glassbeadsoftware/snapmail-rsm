@@ -7,17 +7,17 @@ use crate::{
 /// Entry representing a file in chunks.
 /// All chunks must be committed beforehand.
 #[hdk_entry(id = "file_manifest")]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FileManifest {
     pub data_hash: String,
     pub filename: String,
     pub filetype: String,
     pub orig_filesize: usize,
-    pub chunks: Vec<HeaderHash>,
+    pub chunks: Vec<EntryHash>,
 }
 
 ///
-/// FIXME: Check if data_hash not already stored in source chain
+/// TODO: Check if data_hash not already stored in source chain
 pub(crate) fn validate_file(manifest: FileManifest, _maybe_validation_package: Option<ValidationPackage>)
     -> ExternResult<ValidateCallbackResult>
 {

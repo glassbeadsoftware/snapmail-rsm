@@ -3,9 +3,7 @@ use hdk3::prelude::*;
 use crate::{
     ZomeString,
     link_kind::*, path_kind,
-    utils::{
-        try_from_element,
-    },
+    utils::*,
     handle::{
         Handle,
         functions::get_handle_element,
@@ -33,7 +31,7 @@ pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
     if let Some(handle_element) = maybe_current_handle_element {
         /// If new handle same as current, just return current entry address
         let handle_hh = handle_element.header_address().clone();
-        let current_handle: Handle = try_from_element(handle_element)
+        let current_handle: Handle = get_typed_from_el(handle_element)
             .expect("Should be a Handle entry");
         if current_handle.name == name.to_string() {
             return Ok(handle_hh);

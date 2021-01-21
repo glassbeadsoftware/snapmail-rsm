@@ -9,7 +9,7 @@ use crate::{
 /// Get all agentIds that have a certain handle
 /// Return [AgentId]
 #[hdk_extern]
-pub fn find_agent(handle: String) -> ExternResult<Vec<AgentAddress>> {
+pub fn find_agent(handle: String) -> ExternResult<Vec<AgentPubKey>> {
     let entry_results = get_members();
     let mut agent_list = Vec::new();
     /// Find handle entry whose author is agentId

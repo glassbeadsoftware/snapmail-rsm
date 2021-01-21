@@ -22,7 +22,7 @@ pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMail
         return Ok(OutMailState::Deleted);
     }
     /// Get OutMail Entry
-    let outmail: OutMail = try_from_element(el_details.element.clone())
+    let outmail: OutMail = get_typed_from_el(el_details.element.clone())
        .expect("Should be a OutMail entry");
     let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
     /// Grab info
@@ -81,36 +81,15 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
     Ok(InMailState::AckReceived)
 }
 
-/// Conditions: Must be a single author entry type
-pub(crate) fn get_entry_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
-    -> ExternResult<(AgentPubKey, T)>
-{
-    let maybe_maybe_element = get(eh.clone(), GetOptions::latest());
-    if let Err(err) = maybe_maybe_element {
-        debug!("Failed getting element: {}", err);
-        return Err(err);
-    }
-    let maybe_element = maybe_maybe_element.unwrap();
-    if maybe_element.is_none() {
-        return error("no element found at address");
-    }
-    let element = maybe_element.unwrap();
-    //assert!(entry_item.headers.len() > 0);
-    //assert!(entry_item.headers[0].provenances().len() > 0);
-    let author = element.header().author();
-    let app_entry = try_from_element::<T>(element.clone())?;
-    Ok((author.clone(), app_entry))
-}
-
 ///
 pub(crate) fn get_pending_mail(pending_eh: &EntryHash) -> ExternResult<(AgentPubKey, PendingMail)> {
-    let (author, pending_mail) = get_entry_and_author::<PendingMail>(pending_eh)?;
+    let (author, pending_mail) = get_typed_and_author::<PendingMail>(pending_eh)?;
     Ok((author, pending_mail))
 }
 
 ///
 pub(crate) fn get_pending_ack(pending_eh: &EntryHash) -> ExternResult<(AgentPubKey, PendingAck)> {
-    let (author, ack) = get_entry_and_author::<PendingAck>(pending_eh)?;
+    let (author, ack) = get_typed_and_author::<PendingAck>(pending_eh)?;
     Ok((author, ack))
 }
 

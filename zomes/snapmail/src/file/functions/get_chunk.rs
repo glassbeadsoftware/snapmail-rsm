@@ -1,6 +1,7 @@
 use hdk3::prelude::*;
 
 use crate::{
+    ZomeString,
     file::FileChunk,
     utils::*,
 };
@@ -9,7 +10,7 @@ use crate::{
 /// Get chunk index and chunk as base64 string in local source chain at given address
 /// Must be a valid address
 #[hdk_extern]
-pub fn get_chunk(chunk_hh: HeaderHash) -> ExternResult<String> {
+pub fn get_chunk(chunk_hh: HeaderHash) -> ExternResult<ZomeString> {
     debug!("get_chunk(): {}", chunk_hh);
     /// Look for element
     let element = match get(chunk_hh, GetOptions::content())? {
@@ -17,9 +18,9 @@ pub fn get_chunk(chunk_hh: HeaderHash) -> ExternResult<String> {
         None => return error("No element found at given address"),
     };
     /// Check if element is a Manifest
-    let maybe_FileChunk: ExternResult<FileChunk> = try_from_element(element.clone());
+    let maybe_FileChunk: ExternResult<FileChunk> = get_typed_from_el(element.clone());
     if let Ok(chunk) = maybe_FileChunk {
-        return Ok(chunk.chunk);
+        return Ok(ZomeString(chunk.chunk));
     }
     /// Done
     return error("Element at given address is not a FileChunk");

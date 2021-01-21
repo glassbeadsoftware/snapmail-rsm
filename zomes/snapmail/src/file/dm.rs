@@ -1,26 +1,26 @@
 use hdk3::prelude::*;
 
 use crate::{
-    //file::{FileManifest, FileChunk},
+    file::{FileManifest, FileChunk},
     DirectMessageProtocol, DirectMessageProtocol::*,
     utils::*,
     dm::*,
 };
 
 ///
-pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_hh: HeaderHash)
+pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_eh: EntryHash)
     -> ExternResult<Option<FileChunk>>
 {
-    debug!("request_manifest_by_dm(): {}", chunk_hh);
+    debug!("request_manifest_by_dm(): {}", chunk_eh);
     /// Send DM
     let maybe_response = send_dm(
         destination,
-        &DirectMessageProtocol::RequestChunk(chunk_hh),
+        DirectMessageProtocol::RequestChunk(chunk_eh),
     );
     debug!("RequestChunk result = {:?}", maybe_response);
     /// Check response
     if let Err(e) = maybe_response {
-        return error(format!("send_dm() of RequestChunk failed: {}", e));
+        return error(&format!("send_dm() of RequestChunk failed: {}", e));
     }
     match maybe_response.unwrap() {
         DirectMessageProtocol::Chunk(chunk) => {
@@ -42,19 +42,19 @@ pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_hh: HeaderHash
 
 
 ///
-pub(crate) fn request_manifest_by_dm(destination: AgentPubKey, manifest_hh: HeaderHash)
+pub(crate) fn request_manifest_by_dm(destination: AgentPubKey, manifest_eh: EntryHash)
     -> ExternResult<Option<FileManifest>>
 {
-    debug!("request_manifest_by_dm(): {}", manifest_hh);
+    debug!("request_manifest_by_dm(): {}", manifest_eh);
     /// Send DM
     let maybe_response = send_dm(
         destination,
-        DirectMessageProtocol::RequestManifest(manifest_hh),
+        DirectMessageProtocol::RequestManifest(manifest_eh),
     );
     debug!("RequestManifest result = {:?}", maybe_response);
     /// Check Response
     if let Err(e) = maybe_response {
-        return error(format!("send_dm() of RequestManifest failed: {}", e));
+        return error(&format!("send_dm() of RequestManifest failed: {}", e));
     }
     match maybe_response.unwrap() {
         DirectMessageProtocol::FileManifest(manifest) => {

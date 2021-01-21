@@ -28,7 +28,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
     let mut new_inmails = Vec::new();
     for link in &links_result {
         let pending_mail_eh = link.target.clone();
-        let maybe_hh = get_latest_for_entry::<PendingMail>(pending_mail_eh.clone())?;
+        let maybe_hh = get_latest_entry_from_eh::<PendingMail>(pending_mail_eh.clone())?;
         if maybe_hh.is_none() {
             debug!("Header not found for pending mail entry");
             continue;

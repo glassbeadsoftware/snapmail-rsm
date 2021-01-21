@@ -3,9 +3,9 @@ use hdk3::prelude::*;
 use crate::{
     mail::entries::{
         Mail,
-        //AttachmentInfo,
+        AttachmentInfo,
     },
-    //file::FileManifest,
+    file::FileManifest,
 };
 
 /// Entry representing an authored mail. It is private.
@@ -30,17 +30,17 @@ impl OutMail {
         to: Vec<AgentPubKey>,
         cc: Vec<AgentPubKey>,
         bcc: Vec<AgentPubKey>,
-        //file_manifest_list: Vec<(HeaderHash, FileManifest)>,
+        file_manifest_list: Vec<(EntryHash, FileManifest)>,
     ) -> Self {
         assert_ne!(0, to.len() + cc.len() + bcc.len());
         // TODO: remove duplicate receipients
 
-        // let attachments: Vec<AttachmentInfo> = file_manifest_list
-        //     .iter().map(|(address, manifest)| AttachmentInfo::from_manifest(manifest.clone(), address.clone()))
-        //     .collect();
+        let attachments: Vec<AttachmentInfo> = file_manifest_list
+            .iter().map(|(eh, manifest)| AttachmentInfo::from_manifest(manifest.clone(), eh.clone()))
+            .collect();
 
         let date_sent = crate::snapmail_now();
-        let mail = Mail { date_sent, subject, payload, to, cc, /*attachments*/ };
+        let mail = Mail { date_sent, subject, payload, to, cc, attachments };
         OutMail::new(mail, bcc)
     }
 }

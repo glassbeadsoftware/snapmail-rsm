@@ -35,7 +35,7 @@ pub fn get_entry_type(eh: EntryHash) -> ExternResult<EntryType> {
 }
 
 /// Get Element at address using query()
-pub fn get_local(hh: HeaderHash) -> ExternResult<Element> {
+pub fn get_local_from_hh(hh: HeaderHash) -> ExternResult<Element> {
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true);
     let maybe_vec = query(inmail_query_args);
@@ -52,7 +52,7 @@ pub fn get_local(hh: HeaderHash) -> ExternResult<Element> {
 }
 
 /// Get Element at address using query()
-pub fn get_local_eh(eh: EntryHash) -> ExternResult<Element> {
+pub fn get_local_from_eh(eh: EntryHash) -> ExternResult<Element> {
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true);
     let maybe_vec = query(inmail_query_args);
@@ -93,13 +93,13 @@ pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
 
 
 /// Call get() to obtain EntryHash and AppEntry from a HeaderHash
-pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
+pub fn get_typed_from_hh<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
     -> ExternResult<(EntryHash, T)>
 {
     match get(hash.clone(), GetOptions::content())? {
         Some(element) => {
             let eh = element.header().entry_hash().expect("Converting HeaderHash which does not have an Entry");
-            Ok((eh.clone(), try_from_element(element)?))
+            Ok((eh.clone(), get_typed_from_el(element)?))
         },
         None => crate::error("Entry not found"),
     }
@@ -107,25 +107,25 @@ pub fn get_typed_entry<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
 
 
 /// Call get() to obtain EntryHash and AppEntry from an EntryHash
-pub fn try_get_and_convert<T: TryFrom<SerializedBytes>>(entry_hash: EntryHash)
+pub fn get_typed_from_eh<T: TryFrom<SerializedBytes>>(entry_hash: EntryHash)
     -> ExternResult<(EntryHash, T)>
 {
     match get(entry_hash.clone(), GetOptions::latest())? {
-        Some(element) => Ok((entry_hash, try_from_element(element)?)),
+        Some(element) => Ok((entry_hash, get_typed_from_el(element)?)),
         None => crate::error("Entry not found"),
     }
 }
 
 /// Obtain AppEntry from Element
-pub fn try_from_element<T: TryFrom<SerializedBytes>>(element: Element) -> ExternResult<T> {
+pub fn get_typed_from_el<T: TryFrom<SerializedBytes>>(element: Element) -> ExternResult<T> {
     match element.entry() {
-        element::ElementEntry::Present(entry) => try_from_entry::<T>(entry.clone()),
+        element::ElementEntry::Present(entry) => get_typed_from_entry::<T>(entry.clone()),
         _ => crate::error("Could not convert element"),
     }
 }
 
 /// Obtain AppEntry from Entry
-pub fn try_from_entry<T: TryFrom<SerializedBytes>>(entry: Entry) -> ExternResult<T> {
+pub fn get_typed_from_entry<T: TryFrom<SerializedBytes>>(entry: Entry) -> ExternResult<T> {
     match entry {
         Entry::App(content) => match T::try_from(content.into_sb()) {
             Ok(e) => Ok(e),
@@ -134,6 +134,29 @@ pub fn try_from_entry<T: TryFrom<SerializedBytes>>(entry: Entry) -> ExternResult
         _ => crate::error("Could not convert entry"),
     }
 }
+
+/// Obtain latest AppEntry at EntryHash and get its author
+/// Conditions: Must be a single author entry type
+pub(crate) fn get_typed_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
+    -> ExternResult<(AgentPubKey, T)>
+{
+    let maybe_maybe_element = get(eh.clone(), GetOptions::latest());
+    if let Err(err) = maybe_maybe_element {
+        debug!("Failed getting element: {}", err);
+        return Err(err);
+    }
+    let maybe_element = maybe_maybe_element.unwrap();
+    if maybe_element.is_none() {
+        return error("no element found at address");
+    }
+    let element = maybe_element.unwrap();
+    //assert!(entry_item.headers.len() > 0);
+    //assert!(entry_item.headers[0].provenances().len() > 0);
+    let author = element.header().author();
+    let app_entry = get_typed_from_el::<T>(element.clone())?;
+    Ok((author.clone(), app_entry))
+}
+
 
 // #[derive(Serialize, Deserialize, SerializedBytes)]
 // struct StringLinkTag(String);
@@ -150,7 +173,7 @@ pub fn get_header_hash(shh: element::SignedHeaderHashed) -> HeaderHash {
     shh.header_hashed().as_hash().to_owned()
 }
 
-pub fn get_latest_for_entry<T: TryFrom<SerializedBytes, Error = SerializedBytesError>>(
+pub fn get_latest_entry_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBytesError>>(
     entry_hash: EntryHash,
 ) -> ExternResult<OptionEntryAndHash<T>> {
     // First, make sure we DO have the latest header_hash address

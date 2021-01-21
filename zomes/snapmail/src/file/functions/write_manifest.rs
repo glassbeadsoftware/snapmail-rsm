@@ -10,7 +10,7 @@ pub struct WriteManifestInput {
     pub filename: String,
     pub filetype: String,
     pub orig_filesize: usize,
-    pub chunks: Vec<HeaderHash>,
+    pub chunks: Vec<EntryHash>,
 }
 
 /// Zome function
@@ -24,6 +24,5 @@ pub fn write_manifest(input: WriteManifestInput) -> ExternResult<HeaderHash> {
         orig_filesize: input.orig_filesize,
         chunks: input.chunks,
     };
-    let hh = create_entry(&manifest)?;
-    hh
+    return create_entry(&manifest);
 }

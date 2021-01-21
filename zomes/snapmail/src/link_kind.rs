@@ -120,13 +120,13 @@ impl LinkKind {
    }
 
    /// Create LinkTag with concatenated hash
-   pub fn concat_hash<T: HashType>(&self, hash: &HoloHash<T>) -> LinkTag {
+   pub fn concat_hash<T: HashType + holo_hash::hash_type::primitive::PrimitiveHashType>(&self, hash: &HoloHash<T>) -> LinkTag {
       let raw = hash.get_raw_39();
       return self.concat(raw);
    }
 
    /// Retrieve hash from LinkTag
-   pub fn unconcat_hash<T: HashType>(&self, tag: &LinkTag) -> ExternResult<HoloHash<T>> {
+   pub fn unconcat_hash<T: HashType + holo_hash::hash_type::primitive::PrimitiveHashType>(&self, tag: &LinkTag) -> ExternResult<HoloHash<T>> {
       let suffix = self.unconcat(tag)?;
       //debug!("unconcat suffix = {:?}", suffix);
       let maybe_hash = HoloHash::from_raw_39(suffix);

@@ -12,9 +12,9 @@ pub use self::{
     pending_ack::*, inack::*, outack::*,
 };
 
-// use crate::{
-//     file::FileManifest,
-// };
+use crate::{
+    file::FileManifest,
+};
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
 pub enum InMailState {
@@ -82,28 +82,27 @@ pub struct Mail {
     pub payload: String,
     pub to: Vec<AgentPubKey>,
     pub cc: Vec<AgentPubKey>,
-    //pub attachments: Vec<AttachmentInfo>,
+    pub attachments: Vec<AttachmentInfo>,
 }
 
-// TODO: Attachments
-// /// Metadata for a mail attachment
-// #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
-// pub struct AttachmentInfo {
-//     pub manifest_address: Address,
-//     pub data_hash: Address,
-//     pub filename: String,
-//     pub filetype: String,
-//     pub orig_filesize: usize,
-// }
-//
-// impl AttachmentInfo {
-//     fn from_manifest(manifest: FileManifest, manifest_address: Address) -> Self {
-//         Self {
-//             manifest_address: manifest_address.clone(),
-//             data_hash: manifest.data_hash.clone(),
-//             filename: manifest.filename.clone(),
-//             filetype: manifest.filetype.clone(),
-//             orig_filesize: manifest.orig_filesize,
-//         }
-//     }
-// }
+/// Metadata for a mail attachment
+#[derive(Serialize, Deserialize, PartialEq, Debug, SerializedBytes, Clone)]
+pub struct AttachmentInfo {
+    pub manifest_eh: EntryHash,
+    pub data_hash: String,
+    pub filename: String,
+    pub filetype: String,
+    pub orig_filesize: usize,
+}
+
+impl AttachmentInfo {
+    fn from_manifest(manifest: FileManifest, manifest_eh: EntryHash) -> Self {
+        Self {
+            manifest_eh: manifest_eh.clone(),
+            data_hash: manifest.data_hash.clone(),
+            filename: manifest.filename.clone(),
+            filetype: manifest.filetype.clone(),
+            orig_filesize: manifest.orig_filesize,
+        }
+    }
+}

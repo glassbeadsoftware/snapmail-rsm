@@ -2,14 +2,14 @@ use hdk3::prelude::*;
 
 use crate::{
     mail::entries::MailItem,
-    //file::FileManifest,
+    file::FileManifest,
 };
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
 pub enum SignalProtocol {
     ReceivedMail(MailItem),
     ReceivedAck(ReceivedAck),
-    //ReceivedFile(FileManifest),
+    ReceivedFile(FileManifest),
 }
 
 // #[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]

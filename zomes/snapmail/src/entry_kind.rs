@@ -8,7 +8,7 @@ use strum_macros::EnumIter;
 use crate::{
    handle::*,
    mail::entries::*,
-   //file::*,
+   file::*,
    utils::*,
 };
 
@@ -24,8 +24,8 @@ entry_defs![
    PendingMail::entry_def(),
    PendingAck::entry_def(),
    // /// -- File
-   // FileChunk::entry_def(),
-   // FileManifest::entry_def(),
+   FileChunk::entry_def(),
+   FileManifest::entry_def(),
    /// -- Other
    Path::entry_def()
 ];
@@ -160,9 +160,8 @@ fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> 
       EntryKind::PendingAck => PendingAck::try_from(sb.clone()).is_ok(),
       EntryKind::OutMail => OutMail::try_from(sb.clone()).is_ok(),
       EntryKind::OutAck => OutAck::try_from(sb.clone()).is_ok(),
-      // FIXME
-      // EntryKind::FileManifest => FileManifest::try_from(sb.clone()).is_ok(),
-      // EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_ok(),
+      EntryKind::FileManifest => FileManifest::try_from(sb.clone()).is_ok(),
+      EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_ok(),
    }
 }
 
