@@ -147,7 +147,7 @@ const test_stress_multi = async (s, t, count) => {
         const mail_adr = arrived_result[0]
         //t.match(mail_adr, RegExp('Qm*'))
 
-        const mail_result = await playerCell2.call("app", "snapmail", "get_mail", mail_adr)
+        const mail_result = await playerCell2.call("snapmail", "get_mail", mail_adr)
         //console.log('mail_result : ' + JSON.stringify(mail_result.Ok))
         const result_obj = mail_result.Ok.mail
         //console.log('result_obj : ' + JSON.stringify(result_obj))

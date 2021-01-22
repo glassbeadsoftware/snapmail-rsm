@@ -53,11 +53,10 @@ async function wakeFirstHalf(count, allPlayers, playerMap) {
     const playerLast = allPlayers['player' + (count - 1)];
     console.log('Pinging player0...')
     const player0Address = playerMap.get('player0');
-    const params2 = { agentId: player0Address}
     let hasResponsed = false;
     for (let i = 0; !hasResponsed && i < 5; i++) {
-        const result4 = await playerLast.call("app", "snapmail", "ping_agent", params2)
-        hasResponsed = result4.Ok;
+        const result4 = await playerLast.call("snapmail", "ping_agent", player0Address)
+        hasResponsed = result4;
         await sleep(200)
     }
     //assert(hasResponsed)
@@ -117,7 +116,7 @@ const test_stress_pending_multi = async (s, t, count) => {
         //console.log('handle_address: ' + JSON.stringify(handle_address))
         //t.match(handle_address.Ok, RegExp('Qm*'))
     }
-    await s.consistency()
+    //await s.consistency()
 
     // Make sure handles are set (try 10 times)
     let handle_count = 0
@@ -142,7 +141,7 @@ const test_stress_pending_multi = async (s, t, count) => {
 
         // -- Kill first half
         await killFirstHalf(count, allPlayers)
-        await s.consistency();
+        //await s.consistency();
         await sleep(1000)
 
         // -- Send Bomb
@@ -162,11 +161,11 @@ const test_stress_pending_multi = async (s, t, count) => {
         // Should have no pendings
         t.deepEqual(send_result.cc_pendings, {})
 
-        await s.consistency()
+        //await s.consistency()
 
         // -- Wake first half
         await wakeFirstHalf(count, allPlayers, playerMap)
-        await s.consistency();
+        //await s.consistency();
         await sleep(1000)
 
         // -- Check reception
@@ -174,7 +173,7 @@ const test_stress_pending_multi = async (s, t, count) => {
         let mail_count = 0
         let check_result;
         for (let i = 0; mail_count != 1 && i < 10; i++) {
-            await s.consistency()
+            //await s.consistency()
             check_result = await player0.call("snapmail", "check_incoming_mail", undefined)
             console.log('' + i + '. check_result2: ' + JSON.stringify(check_result))
             mail_count = check_result.length
@@ -239,11 +238,11 @@ const test_stress_pending_multi = async (s, t, count) => {
             t.deepEqual(send_result2.cc_pendings, {})
         }
 
-        await s.consistency()
+        //await s.consistency()
 
         // -- Wake first half
         await wakeFirstHalf(count, allPlayers, playerMap)
-        await s.consistency();
+        //await s.consistency();
         await sleep(1000)
 
         // -- Check reception
@@ -252,7 +251,7 @@ const test_stress_pending_multi = async (s, t, count) => {
         let mail_count = 0
         let check_result;
         for (let i = 0; mail_count != round && i < 5; i++) {
-            await s.consistency()
+            //await s.consistency()
             check_result = await player21.call("snapmail", "check_incoming_mail", undefined)
             console.log('' + i + '. check incoming: ' + JSON.stringify(check_result))
             mail_count = check_result.length
@@ -268,7 +267,7 @@ const test_stress_pending_multi = async (s, t, count) => {
         // const mail_adr2 = arrived_result2.Ok[0]
         // t.match(mail_adr2, RegExp('Qm*'))
 
-        const mail_result2 = await player21.call("app", "snapmail", "get_mail", mail_adr2)
+        const mail_result2 = await player21.call("snapmail", "get_mail", mail_adr2)
         console.log('mail_result2 : ' + JSON.stringify(mail_result2.Ok))
         const result_obj2 = mail_result2.Ok.mail
         console.log('result_obj2 : ' + JSON.stringify(result_obj2))
@@ -287,7 +286,7 @@ const test_stress_pending_multi = async (s, t, count) => {
 
         // -- Kill first half
         await killFirstHalf(count, allPlayers)
-        await s.consistency();
+        //await s.consistency();
         await sleep(1000)
 
         // prevAgent = allAddresses[count - 1];
@@ -314,7 +313,7 @@ const test_stress_pending_multi = async (s, t, count) => {
                     chunk_index: i,
                     chunk: fileChunks.chunks[i],
                 }
-                const chunk_address = await playa.call("app", "snapmail", "write_chunk", chunk_params)
+                const chunk_address = await playa.call("snapmail", "write_chunk", chunk_params)
                 //console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
                 t.match(chunk_address.Ok, RegExp('Qm*'))
                 chunk_list.push(chunk_address.Ok)
@@ -329,7 +328,7 @@ const test_stress_pending_multi = async (s, t, count) => {
                 orig_filesize: data_string.length,
                 chunks: chunk_list,
             }
-            let manifest_address = await playa.call("app", "snapmail", "write_manifest", manifest_params)
+            let manifest_address = await playa.call("snapmail", "write_manifest", manifest_params)
             //console.log('manifest_address: ' + JSON.stringify(manifest_address))
             t.match(manifest_address.Ok, RegExp('Qm*'))
 
@@ -344,17 +343,17 @@ const test_stress_pending_multi = async (s, t, count) => {
             }
 
             console.log('** CALLING: send_mail() - ' + playerName)
-            const send_result2 = await playa.call("app", "snapmail", "send_mail", send_params)
+            const send_result2 = await playa.call("snapmail", "send_mail", send_params)
             //console.log('send_result: ' + JSON.stringify(send_result2))
             // Should have no pendings
             t.deepEqual(send_result2.Ok.cc_pendings, {})
         }
 
-        await s.consistency()
+        //await s.consistency()
 
         // -- Wake first half
         await wakeFirstHalf(count, allPlayers, playerMap)
-        await s.consistency();
+        //await s.consistency();
         await sleep(1000)
 
         // // --
@@ -370,8 +369,8 @@ const test_stress_pending_multi = async (s, t, count) => {
         let mail_count = 0
         let check_result;
         for (let i = 0; mail_count != 1 && i < 5; i++) {
-            await s.consistency()
-            check_result = await player21.call("app", "snapmail", "check_incoming_mail", {})
+            //await s.consistency()
+            check_result = await player21.call("snapmail", "check_incoming_mail", {})
             console.log('' + i + '. check incoming: ' + JSON.stringify(check_result))
             mail_count = check_result.Ok.length
             await sleep(200)
@@ -381,7 +380,7 @@ const test_stress_pending_multi = async (s, t, count) => {
         const mail_adr3 = check_result.Ok[0]
 
         // --
-        const mail_result3 = await player21.call("app", "snapmail", "get_mail", mail_adr3)
+        const mail_result3 = await player21.call("snapmail", "get_mail", mail_adr3)
         console.log('mail_result3 : ' + JSON.stringify(mail_result3.Ok))
         const mail = mail_result3.Ok.mail
         console.log('mail : ' + JSON.stringify(mail))
@@ -393,7 +392,7 @@ const test_stress_pending_multi = async (s, t, count) => {
         manifest_address = mail.attachments[0].manifest_address
         // Get chunk list via manifest
         const get_manifest_params = {manifest_address}
-        const resultGet = await player21.call("app", "snapmail", "get_manifest", get_manifest_params)
+        const resultGet = await player21.call("snapmail", "get_manifest", get_manifest_params)
         console.log('get_manifest_result: ' + JSON.stringify(resultGet))
         t.deepEqual(resultGet.Ok.orig_filesize, mail.attachments[0].orig_filesize)
     }

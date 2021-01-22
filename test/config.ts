@@ -186,8 +186,12 @@ export async function setup_1_conductor(s, t) {
     // array structure as you created in your installation array.
     const [[alexHapp]] = await alex.installAgentsHapps(monoAgentInstall);
 
+    console.log("setup_1_conductor() - Dummy calls... ")
+
     // Dummy calls so Init is performed
     await alexHapp.cells[0].call("snapmail", "get_handle", alexHapp.agent)
+
+    console.log("setup_1_conductor DONE ")
 
     // Done
     return { alex, alexAddress: alexHapp.agent, alexCell: alexHapp.cells[0] }
