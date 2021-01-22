@@ -1,7 +1,7 @@
 import {setup_3_conductors} from "../config";
 
 const { conductorConfig } = require('../config')
-const { split_file } = require('../utils')
+const { sleep, split_file } = require('../utils')
 
 
 // -- Export scenarios -- //
@@ -53,6 +53,7 @@ const test_send_file_async = async (s, t, size) => {
     // -- Make sure handles are set -- //
 
     let handle_count = 0
+    let result;
     for (let i = 0; handle_count != 2 && i < 10; i++) {
         //await s.consistency()
         result = await billyCell.call("snapmail", "get_all_handles", undefined)
@@ -107,7 +108,7 @@ const test_send_file_async = async (s, t, size) => {
     const send_params = {
         subject: "test-attachment",
         payload: "blablabla",
-        to: [billyId],
+        to: [billyHapp.agent],
         cc: [],
         bcc: [],
         manifest_address_list: [manifest_address],
@@ -211,6 +212,7 @@ const test_send_file_async_three = async (s, t) => {
     // -- Make sure handles are set -- //
 
     let handle_count = 0
+    let result;
     for (let i = 0; handle_count != 3 && i < 10; i++) {
         result = await billyCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listB: ' + JSON.stringify(result))
@@ -270,7 +272,7 @@ const test_send_file_async_three = async (s, t) => {
     const send_params = {
         subject: "test-attachment",
         payload: "blablabla",
-        to: [billyId],
+        to: [billyHapp.agent],
         cc: [],
         bcc: [],
         manifest_address_list: [manifest_address],
