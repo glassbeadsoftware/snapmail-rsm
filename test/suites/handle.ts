@@ -66,6 +66,8 @@ const test_getset_handle = async (s, t) => {
     console.log('result2: ' + JSON.stringify(result2))
     t.deepEqual(result2, name)
 
+    await delay(1000);
+
     const result3 = await billyCell.call("snapmail", "get_handle", alexHapp.agent)
     console.log('result3: ' + JSON.stringify(result3))
     t.deepEqual(result3, name)

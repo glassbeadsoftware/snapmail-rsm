@@ -86,7 +86,7 @@ const send_pending_test = async (s, t) => {
         to: [billyHapp.agent],
         cc: [],
         bcc: [],
-        //manifest_address_list: []
+        manifest_address_list: []
     }
 
     console.log('** CALLING: send_mail()')
@@ -229,7 +229,7 @@ const send_dm_test = async (s, t) => {
         to: [alexHapp.agent],
         cc: [],
         bcc: [],
-        //manifest_address_list: []
+        manifest_address_list: []
     }
     console.log('sending...')
     const send_result = await billyCell.call("snapmail", "send_mail", send_params)
@@ -297,7 +297,7 @@ const test_delete_mail = async (s, t) => {
         to: [alexHapp.agent],
         cc: [],
         bcc: [],
-        //manifest_address_list: []
+        manifest_address_list: []
     }
     const inMail1Payload = send_params.payload;
 
@@ -344,7 +344,7 @@ const test_get_all_mails = async (s, t) => {
         to: [alexHapp.agent],
         cc: [],
         bcc: [],
-        //manifest_address_list: []
+        manifest_address_list: []
     }
     const inMail1Payload = send_params.payload;
 
@@ -360,7 +360,7 @@ const test_get_all_mails = async (s, t) => {
         to: [alexHapp.agent],
         cc: [],
         bcc: [],
-        //manifest_address_list: []
+        manifest_address_list: []
     }
     send_result = await billyCell.call("snapmail", "send_mail", send_params)
     console.log('send_result2: ' + JSON.stringify(send_result))
@@ -375,7 +375,7 @@ const test_get_all_mails = async (s, t) => {
         to: [billyHapp.agent],
         cc: [],
         bcc: [],
-        //manifest_address_list: []
+        manifest_address_list: []
     }
     send_result = await alexCell.call("snapmail", "send_mail", send_params)
     console.log('send_result3: ' + JSON.stringify(send_result))

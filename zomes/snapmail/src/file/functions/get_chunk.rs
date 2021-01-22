@@ -9,11 +9,12 @@ use crate::{
 /// Zome function
 /// Get chunk index and chunk as base64 string in local source chain at given address
 /// Must be a valid address
+/// TODO try using a AnyDht hash
 #[hdk_extern]
-pub fn get_chunk(chunk_hh: HeaderHash) -> ExternResult<ZomeString> {
-    debug!("get_chunk(): {}", chunk_hh);
+pub fn get_chunk(chunk_eh: EntryHash) -> ExternResult<ZomeString> {
+    debug!("get_chunk(): {}", chunk_eh);
     /// Look for element
-    let element = match get(chunk_hh, GetOptions::content())? {
+    let element = match get(chunk_eh, GetOptions::content())? {
         Some(element) => element,
         None => return error("No element found at given address"),
     };
