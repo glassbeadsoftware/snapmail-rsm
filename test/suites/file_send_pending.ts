@@ -40,7 +40,7 @@ const test_send_file_async = async (s, t, size) => {
     let name = "billy"
     let handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
-    t.match(handle_address.Ok, RegExp('Qm*'))
+    //t.match(handle_address.Ok, RegExp('Qm*'))
     // Wait for all network activity to settle
     //await s.consistency()
 
@@ -73,7 +73,7 @@ const test_send_file_async = async (s, t, size) => {
     // split file
     const fileChunks = split_file(data_string)
     // Write chunks
-    var chunk_list = [];
+    var chunk_list = new Array();
     for (var i = 0; i < fileChunks.numChunks; ++i) {
         const chunk_params = {
             data_hash: fileChunks.dataHash,
@@ -82,7 +82,7 @@ const test_send_file_async = async (s, t, size) => {
         }
         const chunk_address = await alexCell.call("snapmail", "write_chunk", chunk_params)
         console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
-        t.match(chunk_address.Ok, RegExp('Qm*'))
+        //t.match(chunk_address.Ok, RegExp('Qm*'))
         chunk_list.push(chunk_address)
     }
     chunk_list = chunk_list.reverse();
@@ -95,13 +95,15 @@ const test_send_file_async = async (s, t, size) => {
         orig_filesize: data_string.length,
         chunks: chunk_list,
     }
+    console.log('manifest_params: ' + JSON.stringify(manifest_params))
+
     let manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
     console.log('manifest_address: ' + JSON.stringify(manifest_address))
     //t.match(manifest_address.Ok, RegExp('Qm*'))
 
     // -- Billy goes offline
 
-    await billy.kill();
+    await billy.shutdown();
     await sleep(1000)
 
     // -- Send Mail to Billy
@@ -114,6 +116,8 @@ const test_send_file_async = async (s, t, size) => {
         manifest_address_list: [manifest_address],
     }
 
+    // -- Peer discovery blocks here? -- //
+
     const send_result = await alexCell.call("snapmail", "send_mail", send_params)
     console.log('send_result: ' + JSON.stringify(send_result))
     // Should receive via DM, so no pendings
@@ -123,7 +127,7 @@ const test_send_file_async = async (s, t, size) => {
     //await s.consistency()
 
     // -- Billy goes Online
-    await billy.spawn();
+    await billy.startup();
     //await s.consistency();
 
     // -- Ping -- //
@@ -239,7 +243,7 @@ const test_send_file_async_three = async (s, t) => {
     // split file
     const fileChunks = split_file(data_string)
     // Write chunks
-    var chunk_list = [];
+    var chunk_list = new Array();
     for (var i = 0; i < fileChunks.numChunks; ++i) {
         const chunk_params = {
             data_hash: fileChunks.dataHash,
@@ -266,7 +270,7 @@ const test_send_file_async_three = async (s, t) => {
     //t.match(manifest_address.Ok, RegExp('Qm*'))
 
     // -- Send Mail to Billy offline
-    await billy.kill();
+    await billy.shutdown();
     //await s.consistency();
 
     const send_params = {
@@ -285,11 +289,11 @@ const test_send_file_async_three = async (s, t) => {
 
     // Kill Alex :(
     //await s.consistency()
-    await alex.kill();
+    await alex.shutdown();
     //await s.consistency();
 
     // Spawn back billy
-    await billy.spawn();
+    await billy.startup();
     //await s.consistency();
 
     let mail_count = 0
@@ -331,7 +335,7 @@ const test_send_file_async_three = async (s, t) => {
     t.deepEqual(result_missing, 1)
 
     // Spawn back Alex
-    await alex.spawn();
+    await alex.startup();
     //await s.consistency();
     // Ping
     const result4 = await billyCell.call("snapmail", "ping_agent", alexHapp.agent)
