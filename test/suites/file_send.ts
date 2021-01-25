@@ -7,11 +7,11 @@ const { sleep, split_file, delay, logDump, htos, cellIdToStr } = require('../uti
 
 module.exports = scenario => {
     scenario("test send file dm tiny", test_send_file_dm_tiny)
-    //scenario("test send too big file", test_send_file_too_big)
+    scenario("test send too big file", test_send_file_too_big)
 
     // LONG TESTS
     //process.env['TRYORAMA_ZOME_CALL_TIMEOUT_MS'] = 90000
-    // scenario("test send file dm big", test_send_file_dm_big)
+    scenario("test send file dm big", test_send_file_dm_big)
 }
 
 // -- Scenarios -- //
@@ -29,7 +29,7 @@ const test_send_file_dm_big = async (s, t) => {
  *
  */
 async function send_file_dm(s, t, size) {
-    let { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
+    let {alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell} = await setup_3_conductors(s, t)
     //const {alex, billy} = await s.players({alex: conductorConfig, billy: conductorConfig}, true)
 
     // - Create fake file
@@ -38,15 +38,16 @@ async function send_file_dm(s, t, size) {
     // split file
     const fileChunks = split_file(data_string)
     // Write chunks
-    var chunk_list = [];
+    var chunk_list = new Array();
     for (var i = 0; i < fileChunks.numChunks; ++i) {
         const chunk_params = {
             data_hash: fileChunks.dataHash,
             chunk_index: i,
             chunk: fileChunks.chunks[i],
         }
-        const chunk_address = await alexCell.call("snapmail", "write_chunk", chunk_params)
-        console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
+        const result = await alexCell.call("snapmail", "write_chunk", chunk_params)
+        console.log('chunk_address' + i + ': ' + JSON.stringify(result))
+        const chunk_address = result
         //t.match(chunk_address.Ok, RegExp('Qm*'))
         chunk_list.push(chunk_address)
     }
@@ -60,6 +61,8 @@ async function send_file_dm(s, t, size) {
         orig_filesize: data_string.length,
         chunks: chunk_list,
     }
+    console.log('orig_filesize: ' + data_string.length)
+
     let manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
     console.log('manifest_address: ' + JSON.stringify(manifest_address))
     //t.match(manifest_address.Ok, RegExp('Qm*'))
@@ -85,7 +88,7 @@ async function send_file_dm(s, t, size) {
     // -- Get Mail
     let new_mail_length = 0;
     let attempt = 0
-    let arrived_result = {};
+    let arrived_result;
     //while (new_mail_length == 0 && attempt < 10) {
     //     await s.consistency()
     //     sleep(3000)
@@ -98,13 +101,14 @@ async function send_file_dm(s, t, size) {
     const mail_adr = arrived_result[0]
     const mail_result = await billyCell.call("snapmail", "get_mail", mail_adr)
     console.log('mail_result: ' + JSON.stringify(mail_result))
-    const mail = mail_result.mail
+    const mail = mail_result.Ok.mail
     // check for equality of the actual and expected results
     t.deepEqual(send_params.payload, mail.payload)
     t.deepEqual(data_string.length, mail.attachments[0].orig_filesize)
 
     // -- Get Attachment
-    manifest_address = mail.attachments[0].manifest_address
+    manifest_address = mail.attachments[0].manifest_eh
+    console.log('manifest_address: ' + JSON.stringify(manifest_address))
 
     // Get chunk list via manifest
     const resultGet = await billyCell.call("snapmail", "get_manifest", manifest_address)
@@ -117,9 +121,8 @@ async function send_file_dm(s, t, size) {
     for (var i = chunk_list.length - 1; i >= 0; --i) {
         // await s.consistency()
         // sleep(10000)
-        const params2 = {chunk_address: chunk_list[i]}
-        const result = await billyCell.call("snapmail", "get_chunk", params2)
-        console.log('get_result' + i + ': ' + JSON.stringify(result))
+        const result = await billyCell.call("snapmail", "get_chunk", chunk_list[i])
+        //console.log('get_result' + i + ': ' + JSON.stringify(result))
         result_string += result
     }
     t.deepEqual(data_string, result_string)
@@ -139,7 +142,7 @@ const test_send_file_too_big = async (s, t) => {
     // split file
     const fileChunks = split_file(data_string)
     // Write chunks
-    var chunk_list = [];
+    var chunk_list = new Array();
     for (var i = 0; i < fileChunks.numChunks; ++i) {
         const chunk_params = {
             data_hash: fileChunks.dataHash,
@@ -162,9 +165,15 @@ const test_send_file_too_big = async (s, t) => {
         orig_filesize: 2 * 1024 * 1024,
         chunks: chunk_list,
     }
-    let manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
-    console.log('manifest_address: ' + JSON.stringify(manifest_address))
-    t.match(JSON.stringify(manifest_address.Err), RegExp('.*ValidationFailed.*'))
+    let manifest_address
+    try {
+    manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
+} catch (error) {
+    console.error(error);
+    t.deepEqual(error.data.type, 'internal_error')
+}
+    //console.log('manifest_address: ' + JSON.stringify(manifest_address))
+    //t.match(JSON.stringify(manifest_address.Err), RegExp('.*ValidationFailed.*'))
 
     // Empty filesize
     manifest_params = {
@@ -174,9 +183,14 @@ const test_send_file_too_big = async (s, t) => {
         orig_filesize: 0,
         chunks: chunk_list,
     }
+    try {
     manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
+} catch (error) {
+    console.error(error);
+    t.deepEqual(error.data.type, 'internal_error')
+}
     console.log('manifest_address: ' + JSON.stringify(manifest_address))
-    t.match(JSON.stringify(manifest_address.Err), RegExp('.*ValidationFailed.*'))
+    //t.match(JSON.stringify(manifest_address.Err), RegExp('.*ValidationFailed.*'))
 
     // emtpy chunk list
     manifest_params = {
@@ -186,7 +200,12 @@ const test_send_file_too_big = async (s, t) => {
         orig_filesize: 0.5 * 1024 * 1024,
         chunks: [],
     }
+    try {
     manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
+} catch (error) {
+    console.error(error);
+    t.deepEqual(error.data.type, 'internal_error')
+}
     console.log('manifest_address: ' + JSON.stringify(manifest_address))
-    t.match(JSON.stringify(manifest_address.Err), RegExp('.*ValidationFailed.*'))
+    //t.match(JSON.stringify(manifest_address.Err), RegExp('.*ValidationFailed.*'))
 };

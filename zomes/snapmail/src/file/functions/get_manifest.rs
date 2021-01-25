@@ -9,10 +9,10 @@ use crate::{
 /// Get manifest entry at given address
 /// Must be a valid address
 #[hdk_extern]
-pub fn get_manifest(manifest_hh: HeaderHash) -> ExternResult<FileManifest> {
-    debug!("get_manifest(): {}", manifest_hh);
+pub fn get_manifest(manifest_address: AnyDhtHash) -> ExternResult<FileManifest> {
+    debug!("get_manifest(): {}", manifest_address);
     /// Look for element
-    let element = match get(manifest_hh, GetOptions::content())? {
+    let element = match get(manifest_address, GetOptions::content())? {
         Some(element) => element,
         None => return error("No element found at given address"),
     };

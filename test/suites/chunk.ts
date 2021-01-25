@@ -58,7 +58,6 @@ const test_write_multichunk_file = async (s, t) => {
 
     // Write chunks
     var chunk_list = new Array();
-    let chunk_address
     for (var i = 0; i < fileChunks.numChunks; ++i) {
         //console.log('chunk' + i + ': ' + fileChunks.chunks[i])
         const chunk_params = {

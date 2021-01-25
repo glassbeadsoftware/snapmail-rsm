@@ -233,7 +233,7 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
     let mut file_manifest_pair_list = Vec::new();
     for manifest_hh in input.manifest_address_list.clone() {
         let manifest_eh = hh_to_eh(manifest_hh.clone())?;
-        let manifest = get_manifest(manifest_hh.clone())?;
+        let manifest = get_manifest(manifest_hh.clone().into())?;
         file_manifest_list.push(manifest.clone());
         file_manifest_pair_list.push((manifest_eh, manifest))
     }
