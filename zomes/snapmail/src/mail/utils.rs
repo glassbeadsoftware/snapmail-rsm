@@ -81,17 +81,6 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
     Ok(InMailState::AckReceived)
 }
 
-///
-pub(crate) fn get_pending_mail(pending_eh: &EntryHash) -> ExternResult<(AgentPubKey, PendingMail)> {
-    let (author, pending_mail) = get_typed_and_author::<PendingMail>(pending_eh)?;
-    Ok((author, pending_mail))
-}
-
-///
-pub(crate) fn get_pending_ack(pending_eh: &EntryHash) -> ExternResult<(AgentPubKey, PendingAck)> {
-    let (author, ack) = get_typed_and_author::<PendingAck>(pending_eh)?;
-    Ok((author, ack))
-}
 
 /// Return address of created InAck
 pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {

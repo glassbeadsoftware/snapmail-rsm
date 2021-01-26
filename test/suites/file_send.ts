@@ -21,7 +21,7 @@ const test_send_file_dm_tiny = async (s, t) => {
 }
 
 const test_send_file_dm_big = async (s, t) => {
-    await send_file_dm(s, t, 0.9 * 1024 * 1024)
+    await send_file_dm(s, t, 8 * 1024 * 1024)
 }
 
 
@@ -46,7 +46,7 @@ async function send_file_dm(s, t, size) {
             chunk: fileChunks.chunks[i],
         }
         const result = await alexCell.call("snapmail", "write_chunk", chunk_params)
-        console.log('chunk_address' + i + ': ' + JSON.stringify(result))
+        //console.log('chunk_address' + i + ': ' + JSON.stringify(result))
         const chunk_address = result
         //t.match(chunk_address.Ok, RegExp('Qm*'))
         chunk_list.push(chunk_address)
@@ -162,7 +162,7 @@ const test_send_file_too_big = async (s, t) => {
         data_hash: fileChunks.dataHash,
         filename: "bigfake.str",
         filetype: "str",
-        orig_filesize: 2 * 1024 * 1024,
+        orig_filesize: 20 * 1024 * 1024,
         chunks: chunk_list,
     }
     let manifest_address

@@ -33,7 +33,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
         let (_pending_ack, pending_ack_hh, _) = maybe_latest.unwrap();
         debug!("pending_ack_hh: {}", pending_ack_hh);
         /// Get entry on the DHT
-        let maybe_pending_ack = mail::get_pending_ack(&pending_ack_eh);
+        let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh);
         if let Err(err) = maybe_pending_ack {
             debug!("Getting PendingAck from DHT failed: {}", err);
             continue;

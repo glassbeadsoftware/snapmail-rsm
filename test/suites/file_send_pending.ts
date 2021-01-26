@@ -9,9 +9,10 @@ const { sleep, split_file } = require('../utils')
 module.exports = scenario => {
     scenario("test send file async tiny", test_send_file_async_tiny)
 
+    //scenario("test send file async big", test_send_file_async_big)
+
     // LONG TESTS
     // process.env['TRYORAMA_ZOME_CALL_TIMEOUT_MS'] = 90000
-    //scenario("test send file async big", test_send_file_async_big)
     //scenario("test send file async three", test_send_file_async_three)
 }
 
@@ -22,7 +23,7 @@ const test_send_file_async_tiny = async (s, t) => {
 }
 
 const test_send_file_async_big = async (s, t) => {
-    await test_send_file_async(s, t, 500 * 1024)
+    await test_send_file_async(s, t, 1 * 1024 * 1024)
 }
 
 const test_send_file_async = async (s, t, size) => {
@@ -33,6 +34,8 @@ const test_send_file_async = async (s, t, size) => {
 
     let { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
     //const {alex, billy} = await s.players({alex: conductorConfig, billy: conductorConfig}, true)
+
+    //await sleep(1000)
 
     console.log('billyId: ' + billyHapp.agent)
 
@@ -49,6 +52,8 @@ const test_send_file_async = async (s, t, size) => {
     handle_address = await alexCell.call("snapmail", "set_handle", name)
     console.log('handle_address2: ' + JSON.stringify(handle_address))
     //t.match(handle_address.Ok, RegExp('Qm*'))
+
+    //await sleep(1000)
 
     // -- Make sure handles are set -- //
 
@@ -81,7 +86,7 @@ const test_send_file_async = async (s, t, size) => {
             chunk: fileChunks.chunks[i],
         }
         const chunk_address = await alexCell.call("snapmail", "write_chunk", chunk_params)
-        console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
+        //console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
         //t.match(chunk_address.Ok, RegExp('Qm*'))
         chunk_list.push(chunk_address)
     }
@@ -116,19 +121,17 @@ const test_send_file_async = async (s, t, size) => {
         manifest_address_list: [manifest_address],
     }
 
-    // -- Peer discovery blocks here? -- //
-
     const send_result = await alexCell.call("snapmail", "send_mail", send_params)
     console.log('send_result: ' + JSON.stringify(send_result))
     // Should receive via DM, so no pendings
-    t.deepEqual(send_result.Ok.cc_pendings, {})
+    t.deepEqual(send_result.cc_pendings, {})
 
     // Wait for all network activity to settle
-    //await s.consistency()
+    //await sleep(1000)
 
     // -- Billy goes Online
     await billy.startup();
-    //await s.consistency();
+    await sleep(1000) // allow 1 second for gossiping
 
     // -- Ping -- //
     const result4 = await billyCell.call("snapmail", "ping_agent", alexHapp.agent)
@@ -137,7 +140,7 @@ const test_send_file_async = async (s, t, size) => {
     let mail_count = 0
     let check_result;
     for (let i = 0; mail_count != 1 && i < 3; i++) {
-        //await s.consistency()
+        await sleep(1000) // allow 1 second for gossiping
         check_result = await billyCell.call("snapmail", "check_incoming_mail", undefined)
         console.log('' + i + '. check_result2: ' + JSON.stringify(check_result))
         mail_count = check_result.length
@@ -155,13 +158,13 @@ const test_send_file_async = async (s, t, size) => {
     t.deepEqual(data_string.length, mail.attachments[0].orig_filesize)
 
     // -- Get Attachment
-    manifest_address = mail.attachments[0].manifest_address;
+    manifest_address = mail.attachments[0].manifest_eh;
 
     // Get chunk list via manifest
     const resultGet = await billyCell.call("snapmail", "get_manifest", manifest_address)
     console.log('get_manifest_result: ' + JSON.stringify(resultGet))
-    t.deepEqual(resultGet.Ok.orig_filesize, data_string.length)
-    chunk_list = resultGet.Ok.chunks;
+    t.deepEqual(resultGet.orig_filesize, data_string.length)
+    chunk_list = resultGet.chunks;
 
     // Get chunks
     let result_string = ''
@@ -171,7 +174,7 @@ const test_send_file_async = async (s, t, size) => {
         const params2 = chunk_list[i]
         const result = await billyCell.call("snapmail", "get_chunk", params2)
         console.log('get_result' + i + ': ' + JSON.stringify(result))
-        result_string += result.Ok
+        result_string += result
     }
     console.log('result_string.length: ' + result_string.length)
     t.deepEqual(data_string.length, result_string.length)
@@ -183,7 +186,6 @@ const test_send_file_async = async (s, t, size) => {
  *
  */
 const test_send_file_async_three = async (s, t) => {
-
     // - Create fake file
     //const data_string = "0123465789".repeat(500 * 1024 / 10)
     const data_string = "0123465789"
@@ -236,7 +238,7 @@ const test_send_file_async_three = async (s, t) => {
     for (let i = 0; handle_count != 3 && i < 10; i++) {
         result = await camilleCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listC: ' + JSON.stringify(result))
-        handle_count = result.Ok.length
+        handle_count = result.length
     }
     t.deepEqual(handle_count, 3)
 
@@ -251,7 +253,7 @@ const test_send_file_async_three = async (s, t) => {
             chunk: fileChunks.chunks[i],
         }
         const chunk_address = await alexCell.call("snapmail", "write_chunk", chunk_params)
-        console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
+        //console.log('chunk_address' + i + ': ' + JSON.stringify(chunk_address))
         //t.match(chunk_address.Ok, RegExp('Qm*'))
         chunk_list.push(chunk_address)
     }
@@ -288,21 +290,19 @@ const test_send_file_async_three = async (s, t) => {
     t.deepEqual(send_result.cc_pendings, {})
 
     // Kill Alex :(
-    //await s.consistency()
     await alex.shutdown();
-    //await s.consistency();
+    await sleep(2000) // allow 1 second for gossiping
 
     // Spawn back billy
     await billy.startup();
-    //await s.consistency();
 
     let mail_count = 0
     let check_result;
-    for (let i = 0; mail_count != 1 && i < 3; i++) {
-        //await s.consistency()
+    for (let i = 0; mail_count != 1 && i < 5; i++) {
+        await sleep(1000) // allow 1 second for gossiping
         check_result = await billyCell.call("snapmail", "check_incoming_mail", undefined)
         console.log('' + i + '. check_result2: ' + JSON.stringify(check_result))
-        mail_count = check_result.Ok.length
+        mail_count = check_result.length
     }
     t.deepEqual(mail_count, 1)
     //t.match(check_result.Ok[0], RegExp('Qm*'))
@@ -336,7 +336,8 @@ const test_send_file_async_three = async (s, t) => {
 
     // Spawn back Alex
     await alex.startup();
-    //await s.consistency();
+    await sleep(1000) // allow 1 second for gossiping
+
     // Ping
     const result4 = await billyCell.call("snapmail", "ping_agent", alexHapp.agent)
     t.deepEqual(result4, true)
@@ -349,8 +350,8 @@ const test_send_file_async_three = async (s, t) => {
     // Get chunk list via manifest
     resultGet = await billyCell.call("snapmail", "get_manifest", manifest_address)
     console.log('get_manifest_result: ' + JSON.stringify(resultGet))
-    t.deepEqual(resultGet.Ok.orig_filesize, data_string.length)
-    chunk_list = resultGet.Ok.chunks;
+    t.deepEqual(resultGet.orig_filesize, data_string.length)
+    chunk_list = resultGet.chunks;
 
     // Get chunks
     let result_string = ''
@@ -359,7 +360,7 @@ const test_send_file_async_three = async (s, t) => {
         const params2 = {chunk_address: chunk_list[i]}
         const result = await billyCell.call("snapmail", "get_chunk", params2)
         // console.log('get_result' + i + ': ' + JSON.stringify(result))
-        result_string += result.Ok
+        result_string += result
     }
     console.log('result_string.length: ' + result_string.length)
     t.deepEqual(data_string.length, result_string.length)
