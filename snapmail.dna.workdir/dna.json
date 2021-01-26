@@ -4,8 +4,7 @@
   "properties": null,
   "zomes": {
     "snapmail": {
-      "wasm_path": "../zomes/snapmail/target/wasm32-unknown-unknown/release/snapmail.wasm",
-      "ui_path": "../../snapmail-ui/dist/index.js"
+      "wasm_path": "../zomes/snapmail/target/wasm32-unknown-unknown/release/snapmail.wasm"
     }
   }
 }
