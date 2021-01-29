@@ -13,8 +13,9 @@ CI and NIX configs are not set up for the moment.
 ## Building
 
 To rebuild the DNA for holochain:
-1. Install Holochain and dna-util
-1. CD to ``zomes\snapmail``
+1. [Install rustup](https://rustup.rs/) and the `wasm32` target with: ``rustup target add wasm32-unknown-unknown``
+1. Install [holochain and dna-util](https://github.com/holochain/holochain)
+1. ``cd zomes\snapmail``
 2. ``cargo build --release --target wasm32-unknown-unknown``
 1. ``dna-util -c ../../snapmail.dna.workdir/``
 
