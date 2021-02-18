@@ -3,7 +3,7 @@
 Holochain-rsm DNA for [SnapMail](https://github.com/glassbeadsoftware/snapmail-release) from [Glass Bead Software](http://www.glassbead.com/).
 To download and use it, go to [snapmail-release](https://github.com/glassbeadsoftware/snapmail-release) repo.
 
-Native application for Windows, Linux ~~and MacOS~~ is available [here](https://github.com/glassbeadsoftware/snapmail-release/releases).
+Native application for Windows, Linux and MacOS is available [here](https://github.com/glassbeadsoftware/snapmail-release/releases).
 
 Some design documentation is available in the `/spec` folder.
 
