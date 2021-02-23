@@ -5,7 +5,7 @@ use crate::{
     utils::*,
     ZomeEhVec,
     mail::entries::PendingAck,
-
+    link_kind::*,
 };
 
 /// Zome Function
@@ -17,8 +17,8 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
     let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
     let links_result = get_links(
         my_agent_eh.clone(),
-        // FIXME: should be LinkKind::AckInbox.as_tag_opt(),
-        None,
+        LinkKind::AckInbox.as_tag_opt(),
+        //None,
     )?.into_inner();
     debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each link

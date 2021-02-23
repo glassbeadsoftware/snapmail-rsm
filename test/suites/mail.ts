@@ -6,10 +6,10 @@ const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('..
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    scenario("send via DM test", send_dm_test)
-    //scenario("send pending test", send_pending_test)
-    scenario("delete mail test", test_delete_mail)
-    scenario("get all mails test", test_get_all_mails)
+    //scenario("send via DM test", send_dm_test)
+    scenario("send pending test", send_pending_test)
+    //scenario("delete mail test", test_delete_mail)
+    //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
     //scenario("outack test", debug_test)
@@ -145,7 +145,7 @@ const send_pending_test = async (s, t) => {
     // -- Billy sends Acknowledgment -- //
 
     const ack_result = await billyCell.call("snapmail", "acknowledge_mail", mail_adr)
-    console.log('ack_result1 : ' + ack_result)
+    console.log('ack_result1 : ' + JSON.stringify(ack_result))
     //const ack_adr = ack_result
 
     // -- Alex goes online -- //
@@ -174,7 +174,7 @@ const send_pending_test = async (s, t) => {
     await delay(2000);
     const ack_result2 = await billyCell.call("snapmail", "has_ack_been_received", mail_adr)
     console.log('ack_result2 : ' + JSON.stringify(ack_result2))
-    t.deepEqual(ack_result2.Ok, true)
+    t.deepEqual(ack_result2, true)
 };
 
 
