@@ -31,7 +31,7 @@ Test suites can also be enabled/disabled by commenting out the lines in `test\te
 
 ## Running with UI
 
- 1. Download the [snapmail-ui repo](https://github.com/glassbeadsoftware/snapmail-ui) and store it at same folder level than `snapmail-rsm`
+ 1. Download the [snapmail-ui repo](https://github.com/glassbeadsoftware/snapmail-ui) and store it at same folder level as `snapmail-rsm`
  2. CD to its root folder
  2. Make sure bootstrap server and proxy server are up and running.
  3. Launch `alex`, `billy`, or `camille` agents like this:`npm run alex`
