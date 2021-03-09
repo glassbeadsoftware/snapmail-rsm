@@ -1,5 +1,5 @@
-use hdk3::prelude::*;
-use hdk3::prelude::metadata::EntryDhtStatus;
+use hdk::prelude::*;
+use hdk::prelude::metadata::EntryDhtStatus;
 
 use crate::{
     ZomeBool,

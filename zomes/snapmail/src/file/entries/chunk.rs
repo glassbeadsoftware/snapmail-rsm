@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 use crate::{
     CHUNK_MAX_SIZE,

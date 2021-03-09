@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 use crate::{
     mail::functions::get_mail::*,

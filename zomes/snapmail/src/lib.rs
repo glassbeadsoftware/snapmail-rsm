@@ -25,7 +25,7 @@ mod mail;
 
 mod file;
 
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 pub use dm::*;
 pub use dm_protocol::*;

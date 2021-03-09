@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 /// Entry for an Acknowledgement Receipt of a Mail authored by this agent
 #[hdk_entry(id = "outack")]

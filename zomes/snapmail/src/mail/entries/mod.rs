@@ -5,7 +5,7 @@ mod pending_ack;
 mod outack;
 mod inack;
 
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 pub use self::{
     inmail::*, pending_mail::*, outmail::*,

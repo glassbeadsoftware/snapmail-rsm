@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 use strum::IntoEnumIterator;
 use strum::AsStaticRef;

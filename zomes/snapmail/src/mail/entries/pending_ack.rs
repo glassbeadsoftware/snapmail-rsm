@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 /// Entry representing an AcknowldegmentReceipt on the DHT waiting to be received
 #[hdk_entry(id = "pending_ack")]

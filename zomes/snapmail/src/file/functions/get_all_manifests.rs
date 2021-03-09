@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 use crate::{
     entry_kind::*,
@@ -21,7 +21,7 @@ pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
     let query_result = query(query_args);
     if let Err(err) = query_result {
         debug!("find_manifest() query_result failed: {:?}", err);
-        //return Err(hdk3::error::HdkError::SerializedBytes(err));
+        //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let manifest_elements: Vec<Element> = query_result.unwrap().0;

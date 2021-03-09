@@ -1,5 +1,5 @@
-use hdk3::prelude::*;
-use hdk3::prelude::query::ChainQueryFilter;
+use hdk::prelude::*;
+use hdk::prelude::query::ChainQueryFilter;
 
 use crate::{
     // link_kind,

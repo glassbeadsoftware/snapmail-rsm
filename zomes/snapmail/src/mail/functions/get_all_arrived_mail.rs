@@ -1,5 +1,5 @@
-use hdk3::prelude::*;
-use hdk3::prelude::query::ChainQueryFilter;
+use hdk::prelude::*;
+use hdk::prelude::query::ChainQueryFilter;
 
 use crate::{
     ZomeHhVec,
@@ -17,7 +17,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
         debug!("get_all_mails() inmail_result failed: {:?}", err);
-        //return Err(hdk3::error::HdkError::SerializedBytes(err));
+        //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;

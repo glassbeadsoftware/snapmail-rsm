@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 
 //
 ///// Get InMail our OutMail struct in local source chain at address

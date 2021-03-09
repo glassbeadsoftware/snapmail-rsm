@@ -1,4 +1,4 @@
-use hdk3::prelude::*;
+use hdk::prelude::*;
 use holo_hash::hash_type::HashType;
 
 use std::str::FromStr;
