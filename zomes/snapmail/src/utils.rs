@@ -43,7 +43,7 @@ pub fn get_local_from_hh(hh: HeaderHash) -> ExternResult<Element> {
     if let Err(err) = maybe_vec {
         return error(&format!("{:?}",err));
     }
-    let vec = maybe_vec.unwrap().0;
+    let vec = maybe_vec.unwrap();
     for element in vec {
         if element.header_address() == &hh {
             return Ok(element.clone());
@@ -60,7 +60,7 @@ pub fn get_local_from_eh(eh: EntryHash) -> ExternResult<Element> {
     if let Err(err) = maybe_vec {
         return error(&format!("{:?}",err));
     }
-    let vec = maybe_vec.unwrap().0;
+    let vec = maybe_vec.unwrap();
     for element in vec {
         if element.header().entry_hash() == Some(&eh) {
             return Ok(element.clone());

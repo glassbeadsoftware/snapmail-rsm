@@ -20,7 +20,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<ZomeHhVec> {
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
-    let inmails: Vec<Element> = maybe_inmail_result.unwrap().0;
+    let inmails: Vec<Element> = maybe_inmail_result.unwrap();
     debug!(" get_all_arrived_mail() inmails: {:?}", inmails);
 
     // DEBUG - Output dummy values instead

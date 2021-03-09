@@ -55,7 +55,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
             debug!("Remove ``mail_inbox`` link failed:");
-            debug!(err);
+            debug!(?err);
             continue;
         }
         //debug!("delete_link res: {:?}", res);

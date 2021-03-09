@@ -26,7 +26,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         debug!("get_all_mails() query failed: {:?}", err);
         return Err(err);
     }
-    let created_inmails: Vec<Element> = maybe_inmails.unwrap().0;
+    let created_inmails: Vec<Element> = maybe_inmails.unwrap();
     debug!(" get_all_mails() create inmails count = {}", created_inmails.len());
     //debug!(" get_all_mails() inmails: {:?}", inmails);
     /// Get all Create OutMail headers with query
@@ -39,7 +39,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
         debug!("get_all_mails() outmail_result failed: {:?}", err);
         return Err(err);
     }
-    let created_outmails: Vec<Element> = maybe_outmails.unwrap().0;
+    let created_outmails: Vec<Element> = maybe_outmails.unwrap();
     debug!(" get_all_mails() outmails count = {}", created_outmails.len());
     /// Change all mails into MailItems
     let mut item_list = Vec::new();

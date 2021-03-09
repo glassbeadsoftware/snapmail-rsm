@@ -27,7 +27,7 @@ pub fn receive_dm(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
 ///
 pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
    /// Pre-conditions: Don't call yourself (otherwise we get concurrency issues)
-   let me = agent_info()?.agent_latest_pubkey;
+   let me = agent_info().unwrap().agent_latest_pubkey;
    if destination == me {
       /// FOR DEBUGGING ONLY?
       return error("send_dm() aborted. Can't send to self.");

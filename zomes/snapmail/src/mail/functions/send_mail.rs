@@ -128,7 +128,7 @@ fn send_mail_by_dm(
         let result = send_attachment_by_dm(destination, manifest);
         if let Err(e) = result {
             let err_msg = format!("Send attachment failed -> Err: {}", e);
-            debug!(err_msg);
+            debug!(?err_msg);
             return error(&err_msg);
         }
     }

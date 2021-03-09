@@ -49,7 +49,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<ZomeEhVec> {
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
             debug!("Remove ``ack_inbox`` link failed:");
-            debug!(err);
+            debug!(?err);
             continue;
         }
         /// Delete PendingAck

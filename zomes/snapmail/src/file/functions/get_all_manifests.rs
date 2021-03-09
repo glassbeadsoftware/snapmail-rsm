@@ -24,7 +24,7 @@ pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
-    let manifest_elements: Vec<Element> = query_result.unwrap().0;
+    let manifest_elements: Vec<Element> = query_result.unwrap();
     /// For each File Manifest element, get its entry
     let mut manifest_list = Vec::new();
     for manifest_el in &manifest_elements {
