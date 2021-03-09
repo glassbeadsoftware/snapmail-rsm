@@ -7,7 +7,7 @@ use crate::{
 /// Entry representing a file in chunks.
 /// All chunks must be committed beforehand.
 #[hdk_entry(id = "file_manifest")]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct FileManifest {
     pub data_hash: String,
     pub filename: String,

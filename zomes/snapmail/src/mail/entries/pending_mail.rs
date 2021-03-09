@@ -6,7 +6,7 @@ use super::Mail;
 /// The receipient is the agentId where the entry is linked from,
 /// hence only the receipient knows it has pending mail.
 #[hdk_entry(id = "pending_mail")]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct PendingMail {
     pub mail: Mail,
     pub outmail_eh: EntryHash,

@@ -9,7 +9,7 @@ use crate::{
     utils::*,
 };
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ZomeMailItemVec(Vec<MailItem>);
 
 /// Zome Function

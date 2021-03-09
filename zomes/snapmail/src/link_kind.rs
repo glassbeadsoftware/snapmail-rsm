@@ -14,7 +14,7 @@ use crate::{
 pub const LinkSeparator: &'static str = "___";
 
 /// List of all Link kinds handled by this Zome
-#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
+#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum LinkKind {
    #[strum(props(BaseType = "Path", TargetType = "Handle"))]
    Members,

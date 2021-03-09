@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FindManifestOutput(pub Option<FileManifest>);
 
 

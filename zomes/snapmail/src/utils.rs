@@ -6,7 +6,8 @@ pub type EntryAndHash<T> = (T, HeaderHash, EntryHash);
 pub type OptionEntryAndHash<T> = Option<EntryAndHash<T>>;
 
 pub fn error<T>(reason: &str) -> ExternResult<T> {
-    Err(HdkError::Wasm(WasmError::Zome(String::from(reason))))
+    //Err(HdkError::Wasm(WasmError::Zome(String::from(reason))))
+    Err(WasmError::Guest(String::from(reason)))
 }
 
 /*

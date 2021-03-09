@@ -7,7 +7,7 @@ use crate::{
 
 pub const REMOTE_ENDPOINT: &'static str = "receive_dm";
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DmPacket {
    pub from: AgentPubKey,
    pub dm: DirectMessageProtocol,

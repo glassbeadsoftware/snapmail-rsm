@@ -5,7 +5,7 @@ use crate::{
     file::FileManifest,
 };
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum SignalProtocol {
     ReceivedMail(MailItem),
     ReceivedAck(ReceivedAck),
@@ -17,7 +17,7 @@ pub enum SignalProtocol {
 //     pub item: MailItem,
 // }
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReceivedAck {
     pub from: AgentPubKey,
     pub for_mail: HeaderHash,

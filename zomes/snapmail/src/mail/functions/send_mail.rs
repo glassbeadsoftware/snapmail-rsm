@@ -22,7 +22,7 @@ pub enum SendSuccessKind {
 }
 
 /// Struct holding all result data from a send request
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SendMailOutput {
     outmail: HeaderHash,
     to_pendings: HashMap<String, HeaderHash>,
@@ -122,13 +122,13 @@ fn send_mail_by_dm(
     manifest_list: &Vec<FileManifest>,
 ) -> ExternResult<()> {
     /// -- Send Attachments
-    debug!("Send Attachments".to_string());
+    debug!("Send Attachments");
     /// For each attachment, send all the chunks
     for manifest in manifest_list {
         let result = send_attachment_by_dm(destination, manifest);
         if let Err(e) = result {
             let err_msg = format!("Send attachment failed -> Err: {}", e);
-            debug!(err_msg.clone());
+            debug!(err_msg);
             return error(&err_msg);
         }
     }
@@ -206,13 +206,13 @@ fn send_mail_to(
         return Err(maybe_link2_hh.err().unwrap());
     };
     let link2_hh = maybe_link2_hh.unwrap();
-    debug!(format!("link2_hh = {}", link2_hh));
+    debug!("link2_hh = {}", link2_hh);
     /// Done
     Ok(SendSuccessKind::OK_PENDING(pending_mail_hh))
 }
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SendMailInput {
     pub subject: String,
     pub payload: String,

@@ -37,25 +37,25 @@ pub use path_kind::*;
 pub use signal_protocol::*;
 
 
-holochain_externs!();
+//holochain_externs!();
 
 
 /// -- Wrapped Common types -- ///
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ZomeU32(pub u32);
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ZomeBool(bool);
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ZomeString(pub String);
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ZomeRaw(Vec<u8>);
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ZomeHhVec(Vec<HeaderHash>);
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ZomeEhVec(Vec<EntryHash>);

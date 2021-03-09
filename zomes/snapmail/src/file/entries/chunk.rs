@@ -6,7 +6,7 @@ use crate::{
 
 /// Entry representing a file chunk.
 #[hdk_entry(id = "file_chunk")]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct FileChunk {
     pub data_hash: String,
     pub chunk_index: usize,

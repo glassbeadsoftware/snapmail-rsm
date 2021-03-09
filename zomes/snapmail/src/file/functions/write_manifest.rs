@@ -4,7 +4,7 @@ use crate::{
     file::FileManifest,
 };
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct WriteManifestInput {
     pub data_hash: String,
     pub filename: String,

@@ -31,7 +31,7 @@ entry_defs![
 ];
 
 /// Listing all Link kinds for this DNA
-#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, SerializedBytes, PartialEq)]
+#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum EntryKind {
    /// !! Keep Order synced with entry_defs!() !!
    Handle,

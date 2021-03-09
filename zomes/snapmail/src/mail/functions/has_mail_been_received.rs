@@ -7,7 +7,7 @@ use crate::{
     utils::*,
 };
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
 
 

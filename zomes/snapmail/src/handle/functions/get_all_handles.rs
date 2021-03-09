@@ -6,7 +6,7 @@ use crate::{
     utils::*,
 };
 
-#[derive(Serialize, Deserialize, SerializedBytes)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct GetAllHandlesOutput(Vec<(String, AgentPubKey, EntryHash)>);
 
 /// Get all known users

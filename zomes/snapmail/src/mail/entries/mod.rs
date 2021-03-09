@@ -16,7 +16,7 @@ use crate::{
     file::FileManifest,
 };
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum InMailState {
     // PendingMail available
     Incoming,
@@ -31,7 +31,7 @@ pub enum InMailState {
 }
 
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OutMailState {
     // Has a pending link for each receipient
     Pending,
@@ -49,13 +49,13 @@ pub enum OutMailState {
     Deleted,
 }
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum MailState {
     In(InMailState),
     Out(OutMailState),
 }
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct MailItem {
     pub address: HeaderHash,
     pub author: AgentPubKey,
@@ -66,7 +66,7 @@ pub struct MailItem {
 }
 
 
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum ReceipientKind {
     TO,
     CC,
@@ -75,7 +75,7 @@ pub enum ReceipientKind {
 
 /// Core content of all *Mail Entries
 /// Mail can have Zero public receipient (but must have at least one public or private receipient)
-#[derive(Serialize, Deserialize, Debug, SerializedBytes, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Mail {
     pub date_sent: u64,
     pub subject: String,
@@ -86,7 +86,7 @@ pub struct Mail {
 }
 
 /// Metadata for a mail attachment
-#[derive(Serialize, Deserialize, PartialEq, Debug, SerializedBytes, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct AttachmentInfo {
     pub manifest_eh: EntryHash,
     pub data_hash: String,

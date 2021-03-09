@@ -35,7 +35,7 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
         },
     };
     /// Done
-    debug!(format!("*** validate() result = {:?}", result));
+    debug!("*** validate() result = {:?}", result);
     result
 }
 

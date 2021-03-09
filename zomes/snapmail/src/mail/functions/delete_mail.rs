@@ -4,7 +4,7 @@ use crate::{
     mail::functions::get_mail::*,
 };
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DeleteMailOutput(pub Option<HeaderHash>);
 
 #[hdk_extern]

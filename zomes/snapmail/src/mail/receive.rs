@@ -57,11 +57,11 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     let maybe_inmail_hh = create_entry(&inmail);
     if let Err(err) = maybe_inmail_hh {
         let response_str = "Failed committing InMail";
-        debug!(format!("{}: {}", response_str, err));
+        debug!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let inmail_hh =  maybe_inmail_hh.unwrap();
-    debug!(format!("inmail_address: {:?}", inmail_hh));
+    debug!("inmail_address: {:?}", inmail_hh);
     /// Emit signal
     let item = MailItem {
         address: inmail_hh,
@@ -108,7 +108,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     });
     let res = emit_signal(&signal);
     if let Err(err) = res {
-        debug!(format!("Emit signal failed: {}", err));
+        debug!("Emit signal failed: {}", err);
     }
     /// Return Success response
     debug!("receive_direct_ack() success!");

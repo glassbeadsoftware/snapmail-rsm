@@ -6,7 +6,7 @@ use crate::{
     utils::*,
 };
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, SerializedBytes)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GetMissingChunksInput {
     pub from: AgentPubKey,
     pub manifest_eh: EntryHash,
