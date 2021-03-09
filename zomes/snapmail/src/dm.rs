@@ -42,8 +42,11 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
       REMOTE_ENDPOINT.to_string().into(),
       None,
       &dm_packet,
-   );
-   /// Done
+   )?;
    debug!("calling remote receive_dm() DONE ; dm = {:?}", dm);
-   return response;
+   return match response {
+   ZomeCallResponse::Ok(output) => Ok(output.decode()?),
+   ZomeCallResponse::Unauthorized(_, _, _, _) => Ok(DirectMessageProtocol::Failure("Unauthorized".to_string())),
+   ZomeCallResponse::NetworkError(e) => Ok(DirectMessageProtocol::Failure(format!("NetworkError: {:?}", e))),
+   };
 }

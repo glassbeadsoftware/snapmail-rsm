@@ -134,7 +134,7 @@ fn validate_app_entry(
             let chunk = maybe_content.unwrap();
             let res = validate_chunk(chunk, maybe_validation_package);
             res
-        }
+        },
         /// Add entry validation per type here
         /// ..
 

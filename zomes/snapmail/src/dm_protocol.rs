@@ -6,7 +6,7 @@ use crate::{
 };
 
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, SerializedBytes)]
 pub enum DirectMessageProtocol {
     Failure(String),
     Success(String),
@@ -21,13 +21,13 @@ pub enum DirectMessageProtocol {
 }
 
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, SerializedBytes)]
 pub struct MailMessage {
     pub outmail_eh: EntryHash,
     pub mail: Mail,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, SerializedBytes)]
 pub struct AckMessage {
     pub outmail_eh: EntryHash,
 }
