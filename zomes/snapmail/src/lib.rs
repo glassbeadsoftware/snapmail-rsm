@@ -37,9 +37,6 @@ pub use path_kind::*;
 pub use signal_protocol::*;
 
 
-//holochain_externs!();
-
-
 /// -- Wrapped Common types -- ///
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
@@ -47,9 +44,6 @@ pub struct ZomeU32(pub u32);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ZomeBool(bool);
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct ZomeString(pub String);
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ZomeRaw(Vec<u8>);

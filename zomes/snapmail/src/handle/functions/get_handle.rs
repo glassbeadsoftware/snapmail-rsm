@@ -1,7 +1,6 @@
 use hdk::prelude::*;
 
 use crate::{
-    ZomeString,
     link_kind::*,
     handle::utils::get_handle_string,
 };
@@ -9,7 +8,7 @@ use crate::{
 /// Zome Function
 /// get an agent's latest handle
 #[hdk_extern]
-pub fn get_handle(agent_id: AgentPubKey) -> ExternResult<ZomeString> {
+pub fn get_handle(agent_id: AgentPubKey) -> ExternResult<String> {
     let maybe_current_handle_entry = get_handle_element(agent_id);
     return get_handle_string(maybe_current_handle_entry);
 }

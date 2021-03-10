@@ -2,7 +2,6 @@ use hdk::prelude::*;
 use hdk::prelude::link::Link;
 
 use crate::{
-    ZomeString,
     utils::*,
     link_kind::*,
     path_kind,
@@ -10,13 +9,13 @@ use crate::{
 };
 
 ///
-pub(crate) fn get_handle_string(maybe_handle_element: Option<Element>) -> ExternResult<ZomeString> {
+pub(crate) fn get_handle_string(maybe_handle_element: Option<Element>) -> ExternResult<String> {
     if let Some(current_handle_element) = maybe_handle_element {
         let current_handle: Handle = get_typed_from_el(current_handle_element)
             .expect("Should be a Handle entry");
-        return Ok(ZomeString(current_handle.name.into()));
+        return Ok(current_handle.name.into());
     }
-    return Ok(ZomeString("<noname>".into()));
+    return Ok("<noname>".to_string());
 }
 
 

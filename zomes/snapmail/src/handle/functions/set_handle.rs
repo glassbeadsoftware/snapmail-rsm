@@ -1,7 +1,6 @@
 use hdk::prelude::*;
 
 use crate::{
-    ZomeString,
     link_kind::*, path_kind,
     utils::*,
     handle::{
@@ -22,7 +21,7 @@ pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
 /// Zome Function
 /// Set handle for this agent
 #[hdk_extern]
-pub fn set_handle(name: ZomeString) -> ExternResult<HeaderHash> {
+pub fn set_handle(name: String) -> ExternResult<HeaderHash> {
     /// -- Create Handle Entry
     let new_handle = Handle::new(name.to_string());
     /// -- Check if already have Handle

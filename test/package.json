@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "RUST_BACKTRACE=1 RUST_LOG=debug TRYORAMA_LOG_LEVEL=debug TRYORAMA_HOLOCHAIN_PATH=\"../holochain\" ts-node test.ts",
+    "test": "RUST_BACKTRACE=1 RUST_LOG=debug TRYORAMA_LOG_LEVEL=debug TRYORAMA_HOLOCHAIN_PATH=\"holochain\" ts-node test.ts",
     "test-long": "RUST_BACKTRACE=1 RUST_LOG=warn TRYORAMA_LOG_LEVEL=warn TRYORAMA_HOLOCHAIN_PATH=\"../holochain\" ts-node test.ts"
-
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@holochain/tryorama": "git+ssh://git@github.com/holochain/tryorama.git#2021-03-03-bundles",
     "@types/node": "^14.0.1",
     "@types/sjcl": "^1.0.29",
     "lodash": "^4.17.20",
