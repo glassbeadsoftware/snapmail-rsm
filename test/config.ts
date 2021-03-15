@@ -2,29 +2,27 @@ import path from "path";
 
 const { delay, cellIdToStr } = require('./utils');
 
-import { Config, InstallAgentsHapps } from "@holochain/tryorama";
-//import { Config, InstallAgentsHapps } from '../../tryorama/src';
-//import { Config, InstallAgentsHapps } from '../../tryorama-rsm/src';
+//import { Config, InstallAgentsHapps } from "@holochain/tryorama";
+import { Config, InstallAgentsHapps } from '../../tryorama/src';
 
-import { TransportConfigType, ProxyConfigType } from "@holochain/tryorama/src/types";
-//import { TransportConfigType, ProxyConfigType } from "../../tryorama/src/types";
-//import { TransportConfigType, ProxyConfigType } from "../../tryorama-rsm/src/types";
-
-
+//import { TransportConfigType, ProxyConfigType, NetworkType } from "@holochain/tryorama/src/types";
+import { TransportConfigType, ProxyConfigType, NetworkType } from "../../tryorama/src/types";
 
 export const ALEX_NICK = 'alex'
 export const BILLY_NICK = 'billy'
 export const CAMILLE_NICK = 'camille'
 
 const quicConfig = {
+    network_type: NetworkType.QuicBootstrap, // NetworkType.QuicMdns,
     transport_pool: [{
         type: TransportConfigType.Quic,
     }],
-    bootstrap_service: "https://bootstrap.holo.host",
+    bootstrap_service: "https://bootstrap-staging.holo.host",
 }
 
 const proxyConfig = {
-    bootstrap_service: "https://bootstrap.holo.host",
+    bootstrap_service: "https://bootstrap-staging.holo.host",
+    network_type: NetworkType.QuicBootstrap,
     transport_pool: [{
         type: TransportConfigType.Proxy,
         sub_transport: {
@@ -38,20 +36,21 @@ const proxyConfig = {
 }
 
 const memConfig = {
+    network_type: NetworkType.QuicMdns,
     transport_pool: [{
         type: TransportConfigType.Mem,
     }],
 }
 
 export const expConfig = Config;
-export const quicConductorConfig = Config.gen();
+//export const quicConductorConfig = Config.gen();
 //const quicConductorConfig = Config.gen({network: proxyConfig });
-//const quicConductorConfig = Config.gen({network: quicConfig});
+const quicConductorConfig = Config.gen({network: quicConfig});
 
 const memConductorConfig = Config.gen({network: memConfig});
 
 
-export const snapmailDna = path.join(__dirname, "../snapmail.dna.gz");
+export const snapmailDna = path.join(__dirname, "../snapmail.dna");
 
 // create an InstallAgentsHapps array with your DNAs to tell tryorama what
 // to install into the conductor.

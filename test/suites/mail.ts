@@ -276,6 +276,10 @@ const send_dm_test = async (s, t) => {
     const ack_result2 = await alexCell.call("snapmail", "has_ack_been_received", mail_adr)
     console.log('ack_result2 : ' + JSON.stringify(ack_result2))
     t.deepEqual(ack_result2, true)
+
+    // debug
+    alexDump = await alexCell.stateDump();
+    logDump(ALEX_NICK, alexDump);
 };
 
 

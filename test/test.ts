@@ -1,8 +1,7 @@
 // See README.md for prerequisites for this to run
 
-import { Orchestrator } from "@holochain/tryorama";
-//import { Orchestrator } from '../../tryorama/src';
-//import { Orchestrator } from '../../tryorama-rsm/src';
+//import { Orchestrator } from "@holochain/tryorama";
+import { Orchestrator } from '../../tryorama/src';
 
 // -- SETUP -- //
 
@@ -13,8 +12,8 @@ process.on('unhandledRejection', error => {
 
 const orchestrator = new Orchestrator()
 
-//require('./suites/mail')(orchestrator.registerScenario)
-require('./suites/handle')(orchestrator.registerScenario)
+require('./suites/mail')(orchestrator.registerScenario)
+//require('./suites/handle')(orchestrator.registerScenario)
 //require('./suites/chunk')(orchestrator.registerScenario)
 //require('./suites/file_send')(orchestrator.registerScenario)
 //require('./suites/file_send_pending')(orchestrator.registerScenario)

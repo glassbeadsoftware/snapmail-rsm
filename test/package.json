@@ -10,15 +10,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@holochain/tryorama": "git+ssh://git@github.com/holochain/tryorama.git#2021-03-03-bundles",
+    "@holochain/tryorama": "git+ssh://git@github.com/holochain/tryorama.git#2021-03-15-update-for-network-type",
     "@types/node": "^14.0.1",
     "@types/sjcl": "^1.0.29",
+    "browser-sync": "^2.26.14",
     "lodash": "^4.17.20",
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.165",
+    "@types/node": "^12.19.3",
+    "browser-resolve": "^2.0.0",
+    "buffer": "^6.0.3",
+    "detective": "^5.2.0",
+    "lodash": "^4.17.21",
+    "process": "^0.11.10",
     "tape": "^5.0.0",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.7"
   }
 }

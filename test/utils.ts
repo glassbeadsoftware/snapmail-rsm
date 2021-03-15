@@ -105,9 +105,18 @@ function padStr(str, len) {
 
 export function logDump(name, dump) {
     console.log(' ====== ' + name + ' - SOURCE-CHAIN STATE DUMP START ===== ' + dump.length)
-    for(let i = 0; i < dump.length; i++) {
-        let element = dump[i].element
-        let str = ' ' + (dump.length - i) + '. ' + element.header.type
+    //console.log({dump})
+    let peer_dump = dump[0].peer_dump;
+    let source_chain_dump = dump[0].source_chain_dump;
+    let integration_dump = dump[0].integration_dump;
+    //console.log({peer_dump})
+    //console.log({source_chain_dump})
+    //console.log({integration_dump})
+    const chain_len = source_chain_dump.elements.length
+    for(let i = 0; i < chain_len; i++) {
+        let element = source_chain_dump.elements[i]
+        //console.log({element})
+        let str = ' ' + (chain_len - i) + '. ' + element.header.type
         if (element.header.type === 'CreateLink') {
             str += ' "' + Buffer.from(element.header.tag).toString('utf-8') + '"'
         } else {
@@ -123,7 +132,6 @@ export function logDump(name, dump) {
         let hh = htos(element.header_address)
         str += ' (' + hh + ')'
         console.log(str)
-        //console.log(element)
     }
     console.log(' ====== ' + name + ' - SOURCE-CHAIN STATE DUMP END   =====')
 }
