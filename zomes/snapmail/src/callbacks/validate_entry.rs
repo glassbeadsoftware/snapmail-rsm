@@ -12,7 +12,7 @@ use crate::{
 /// Zome Callback
 #[hdk_extern]
 fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    debug!("*** `validate()` callback called!");
+    trace!("*** `validate()` callback called!");
     /// Get entry
     let maybe_package = input.validation_package;
     let element = input.element;
@@ -35,7 +35,7 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
         },
     };
     /// Done
-    debug!("*** validate() result = {:?}", result);
+    trace!("*** validate() result = {:?}", result);
     result
 }
 
@@ -46,7 +46,7 @@ fn validate_app_entry(
     maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
-    debug!("*** validate_app_entry() callback called!");
+    trace!("*** validate_app_entry() callback called!");
     let sb = entry_bytes.into_sb();
     let entry_kind = EntryKind::from_index(&entry_type_id);
 
@@ -149,7 +149,7 @@ fn validate_agent_entry(
     _maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
-    debug!("*** validate_agent_entry() called!");
+    trace!("*** validate_agent_entry() called!");
     // FIXME
     Ok(ValidateCallbackResult::Valid)
 }
@@ -160,7 +160,7 @@ fn validate_claim_entry(
     _maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
-    debug!("*** validate_claim_entry() called!");
+    trace!("*** validate_claim_entry() called!");
     // FIXME validation
     Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
 }
@@ -171,7 +171,7 @@ fn validate_grant_entry(
     _maybe_validation_package: Option<ValidationPackage>,
 ) -> ExternResult<ValidateCallbackResult>
 {
-    debug!("*** validate_grant_entry() called!");
+    trace!("*** validate_grant_entry() called!");
     // FIXME validation
     Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
 }

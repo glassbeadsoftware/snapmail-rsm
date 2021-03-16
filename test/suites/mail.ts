@@ -6,16 +6,34 @@ const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('..
 // -- Export scenarios -- //
 
 module.exports = scenario => {
-    //scenario("send via DM test", send_dm_test)
-    scenario("send pending test", send_pending_test)
-    //scenario("delete mail test", test_delete_mail)
-    //scenario("get all mails test", test_get_all_mails)
+    scenario("send via DM test", send_dm_test)
+    //scenario("send pending test", send_pending_test)
+    scenario("delete mail test", test_delete_mail)
+    scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
-    //scenario("outack test", debug_test)
+    //scenario("debug test", debug_test)
 }
 
 // -- Scenarios -- //
+
+/**
+ *
+ */
+const debug_test = async (s, t) => {
+    // -- Setup -- //
+    let { alex,  alexAddress, alexCell} = await setup_1_conductor(s, t)
+    // -- Test -- //
+    console.log('** CALLING: shutdown()')
+    await alex.shutdown()
+    //await alexCell.deactivate(alex.hAppId)
+    await delay(10000);
+    console.log('** CALLING: startup()')
+    await alex.startup()
+    //await alexCell.activateApp(alex.hAppId)
+    await delay(1000);
+    console.log('** test done')
+}
 
 /**
  *
@@ -176,22 +194,6 @@ const send_pending_test = async (s, t) => {
     console.log('ack_result2 : ' + JSON.stringify(ack_result2))
     t.deepEqual(ack_result2, true)
 };
-
-
-// /**
-//  *
-//  */
-// const debug_test = async (s, t) => {
-//     const { conductor } = await setup_alex_only(s, t)
-//
-//     console.log('sending...')
-//     //const create_result = await conductor.call(ALEX_NICK, "snapmail", "create_outack", undefined)
-//
-//     // Validation should fail
-//     const create_result = await conductor.call(ALEX_NICK, "snapmail", "create_empty_handle", undefined)
-//
-//     console.log('create_result: ' + JSON.stringify(create_result))
-// }
 
 /**
  *
