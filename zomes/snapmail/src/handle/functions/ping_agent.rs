@@ -2,21 +2,20 @@ use hdk::prelude::*;
 
 use crate::{
     send_dm,
-    ZomeBool,
     dm_protocol::DirectMessageProtocol,
 };
 
 /// Zome function
 /// Return true if agent is online
 #[hdk_extern]
-pub fn ping_agent(destination: AgentPubKey) -> ExternResult<ZomeBool> {
+pub fn ping_agent(destination: AgentPubKey) -> ExternResult<bool> {
     /// Send ping DM
     debug!("ping_agent: {:?}", destination);
     let response_dm = send_dm(destination, DirectMessageProtocol::Ping)?;
     debug!("ping response = {:?}", response_dm);
     /// Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
-        return Ok(ZomeBool(true));
+        return Ok(true);
     }
-    Ok(ZomeBool(false))
+    Ok(false)
 }

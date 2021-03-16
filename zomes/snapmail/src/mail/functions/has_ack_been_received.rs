@@ -2,7 +2,6 @@ use hdk::prelude::*;
 use hdk::prelude::metadata::EntryDhtStatus;
 
 use crate::{
-    ZomeBool,
     link_kind::*,
     utils::*,
 };
@@ -10,7 +9,7 @@ use crate::{
 /// Zome function
 /// Ack is considered received if there is no pendingAck link or PendingAck has delete status
 #[hdk_extern]
-pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
+pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<bool> {
     /// Get InMail (make sure InMail exists)
     let eh = hh_to_eh(inmail_hh.clone())?;
     /// Get OutAck
@@ -22,8 +21,8 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
     /// Get OutAck pending link
     let links_result = get_links(outack_eh, LinkKind::Pending.as_tag_opt())?.into_inner();
     /// If no link than return OK
-    if links_result.len() < 1 {
-        return Ok(ZomeBool(true));
+    if links_result.is_empty() {
+        return Ok(true);
     }
     /// Otherwise get PendingAck crud status
     let pending_eh = links_result[0].target.clone();
@@ -38,8 +37,8 @@ pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<ZomeBool> {
     debug!(" has_ack_been_received() history: {:?}", history);
     /// Return Ok if status == deleted
     if let EntryDhtStatus::Dead = history.entry_dht_status {
-        return Ok(ZomeBool(true));
+        return Ok(true);
     }
     /// Done
-    Ok(ZomeBool(false))
+    Ok(false)
 }

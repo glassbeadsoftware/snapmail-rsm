@@ -1,7 +1,6 @@
 use hdk::prelude::*;
 
 use crate::{
-    ZomeU32,
     mail::entries::InMail,
     utils::*,
     file::dm::request_manifest_by_dm,
@@ -17,7 +16,7 @@ pub struct GetMissingAttachmentsInput {
 /// Zome Function
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
-pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResult<ZomeU32> {
+pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResult<u32> {
     let (_eh, inmail) = get_typed_from_hh::<InMail>(input.inmail_hh.clone())?;
     let mut missing = 0;
     for attachment_info in inmail.mail.attachments {
@@ -32,13 +31,13 @@ pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResul
             /// Notify failure
             if let Err(err) = maybe_maybe_manifest {
                 let response_str = format!("{} request failed", manifest_str);
-                debug!("{}: {}", response_str, err);
+                warn!("{}: {}", response_str, err);
                 missing += 1;
                 continue;
             }
             let maybe_manifest = maybe_maybe_manifest.unwrap();
             if let None = maybe_manifest {
-                debug!("{} unknown from source agent", manifest_str);
+                warn!("{} unknown from source agent", manifest_str);
                 missing += 1;
                 continue;
             }
@@ -53,11 +52,11 @@ pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResul
         let maybe_missings = crate::file::get_missing_chunks(args);
         if let Err(err) = maybe_missings {
             let response_str = format!("{} requesting chunks failed", manifest_str);
-            debug!("{}: {}", response_str, err);
+            warn!("{}: {}", response_str, err);
             missing += 1;
             continue;
         }
-        let missing_chunks_count = maybe_missings.unwrap().0;
+        let missing_chunks_count = maybe_missings.unwrap();
         if missing_chunks_count > 0 {
             missing += 1;
             continue;
@@ -65,9 +64,9 @@ pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResul
         /// Emit Signal
         let res = emit_signal(&SignalProtocol::ReceivedFile(manifest.unwrap()));
         if let Err(err) = res {
-            debug!("Emit signal failed: {}", err);
+            error!("Emit signal failed: {}", err);
         }
     }
     /// Done
-    Ok(ZomeU32(missing))
+    Ok(missing)
 }

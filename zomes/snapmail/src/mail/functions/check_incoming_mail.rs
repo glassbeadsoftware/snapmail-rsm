@@ -2,7 +2,6 @@ use hdk::prelude::*;
 
 use crate::{
     mail::entries::PendingMail,
-    ZomeHhVec,
     utils::*,
     signal_protocol::*,
     file::dm::{request_chunk_by_dm, request_manifest_by_dm},
@@ -15,7 +14,7 @@ use crate::{
 /// Check for PendingMails and convert to InMails
 /// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
-pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
+pub fn check_incoming_mail(_:()) -> ExternResult<Vec<HeaderHash>> {
     /// Lookup `mail_inbox` links on my agentId
     let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
     let links_result = get_links(
@@ -30,7 +29,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         let pending_mail_eh = link.target.clone();
         let maybe_hh = get_latest_entry_from_eh::<PendingMail>(pending_mail_eh.clone())?;
         if maybe_hh.is_none() {
-            debug!("Header not found for pending mail entry");
+            warn!("Header not found for pending mail entry");
             continue;
         }
         let pending_hh = maybe_hh.unwrap().1;
@@ -38,7 +37,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         /// Get entry on the DHT
         let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
-            debug!("Getting PendingMail from DHT failed: {}", err);
+            warn!("Getting PendingMail from DHT failed: {}", err);
             continue;
         }
         let (author, pending) = maybe_pending_mail.unwrap();
@@ -46,7 +45,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         let inmail = InMail::from_pending(pending, author);
         let maybe_inmail_hh = create_entry(&inmail);
         if maybe_inmail_hh.is_err() {
-            debug!("Failed committing InMail");
+            error!("Failed committing InMail");
             continue;
         }
         //debug!("inmail_hh: {}", maybe_inmail_hh.clone().unwrap());
@@ -54,15 +53,15 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
         /// Remove link from this agent address
         let res = delete_link(link.create_link_hash.clone());
         if let Err(err) = res {
-            debug!("Remove ``mail_inbox`` link failed:");
-            debug!(?err);
+            error!("Remove ``mail_inbox`` link failed:");
+            error!(?err);
             continue;
         }
         //debug!("delete_link res: {:?}", res);
         /// Delete PendingMail entry
         let res = delete_entry(pending_hh);
         if let Err(err) = res.clone() {
-            debug!("Delete PendingMail failed: {:?}", err);
+            error!("Delete PendingMail failed: {:?}", err);
             //continue; // TODO: figure out why delete entry fails
         }
         //debug!("delete_entry res: {:?}", res);
@@ -89,7 +88,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             let maybe_file_address = create_entry(&manifest);
             if let Err(err) = maybe_file_address {
                 let response_str = "Failed committing FileManifest";
-                debug!("{}: {}", response_str, err);
+                error!("{}: {}", response_str, err);
                 break;
             }
             /// Add to list
@@ -112,7 +111,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
                 let maybe_address = create_entry(&chunk);
                 if let Err(err) = maybe_address {
                     let response_str = "Failed committing FileChunk";
-                    debug!("{}: {}", response_str, err);
+                    error!("{}: {}", response_str, err);
                     break;
                 }
             }
@@ -120,10 +119,10 @@ pub fn check_incoming_mail(_:()) -> ExternResult<ZomeHhVec> {
             let signal = SignalProtocol::ReceivedFile(manifest);
             let res = emit_signal(&signal);
             if let Err(err) = res {
-                debug!("Emit signal failed: {}", err);
+                error!("Emit signal failed: {}", err);
             }
         }
     }
     debug!("incoming_mail new_inmails.len() = {} (for {})", new_inmails.len(), &my_agent_eh);
-    Ok(ZomeHhVec(new_inmails))
+    Ok(new_inmails)
 }

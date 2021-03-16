@@ -10,12 +10,12 @@ pub fn get_my_handle_history(initial_handle_address: HeaderHash) -> Vec<String> 
 
     let history_result = get_details(&initial_handle_address, GetOptions::latest());
     if let Err(_e) = history_result {
-        debug!("get_entry_history() failed");
+        error!("get_entry_history() failed");
         return Vec::new();
     }
     let maybe_history = history_result.unwrap();
     if maybe_history.is_none() {
-        debug!("No history found");
+        error!("No history found");
         return Vec::new();
     }
     let history = maybe_history.unwrap();
@@ -26,8 +26,8 @@ pub fn get_my_handle_history(initial_handle_address: HeaderHash) -> Vec<String> 
 
     for item in history.items {
         let handle_entry = item.entry.expect("should have entry");
-        debug!("History headers length: {}", item.headers.len());
-        debug!("item crud status: {:?}", item.meta.unwrap().crud_status);
+        trace!("History headers length: {}", item.headers.len());
+        trace!("item crud status: {:?}", item.meta.unwrap().crud_status);
         let handle = crate::into_typed::<Handle>(handle_entry).expect("Should be Handle");
         handle_list.push(handle.name);
     }

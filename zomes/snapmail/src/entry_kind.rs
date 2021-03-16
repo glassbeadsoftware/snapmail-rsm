@@ -62,16 +62,16 @@ impl FromStr for EntryKind {
          "Path" => Ok(EntryKind::Path),
          //
          "AppPubKey" => {
-            debug!("EntryKind::from_str() FAILED on AppPubKey");
+            error!("EntryKind::from_str() FAILED on AppPubKey");
             Err(())
          },
          "App" => {
-            debug!("EntryKind::from_str() FAILED on App");
+            error!("EntryKind::from_str() FAILED on App");
             Err(())
          },
          //
          _ => {
-            debug!("EntryKind::from_str() FAILED on input: {}", input);
+            error!("EntryKind::from_str() FAILED on input: {}", input);
             Err(())
          },
       }
@@ -101,7 +101,7 @@ impl EntryKind {
          }
          index += 1;
       }
-      debug!("!!! EntryKind::index() Failed !!!");
+      error!("!!! EntryKind::index() Failed !!!");
       unreachable!();
    }
 
@@ -128,7 +128,7 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
 
 /// Try to deserialize entry to given type
 pub(crate) fn is_type(entry: Entry, type_candidat: EntryType) -> bool {
-   debug!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
+   trace!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
    let res =  match entry {
       Entry::Agent(_agent_hash) => EntryType::AgentPubKey == type_candidat,
       Entry::CapClaim(_claim) => EntryType::CapClaim == type_candidat,
@@ -147,7 +147,7 @@ pub(crate) fn is_type(entry: Entry, type_candidat: EntryType) -> bool {
 
 ///
 fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> bool {
-   debug!("*** can_deserialize() called! ({:?})", entry_type_id);
+   trace!("*** can_deserialize() called! ({:?})", entry_type_id);
    let sb = entry_bytes.into_sb();
    let entry_kind = EntryKind::from_index(&entry_type_id);
 

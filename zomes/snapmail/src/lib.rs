@@ -25,8 +25,6 @@ mod mail;
 
 mod file;
 
-use hdk::prelude::*;
-
 pub use dm::*;
 pub use dm_protocol::*;
 pub use utils::*;
@@ -36,20 +34,3 @@ pub use entry_kind::*;
 pub use path_kind::*;
 pub use signal_protocol::*;
 
-
-/// -- Wrapped Common types -- ///
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct ZomeU32(pub u32);
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct ZomeBool(bool);
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct ZomeRaw(Vec<u8>);
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ZomeHhVec(Vec<HeaderHash>);
-
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ZomeEhVec(Vec<EntryHash>);

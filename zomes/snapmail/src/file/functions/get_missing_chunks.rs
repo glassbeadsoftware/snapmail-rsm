@@ -1,7 +1,6 @@
 use hdk::prelude::*;
 
 use crate::{
-    ZomeU32,
     file::{FileManifest, dm::request_chunk_by_dm},
     utils::*,
 };
@@ -17,7 +16,7 @@ pub struct GetMissingChunksInput {
 /// Returns number of remaining missing chunks
 /// TODO: Return vec of missing chunk HeaderHash
 #[hdk_extern]
-pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<ZomeU32> {
+pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {
     let (_eh, manifest) = get_typed_from_eh::<FileManifest>(input.manifest_eh.clone())?;
     let chunk_count = manifest.chunks.len();
     let mut missing = 0;
@@ -28,7 +27,7 @@ pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<ZomeU32>
         /// Skip if chunk already held
         let maybe_el = get(chunk_eh.clone(), GetOptions::content())?;
         if let Some(_) = maybe_el {
-            debug!("{} already held", chunk_str);
+            warn!("{} already held", chunk_str);
             continue;
         }
         /// Request missing chunk
@@ -36,16 +35,16 @@ pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<ZomeU32>
         /// Notify failure
         if let Err(err) = maybe_maybe_chunk {
             let response_str = format!("{} failed", chunk_str);
-            debug!("{}: {}", response_str, err);
+            warn!("{}: {}", response_str, err);
             missing += 1;
             continue;
         }
         if let None = maybe_maybe_chunk.unwrap() {
-            debug!("{} unknown from source agent", chunk_str);
+            warn!("{} unknown from source agent", chunk_str);
             missing += 1;
             continue;
         }
     }
     /// Done
-    Ok(ZomeU32(missing))
+    Ok(missing)
 }

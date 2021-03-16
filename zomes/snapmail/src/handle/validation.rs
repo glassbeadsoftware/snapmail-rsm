@@ -17,7 +17,7 @@ fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
 
 ///
 pub fn validate_handle_entry(handle: Handle, _maybe_validation_package: Option<ValidationPackage>) -> ExternResult<ValidateCallbackResult> {
-    debug!("*** validate_handle_entry() called!");
+    trace!("*** validate_handle_entry() called!");
     return check_name(handle.name);
 }
 

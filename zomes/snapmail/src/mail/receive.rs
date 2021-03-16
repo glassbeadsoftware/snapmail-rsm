@@ -73,7 +73,7 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     };
     let res = emit_signal(&SignalProtocol::ReceivedMail(item));
     if let Err(err) = res {
-        debug!("Emit signal failed: {}", err);
+        error!("Emit signal failed: {}", err);
     }
     /// Return Success response
     return DirectMessageProtocol::Success("Mail received".to_string());
@@ -88,7 +88,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     let maybe_outmail = get_local_from_eh(ack_msg.outmail_eh.clone());
     if let Err(err) = maybe_outmail {
         let response_str = "Failed to find OutMail from Ack";
-        debug!("{}: {}", response_str, err);
+        warn!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let outmail_hh = maybe_outmail.unwrap().header_address().clone();
@@ -98,7 +98,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     let res = mail::commit_inack(outmail_eh, &from);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
-        debug!("{}: {}", response_str, err);
+        error!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     /// Emit Signal
@@ -108,7 +108,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     });
     let res = emit_signal(&signal);
     if let Err(err) = res {
-        debug!("Emit signal failed: {}", err);
+        error!("Emit signal failed: {}", err);
     }
     /// Return Success response
     debug!("receive_direct_ack() success!");
@@ -124,7 +124,7 @@ pub fn receive_direct_request_manifest(from: AgentPubKey, manifest_eh: EntryHash
     let maybe_maybe_el = get(manifest_eh.clone(), GetOptions::content());
     if let Err(err) = maybe_maybe_el {
         let response_str = "Failed on get_entry()";
-        debug!("{}: {}", response_str, err);
+        warn!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let maybe_el = maybe_maybe_el.unwrap();
@@ -135,7 +135,7 @@ pub fn receive_direct_request_manifest(from: AgentPubKey, manifest_eh: EntryHash
     let maybe_manifest = get_typed_from_el::<FileManifest>(maybe_el.unwrap());
     if let Err(_err) = maybe_manifest {
         let response_str = "Requested entry is not a FileManifest";
-        debug!("{}", response_str);
+        error!("{}", response_str);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     // Return Success response
@@ -152,7 +152,7 @@ pub fn receive_direct_manifest(from: AgentPubKey, manifest: FileManifest) -> Dir
     let maybe_hh = create_entry(&manifest);
     if let Err(err) = maybe_hh {
         let response_str = "Failed committing FileManifest";
-        debug!("{}: {}", response_str, err);
+        warn!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let manifest_hh = maybe_hh.unwrap();
@@ -171,7 +171,7 @@ pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> D
     let maybe_maybe_el = get(chunk_eh.clone(), GetOptions::content());
     if let Err(err) = maybe_maybe_el {
         let response_str = "Failed on get_entry()";
-        debug!("{}: {}", response_str, err);
+        error!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let maybe_el = maybe_maybe_el.unwrap();
@@ -182,7 +182,7 @@ pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> D
     let maybe_chunk = get_typed_from_el::<FileChunk>(maybe_el.unwrap());
     if let Err(_err) = maybe_chunk {
         let response_str = "Requested entry is not a FileChunk";
-        debug!("{}", response_str);
+        error!("{}", response_str);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     /// Return Success response
@@ -198,7 +198,7 @@ pub fn receive_direct_chunk(_from: AgentPubKey, chunk: FileChunk) -> DirectMessa
     let maybe_address = create_entry(&chunk);
     if let Err(err) = maybe_address {
         let response_str = "Failed committing FileChunk";
-        debug!("{}: {}", response_str, err);
+        error!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let chunk_address = maybe_address.unwrap();

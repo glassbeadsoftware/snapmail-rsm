@@ -71,7 +71,7 @@ impl LinkKind {
       if kind_str == "AgentPubKey" {
          return EntryType::AgentPubKey;
       }
-      debug!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str);
+      error!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str);
       unreachable!()
    }
 

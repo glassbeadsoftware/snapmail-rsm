@@ -11,7 +11,7 @@ pub struct DeleteMailOutput(pub Option<HeaderHash>);
 pub fn delete_mail(hh: HeaderHash) -> ExternResult<DeleteMailOutput> {
     /// Make sure HeaderHash points to a Mail
     let maybe_mail = try_into_mail(hh.clone())?;
-    debug!("delete_mail(): maybe_mail = {:?}", maybe_mail);
+    trace!("delete_mail(): maybe_mail = {:?}", maybe_mail);
     if maybe_mail.is_none() {
         return Ok(DeleteMailOutput(None));
     }

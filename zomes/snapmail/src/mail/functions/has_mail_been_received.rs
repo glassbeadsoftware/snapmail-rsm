@@ -33,7 +33,7 @@ pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBee
         if let Err(_err) = maybe_hash {
             continue;
         }
-        debug!("maybe_hash suffix = {:?}", maybe_hash);
+        trace!("maybe_hash suffix = {:?}", maybe_hash);
         receipt_authors.push(maybe_hash.unwrap());
     }
     debug!("receipt_authors: {:?}", receipt_authors);

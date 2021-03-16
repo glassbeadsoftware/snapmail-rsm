@@ -74,7 +74,7 @@ pub fn get_local_from_eh(eh: EntryHash) -> ExternResult<Element> {
 pub fn get_eh(element: &Element) -> ExternResult<EntryHash> {
     let maybe_eh = element.header().entry_hash();
     if let None = maybe_eh {
-        debug!("get_eh(): entry_hash not found");
+        warn!("get_eh(): entry_hash not found");
         return error("get_eh(): entry_hash not found");
     }
     Ok(maybe_eh.unwrap().clone())
@@ -82,11 +82,11 @@ pub fn get_eh(element: &Element) -> ExternResult<EntryHash> {
 
 /// Call get() to obtain EntryHash from a HeaderHash
 pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
-    debug!("hh_to_eh(): START - get...");
+    trace!("hh_to_eh(): START - get...");
     let maybe_element = get(hh, GetOptions::content())?;
-    debug!("hh_to_eh(): START - get DONE");
+    trace!("hh_to_eh(): START - get DONE");
     if let None = maybe_element {
-        debug!("hh_to_eh(): Element not found");
+        warn!("hh_to_eh(): Element not found");
         return error("hh_to_eh(): Element not found");
     }
     return get_eh(&maybe_element.unwrap());
@@ -143,7 +143,7 @@ pub(crate) fn get_typed_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
 {
     let maybe_maybe_element = get(eh.clone(), GetOptions::latest());
     if let Err(err) = maybe_maybe_element {
-        debug!("Failed getting element: {}", err);
+        warn!("Failed getting element: {}", err);
         return Err(err);
     }
     let maybe_element = maybe_maybe_element.unwrap();

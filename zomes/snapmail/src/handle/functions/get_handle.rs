@@ -21,7 +21,7 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
        .into_inner();
     assert!(handle_links.len() <= 1);
     if handle_links.len() == 0 {
-        debug!("No handle found for this agent:");
+        warn!("No handle found for this agent:");
         return None;
     }
     /// Get the Element from the link

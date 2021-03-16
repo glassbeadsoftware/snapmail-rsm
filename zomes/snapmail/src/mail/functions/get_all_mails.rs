@@ -23,7 +23,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
        .entry_type(EntryKind::InMail.as_type());
     let maybe_inmails = query(inmail_query_args);
     if let Err(err) = maybe_inmails {
-        debug!("get_all_mails() query failed: {:?}", err);
+        error!("get_all_mails() query failed: {:?}", err);
         return Err(err);
     }
     let created_inmails: Vec<Element> = maybe_inmails.unwrap();
@@ -36,7 +36,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
        .entry_type(EntryKind::OutMail.as_type());
     let maybe_outmails = query(outmail_query_args);
     if let Err(err) = maybe_outmails {
-        debug!("get_all_mails() outmail_result failed: {:?}", err);
+        error!("get_all_mails() outmail_result failed: {:?}", err);
         return Err(err);
     }
     let created_outmails: Vec<Element> = maybe_outmails.unwrap();
