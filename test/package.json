@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@holochain/tryorama": "git+ssh://git@github.com/holochain/tryorama.git#2021-03-15-update-for-network-type",
+    "@holochain/tryorama": "=0.4.1",
     "@types/node": "^14.0.1",
     "@types/sjcl": "^1.0.29",
     "browser-sync": "^2.26.14",

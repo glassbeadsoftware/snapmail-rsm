@@ -69,6 +69,10 @@ impl FromStr for EntryKind {
             error!("EntryKind::from_str() FAILED on App");
             Err(())
          },
+         "AgentPubKey" => {
+            error!("EntryKind::from_str() FAILED on AgentPubKey");
+            Err(())
+         },
          //
          _ => {
             error!("EntryKind::from_str() FAILED on input: {}", input);

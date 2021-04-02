@@ -64,12 +64,12 @@ impl LinkKind {
    /// Convert an EnumProperty to an EntryType
    fn prop_to_type(&self, prop_name: &str) -> EntryType {
       let kind_str = self.get_str(prop_name).unwrap();
+      if kind_str == "AgentPubKey" {
+         return EntryType::AgentPubKey;
+      }
       let maybe_kind = EntryKind::from_str(kind_str);
       if let Ok(kind) = maybe_kind {
          return kind.as_type();
-      }
-      if kind_str == "AgentPubKey" {
-         return EntryType::AgentPubKey;
       }
       error!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str);
       unreachable!()
