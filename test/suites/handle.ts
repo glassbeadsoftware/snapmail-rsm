@@ -21,6 +21,10 @@ const test_getset_handle = async (s, t) => {
     const { alex, billy, alexHapp, billyHapp, alexCell, billyCell } = await setup_2_conductors(s, t)
     //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
 
+    console.log("dnaHash = " + htos(alexCell.dnaHash()))
+    console.log({alexHapp})
+    //console.log({alexCell})
+
     // -- Set Handles -- //
 
     const name = ALEX_NICK
