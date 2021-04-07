@@ -1,8 +1,8 @@
 ---
 manifest_version: "1"
 name: snapmail-dna
-uuid: 00000000-0000-0000-0000-000000000000
+uuid: ~
 properties: ~
 zomes:
   - name: snapmail
-    bundled: ../zomes/snapmail/target/wasm32-unknown-unknown/release/snapmail.wasm
+    bundled: ../target/wasm32-unknown-unknown/release/snapmail.wasm

@@ -1,13 +1,12 @@
 [package]
 name = "snapmail"
 version = "0.0.1"
-authors = ["doute.d@gmail.com"]
 edition = "2018"
 
 # Ensure that this is not inside of any other workspace.
 # This crate should be an implementation detail of test_utils_wasm and
 # therefore shouldn't be mentioned in the top-level Cargo.toml
-[workspace]
+#[workspace]
 
 [lib]
 name = "snapmail"
