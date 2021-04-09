@@ -20,11 +20,11 @@ strum = "0.19"
 strum_macros = "0.19"
 derive_more = "0.99.9"
 
-#hdk = { git = "https://github.com/holochain/holochain.git", rev = "1e0fd4fc5052683a97a5279ab92c6720434ebdfd", package = "hdk3" }
-#holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "1e0fd4fc5052683a97a5279ab92c6720434ebdfd", package = "holo_hash" }
+hdk = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "hdk" }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holo_hash" }
 
-hdk = { path = "../../../holochain/crates/hdk" }
-holo_hash = { path = "../../../holochain/crates/holo_hash" }
+#hdk = { path = "../../../holochain/crates/hdk" }
+#holo_hash = { path = "../../../holochain/crates/holo_hash" }
 #test_wasm_common = { version = "=0.0.1", path = "../../../holochain-rsm/crates/test_utils/wasm_common" }
 
 #dna_help = { path = "../../../../crates/dna_help" }
