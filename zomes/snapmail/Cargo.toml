@@ -26,7 +26,4 @@ holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926
 #hdk = { path = "../../../holochain/crates/hdk" }
 #holo_hash = { path = "../../../holochain/crates/holo_hash" }
 #test_wasm_common = { version = "=0.0.1", path = "../../../holochain-rsm/crates/test_utils/wasm_common" }
-
 #dna_help = { path = "../../../../crates/dna_help" }
-
-

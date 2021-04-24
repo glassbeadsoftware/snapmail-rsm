@@ -1,0 +1,37 @@
+[package]
+name = "snapmail_api"
+version = "0.0.1"
+edition = "2018"
+
+[lib]
+name = "snapmail_api"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+rkv = "0.10.4"
+shrinkwraprs = "0.3.0"
+chrono = "=0.4.6"
+serde = "1.0"
+strum = "0.19"
+strum_macros = "0.19"
+derive_more = "0.99.9"
+tokio = { version = "1.3", features = [ "full" ] }
+thiserror = "1.0.24"
+lazy_static = "1.4.0"
+holochain_serialized_bytes = "=0.0.50"
+
+snapmail = { path = "../zomes/snapmail" }
+
+#hdk = { path = "../holochain/crates/hdk" }
+holo_hash = { path = "../../holochain/crates/holo_hash" }
+tokio_helper = { path = "../../holochain/crates/tokio_helper" }
+holochain = { path = "../../holochain/crates/holochain" }
+#holochain = { path = "../../holochain/crates/holochain" }
+#holo_hash = { version = "^0.0.2-alpha.1", path = "../../holochain/crates/holo_hash", features = ["string-encoding"] }
+#holochain_keystore = { version = "0.0.1", path = "../../holochain/crates/holochain_keystore" }
+holochain_zome_types = { path = "../../holochain/crates/holochain_zome_types" }
+#holochain_cli_bundle = { path = "../holochain/crates/hc_bundle" }
+holochain_conductor_api = { path = "../../holochain/crates/holochain_conductor_api" }
+holochain_types = { path = "../../holochain/crates/holochain_types" }
+#holochain_websocket = { path = "../../holochain/crates/holochain_websocket" }
+#holochain_p2p = { path = "../../holochain/crates/holochain_p2p" }

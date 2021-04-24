@@ -20,8 +20,8 @@ mod dm_protocol;
 mod signal_protocol;
 
 mod callbacks;
-mod handle;
-mod mail;
+pub mod handle;
+pub mod mail;
 
 mod file;
 

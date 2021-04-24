@@ -1,5 +1,5 @@
 pub mod entries;
-mod functions;
+pub mod functions;
 mod receive;
 mod utils;
 
