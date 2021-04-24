@@ -8,6 +8,12 @@ extern crate strum;
 extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
+//#[macro_use]
+//extern crate snapmail_api;
+
+#[macro_use]
+extern crate snapmail_derive;
+
 mod utils;
 mod constants;
 mod link_kind;

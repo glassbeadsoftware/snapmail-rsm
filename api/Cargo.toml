@@ -20,18 +20,11 @@ thiserror = "1.0.24"
 lazy_static = "1.4.0"
 holochain_serialized_bytes = "=0.0.50"
 
-snapmail = { path = "../zomes/snapmail" }
+#snapmail = { path = "../zomes/snapmail" }
 
-#hdk = { path = "../holochain/crates/hdk" }
-holo_hash = { path = "../../holochain/crates/holo_hash" }
-tokio_helper = { path = "../../holochain/crates/tokio_helper" }
-holochain = { path = "../../holochain/crates/holochain" }
-#holochain = { path = "../../holochain/crates/holochain" }
-#holo_hash = { version = "^0.0.2-alpha.1", path = "../../holochain/crates/holo_hash", features = ["string-encoding"] }
-#holochain_keystore = { version = "0.0.1", path = "../../holochain/crates/holochain_keystore" }
-holochain_zome_types = { path = "../../holochain/crates/holochain_zome_types" }
-#holochain_cli_bundle = { path = "../holochain/crates/hc_bundle" }
-holochain_conductor_api = { path = "../../holochain/crates/holochain_conductor_api" }
-holochain_types = { path = "../../holochain/crates/holochain_types" }
-#holochain_websocket = { path = "../../holochain/crates/holochain_websocket" }
-#holochain_p2p = { path = "../../holochain/crates/holochain_p2p" }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holo_hash" }
+tokio_helper = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "tokio_helper" }
+holochain = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain" }
+holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain_zome_types" }
+holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain_conductor_api" }
+holochain_types = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain_types" }

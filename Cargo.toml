@@ -2,6 +2,7 @@
 members = [
   "zomes/snapmail",
   "api",
+  "derive",
 ]
 
 [profile.dev]
