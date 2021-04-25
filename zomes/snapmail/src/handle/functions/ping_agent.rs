@@ -8,6 +8,7 @@ use crate::{
 /// Zome function
 /// Return true if agent is online
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn ping_agent(destination: AgentPubKey) -> ExternResult<bool> {
     /// Send ping DM
     debug!("ping_agent: {:?}", destination);

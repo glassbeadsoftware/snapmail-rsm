@@ -8,6 +8,7 @@ use crate::{
 /// Zome Function
 /// get an agent's latest handle
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_handle(agent_id: AgentPubKey) -> ExternResult<String> {
     let maybe_current_handle_entry = get_handle_element(agent_id);
     return get_handle_string(maybe_current_handle_entry);

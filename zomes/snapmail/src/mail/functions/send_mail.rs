@@ -226,6 +226,7 @@ pub struct SendMailInput {
 /// Send Mail: Creates OutMail, tries to send directly to each receipient.
 /// if receipient not online, creates a PendingMail on the DHT.
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
     debug!("Sending mail: {}", input.subject);
     /// Get file manifests from addresses

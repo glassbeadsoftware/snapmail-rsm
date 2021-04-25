@@ -5,11 +5,8 @@ pub mod api_error;
 #[macro_use]
 extern crate lazy_static;
 
-//use crate::api_error::*;
-
 use holochain_zome_types::*;
 use holochain::conductor::ConductorHandle;
-//use holochain::conductor::api::error::ConductorApiResult;
 use holochain::core::workflow::ZomeCallResult;
 use holochain_conductor_api::*;
 
@@ -47,9 +44,6 @@ pub async fn call_zome(conductor: ConductorHandle, fn_name: &str, payload: Exter
 #[macro_export]
 macro_rules! snapmail {
     ($handle:tt, $name:expr, $ret:ty, $payload:tt) => ({
-      use snapmail_api::api_error::*;
-      use snapmail_api::*;
-
       let payload = ExternIO::encode($payload).unwrap();
       let result: SnapmailApiResult<$ret> = tokio_helper::block_on(async {
          let result = call_zome($handle, std::stringify!($name), payload).await?;
@@ -57,10 +51,9 @@ macro_rules! snapmail {
          match result {
             ZomeCallResponse::Ok(io) => {
                println!("         macro io = {:?}", io);
-               let maybe_ret: $ret = io.decode();
-               println!("macro maybe_ret   = {:?}", maybe_ret);
-                              //Ok(io)
-               Ok(maybe_ret.unwrap())
+               let maybe_ret: $ret = io.decode().unwrap();
+               println!("  macro maybe_ret = {:?}", maybe_ret);
+               Ok(maybe_ret)
             },
             ZomeCallResponse::Unauthorized(_, _, _, _) => Err(SnapmailApiError::Unauthorized),
             ZomeCallResponse::NetworkError(err) => Err(SnapmailApiError::NetworkError(err)),
@@ -69,4 +62,10 @@ macro_rules! snapmail {
       println!("     macro result = {:?}", result);
       result
     })
+}
+
+
+///
+pub fn snapmail_api_get_my_handle(conductor: ConductorHandle, _ : ()) -> SnapmailApiResult<String> {
+   snapmail!(conductor, get_my_handle, String, ())
 }

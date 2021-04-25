@@ -15,6 +15,7 @@ pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
 /// Check if agent received receipts from all receipients of one of its OutMail.
 /// If false, returns list of agents who's receipt is missing.
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenReceivedOutput> {
     /// Get OutMail
     let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;

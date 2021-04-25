@@ -9,6 +9,3 @@ proc-macro = true
 [dependencies]
 syn = {version="1.0.70",features=["full","fold"]}
 quote = "1.0.9"
-
-#[dev-dependencies]
-#snapmail_api = {path = "../api"}

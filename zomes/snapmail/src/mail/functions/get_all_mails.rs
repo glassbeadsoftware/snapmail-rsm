@@ -15,6 +15,7 @@ pub struct ZomeMailItemVec(Vec<MailItem>);
 /// Zome Function
 /// Return list of all InMails and OutMails in the local source chain
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     /// Get all Create InMail headers with query
     let inmail_query_args = ChainQueryFilter::default()

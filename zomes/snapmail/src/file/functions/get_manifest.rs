@@ -9,6 +9,7 @@ use crate::{
 /// Get manifest entry at given address
 /// Must be a valid address
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_manifest(manifest_address: AnyDhtHash) -> ExternResult<FileManifest> {
     trace!("get_manifest(): {}", manifest_address);
     /// Look for element
