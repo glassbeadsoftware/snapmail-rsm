@@ -9,6 +9,7 @@ extern crate lazy_static;
 
 use holochain_zome_types::*;
 use holochain::conductor::ConductorHandle;
+//use holochain::conductor::api::error::ConductorApiResult;
 use holochain::core::workflow::ZomeCallResult;
 use holochain_conductor_api::*;
 
@@ -30,7 +31,7 @@ pub async fn call_zome(conductor: ConductorHandle, fn_name: &str, payload: Exter
    let cell_id = cell_ids[0].clone();
    let provenance = cell_ids[0].agent_pubkey().to_owned();
 
-   let result= conductor.call_zome(ZomeCall {
+   let result: ZomeCallResult = conductor.call_zome(ZomeCall {
       cap: None,
       cell_id,
       zome_name: ZOME_NAME.into(),
@@ -38,7 +39,7 @@ pub async fn call_zome(conductor: ConductorHandle, fn_name: &str, payload: Exter
       provenance,
       payload,
    }).await.unwrap();
-   println!("ZomeCall result: {:?}", result);
+   println!("  ZomeCall result = {:?}", result);
    result
 }
 
@@ -50,17 +51,22 @@ macro_rules! snapmail {
       use snapmail_api::*;
 
       let payload = ExternIO::encode($payload).unwrap();
-      let result = tokio_helper::block_on(async {
+      let result: SnapmailApiResult<$ret> = tokio_helper::block_on(async {
          let result = call_zome($handle, std::stringify!($name), payload).await?;
+         println!(" call_zome result = {:?}", result);
          match result {
             ZomeCallResponse::Ok(io) => {
-            let hash: $ret = io.decode()?;
-               Ok(hash)
+               println!("         macro io = {:?}", io);
+               let maybe_ret: $ret = io.decode();
+               println!("macro maybe_ret   = {:?}", maybe_ret);
+                              //Ok(io)
+               Ok(maybe_ret.unwrap())
             },
             ZomeCallResponse::Unauthorized(_, _, _, _) => Err(SnapmailApiError::Unauthorized),
             ZomeCallResponse::NetworkError(err) => Err(SnapmailApiError::NetworkError(err)),
          }
       }, *DEFAULT_TIMEOUT).map_err(|_e| SnapmailApiError::Timeout)?;
+      println!("     macro result = {:?}", result);
       result
     })
 }

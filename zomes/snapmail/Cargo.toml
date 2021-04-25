@@ -12,6 +12,10 @@ edition = "2018"
 name = "snapmail"
 crate-type = [ "cdylib", "rlib" ]
 
+#[[lib]]
+#name = "snapmail_api"
+#path = "src/api.rs"
+
 [dependencies]
 shrinkwraprs = "0.3.0"
 chrono = "=0.4.6"
@@ -20,14 +24,13 @@ strum = "0.19"
 strum_macros = "0.19"
 derive_more = "0.99.9"
 
-snapmail_api = {path = "../../api"}
-snapmail_derive = {path = "../../derive"}
-
 hdk = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "hdk" }
 holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holo_hash" }
 
-#[target.'cfg(not(target_arch = "x86_64"))'.dependencies]
-[target.'cfg(not(wasm32))'.dependencies]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+snapmail_derive = {path = "../../derive"}
+snapmail_api = {path = "../../api"}
 holochain = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain" }
 tokio_helper = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "tokio_helper" }
 

@@ -9,6 +9,10 @@ use crate::{
     },
 };
 
+#[cfg(not(target_arch = "wasm32"))]
+pub use snapmail_api::api_error::*;
+
+
 /// Zome Function
 /// DEBUG / TESTING ONLY
 #[hdk_extern]
@@ -18,12 +22,10 @@ pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
     Ok(hh)
 }
 
-pub use snapmail_api::api_error::*;
-
 /// Zome Function
 /// Set handle for this agent
 #[hdk_extern]
-#[snapmail_api]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn set_handle(name: String) -> ExternResult<HeaderHash> {
     /// -- Create Handle Entry
     let new_handle = Handle::new(name.to_string());
