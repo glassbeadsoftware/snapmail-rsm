@@ -14,6 +14,7 @@ use crate::{
 /// Check for PendingMails and convert to InMails
 /// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn check_incoming_mail(_:()) -> ExternResult<Vec<HeaderHash>> {
     /// Lookup `mail_inbox` links on my agentId
     let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);

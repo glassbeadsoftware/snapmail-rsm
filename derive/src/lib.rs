@@ -43,7 +43,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
    } else {
       unreachable!();
    };
-   let inner_type = &inner_path_type.path.segments[0].ident;
+   let inner_type = &inner_path_type.path.segments[0];
    println!("\n\n input.inner_type: \"{:?}\"\n\n", inner_type);
 
    // -- Output api function
@@ -73,10 +73,10 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
          //println!("      payload = {:?}", payload);
          let fn_name = std::stringify!(#external_fn_ident);
          //println!("      fn_name = {:?}", fn_name);
-         let result: SnapmailApiResult<#inner_type> = tokio_helper::block_on(async {
+         let result = tokio_helper::block_on(async {
             let call_result = call_zome(conductor, fn_name, payload).await?;
             //println!("      call_result = {:?}", call_result);
-            let api_result: SnapmailApiResult<#inner_type> = match call_result {
+            let api_result = match call_result {
                ZomeCallResponse::Ok(io1) => {
                   let io: ExternIO = io1;
                   let maybe_ret: #inner_type = io.decode().unwrap();

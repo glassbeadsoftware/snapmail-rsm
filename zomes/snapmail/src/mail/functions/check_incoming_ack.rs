@@ -11,6 +11,7 @@ use crate::{
 /// Check for PendingAcks and convert to InAcks
 /// Return list of OutMail EntryHashes for which we succesfully linked a new InAck out of PendingAcks
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn check_incoming_ack(_:()) -> ExternResult<Vec<EntryHash>> {
     /// Lookup `ack_inbox` links on my agentId
     let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);

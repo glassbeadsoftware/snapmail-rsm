@@ -8,6 +8,7 @@ use crate::{
 /// Zome Function
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
+#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_all_arrived_mail(_: ()) -> ExternResult<Vec<HeaderHash>> {
     /// Get all InMails with query
     let inmail_query_args = ChainQueryFilter::default()
