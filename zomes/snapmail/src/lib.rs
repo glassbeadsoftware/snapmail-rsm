@@ -8,12 +8,13 @@ extern crate strum;
 extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
-//#[macro_use]
-//extern crate snapmail_api;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[macro_use]
-extern crate snapmail_derive;
+extern crate snapmail_proc_macro;
+
+#[cfg(not(target_arch = "wasm32"))]
+mod api_error;
 
 mod utils;
 mod constants;

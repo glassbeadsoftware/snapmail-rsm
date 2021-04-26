@@ -64,34 +64,47 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
    // Output
    let output: TokenStream = (quote! {
       #item_fn
-      pub fn #output_fn(conductor: holochain::conductor::ConductorHandle, arg: #input_type) -> snapmail_api::api_error::SnapmailApiResult<#inner_type> {
-         use snapmail_api::api_error::*;
-         use snapmail_api::*;
-         use holochain::core::workflow::ZomeCallResult;
-
-         let payload: ExternIO = ExternIO::encode(arg).unwrap();
-         //println!("      payload = {:?}", payload);
+      pub fn #output_fn(conductor: holochain::conductor::ConductorHandle, arg: #input_type) -> crate::api_error::SnapmailApiResult<#inner_type> {
+         let DEFAULT_TIMEOUT = std::time::Duration::from_secs(9);
+         let payload = ExternIO::encode(arg).expect("Serialization should never fail");
+         //println!(" payload = {:?}", payload);
          let fn_name = std::stringify!(#external_fn_ident);
-         //println!("      fn_name = {:?}", fn_name);
+         //println!(" fn_name = {:?}", fn_name);
          let result = tokio_helper::block_on(async {
-            let call_result = call_zome(conductor, fn_name, payload).await?;
-            //println!("      call_result = {:?}", call_result);
+            // -- call_zome
+            let cell_ids = conductor.list_cell_ids().await.expect("list_cell_ids() should work");
+            println!("Cell IDs : {:?}", cell_ids);
+            assert!(!cell_ids.is_empty());
+            let cell_id = cell_ids[0].clone();
+            let provenance = cell_ids[0].agent_pubkey().to_owned();
+            let call_result = conductor.call_zome(holochain_conductor_api::ZomeCall {
+               cap: None,
+               cell_id,
+               zome_name: crate::ZOME_NAME.into(),
+               fn_name: fn_name.into(),
+               provenance,
+               payload,
+            })
+            .await
+            .map_err(|e| crate::api_error::SnapmailApiError::ConductorApiError(e))?
+            .map_err(|e| crate::api_error::SnapmailApiError::RibosomeError(e))?;
+
+            println!("  ZomeCall result = {:?}", call_result);
+            // - Handle result
             let api_result = match call_result {
-               ZomeCallResponse::Ok(io1) => {
-                  let io: ExternIO = io1;
-                  let maybe_ret: #inner_type = io.decode().unwrap();
+               ZomeCallResponse::Ok(io) => {
+                  let maybe_ret: #inner_type = io.decode().expect("Deserialization should never fail");
                   Ok(maybe_ret)
                },
-               ZomeCallResponse::Unauthorized(_, _, _, _) => Err(SnapmailApiError::Unauthorized),
-               ZomeCallResponse::NetworkError(err) => Err(SnapmailApiError::NetworkError(err)),
+               ZomeCallResponse::Unauthorized(_, _, _, _) => Err(crate::api_error::SnapmailApiError::Unauthorized),
+               ZomeCallResponse::NetworkError(err) => Err(crate::api_error::SnapmailApiError::NetworkError(err)),
             };
             api_result
-         }, *DEFAULT_TIMEOUT).map_err(|_e| SnapmailApiError::Timeout).unwrap();
-         //println!("     macro result = {:?}", result);
+         }, DEFAULT_TIMEOUT).map_err(|_e| crate::api_error::SnapmailApiError::Timeout)?;
+         //println!(" block_on result = {:?}", result);
          result
       }
    }).into();
-
    //println!("\n\n output: \"{}\"\n\n", output.to_string());
    output
 }

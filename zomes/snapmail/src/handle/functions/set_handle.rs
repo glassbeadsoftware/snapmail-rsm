@@ -9,10 +9,6 @@ use crate::{
     },
 };
 
-#[cfg(not(target_arch = "wasm32"))]
-pub use snapmail_api::api_error::*;
-
-
 /// Zome Function
 /// DEBUG / TESTING ONLY
 #[hdk_extern]

@@ -1,8 +1,8 @@
 [workspace]
 members = [
   "zomes/snapmail",
-  "api",
-  "derive",
+  #"api_test",
+  #"proc_macro",
 ]
 
 [profile.dev]

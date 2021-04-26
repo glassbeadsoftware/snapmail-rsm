@@ -12,10 +12,6 @@ edition = "2018"
 name = "snapmail"
 crate-type = [ "cdylib", "rlib" ]
 
-#[[lib]]
-#name = "snapmail_api"
-#path = "src/api.rs"
-
 [dependencies]
 shrinkwraprs = "0.3.0"
 chrono = "=0.4.6"
@@ -29,8 +25,11 @@ holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926
 
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-snapmail_derive = {path = "../../derive"}
-snapmail_api = {path = "../../api"}
+thiserror = "1.0.24"
+holochain_serialized_bytes = "=0.0.50"
+snapmail_proc_macro = {path = "../../proc_macro"}
 holochain = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain" }
 tokio_helper = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "tokio_helper" }
+holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "7f7c926d8eaf57f007848880eea56bf296410096", package = "holochain_conductor_api" }
+
 
