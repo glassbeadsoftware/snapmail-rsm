@@ -73,7 +73,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
          let result = tokio_helper::block_on(async {
             // -- call_zome
             let cell_ids = conductor.list_cell_ids().await.expect("list_cell_ids() should work");
-            println!("Cell IDs : {:?}", cell_ids);
+            //println!("Cell IDs : {:?}", cell_ids);
             assert!(!cell_ids.is_empty());
             let cell_id = cell_ids[0].clone();
             let provenance = cell_ids[0].agent_pubkey().to_owned();
@@ -89,7 +89,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
             .map_err(|e| crate::api_error::SnapmailApiError::ConductorApiError(e))?
             .map_err(|e| crate::api_error::SnapmailApiError::RibosomeError(e))?;
 
-            println!("  ZomeCall result = {:?}", call_result);
+            // println!("  ZomeCall result = {:?}", call_result);
             // - Handle result
             let api_result = match call_result {
                ZomeCallResponse::Ok(io) => {

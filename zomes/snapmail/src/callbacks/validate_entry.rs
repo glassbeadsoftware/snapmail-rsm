@@ -40,6 +40,7 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
 }
 
 ///
+#[allow(unreachable_patterns)]
 fn validate_app_entry(
     entry_type_id: EntryDefIndex,
     entry_bytes: AppEntryBytes,

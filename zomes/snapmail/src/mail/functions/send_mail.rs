@@ -24,10 +24,10 @@ pub enum SendSuccessKind {
 /// Struct holding all result data from a send request
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SendMailOutput {
-    outmail: HeaderHash,
-    to_pendings: HashMap<String, HeaderHash>,
-    cc_pendings: HashMap<String, HeaderHash>,
-    bcc_pendings: HashMap<String, HeaderHash>,
+    pub outmail: HeaderHash,
+    pub to_pendings: HashMap<String, HeaderHash>,
+    pub cc_pendings: HashMap<String, HeaderHash>,
+    pub bcc_pendings: HashMap<String, HeaderHash>,
 }
 
 impl SendMailOutput {

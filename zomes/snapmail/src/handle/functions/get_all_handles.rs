@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct GetAllHandlesOutput(Vec<(String, AgentPubKey, EntryHash)>);
+pub struct GetAllHandlesOutput(pub Vec<(String, AgentPubKey, EntryHash)>);
 
 /// Get all known users
 /// Return (AgentId -> Handle entry address) Map

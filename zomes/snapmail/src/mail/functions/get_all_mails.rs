@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ZomeMailItemVec(Vec<MailItem>);
+pub struct ZomeMailItemVec(pub Vec<MailItem>);
 
 /// Zome Function
 /// Return list of all InMails and OutMails in the local source chain
