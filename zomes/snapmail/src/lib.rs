@@ -28,10 +28,10 @@ mod dm_protocol;
 mod signal_protocol;
 
 mod callbacks;
+
 pub mod handle;
 pub mod mail;
-
-mod file;
+pub mod file;
 
 pub use dm::*;
 pub use dm_protocol::*;
