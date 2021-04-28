@@ -25,7 +25,7 @@ mod path_kind;
 mod dm;
 mod dm_protocol;
 
-mod signal_protocol;
+pub mod signal_protocol;
 
 mod callbacks;
 
