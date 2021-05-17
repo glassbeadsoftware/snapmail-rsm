@@ -220,3 +220,21 @@ pub fn get_latest_entry_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBy
         None => Ok(None),
     }
 }
+
+
+
+pub fn get_latest_element_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBytesError>>(
+    entry_hash: EntryHash,
+) -> ExternResult<Option<Element>> {
+    let maybe_entry_and_hash = get_latest_entry_from_eh::<T>(entry_hash)?;
+    let entry_and_hash = match maybe_entry_and_hash {
+        Some(e) => e,
+        None => return Ok(None),
+    };
+    let maybe_maybe_element = get(entry_and_hash.1, GetOptions::latest());
+    let element = match maybe_maybe_element {
+        Ok(Some(e)) => e,
+        _ => return Ok(None),
+    };
+    Ok(Some(element))
+}

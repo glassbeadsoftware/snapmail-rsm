@@ -3,6 +3,8 @@ use hdk::prelude::*;
 use crate::{
     link_kind::*,
     handle::utils::get_handle_string,
+    utils::*,
+    handle::Handle,
 };
 
 /// Zome Function
@@ -27,9 +29,14 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
     }
     /// Get the Element from the link
     let handle_entry_hash = handle_links[0].target.clone();
-    let element = get(handle_entry_hash, GetOptions::latest())
-        .expect("No reason for get_entry to crash")
-        .expect("Should have it");
+    let element = get_latest_element_from_eh::<Handle>(handle_entry_hash)
+       .expect("No reason for get_entry to crash")
+       .expect("Should have it");
+
+    // let element = get(handle_entry_hash, GetOptions::latest())
+    //     .expect("No reason for get_entry to crash")
+    //     .expect("Should have it");
+
     /// Done
     return Some(element);
 }

@@ -14,7 +14,7 @@ use crate::{
 
 /// !! Keep Order synced with EntryKind !!
 entry_defs![
-   /// --  Handle
+   /// -- Handle
    Handle::entry_def(),
    /// -- Mail
    InMail::entry_def(),
@@ -23,7 +23,7 @@ entry_defs![
    InAck::entry_def(),
    PendingMail::entry_def(),
    PendingAck::entry_def(),
-   // /// -- File
+   /// -- File
    FileChunk::entry_def(),
    FileManifest::entry_def(),
    /// -- Other

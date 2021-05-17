@@ -14,7 +14,7 @@ extern crate strum_macros;
 extern crate snapmail_proc_macro;
 
 #[cfg(not(target_arch = "wasm32"))]
-mod api_error;
+pub mod api_error;
 
 mod utils;
 mod constants;

@@ -8,8 +8,6 @@ pub type SnapmailApiResult<T> = Result<T, SnapmailApiError>;
 
 #[derive(Error, Debug)]
 pub enum SnapmailApiError {
-   #[error("data store disconnected")]
-   Disconnect(#[from] std::io::Error),
    #[error("Internal serialization error: {0}")]
    SerializedBytesError(#[from] SerializedBytesError),
    #[error(transparent)]
@@ -24,6 +22,10 @@ pub enum SnapmailApiError {
    Unauthorized,
    #[error("Network error: {0}")]
    NetworkError(String),
+   #[error(transparent)]
+   IoError(#[from] std::io::Error),
+   #[error("{0}")]
+   Unique(String),
    #[error("unknown data store error")]
    Unknown,
 }

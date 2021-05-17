@@ -29,10 +29,10 @@ pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
          if maybe_maybe_element.is_err() {
              continue;
          }
-          let maybe_element = maybe_maybe_element.unwrap();
-          if maybe_element.is_none() {
-             continue;
-          }
+         let maybe_element = maybe_maybe_element.unwrap();
+         if maybe_element.is_none() {
+            continue;
+         }
          let element = maybe_element.unwrap();
 
          handle_list.push((
