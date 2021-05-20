@@ -65,7 +65,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
    let output: TokenStream = (quote! {
       #item_fn
       pub fn #output_fn(conductor: holochain::conductor::ConductorHandle, arg: #input_type) -> crate::api_error::SnapmailApiResult<#inner_type> {
-         let DEFAULT_TIMEOUT = std::time::Duration::from_secs(30);
+         let DEFAULT_TIMEOUT = std::time::Duration::from_secs(9);
          let payload = ExternIO::encode(arg).expect("Serialization should never fail");
          //println!(" payload = {:?}", payload);
          let fn_name = std::stringify!(#external_fn_ident);
