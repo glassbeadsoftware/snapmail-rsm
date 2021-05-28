@@ -42,7 +42,7 @@ pub fn set_handle(name: String) -> ExternResult<HeaderHash> {
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
     let new_handle_eh = hash_entry(&new_handle)?;
-    debug!("First Handle for this agent!!!");
+    trace!("First Handle for this agent!!!");
     let new_handle_hh = create_entry(&new_handle)?;
     debug!("new_handle_hh = {:?}", new_handle_hh);
     let _ = create_link(

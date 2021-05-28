@@ -1,5 +1,5 @@
 import {setup_2_conductors, setup_3_conductors, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
-import { delay, htos } from '../utils';
+import { delay, htos, logDump } from '../utils';
 
 // -- Export scenarios -- //
 
@@ -75,6 +75,37 @@ const test_getset_handle = async (s, t) => {
     const result3 = await billyCell.call("snapmail", "get_handle", alexHapp.agent)
     console.log('result3: ' + JSON.stringify(result3))
     t.deepEqual(result3, name)
+
+    // -- Update Handle -- //
+
+    const new_name = "alexis"
+    const handle_address2 = await alexCell.call("snapmail", "set_handle", new_name)
+    console.log('handle_address2: ' + JSON.stringify(handle_address2))
+    //console.log({handle_address})
+    console.log('handle_address2.hash: ' + handle_address2.hash)
+    //t.deepEqual(result.Ok, name)
+    //t.match(handle_address.hash, RegExp('Qm*'))
+
+    await delay(1000);
+
+    let alexDump = await alexCell.stateDump();
+    logDump(ALEX_NICK, alexDump);
+
+    const result6 = await alexCell.call("snapmail", "get_my_handle", undefined)
+    console.log('result6: ' + JSON.stringify(result6))
+    t.deepEqual(result6, new_name)
+
+    const result7 = await alexCell.call("snapmail", "get_handle", alexHapp.agent)
+    console.log('result7: ' + JSON.stringify(result7))
+    t.deepEqual(result7, new_name)
+
+    await delay(1000);
+
+    const result8 = await billyCell.call("snapmail", "get_handle", alexHapp.agent)
+    console.log('result8: ' + JSON.stringify(result8))
+    t.deepEqual(result8, new_name)
+
+
 };
 
 

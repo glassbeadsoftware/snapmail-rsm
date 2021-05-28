@@ -1,6 +1,8 @@
+
 [workspace]
 members = [
   "zomes/snapmail",
+  "sweettest",
   #"api_test",
   #"proc_macro",
 ]

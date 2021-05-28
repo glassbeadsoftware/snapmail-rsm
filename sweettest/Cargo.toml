@@ -1,0 +1,25 @@
+[package]
+name = "snapmail_sweettest"
+version = "0.0.1"
+edition = "2018"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+shrinkwraprs = "0.3.0"
+chrono = "=0.4.6"
+serde = "1.0"
+strum = "0.19"
+strum_macros = "0.19"
+derive_more = "0.99.9"
+
+tokio = { version = "1.3", features = [ "full" ] }
+tokio-stream = "0.1"
+maplit = "1"
+
+snapmail = { path = "../zomes/snapmail" }
+
+holochain = { git = "https://github.com/holochain/holochain.git", rev = "2b1da2486a18d1d34f3ae63003a86b41afcb037a", package = "holochain" }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "2b1da2486a18d1d34f3ae63003a86b41afcb037a", package = "holo_hash" }
+holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "2b1da2486a18d1d34f3ae63003a86b41afcb037a", package = "holochain_zome_types" }
+
+
+

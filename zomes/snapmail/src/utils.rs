@@ -231,7 +231,7 @@ pub fn get_latest_element_from_eh<T: TryFrom<SerializedBytes, Error = Serialized
         Some(e) => e,
         None => return Ok(None),
     };
-    let maybe_maybe_element = get(entry_and_hash.1, GetOptions::latest());
+    let maybe_maybe_element = get(entry_and_hash.2, GetOptions::latest());
     let element = match maybe_maybe_element {
         Ok(Some(e)) => e,
         _ => return Ok(None),

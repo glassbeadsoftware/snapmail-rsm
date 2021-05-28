@@ -5,7 +5,7 @@ use crate::handle::Handle;
 fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
     // TODO: Do check with a regex
     // Check: min & max character count
-    debug!("*** check_name: {} ({})", name, name.len());
+    trace!("*** check_name: {} ({})", name, name.len());
     if name.len() < 2 {
         return Ok(ValidateCallbackResult::Invalid("Name too short".into()));
     }

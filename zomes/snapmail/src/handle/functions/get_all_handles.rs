@@ -15,17 +15,19 @@ pub struct GetAllHandlesOutput(pub Vec<(String, AgentPubKey, EntryHash)>);
 #[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
     /// Get all Members links
-    let handle_links = get_members()?;
-    debug!("get_all_handles() handle_links size: {:?}", handle_links.len());
+    let member_links = get_members()?;
+    trace!("get_all_handles() handle_links size: {:?}", member_links.len());
     /// Find handle entry whose author is agentId
     let mut handle_list = Vec::new();
-    for handle_link in handle_links {
-         let maybe_handle_entry_hash = get_latest_entry_from_eh::<Handle>(handle_link.target)?;
+    for member_link in member_links {
+       let handle_entry_hash = member_link.target.clone();
+       trace!("**** member_link target: {:?}",  handle_entry_hash);
+       let maybe_handle_entry_hash = get_latest_entry_from_eh::<Handle>(handle_entry_hash)?;
          if maybe_handle_entry_hash.is_none() {
              continue;
          }
          let handle_entry_hash = maybe_handle_entry_hash.unwrap();
-         let maybe_maybe_element = get(handle_entry_hash.1, GetOptions::latest());
+         let maybe_maybe_element = get(handle_entry_hash.2.clone(), GetOptions::latest());
          if maybe_maybe_element.is_err() {
              continue;
          }
@@ -41,7 +43,7 @@ pub fn get_all_handles(_: ()) -> ExternResult<GetAllHandlesOutput> {
             handle_entry_hash.2.clone(),
          ));
     }
-    debug!("get_all_handles() handle_map size: {}", handle_list.len());
+   trace!("get_all_handles() handle_map size: {}", handle_list.len());
     /// Done
     return Ok(GetAllHandlesOutput(handle_list))
 }
