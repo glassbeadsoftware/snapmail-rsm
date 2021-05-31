@@ -60,6 +60,9 @@ pub async fn test() {
 
    let name = "bobby";
    let handle_address2: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
+   let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
+   //println!("handle: {:?}", handle);
+   assert_eq!(name, handle);
 
    //let dump = conductor.dump_cell_state(cell1.cell_id()).await;
    //println!("dump: {:?}", dump);
@@ -72,11 +75,15 @@ pub async fn test() {
    let handle_list: GetAllHandlesOutput = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
    println!("handle_list: {:?}", handle_list.0);
 
+
+   let name = "camille";
+   let handle_address3: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
    let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
-   //println!("handle: {:?}", handle);
+
 
    println!("handle_address v1: {:?}", handle_address1);
    println!("handle_address v2: {:?}", handle_address2);
+   println!("handle_address v3: {:?}", handle_address3);
 
    assert_eq!(name, handle);
 }
