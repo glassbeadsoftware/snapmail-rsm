@@ -18,7 +18,7 @@ pub struct GetMissingChunksInput {
 #[hdk_extern]
 #[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {
-    let (_eh, manifest) = get_latest_typed_from_eh::<FileManifest>(input.manifest_eh.clone())?;
+    let manifest = get_typed_from_eh::<FileManifest>(input.manifest_eh.clone())?;
     let chunk_count = manifest.chunks.len();
     let mut missing = 0;
     let mut i = -1;

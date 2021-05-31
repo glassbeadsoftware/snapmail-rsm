@@ -9,14 +9,12 @@ use crate::{
     utils::*,
 };
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ZomeMailItemVec(pub Vec<MailItem>);
 
 /// Zome Function
 /// Return list of all InMails and OutMails in the local source chain
 #[hdk_extern]
 #[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
-pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
+pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     /// Get all Create InMail headers with query
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
@@ -89,5 +87,5 @@ pub fn get_all_mails(_: ()) -> ExternResult<ZomeMailItemVec> {
     }
     /// Done
     debug!(" get_all_mails() total count = {}", item_list.len());
-    Ok(ZomeMailItemVec(item_list))
+    Ok(item_list)
 }

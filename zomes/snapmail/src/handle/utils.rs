@@ -30,7 +30,7 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, Heade
     }
     /// Get the Entry from the link
     let handle_eh = handle_links[0].target.clone();
-    let handle_and_hash = get_typed_from_eh::<Handle>(handle_eh.clone(), GetOptions::latest())
+    let handle_and_hash = get_latest_typed_from_eh::<Handle>(handle_eh.clone())
        .expect("No reason for get_entry to crash")
        .expect("Should have it");
     /// Look for original element

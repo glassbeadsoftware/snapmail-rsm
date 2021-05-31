@@ -72,8 +72,8 @@ pub async fn test() {
    // let source_chain_dump = source_chain.dump_state().await.unwrap();
    // println!("source_chain_dump: {:?}", source_chain_dump.elements);
 
-   let handle_list: GetAllHandlesOutput = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
-   println!("handle_list: {:?}", handle_list.0);
+   let handle_list: Vec<HandleItem> = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
+   println!("handle_list: {:?}", handle_list);
 
 
    let name = "camille";
