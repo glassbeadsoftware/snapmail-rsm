@@ -115,8 +115,12 @@ export function logDump(name, dump) {
     const chain_len = source_chain_dump.elements.length
     for(let i = 0; i < chain_len; i++) {
         let element = source_chain_dump.elements[i]
+        let formattedNumber = (chain_len - i).toLocaleString('en-US', {
+            minimumIntegerDigits: 2,
+            useGrouping: false
+        })
         //console.log({element})
-        let str = ' ' + (chain_len - i) + '. ' + element.header.type
+        let str = ' ' + formattedNumber + '. ' + element.header.type
         if (element.header.type === 'CreateLink') {
             str += ' "' + Buffer.from(element.header.tag).toString('utf-8') + '"'
         } else {

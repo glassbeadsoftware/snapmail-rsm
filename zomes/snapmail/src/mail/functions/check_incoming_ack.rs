@@ -25,12 +25,12 @@ pub fn check_incoming_ack(_:()) -> ExternResult<Vec<EntryHash>> {
     let mut updated_outmails = Vec::new();
     for link in &links_result {
         let pending_ack_eh = link.target.clone();
-        let maybe_latest = get_latest_entry_from_eh::<PendingAck>(pending_ack_eh.clone())?;
-        if maybe_latest.is_none() {
-            warn!("Header not found for pending mail entry");
+        let maybe_el = get(pending_ack_eh.clone(), GetOptions::latest())?;
+        if maybe_el.is_none() {
+            warn!("Header not found for pending ack entry");
             continue;
         }
-        let (_pending_ack, pending_ack_hh, _) = maybe_latest.unwrap();
+        let pending_ack_hh = maybe_el.unwrap().header_address().clone();
         debug!("pending_ack_hh: {}", pending_ack_hh);
         /// Get entry on the DHT
         let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh);
@@ -53,7 +53,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<Vec<EntryHash>> {
             continue;
         }
         /// Delete PendingAck
-        let res = delete_entry(pending_ack_hh);
+        let res = delete_entry(pending_ack_hh.clone());
         if let Err(err) = res {
             error!("Delete PendignAck failed: {}", err);
         }

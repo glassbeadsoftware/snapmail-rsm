@@ -70,7 +70,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
          //println!(" payload = {:?}", payload);
          let fn_name = std::stringify!(#external_fn_ident);
          //println!(" fn_name = {:?}", fn_name);
-         let result = tokio_helper::block_on(async {
+         let result = holochain_util::tokio_helper::block_on(async {
             // -- call_zome
             let cell_ids = conductor.list_cell_ids().await.expect("list_cell_ids() should work");
             //println!("Cell IDs : {:?}", cell_ids);

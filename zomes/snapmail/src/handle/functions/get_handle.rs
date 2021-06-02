@@ -1,42 +1,17 @@
 use hdk::prelude::*;
 
-use crate::{
-    link_kind::*,
-    handle::utils::get_handle_string,
-    utils::*,
-    handle::Handle,
-};
+use crate::handle::utils::*;
 
 /// Zome Function
 /// get an agent's latest handle
 #[hdk_extern]
 #[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
 pub fn get_handle(agent_id: AgentPubKey) -> ExternResult<String> {
-    let maybe_current_handle_entry = get_handle_element(agent_id);
-    return get_handle_string(maybe_current_handle_entry);
+    let maybe_current_handle = get_handle_element(agent_id);
+    let str = match maybe_current_handle {
+        None => "<noname>".to_string(),
+        Some((handle, _hh)) => handle.name,
+    };
+    Ok(str)
 }
 
-/// Return Element of latest Handle Entry for agent
-pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<Element> {
-    /// Get All Handle links on agent ; should have only one
-    let handle_links = get_links(agent_id.into(), LinkKind::Handle.as_tag_opt())
-       .expect("No reason for this to fail")
-       .into_inner();
-    assert!(handle_links.len() <= 1);
-    if handle_links.len() == 0 {
-        warn!("No handle found for this agent:");
-        return None;
-    }
-    /// Get the Element from the link
-    let handle_entry_hash = handle_links[0].target.clone();
-    let element = get_latest_element_from_eh::<Handle>(handle_entry_hash)
-       .expect("No reason for get_entry to crash")
-       .expect("Should have it");
-
-    // let element = get(handle_entry_hash, GetOptions::latest())
-    //     .expect("No reason for get_entry to crash")
-    //     .expect("Should have it");
-
-    /// Done
-    return Some(element);
-}

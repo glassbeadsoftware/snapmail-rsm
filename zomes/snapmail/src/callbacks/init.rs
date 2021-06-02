@@ -11,7 +11,7 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    /// Set Global Anchors
    Path::from(path_kind::Directory).ensure()?;
    /// Set access for receive/send
-   let mut functions: GrantedFunctions = HashSet::new();
+   let mut functions: GrantedFunctions = BTreeSet::new();
    functions.insert((zome_info()?.zome_name, REMOTE_ENDPOINT.into()));
    create_cap_grant(
       CapGrantEntry {

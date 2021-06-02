@@ -2,10 +2,9 @@ use hdk::prelude::*;
 
 use crate::{
     link_kind::*, path_kind,
-    utils::*,
     handle::{
         Handle,
-        functions::get_handle_element,
+        utils::*,
     },
 };
 
@@ -22,27 +21,25 @@ pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
 /// Set handle for this agent
 #[hdk_extern]
 #[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
-pub fn set_handle(name: String) -> ExternResult<HeaderHash> {
+pub fn set_handle(new_name: String) -> ExternResult<HeaderHash> {
     /// -- Create Handle Entry
-    let new_handle = Handle::new(name.to_string());
+    let new_handle = Handle::new(new_name.to_string());
     /// -- Check if already have Handle
     let my_agent_address = agent_info()?.agent_latest_pubkey;
-    let maybe_current_handle_element = get_handle_element(my_agent_address.clone());
-    if let Some(handle_element) = maybe_current_handle_element {
-        /// If new handle same as current, just return current entry address
-        let handle_hh = handle_element.header_address().clone();
-        let current_handle: Handle = get_typed_from_el(handle_element)
-            .expect("Should be a Handle entry");
-        if current_handle.name == name.to_string() {
-            return Ok(handle_hh);
+    let maybe_current_handle = get_handle_element(my_agent_address.clone());
+    if let Some((current_handle, original_hh)) = maybe_current_handle {
+        if current_handle.name == new_name.to_string() {
+            return Ok(original_hh);
         }
         /// Really new name so just update entry
-        return Ok(update_entry(handle_hh, &new_handle)?);
+        let res = update_entry(original_hh, &new_handle)?;
+        debug!("updated_handle_hh = {:?}", res);
+        return Ok(res);
     }
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
     let new_handle_eh = hash_entry(&new_handle)?;
-    debug!("First Handle for this agent!!!");
+    trace!("First Handle for this agent!!!");
     let new_handle_hh = create_entry(&new_handle)?;
     debug!("new_handle_hh = {:?}", new_handle_hh);
     let _ = create_link(

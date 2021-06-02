@@ -28,13 +28,12 @@ pub fn check_incoming_mail(_:()) -> ExternResult<Vec<HeaderHash>> {
     let mut new_inmails = Vec::new();
     for link in &links_result {
         let pending_mail_eh = link.target.clone();
-        let maybe_hh = get_latest_entry_from_eh::<PendingMail>(pending_mail_eh.clone())?;
-        if maybe_hh.is_none() {
+        let maybe_el = get(pending_mail_eh.clone(), GetOptions::latest())?;
+        if maybe_el.is_none() {
             warn!("Header not found for pending mail entry");
             continue;
         }
-        let pending_hh = maybe_hh.unwrap().1;
-        //debug!("pending_mail_eh: {}", pending_mail_eh);
+        let pending_hh = maybe_el.unwrap().header_address().clone();
         /// Get entry on the DHT
         let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
@@ -60,7 +59,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<Vec<HeaderHash>> {
         }
         //debug!("delete_link res: {:?}", res);
         /// Delete PendingMail entry
-        let res = delete_entry(pending_hh);
+        let res = delete_entry(pending_hh.clone());
         if let Err(err) = res.clone() {
             error!("Delete PendingMail failed: {:?}", err);
             //continue; // TODO: figure out why delete entry fails

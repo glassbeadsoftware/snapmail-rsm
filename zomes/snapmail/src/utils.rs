@@ -2,8 +2,8 @@ use std::convert::TryFrom;
 
 use hdk::prelude::*;
 
-pub type EntryAndHash<T> = (T, HeaderHash, EntryHash);
-pub type OptionEntryAndHash<T> = Option<EntryAndHash<T>>;
+pub type TypedEntryAndHash<T> = (T, HeaderHash, EntryHash);
+pub type OptionTypedEntryAndHash<T> = Option<TypedEntryAndHash<T>>;
 
 pub fn error<T>(reason: &str) -> ExternResult<T> {
     //Err(HdkError::Wasm(WasmError::Zome(String::from(reason))))
@@ -108,11 +108,9 @@ pub fn get_typed_from_hh<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
 
 
 /// Call get() to obtain EntryHash and AppEntry from an EntryHash
-pub fn get_typed_from_eh<T: TryFrom<SerializedBytes>>(entry_hash: EntryHash)
-    -> ExternResult<(EntryHash, T)>
-{
-    match get(entry_hash.clone(), GetOptions::latest())? {
-        Some(element) => Ok((entry_hash, get_typed_from_el(element)?)),
+pub fn get_typed_from_eh<T: TryFrom<SerializedBytes>>(eh: EntryHash) -> ExternResult<T> {
+    match get(eh, GetOptions::content())? {
+        Some(element) => Ok(get_typed_from_el(element)?),
         None => crate::error("Entry not found"),
     }
 }
@@ -174,11 +172,12 @@ pub fn get_header_hash(shh: element::SignedHeaderHashed) -> HeaderHash {
     shh.header_hashed().as_hash().to_owned()
 }
 
-pub fn get_latest_entry_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBytesError>>(
+///
+pub fn get_latest_typed_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBytesError>>(
     entry_hash: EntryHash,
-) -> ExternResult<OptionEntryAndHash<T>> {
-    // First, make sure we DO have the latest header_hash address
-    let maybe_latest_header_hash = match get_details(entry_hash, GetOptions::latest())? {
+) -> ExternResult<OptionTypedEntryAndHash<T>> {
+    /// First, make sure we DO have the latest header_hash address
+    let maybe_latest_header_hash = match get_details(entry_hash.clone(), GetOptions::latest())? {
         Some(Details::Entry(details)) => match details.entry_dht_status {
             metadata::EntryDhtStatus::Live => match details.updates.len() {
                 // pass out the header associated with this entry
@@ -197,44 +196,28 @@ pub fn get_latest_entry_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBy
         },
         _ => None,
     };
-
-    // Second, go and get that element, and return it and its header_address
-    match maybe_latest_header_hash {
-        Some(latest_header_hash) => match get(latest_header_hash, GetOptions::latest())? {
-            Some(element) => match element.entry().to_app_option::<T>()? {
-                Some(entry) => Ok(Some((
-                    entry,
-                    match element.header() {
-                        // we DO want to return the header for the original
-                        // instead of the updated, in our case
-                        Header::Update(update) => update.original_header_address.clone(),
-                        Header::Create(_) => element.header_address().clone(),
-                        _ => unreachable!("Can't have returned a header for a nonexistent entry"),
-                    },
-                    element.header().entry_hash().unwrap().to_owned(),
-                ))),
-                None => Ok(None),
-            },
-            None => Ok(None),
-        },
-        None => Ok(None),
-    }
-}
-
-
-
-pub fn get_latest_element_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBytesError>>(
-    entry_hash: EntryHash,
-) -> ExternResult<Option<Element>> {
-    let maybe_entry_and_hash = get_latest_entry_from_eh::<T>(entry_hash)?;
-    let entry_and_hash = match maybe_entry_and_hash {
-        Some(e) => e,
+    let latest_header_hash = match maybe_latest_header_hash {
         None => return Ok(None),
+        Some(hh) => hh,
     };
-    let maybe_maybe_element = get(entry_and_hash.1, GetOptions::latest());
-    let element = match maybe_maybe_element {
-        Ok(Some(e)) => e,
-        _ => return Ok(None),
+    /// Second, go and get that element, and return its entry and header_address
+    let maybe_latest_element = get(latest_header_hash, GetOptions::latest())?;
+    let element = match maybe_latest_element {
+        None => return Ok(None),
+        Some(el) => el,
     };
-    Ok(Some(element))
+    let maybe_typed_entry = element.entry().to_app_option::<T>()?;
+    let entry = match maybe_typed_entry {
+        None => return Ok(None),
+        Some(e) => e,
+    };
+    let hh = match element.header() {
+        /// we DO want to return the header for the original instead of the updated
+        Header::Update(update) => update.original_header_address.clone(),
+        Header::Create(_) => element.header_address().clone(),
+        _ => unreachable!("Can't have returned a header for a nonexistent entry"),
+    };
+    let eh =  element.header().entry_hash().unwrap().to_owned();
+    /// Done
+    Ok(Some((entry, hh, eh)))
 }
