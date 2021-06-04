@@ -17,7 +17,7 @@ pub struct HandleItem {
 /// Get all known users
 /// Return (AgentId -> Handle entry address) Map
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
    /// Get all Members links
    let member_links = get_members()?;

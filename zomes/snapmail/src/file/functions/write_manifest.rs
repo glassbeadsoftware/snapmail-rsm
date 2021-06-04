@@ -16,7 +16,7 @@ pub struct WriteManifestInput {
 /// Zome function
 /// Write file manifest to source chain
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn write_manifest(input: WriteManifestInput) -> ExternResult<HeaderHash> {
     let manifest = FileManifest {
         data_hash: input.data_hash,

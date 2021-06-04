@@ -9,7 +9,7 @@ use crate::{
 /// Zome function
 /// Ack is considered received if there is no pendingAck link or PendingAck has delete status
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn has_ack_been_received(inmail_hh: HeaderHash) -> ExternResult<bool> {
     /// Get InMail (make sure InMail exists)
     let eh = hh_to_eh(inmail_hh.clone())?;

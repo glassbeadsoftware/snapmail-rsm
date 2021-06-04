@@ -9,7 +9,6 @@ extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
 
-#[cfg(not(target_arch = "wasm32"))]
 #[macro_use]
 extern crate snapmail_proc_macro;
 

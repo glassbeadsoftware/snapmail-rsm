@@ -20,7 +20,7 @@ pub fn create_empty_handle(_: ()) -> ExternResult<HeaderHash> {
 /// Zome Function
 /// Set handle for this agent
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn set_handle(new_name: String) -> ExternResult<HeaderHash> {
     /// -- Create Handle Entry
     let new_handle = Handle::new(new_name.to_string());

@@ -8,7 +8,7 @@ use crate::{
 pub struct DeleteMailOutput(pub Option<HeaderHash>);
 
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn delete_mail(hh: HeaderHash) -> ExternResult<DeleteMailOutput> {
     /// Make sure HeaderHash points to a Mail
     let maybe_mail = try_into_mail(hh.clone())?;

@@ -12,7 +12,7 @@ pub struct ZomeManifestVec(Vec<FileManifest>);
 /// Zome function
 /// Get all manifests stored in our source chain
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
     trace!("get_all_manifests()");
     /// Get all FileManifest on local chain with query

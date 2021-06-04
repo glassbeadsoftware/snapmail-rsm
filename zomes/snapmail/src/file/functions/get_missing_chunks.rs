@@ -16,7 +16,7 @@ pub struct GetMissingChunksInput {
 /// Returns number of remaining missing chunks
 /// TODO: Return vec of missing chunk HeaderHash
 #[hdk_extern]
-#[cfg_attr(not(target_arch = "wasm32"), snapmail_api)]
+#[snapmail_api]
 pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {
     let manifest = get_typed_from_eh::<FileManifest>(input.manifest_eh.clone())?;
     let chunk_count = manifest.chunks.len();
