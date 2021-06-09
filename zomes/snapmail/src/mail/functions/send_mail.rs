@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::{
     utils::*,
     send_dm,
-    mail::entries::{PendingMail, ReceipientKind, Mail, OutMail},
+    mail::entries::{PendingMail, RecipientKind, Mail, OutMail},
     dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
@@ -40,12 +40,12 @@ impl SendMailOutput {
         }
     }
 
-    pub fn add_pending(&mut self, kind: ReceipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
+    pub fn add_pending(&mut self, kind: RecipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
         let agent_str = format!("{}", agent_id);
         match kind {
-            ReceipientKind::TO => self.to_pendings.insert(agent_str, hh),
-            ReceipientKind::CC => self.cc_pendings.insert(agent_str, hh),
-            ReceipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
+            RecipientKind::TO => self.to_pendings.insert(agent_str, hh),
+            RecipientKind::CC => self.cc_pendings.insert(agent_str, hh),
+            RecipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
         };
     }
 }
@@ -179,7 +179,11 @@ fn send_mail_to(
     }
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Commit PendingMail
-    let pending_mail = PendingMail::new(mail.clone(), outmail_eh.clone());
+    let pending_mail = PendingMail::from_mail(
+        mail.clone(),
+        outmail_eh.clone(),
+        destination.clone(),
+    )?;
     let pending_mail_eh = hash_entry(&pending_mail)?;
     let maybe_pending_mail_hh = create_entry(&pending_mail);
     if let Err(err) = maybe_pending_mail_hh.clone() {
@@ -256,21 +260,21 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
     for agent in input.to {
         let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
         if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
-            total_result.add_pending(ReceipientKind::TO, &agent, pending_hh);
+            total_result.add_pending(RecipientKind::TO, &agent, pending_hh);
         }
     }
     /// cc
     for agent in input.cc {
         let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
         if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
-            total_result.add_pending(ReceipientKind::CC, &agent, pending_hh);
+            total_result.add_pending(RecipientKind::CC, &agent, pending_hh);
         }
     }
     /// bcc
     for agent in input.bcc {
         let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
         if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
-            total_result.add_pending(ReceipientKind::BCC, &agent, pending_hh);
+            total_result.add_pending(RecipientKind::BCC, &agent, pending_hh);
         }
     }
     /// Done

@@ -32,6 +32,8 @@ pub enum LinkKind {
    Pendings,
    #[strum(props(BaseType = "OutMail", TargetType = "InAck"))]
    Receipt,
+   #[strum(props(BaseType = "AgentPubKey", TargetType = "PubEncKey"))]
+   EncKey,
 }
 
 /// Public

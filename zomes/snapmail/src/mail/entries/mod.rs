@@ -67,14 +67,14 @@ pub struct MailItem {
 
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum ReceipientKind {
+pub enum RecipientKind {
     TO,
     CC,
     BCC,
 }
 
 /// Core content of all *Mail Entries
-/// Mail can have Zero public receipient (but must have at least one public or private receipient)
+/// Mail can have Zero public recipient (but must have at least one public or private recipient)
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Mail {
     pub date_sent: u64,

@@ -32,6 +32,8 @@ pub mod handle;
 pub mod mail;
 pub mod file;
 
+pub mod pub_enc_key;
+
 pub use dm::*;
 pub use dm_protocol::*;
 pub use utils::*;

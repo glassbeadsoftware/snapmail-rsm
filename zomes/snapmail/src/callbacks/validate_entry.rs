@@ -7,6 +7,7 @@ use crate::{
     entry_kind::*,
     utils::*,
     file::*,
+    pub_enc_key::*,
 };
 
 /// Zome Callback
@@ -59,6 +60,15 @@ fn validate_app_entry(
             }
             let handle = maybe_handle.unwrap();
             let res = validate_handle_entry(handle, maybe_validation_package);
+            res
+        },
+        EntryKind::PubEncKey => {
+            let maybe_key = PubEncKey::try_from(sb.clone());
+            if let Err(_err) = maybe_key {
+                return error("Failed to deserialize PubEncKey");
+            }
+            let key = maybe_key.unwrap();
+            let res = validate_PubEncKey_entry(key, maybe_validation_package);
             res
         },
         EntryKind::Path => {

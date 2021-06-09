@@ -42,7 +42,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<Vec<HeaderHash>> {
         }
         let (author, pending) = maybe_pending_mail.unwrap();
         /// Convert and Commit as InMail
-        let inmail = InMail::from_pending(pending, author);
+        let inmail = InMail::try_from_pending(pending, author)?.unwrap();
         let maybe_inmail_hh = create_entry(&inmail);
         if maybe_inmail_hh.is_err() {
             error!("Failed committing InMail");

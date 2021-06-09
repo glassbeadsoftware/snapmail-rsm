@@ -44,10 +44,11 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
       unreachable!();
    };
    let inner_type = &inner_path_type.path.segments[0];
-   println!("\n\n input.inner_type: \"{:?}\"\n\n", inner_type);
+   //println!("\n\n input.inner_type: \"{:?}\"\n\n", inner_type);
 
    // -- Output api function
    let output_fn = format_ident!("snapmail_{}", external_fn_ident);
+   println!("Generated: {}()", output_fn);
 
    // // Use snapmail! macro
    // let output: TokenStream = (quote! {

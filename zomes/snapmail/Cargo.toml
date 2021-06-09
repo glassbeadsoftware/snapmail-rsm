@@ -19,6 +19,7 @@ serde = "1.0"
 strum = "0.19"
 strum_macros = "0.19"
 derive_more = "0.99.9"
+bincode = "1.1"
 
 snapmail_proc_macro = {path = "../../proc_macro"}
 

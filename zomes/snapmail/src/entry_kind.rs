@@ -10,10 +10,13 @@ use crate::{
    mail::entries::*,
    file::*,
    utils::*,
+   pub_enc_key::*,
 };
 
 /// !! Keep Order synced with EntryKind !!
 entry_defs![
+   /// -- PubEncKey
+   PubEncKey::entry_def(),
    /// -- Handle
    Handle::entry_def(),
    /// -- Mail
@@ -34,6 +37,7 @@ entry_defs![
 #[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum EntryKind {
    /// !! Keep Order synced with entry_defs!() !!
+   PubEncKey,
    Handle,
    InMail,
    OutMail,
@@ -50,6 +54,7 @@ impl FromStr for EntryKind {
    type Err = ();
    fn from_str(input: &str) -> Result<EntryKind, Self::Err> {
       match input {
+         "PubEncKey"  => Ok(EntryKind::PubEncKey),
          "Handle"  => Ok(EntryKind::Handle),
          "InMail"  => Ok(EntryKind::InMail),
          "InAck"  => Ok(EntryKind::InAck),
@@ -156,6 +161,7 @@ fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> 
    let entry_kind = EntryKind::from_index(&entry_type_id);
 
    match entry_kind {
+      EntryKind::PubEncKey => PubEncKey::try_from(sb.clone()).is_ok(),
       EntryKind::Handle => Handle::try_from(sb.clone()).is_ok(),
       EntryKind::Path => Path::try_from(sb.clone()).is_ok(),
       EntryKind::InMail => InMail::try_from(sb.clone()).is_ok(),
