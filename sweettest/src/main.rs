@@ -8,6 +8,8 @@ fn main() {
 #[cfg(not(target_arch = "wasm32"))]
 pub mod test;
 #[cfg(not(target_arch = "wasm32"))]
+pub mod test_mail;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod setup;
 
 #[cfg(not(target_arch = "wasm32"))]

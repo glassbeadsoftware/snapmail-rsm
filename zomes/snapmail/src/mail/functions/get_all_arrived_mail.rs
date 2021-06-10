@@ -16,12 +16,12 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<Vec<HeaderHash>> {
        .entry_type(EntryKind::InMail.as_type());
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
-        error!("get_all_mails() inmail_result failed: {:?}", err);
+        error!("get_all_arrived_mail() inmail_result failed: {:?}", err);
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap();
-    debug!(" get_all_arrived_mail() inmails: {:?}", inmails);
+    debug!("get_all_arrived_mail() inmails: {:?}", inmails);
 
     // DEBUG - Output dummy values instead
     // let mut unreads = Vec::new();

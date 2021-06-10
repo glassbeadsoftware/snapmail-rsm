@@ -41,6 +41,7 @@ impl PubEncKey {
 }
 
 #[hdk_extern]
+#[snapmail_api]
 pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
    /// Get All Handle links on agent ; should have only one
    let key_links = get_links(from.into(), LinkKind::EncKey.as_tag_opt())
@@ -60,6 +61,15 @@ pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
    Ok(key_and_hash.0.value)
 }
 
+
+#[hdk_extern]
+#[snapmail_api]
+pub fn get_my_enc_key(_: ()) -> ExternResult<X25519PubKey> {
+   /// Get my agent address
+   let latest_pubkey = agent_info()?.agent_latest_pubkey;
+   /// Get encryption key on that agent address
+   get_enc_key(latest_pubkey)
+}
 
 // -- VALIDATION -- //
 
