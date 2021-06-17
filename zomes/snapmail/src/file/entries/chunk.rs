@@ -5,7 +5,7 @@ use crate::{
 };
 
 /// Entry representing a file chunk.
-#[hdk_entry(id = "file_chunk")]
+#[hdk_entry(id = "file_chunk", visibility = "private")]
 #[derive(Clone, PartialEq)]
 pub struct FileChunk {
     pub data_hash: String,

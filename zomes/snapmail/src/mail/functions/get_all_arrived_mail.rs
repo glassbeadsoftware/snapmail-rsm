@@ -21,7 +21,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<Vec<HeaderHash>> {
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap();
-    debug!("get_all_arrived_mail() inmails: {:?}", inmails);
+    debug!("get_all_arrived_mail() inmails[{}]: {:?}", inmails.len(), inmails);
 
     // DEBUG - Output dummy values instead
     // let mut unreads = Vec::new();

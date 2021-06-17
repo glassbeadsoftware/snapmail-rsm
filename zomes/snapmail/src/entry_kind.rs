@@ -4,6 +4,7 @@ use std::str::FromStr;
 
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
+use strum::EnumProperty;
 
 use crate::{
    handle::*,
@@ -33,20 +34,32 @@ entry_defs![
    Path::entry_def()
 ];
 
-/// Listing all Link kinds for this DNA
+/// Listing all Entry kinds for this DNA
+/// !! Visibility prop value must match hdk_entry visibility !!
 #[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum EntryKind {
    /// !! Keep Order synced with entry_defs!() !!
+   #[strum(props(Visibility = "public"))]
    PubEncKey,
+   #[strum(props(Visibility = "public"))]
    Handle,
+   #[strum(props(Visibility = "private"))]
    InMail,
+   #[strum(props(Visibility = "private"))]
    OutMail,
+   #[strum(props(Visibility = "private"))]
    OutAck,
+   #[strum(props(Visibility = "private"))]
    InAck,
+   #[strum(props(Visibility = "public"))]
    PendingMail,
+   #[strum(props(Visibility = "public"))]
    PendingAck,
+   #[strum(props(Visibility = "private"))]
    FileChunk,
+   #[strum(props(Visibility = "private"))]
    FileManifest,
+   #[strum(props(Visibility = "public"))]
    Path,
 }
 
@@ -90,6 +103,16 @@ impl FromStr for EntryKind {
 
 impl EntryKind {
 
+   ///
+   pub fn visibility(&self) -> EntryVisibility {
+      let visibility_str = self.get_str("Visibility").unwrap();
+      match visibility_str {
+         "public" => EntryVisibility::Public,
+         "private" => EntryVisibility::Private,
+         _ => unreachable!(),
+      }
+   }
+
    /// Not optimal but works
    pub fn from_index(index: &EntryDefIndex) -> Self {
       for entry_kind in EntryKind::iter() {
@@ -115,11 +138,11 @@ impl EntryKind {
    }
 
    ///
-   pub fn as_type(&self) ->EntryType {
+   pub fn as_type(&self) -> EntryType {
       let app_type = AppEntryType::new(
          EntryDefIndex::from(self.index()),
          ZomeId::from(0), // since we have only one zome in our DNA (thank god)
-         EntryVisibility::Public, // Everything Public for now...
+         self.visibility(),
       );
       EntryType::App(app_type)
    }

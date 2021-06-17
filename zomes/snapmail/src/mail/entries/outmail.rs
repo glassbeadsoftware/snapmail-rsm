@@ -9,7 +9,7 @@ use crate::{
 };
 
 /// Entry representing an authored mail. It is private.
-#[hdk_entry(id = "outmail", visibility = "public")]
+#[hdk_entry(id = "outmail", visibility = "private")]
 #[derive(Clone, PartialEq)]
 pub struct OutMail {
     pub mail: Mail,

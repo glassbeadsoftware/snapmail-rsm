@@ -6,7 +6,7 @@ use crate::{
 
 /// Entry representing a file in chunks.
 /// All chunks must be committed beforehand.
-#[hdk_entry(id = "file_manifest")]
+#[hdk_entry(id = "file_manifest", visibility = "private")]
 #[derive(Clone, PartialEq)]
 pub struct FileManifest {
     pub data_hash: String,
