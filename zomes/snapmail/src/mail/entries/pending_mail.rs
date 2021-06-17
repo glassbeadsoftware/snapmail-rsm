@@ -27,14 +27,16 @@ impl PendingMail {
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
    fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> Self {
-       /// Serialize
-       let serialized = bincode::serialize(&mail).unwrap();
-       let data: XSalsa20Poly1305Data = serialized.into();
-       /// Encrypt
-       let encrypted = x_25519_x_salsa20_poly1305_encrypt(sender, recipient, data)
-          .expect("Encryption should work");
-       /// Done
-       PendingMail::new(encrypted, outmail_eh)
+      /// Serialize
+      let serialized = bincode::serialize(&mail).unwrap();
+      let data: XSalsa20Poly1305Data = serialized.into();
+      /// Encrypt
+      let encrypted = x_25519_x_salsa20_poly1305_encrypt(sender, recipient, data)
+         .expect("Encryption should work");
+      trace!("Encrypted: {:?}", encrypted.clone());
+      trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
+      /// Done
+      PendingMail::new(encrypted, outmail_eh)
    }
 
 
@@ -47,15 +49,19 @@ impl PendingMail {
       /// Get recipient's key
       let recipient_key = get_enc_key(to)?;
       /// Create
+      debug!("pending_mail: recipient_key = {:?}", recipient_key);
       Ok(Self::create(mail, outmail_eh, sender_key, recipient_key))
    }
 
 
    /// Attempt to decrypt pendingMail with provided keys
    pub fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {
+      trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
+      trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
          .expect("Decryption should work");
+      trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
       let decrypted = match maybe_decrypted {
          Some(data) => data,
          None => return None,

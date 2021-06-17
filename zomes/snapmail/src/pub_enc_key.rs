@@ -71,6 +71,31 @@ pub fn get_my_enc_key(_: ()) -> ExternResult<X25519PubKey> {
    get_enc_key(latest_pubkey)
 }
 
+#[hdk_extern]
+fn test_encryption(to: AgentPubKey) -> ExternResult<()> {
+   /// Get my key
+   let my_agent_key = agent_info()?.agent_latest_pubkey;
+   let sender = get_enc_key(my_agent_key)?;
+   /// Get recipient's key
+   let recipient = get_enc_key(to)?;
+   /// Serialize
+   let data: XSalsa20Poly1305Data = vec![1,2,3,74,4,85,48,7,87,89].into();
+   /// Encrypt
+   let encrypted = x_25519_x_salsa20_poly1305_encrypt(sender, recipient, data)
+      .expect("Encryption should work");
+   debug!("create decrypt of: {:?}\n With:", encrypted.clone());
+   debug!("-    sender = {:?}", sender.clone());
+   debug!("- recipient = {:?}", recipient.clone());
+   /// Normal decrypt
+   let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, encrypted.clone());
+   debug!("maybe_decrypted normal = {:?}", maybe_decrypted);
+   /// Inverted keys
+   let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, encrypted.clone());
+   debug!("maybe_decrypted inverted = {:?}", maybe_decrypted);
+   /// Done
+   Ok(())
+}
+
 // -- VALIDATION -- //
 
 ///

@@ -18,7 +18,14 @@ pub async fn setup_1_conductor() -> (SweetConductor, AgentPubKey, SweetCell) {
       .await
       .unwrap();
 
-   let mut conductor = SweetConductor::from_standard_config().await;
+   let mut network = SweetNetwork::local_quic();
+   network.network_type = kitsune_p2p::NetworkType::QuicMdns;
+   let mut config = holochain::conductor::config::ConductorConfig::default();
+   config.network = Some(network);
+   let mut conductor = SweetConductor::from_config(config).await;
+
+   // let mut conductor = SweetConductor::from_standard_config().await;
+
    let alex = SweetAgents::one(conductor.keystore()).await;
    let app1 = conductor
       .setup_app_for_agent("app", alex.clone(), &[dna.clone()])
@@ -36,16 +43,17 @@ pub async fn setup_conductors(n: usize) -> (SweetConductorBatch, Vec<AgentPubKey
       .await
       .unwrap();
 
-   // let network = SweetNetwork::env_var_proxy().unwrap_or_else(|| {
+   // let mut network = SweetNetwork::env_var_proxy().unwrap_or_else(|| {
    //    println!("KIT_PROXY not set using local quic network");
    //    SweetNetwork::local_quic()
    // });
+   // let mut network = SweetNetwork::local_quic();
+   // network.network_type = kitsune_p2p::NetworkType::QuicMdns;
    // let mut config = holochain::conductor::config::ConductorConfig::default();
    // config.network = Some(network);
    // let mut conductors = SweetConductorBatch::from_config(n, config).await;
 
    let mut conductors = SweetConductorBatch::from_standard_config(n).await;
-
 
    let all_agents: Vec<AgentPubKey> =
       future::join_all(conductors.iter().map(|c| SweetAgents::one(c.keystore()))).await;

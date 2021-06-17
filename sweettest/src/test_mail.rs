@@ -2,11 +2,39 @@ use holochain::test_utils::consistency_10s;
 
 use snapmail::{
    mail::*,
+   pub_enc_key::*,
 };
 
 use holo_hash::*;
 
 use crate::setup::*;
+
+///
+pub async fn test_encryption() {
+   // Setup
+   //let (conductors, agents, apps) = setup_3_conductors().await;
+   //let cells = apps.cells_flattened();
+
+   let (mut conductor0, alex, cell0) = setup_1_conductor().await;
+   let (mut conductor1, billy, cell1) = setup_1_conductor().await;
+   let (mut conductor2, camille, cell2) = setup_1_conductor().await;
+
+   let cells = vec![&cell0, &cell1, &cell2];
+
+   let _: HeaderHash = conductor0.call(&cells[0].zome("snapmail"), "set_handle", ALEX_NICK).await;
+   let _: HeaderHash = conductor1.call(&cells[1].zome("snapmail"), "set_handle", BILLY_NICK).await;
+   let _: HeaderHash = conductor2.call(&cells[2].zome("snapmail"), "set_handle", CAMILLE_NICK).await;
+
+   consistency_10s(cells.as_slice()).await;
+   println!("consistency done!");
+
+   // Test
+   let input = EncryptionInput {
+      to: billy.clone(),
+      bad: camille.clone(),
+   };
+   let _output: () = conductor0.call(&cell0.zome("snapmail"), "test_encryption", input.clone()).await;
+}
 
 ///
 pub async fn test_mail_dm() {
@@ -54,35 +82,66 @@ pub async fn test_mail_dm() {
    assert!(has_acked);
 }
 
+
 /// TODO: shutdown doesn't work
 pub async fn test_mail_pending() {
    // Setup
-   let (mut conductors, agents, apps) = setup_3_conductors().await;
-   let cells = apps.cells_flattened();
+   // let (mut conductors, agents, apps) = setup_3_conductors().await;
+   // let cells = apps.cells_flattened();
 
-   conductors[1].shutdown().await;
+   let (mut conductor0, alex, cell0) = setup_1_conductor().await;
 
-   consistency_10s(&cells).await;
+   let billy;
+   {
+      let (mut conductor1, billy_temp, cell1) = setup_1_conductor().await;
+      let _: HeaderHash = conductor1.call(&cell1.zome("snapmail"), "set_handle", BILLY_NICK).await;
+      billy = billy_temp.clone();
+      conductor1.shutdown().await;
+   }
+   let (mut conductor2, camille, cell2) = setup_1_conductor().await;
+
+   //let mut conductors = vec![&mut conductor1, &mut conductor2, &mut conductor3];
+   let agents = vec![&alex, &billy, &camille];
+   //let cells = vec![&cell1, &cell2, &cell3];
+
+   let _: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "set_handle", ALEX_NICK).await;
+
+   let _: HeaderHash = conductor2.call(&cell2.zome("snapmail"), "set_handle", CAMILLE_NICK).await;
+
+   // consistency_10s(cells.as_slice()).await;
+   //println!("consistency done!");
+
+   //conductors[1].shutdown().await;
+
+   //consistency_10s(cells.as_slice()).await;
+
+   //conductors[1].shutdown().await;
+
+   // let enc_key: holochain_zome_types::X25519PubKey = conductors[1].call(&cells[1].zome("snapmail"), "get_my_enc_key", ()).await;
+
+   //consistency_10s(&cells).await;
+
+   //println!("agents: {:?}", agents);
 
    // Send
    let mail = SendMailInput {
       subject: "test-outmail".to_string(),
       payload: "blablabla".to_string(),
-      to: vec![agents[1].clone()],
+      to: vec![billy.clone()], // agents,
       cc: vec![],
       bcc: vec![],
       manifest_address_list: vec![],
    };
-   let mail_output: SendMailOutput = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   let mail_output: SendMailOutput = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
    println!("mail_output: {:?}", mail_output);
    assert_eq!(1, mail_output.to_pendings.len());
 
-   consistency_10s(&cells).await;
-   conductors[1].startup().await;
-
-   consistency_10s(&cells).await;
-
-   let received_mail: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "check_incoming_mail", ()).await;
-   //println!("received_mail: {:?}", received_mail);
-   assert_eq!(received_mail.len(), 1);
+   // consistency_10s(&cells).await;
+   // conductors[1].startup().await;
+   //
+   // consistency_10s(&cells).await;
+   //
+   // let received_mail: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "check_incoming_mail", ()).await;
+   // //println!("received_mail: {:?}", received_mail);
+   // assert_eq!(received_mail.len(), 1);
 }

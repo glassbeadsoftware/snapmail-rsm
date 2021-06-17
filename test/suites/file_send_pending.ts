@@ -8,11 +8,10 @@ const { sleep, split_file } = require('../utils')
 
 module.exports = scenario => {
     scenario("test send file async tiny", test_send_file_async_tiny)
-
     //scenario("test send file async big", test_send_file_async_big)
 
     // LONG TESTS
-    // process.env['TRYORAMA_ZOME_CALL_TIMEOUT_MS'] = 90000
+    //process.env['TRYORAMA_ZOME_CALL_TIMEOUT_MS'] = '90000'
     //scenario("test send file async three", test_send_file_async_three)
 }
 
@@ -60,7 +59,7 @@ const test_send_file_async = async (s, t, size) => {
     let handle_count = 0
     let result;
     for (let i = 0; handle_count != 2 && i < 10; i++) {
-        //await s.consistency()
+        await sleep(1000)
         result = await billyCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listB: ' + JSON.stringify(result))
         handle_count = result.length
@@ -68,7 +67,7 @@ const test_send_file_async = async (s, t, size) => {
     t.deepEqual(handle_count, 2)
     handle_count = 0
     for (let i = 0; handle_count != 2 && i < 10; i++) {
-        //await s.consistency()
+        await sleep(1000)
         result = await alexCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listA: ' + JSON.stringify(result))
         handle_count = result.length
@@ -197,29 +196,26 @@ const test_send_file_async_three = async (s, t) => {
     console.log('billyId: ' + billyHapp.agent)
     console.log('camilleId: ' + camilleHapp.agent)
 
-    // Make sure Billy has a handle entry
+    // -- Set Handles for all -- //
+
     let name = "billy"
     let handle_address = await billyCell.call("snapmail", "set_handle", name)
     console.log('handle_address1: ' + JSON.stringify(handle_address))
-    //t.match(handle_address.Ok, RegExp('Qm*'))
 
-    // Make sure Alex has a handle entry
     name = "alex"
     handle_address = await alexCell.call("snapmail", "set_handle", name)
     console.log('handle_address2: ' + JSON.stringify(handle_address))
-    //t.match(handle_address.Ok, RegExp('Qm*'))
 
-    // Make sure Alex has a handle entry
     name = "camille"
     handle_address = await camilleCell.call("snapmail", "set_handle", name)
     console.log('handle_address3: ' + JSON.stringify(handle_address))
-    //t.match(handle_address.Ok, RegExp('Qm*'))
 
     // -- Make sure handles are set -- //
 
     let handle_count = 0
     let result;
     for (let i = 0; handle_count != 3 && i < 10; i++) {
+        await sleep(1000)
         result = await billyCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listB: ' + JSON.stringify(result))
         handle_count = result.length
@@ -228,6 +224,7 @@ const test_send_file_async_three = async (s, t) => {
 
     handle_count = 0
     for (let i = 0; handle_count != 3 && i < 10; i++) {
+        await sleep(1000)
         result = await alexCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listA: ' + JSON.stringify(result))
         handle_count = result.length
@@ -236,6 +233,7 @@ const test_send_file_async_three = async (s, t) => {
 
     handle_count = 0
     for (let i = 0; handle_count != 3 && i < 10; i++) {
+        await sleep(1000)
         result = await camilleCell.call("snapmail", "get_all_handles", undefined)
         console.log('handle_listC: ' + JSON.stringify(result))
         handle_count = result.length
@@ -268,12 +266,12 @@ const test_send_file_async_three = async (s, t) => {
         chunks: chunk_list,
     }
     let manifest_address = await alexCell.call("snapmail", "write_manifest", manifest_params)
-    console.log('manifest_address: ' + JSON.stringify(manifest_address))
+    console.log('manifest_eh: ' + JSON.stringify(manifest_address))
     //t.match(manifest_address.Ok, RegExp('Qm*'))
 
     // -- Send Mail to Billy offline
     await billy.shutdown();
-    //await s.consistency();
+
 
     const send_params = {
         subject: "test-attachment",
@@ -289,16 +287,19 @@ const test_send_file_async_three = async (s, t) => {
     // Should receive via DM, so no pendings
     t.deepEqual(send_result.cc_pendings, {})
 
+    await sleep(2000) // allow time for gossiping
+
     // Kill Alex :(
     await alex.shutdown();
-    await sleep(2000) // allow 1 second for gossiping
+
+    await sleep(2000) // allow time for gossiping
 
     // Spawn back billy
     await billy.startup();
 
     let mail_count = 0
     let check_result;
-    for (let i = 0; mail_count != 1 && i < 5; i++) {
+    for (let i = 0; mail_count != 1 && i < 10; i++) {
         await sleep(1000) // allow 1 second for gossiping
         check_result = await billyCell.call("snapmail", "check_incoming_mail", undefined)
         console.log('' + i + '. check_result2: ' + JSON.stringify(check_result))

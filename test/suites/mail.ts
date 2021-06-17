@@ -7,9 +7,10 @@ const { sleep, filterMailList, delay, logDump, htos, cellIdToStr } = require('..
 
 module.exports = scenario => {
     //scenario("send via DM test", send_dm_test)
-    //scenario("send pending test", send_pending_test)
+    //scenario("encryption test", encryption_test)
+    scenario("send pending test", send_pending_test)
     //scenario("delete mail test", test_delete_mail)
-    scenario("get all mails test", test_get_all_mails)
+    //scenario("get all mails test", test_get_all_mails)
 
     /// DEBUG
     //scenario("debug test", debug_test)
@@ -76,6 +77,35 @@ async function setup_handles(s, t, alexCell, billyCell) {
 /**
  * Send mail and acknowledgement while other party is offline
  */
+const encryption_test = async (s, t) => {
+    // -- Setup -- //
+    let {
+        alex,
+        billy,
+        camille,
+        alexHapp,
+        billyHapp,
+        camilleHapp,
+        alexCell,
+        billyCell,
+        camilleCell
+    } = await setup_3_conductors(s, t)
+    //const { conductor, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_conductor_3p(s, t)
+
+    await setup_handles(s, t, alexCell, billyCell)
+
+    const test_params = {
+        to: billyHapp.agent,
+        bad: camilleHapp.agent,
+    }
+    console.log('** CALLING: test_encryption()')
+    const send_result = await alexCell.call("snapmail", "test_encryption", test_params)
+    console.log('send_result: ' + JSON.stringify(send_result))
+}
+
+/**
+ * Send mail and acknowledgement while other party is offline
+ */
 const send_pending_test = async (s, t) => {
     // -- Setup -- //
     let { alex, billy, camille, alexHapp, billyHapp, camilleHapp, alexCell, billyCell, camilleCell } = await setup_3_conductors(s, t)
@@ -120,15 +150,20 @@ const send_pending_test = async (s, t) => {
 
     // let shareResponse = await s.shareAllNodes([alex, billy, camille])
     // console.log({shareResponse})
-    await delay(1000) // allow 1 second for gossiping
+    //await delay(1000) // allow 1 second for gossiping
 
     // -- Billy checks inbox -- //
 
     console.log('** CALLING: Billy check_incoming_mail()')
-    const check_result = await billyHapp.cells[0].call("snapmail", "check_incoming_mail", undefined)
-    console.log('check_result2      : ' + JSON.stringify(check_result))
-    t.deepEqual(check_result.length, 1)
-    //t.match(check_result[0], RegExp('Qm*'))
+
+    let incoming_mail_count = 0
+    for (let i = 0; incoming_mail_count != 1 && i < 5; i++) {
+        await delay(1000) // allow 1 second for gossiping
+        const check_result = await billyHapp.cells[0].call("snapmail", "check_incoming_mail", undefined)
+        console.log('check_result2      : ' + JSON.stringify(check_result))
+        incoming_mail_count = check_result.length;
+    }
+    t.deepEqual(incoming_mail_count, 1)
 
     const arrived_result = await billyCell.call("snapmail", "get_all_arrived_mail", undefined)
     console.log('arrived_result : ' + JSON.stringify(arrived_result))

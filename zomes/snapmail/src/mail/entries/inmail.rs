@@ -46,11 +46,15 @@ impl InMail {
         let received_date = crate::snapmail_now();
         /// Get my key
         let my_agent_key = agent_info()?.agent_latest_pubkey;
+        trace!("try_from_pending my_agent_key: {}", my_agent_key);
         let recipient_key = get_enc_key(my_agent_key.clone())?;
+        trace!("try_from_pending recipient_key: {:?}", recipient_key);
         /// Get sender's key
         let sender_key = get_enc_key(from.clone())?;
+        trace!("try_from_pending sender_key: {:?}", sender_key);
         /// Decrypt
         let maybe_mail = pending.attempt_decrypt(sender_key, recipient_key);
+        trace!("try_from_pending maybe_mail: {:?}", maybe_mail);
         /// Into InMail
         let inmail = match maybe_mail {
             None => return Ok(None),
