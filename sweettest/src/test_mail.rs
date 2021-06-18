@@ -29,11 +29,7 @@ pub async fn test_encryption() {
    println!("consistency done!");
 
    // Test
-   let input = EncryptionInput {
-      to: billy.clone(),
-      bad: camille.clone(),
-   };
-   let _output: () = conductor0.call(&cell0.zome("snapmail"), "test_encryption", input.clone()).await;
+   let _output: () = conductor0.call(&cell0.zome("snapmail"), "test_encryption", billy.clone()).await;
 }
 
 ///

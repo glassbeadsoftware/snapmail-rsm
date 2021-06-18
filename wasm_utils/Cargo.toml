@@ -1,0 +1,19 @@
+[package]
+name = "wasm_utils"
+version = "0.0.1"
+keywords = [ "holochain" ]
+categories = [ "command-line-utilities"]
+edition = "2018"
+
+[[bin]]
+name = "hash_wasm"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+base64 = "0.13"
+tokio = { version = "1.5", features = [ "full" ] }
+# 385 deps wtf
+holochain_types = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_types" }
+
+

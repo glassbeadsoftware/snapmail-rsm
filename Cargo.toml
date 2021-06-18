@@ -3,6 +3,7 @@
 members = [
   "zomes/snapmail",
   "sweettest",
+  #"wasm_utils",
   #"proc_macro",
 ]
 
