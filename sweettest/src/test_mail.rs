@@ -1,6 +1,7 @@
 use holochain::test_utils::consistency_10s;
 
 use snapmail::{
+   handle::*,
    mail::*,
    pub_enc_key::*,
 };
@@ -15,9 +16,9 @@ pub async fn test_encryption() {
    //let (conductors, agents, apps) = setup_3_conductors().await;
    //let cells = apps.cells_flattened();
 
-   let (mut conductor0, alex, cell0) = setup_1_conductor().await;
-   let (mut conductor1, billy, cell1) = setup_1_conductor().await;
-   let (mut conductor2, camille, cell2) = setup_1_conductor().await;
+   let (conductor0, alex, cell0) = setup_1_conductor().await;
+   let (conductor1, billy, cell1) = setup_1_conductor().await;
+   let (conductor2, camille, cell2) = setup_1_conductor().await;
 
    let cells = vec![&cell0, &cell1, &cell2];
 
@@ -25,8 +26,22 @@ pub async fn test_encryption() {
    let _: HeaderHash = conductor1.call(&cells[1].zome("snapmail"), "set_handle", BILLY_NICK).await;
    let _: HeaderHash = conductor2.call(&cells[2].zome("snapmail"), "set_handle", CAMILLE_NICK).await;
 
-   consistency_10s(cells.as_slice()).await;
-   println!("consistency done!");
+   print_chain(&conductor0, &alex, &cells[0]).await;
+
+   // println!("Waiting for consistency...");
+   // consistency_10s(cells.as_slice()).await;
+   // println!("consistency done!");
+
+   let mut length = 0;
+   for _ in 0..10u32 {
+      let handle_list: Vec<HandleItem> = conductor0.call(&cell0.zome("snapmail"), "get_all_handles", ()).await;
+      length = handle_list.len();
+      println!("handle_list: {:?}", handle_list);
+      if length == 3 {
+         break;
+      }
+   }
+   assert_eq!(3, length);
 
    // Test
    let _output: () = conductor0.call(&cell0.zome("snapmail"), "test_encryption", billy.clone()).await;

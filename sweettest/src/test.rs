@@ -77,38 +77,41 @@ pub async fn test_list_apps() {
 pub async fn test_pub_enc_key() {
    let (conductor, _alex, cell1) = setup_1_conductor().await;
 
+   println!("Calling get_my_enc_key()");
    let enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
    println!("enc_key: {:?}", enc_key);
    //assert_eq!("<noname>", handle);
+
+   let _ :() = conductor.call(&cell1.zome("snapmail"), "init_caps", ()).await;
+
+   let _enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
+
 }
 
 ///
 pub async fn test_handle() {
-   let (conductor, _alex, cell1) = setup_1_conductor().await;
+   let (conductor, alex, cell1) = setup_1_conductor().await;
 
    let name = "alex";
+   println!("Calling get_my_handle()");
    let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
-   //println!("handle: {:?}", handle);
+   println!("handle: {:?}", handle);
    assert_eq!("<noname>", handle);
 
-   let _handle_address1: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
+   let handle_address1: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
+   println!("handle_address1: {:?}", handle_address1);
+   //tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
    let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
-   //println!("handle: {:?}", handle);
+   println!("handle: {:?}", handle);
    assert_eq!(name, handle);
 
    let name = "bobby";
    let _handle_address2: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
    let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
-   //println!("handle: {:?}", handle);
+   println!("handle: {:?}", handle);
    assert_eq!(name, handle);
 
-   //let dump = conductor.dump_cell_state(cell1.cell_id()).await;
-   //println!("dump: {:?}", dump);
-   // let real_cell = conductor.cell_by_id(cell_id).unwrap();
-   // let arc = real_cell.env();
-   // let source_chain = SourceChainBuf::new(arc.clone().into()).unwrap();
-   // let source_chain_dump = source_chain.dump_state().await.unwrap();
-   // println!("source_chain_dump: {:?}", source_chain_dump.elements);
+   //print_chain(&conductor, &alex, &cell1).await;
 
    let handle_list: Vec<HandleItem> = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
    assert_eq!(1, handle_list.len());
@@ -116,12 +119,27 @@ pub async fn test_handle() {
 
    let name = "camille";
    let _handle_address3: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
-   let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
+
+   let mut handle = String::new();
+   for _ in 0..3u32 {
+      handle = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
+      println!("handle: {:?}", handle);
+      if name == handle {
+         break;
+      }
+   }
    assert_eq!(name, handle);
 
-   let handle_list: Vec<HandleItem> = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
-   assert_eq!(1, handle_list.len());
-   assert_eq!(name, handle_list[0].name);
+   for _ in 0..3u32 {
+      let handle_list: Vec<HandleItem> = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
+      assert_eq!(1, handle_list.len());
+      handle = handle_list[0].name.clone();
+      println!("handle_list: {:?}", handle_list);
+      if name == handle {
+         break;
+      }
+   }
+   assert_eq!(name, handle);
 }
 
 

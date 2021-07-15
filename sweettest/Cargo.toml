@@ -10,7 +10,8 @@ serde = { version = "1.0", default-features = false }
 strum = { version = "0.19", default-features = false }
 strum_macros = { version = "0.19", default-features = false }
 derive_more = { version = "0.99.9", default-features = false }
-
+serde_json = { version = "1.0.51", features = [ "preserve_order" ] }
+colored = "2.0.0"
 futures = { version = "0.3.1", default-features = false }
 
 tokio = { version = "1.3", features = [ "full" ] }
@@ -20,13 +21,18 @@ maplit = { version = "1", default-features = false }
 snapmail = { path = "../zomes/snapmail", default-features = false }
 
 # online
-holochain = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain", default-features = false, features = ["test_utils"] }
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holo_hash", default-features = false  }
-holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_zome_types", default-features = false  }
-kitsune_p2p = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "kitsune_p2p", default-features = false  }
+#holochain = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain", default-features = false, features = ["test_utils"] }
+#holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holo_hash", default-features = false  }
+#holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_zome_types", default-features = false  }
+#kitsune_p2p = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "kitsune_p2p", default-features = false  }
+#holochain_state = { path = "../../holochain-develop/crates/holochain_state" }
+#holochain_p2p = { path = "../../holochain-develop/crates/holochain_p2p" }
 
 # local
-#holochain = { path = "../../holochain-develop/crates/holochain", default-features = false, features = ["test_utils"]  }
-#holo_hash = { path = "../../holochain-develop/crates/holo_hash", default-features = false  }
-#holochain_zome_types = { path = "../../holochain-develop/crates/holochain_zome_types", default-features = false }
-#kitsune_p2p = { path = "../../holochain-develop/crates/kitsune_p2p", default-features = false  }
+holochain = { path = "../../holochain-develop/crates/holochain" }
+holo_hash = { path = "../../holochain-develop/crates/holo_hash" }
+holochain_state = { path = "../../holochain-develop/crates/holochain_state" }
+holochain_zome_types = { path = "../../holochain-develop/crates/holochain_zome_types" }
+kitsune_p2p = { path = "../../holochain-develop/crates/kitsune_p2p/kitsune_p2p" }
+holochain_p2p = { path = "../../holochain-develop/crates/holochain_p2p" }
+

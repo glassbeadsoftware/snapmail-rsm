@@ -1,7 +1,12 @@
 
+use holochain::conductor::*;
 use holochain::sweettest::*;
 use holochain::test_utils::consistency_10s;
+use holochain_state::source_chain::*;
+use holochain_zome_types::*;
 use holo_hash::*;
+use holochain_p2p::*;
+use colored::*;
 use futures::future;
 use snapmail::{
    handle::*,
@@ -18,13 +23,15 @@ pub async fn setup_1_conductor() -> (SweetConductor, AgentPubKey, SweetCell) {
       .await
       .unwrap();
 
-   let mut network = SweetNetwork::local_quic();
-   network.network_type = kitsune_p2p::NetworkType::QuicMdns;
-   let mut config = holochain::conductor::config::ConductorConfig::default();
-   config.network = Some(network);
-   let mut conductor = SweetConductor::from_config(config).await;
+   /// QuicMdns Config
+   // let mut network = SweetNetwork::local_quic();
+   // network.network_type = kitsune_p2p::NetworkType::QuicMdns;
+   // let mut config = holochain::conductor::config::ConductorConfig::default();
+   // config.network = Some(network);
+   // let mut conductor = SweetConductor::from_config(config).await;
 
-   // let mut conductor = SweetConductor::from_standard_config().await;
+   /// Standard config
+   let mut conductor = SweetConductor::from_standard_config().await;
 
    let alex = SweetAgents::one(conductor.keystore()).await;
    let app1 = conductor
@@ -81,4 +88,102 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
 
 
    (conductors, agents, apps)
+}
+
+
+fn print_element(element: &SourceChainJsonElement) -> String {
+   let mut str = format!("{:?}", element.header.header_type());
+
+
+   // if (element.header.header_type() == HeaderType::CreateLink) {
+   //    str += &format!(" '{:?}'", element.header.tag());
+   // }
+
+   match &element.header {
+      Header::CreateLink(create_link) => {
+         let s = std::str::from_utf8(&create_link.tag.0).unwrap();
+         str += &format!(" '{}'", s);
+      },
+      Header::Create(create_entry) => {
+            let mut s = String::new();
+            match &create_entry.entry_type {
+            EntryType::App(app_entry_type) => {
+               s += " AppEntry ";
+               s += &format!("{}", app_entry_type.id().0);
+            },
+            _ => {
+               s += &format!("{:?}", create_entry.entry_type);
+            }
+         };
+         str += &s.green().to_string();
+      },
+      Header::Update(update_entry) => {
+         let mut s = String::new();
+         match &update_entry.entry_type {
+            EntryType::App(app_entry_type) => {
+               s += " AppEntry ";
+               s += &format!("{}", app_entry_type.id().0).green();
+            },
+            _ => {
+               s += &format!("{:?}", update_entry.entry_type);
+            }
+         };
+         str += &s.yellow().to_string();
+      }
+      _ => {},
+   }
+
+   //       else {
+   //    if (element.header.entry_type) {
+   //       if (typeof element.header.entry_type === 'object') {
+   //          str += ' - AppEntry ; id = ' + element.header.entry_type.App.id
+   //       } else {
+   //          str += ' - ' + element.header.entry_type
+   //       }
+   //    }
+   // }
+
+   if element.header.is_genesis() {
+      str = str.blue().to_string();
+   }
+   str
+}
+
+pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: &SweetCell) {
+   let cell_id = cell.cell_id();
+   let vault = conductor.get_cell_env_readonly(cell_id).await.unwrap();
+
+   let space = cell_id.dna_hash().to_kitsune();
+
+   let env = conductor.get_p2p_env(space).await;
+   let peer_dump = p2p_agent_store::dump_state(
+      env.into(),
+      Some(cell_id.clone()),
+   ).expect("p2p_store should not fail");
+
+
+   // let p2p_env = conductor
+   //    .p2p_env
+   //    .lock()
+   //    .get(&space)
+   //    .cloned()
+   //    .expect("invalid cell space");
+   // let peer_dump = p2p_agent_store::dump_state(p2p_env.into(), Some(cell_id.clone()))?;
+
+   println!(" *** peer_dump: {:?}",peer_dump.peers);
+
+   let json_dump = dump_state(vault.clone().into(), agent.clone()).await.unwrap();
+   //let json = serde_json::to_string_pretty(&json_dump).unwrap();
+
+   println!(" ====== SOURCE-CHAIN STATE DUMP START ===== {}", json_dump.elements.len());
+   //println!("source_chain_dump({}) of {:?}", json_dump.elements.len(), agent);
+
+   let mut count = 0;
+   for element in &json_dump.elements {
+      let str = print_element(&element);
+      println!(" {:02}. {}", count, str);
+      count += 1;
+   }
+
+   println!(" ====== SOURCE-CHAIN STATE DUMP END  ===== {}", json_dump.elements.len());
 }

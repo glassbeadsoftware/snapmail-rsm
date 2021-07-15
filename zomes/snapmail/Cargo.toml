@@ -23,12 +23,12 @@ bincode = "1.1"
 
 snapmail_proc_macro = {path = "../../proc_macro", default-features = false }
 # online
-hdk = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "hdk", default-features = false }
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holo_hash", default-features = false }
+#hdk = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "hdk", default-features = false }
+#holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holo_hash", default-features = false }
 
 # local
-#hdk = { path = "../../../holochain-develop/crates/hdk", default-features = false }
-#holo_hash = { path = "../../../holochain-develop/crates/holo_hash", default-features = false }
+hdk = { path = "../../../holochain-develop/crates/hdk" }
+holo_hash = { path = "../../../holochain-develop/crates/holo_hash" }
 
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -36,14 +36,14 @@ thiserror = "1.0.24"
 
 # online
 holochain_serialized_bytes = "=0.0.50"
-#holochain_serialized_bytes = { git = "https://github.com/holochain/holochain-serialization.git" }
-holochain = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain", default-features = false, features = ["only_check_wasms"] }
-holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_util", default-features = false }
-holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_conductor_api", default-features = false }
+##holochain_serialized_bytes = { git = "https://github.com/holochain/holochain-serialization.git" }
+#holochain = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain", default-features = false, features = ["only_check_wasms"] }
+#holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_util", default-features = false }
+#holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "cfbcc6a310a4f7dfc35f27c304808d165f602e7a", package = "holochain_conductor_api", default-features = false }
 
 # local
-##holochain_serialized_bytes = { git = "https://github.com/holochain/holochain-serialization.git", default-features = false, features = ["only_check_wasms"] }
-#holochain = { path = "../../../holochain-develop/crates/holochain", default-features = false }
-#holochain_util = { path = "../../../holochain-develop/crates/holochain_util", default-features = false }
-#holochain_conductor_api = { path = "../../../holochain-develop/crates/holochain_conductor_api", default-features = false }
+#holochain_serialized_bytes = { git = "https://github.com/holochain/holochain-serialization.git", default-features = false, features = ["only_check_wasms"] }
+holochain = { path = "../../../holochain-develop/crates/holochain" }
+holochain_util = { path = "../../../holochain-develop/crates/holochain_util" }
+holochain_conductor_api = { path = "../../../holochain-develop/crates/holochain_conductor_api" }
 

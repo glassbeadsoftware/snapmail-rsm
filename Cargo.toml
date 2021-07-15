@@ -6,6 +6,7 @@ members = [
   #"wasm_utils",
   #"proc_macro",
 ]
+resolver = "2"
 
 [profile.dev]
 opt-level = "z"
@@ -13,6 +14,6 @@ opt-level = "z"
 [profile.release]
 opt-level = "z"
 
-[patch.crates-io]
-rkv = { git = "https://github.com/holochain/rkv.git", branch = "master" }
-lmdb-rkv = { git = "https://github.com/holochain/lmdb-rs.git" }
+#[patch.crates-io]
+#rkv = { git = "https://github.com/holochain/rkv.git", branch = "master" }
+#lmdb-rkv = { git = "https://github.com/holochain/lmdb-rs.git" }
