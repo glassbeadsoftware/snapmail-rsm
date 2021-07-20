@@ -35,7 +35,7 @@ impl PubEncKey {
          key_eh.clone(),
          LinkKind::EncKey.as_tag(),
       )?;
-      debug ! ("**** EncKey linked to agent!");
+      debug!("**** EncKey linked to agent!");
       Ok(())
    }
 }

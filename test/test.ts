@@ -13,10 +13,10 @@ process.on('unhandledRejection', error => {
 const orchestrator = new Orchestrator()
 
 //require('./suites/mail')(orchestrator.registerScenario)
-//require('./suites/handle')(orchestrator.registerScenario)
+require('./suites/handle')(orchestrator.registerScenario)
 //require('./suites/chunk')(orchestrator.registerScenario)
 //require('./suites/file_send')(orchestrator.registerScenario)
-require('./suites/file_send_pending')(orchestrator.registerScenario)
+//require('./suites/file_send_pending')(orchestrator.registerScenario)
 
 //require('./suites/stress')(orchestrator.registerScenario)
 //require('./suites/stress_multi')(orchestrator.registerScenario)

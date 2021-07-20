@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "WASM_LOG=debug RUST_BACKTRACE=1 RUST_LOG=error TRYORAMA_LOG_LEVEL=debug TRYORAMA_HOLOCHAIN_PATH=\"holochain\" ts-node test.ts",
-    "test-long": "RUST_BACKTRACE=1 RUST_LOG=warn TRYORAMA_LOG_LEVEL=warn TRYORAMA_HOLOCHAIN_PATH=\"../holochain\" ts-node test.ts"
+    "test-long": "RUST_BACKTRACE=1 RUST_LOG=warn TRYORAMA_LOG_LEVEL=warn TRYORAMA_HOLOCHAIN_PATH=\"../holochain\" ts-node test.ts",
+    "test-win": "ts-node test.ts"
   },
   "author": "",
   "license": "ISC",

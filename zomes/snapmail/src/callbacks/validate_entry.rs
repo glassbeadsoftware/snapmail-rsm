@@ -150,7 +150,7 @@ fn validate_app_entry(
         /// ..
 
         /// Unreachable but doesnt compile without it. Yay Rust
-        _ => Ok(ValidateCallbackResult::Invalid("Not authorized".into())),
+        _ => Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into())),
     }
 }
 
@@ -173,7 +173,8 @@ fn validate_claim_entry(
 {
     trace!("*** validate_claim_entry() called!");
     // FIXME validation
-    Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
+    Ok(ValidateCallbackResult::Valid)
+    //Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into()))
 }
 
 ///
@@ -184,5 +185,6 @@ fn validate_grant_entry(
 {
     trace!("*** validate_grant_entry() called!");
     // FIXME validation
-    Ok(ValidateCallbackResult::Invalid("Not authorized".into()))
+    Ok(ValidateCallbackResult::Valid)
+    //Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into()))
 }

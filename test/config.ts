@@ -3,10 +3,10 @@ import path from "path";
 const { delay, cellIdToStr } = require('./utils');
 
 //import { Config, InstallAgentsHapps } from "@holochain/tryorama";
-import { Config, InstallAgentsHapps } from '../../tryorama/src';
+import { Config, InstallAgentsHapps } from '../../tryorama-rsm/src';
 
 //import { TransportConfigType, ProxyConfigType, NetworkType } from "@holochain/tryorama/src/types";
-import { TransportConfigType, ProxyConfigType, NetworkType } from "../../tryorama/src/types";
+import { TransportConfigType, ProxyConfigType, NetworkType } from "../../tryorama-rsm/src/types";
 
 export const ALEX_NICK = 'alex'
 export const BILLY_NICK = 'billy'

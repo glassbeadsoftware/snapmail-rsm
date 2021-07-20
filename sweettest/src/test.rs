@@ -75,16 +75,21 @@ pub async fn test_list_apps() {
 
 ///
 pub async fn test_pub_enc_key() {
-   let (conductor, _alex, cell1) = setup_1_conductor().await;
+   let (conductor, alex, cell1) = setup_1_conductor().await;
 
    println!("Calling get_my_enc_key()");
    let enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
    println!("enc_key: {:?}", enc_key);
    //assert_eq!("<noname>", handle);
 
-   let _ :() = conductor.call(&cell1.zome("snapmail"), "init_caps", ()).await;
+   print_chain(&conductor, &alex, &cell1).await;
 
-   let _enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
+   //let _ :() = conductor.call(&cell1.zome("snapmail"), "init_caps", ()).await;
+
+   //let _enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
+
+   //let _handle_address1: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", "toto").await;
+
 
 }
 
