@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 extern crate proc_macro;
 use proc_macro::{TokenStream};
 

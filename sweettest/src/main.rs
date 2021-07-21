@@ -1,10 +1,4 @@
 
-
-#[cfg(target_arch = "wasm32")]
-fn main() {
- // Dummy for wasm32 target
-}
-
 #[cfg(not(target_arch = "wasm32"))]
 pub mod test;
 #[cfg(not(target_arch = "wasm32"))]
@@ -17,3 +11,7 @@ pub mod setup;
 async fn main() {
    crate::test::test().await;
 }
+
+/// Dummy main for wasm32 target
+#[cfg(target_arch = "wasm32")]
+fn main() { }
