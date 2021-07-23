@@ -155,6 +155,7 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
       Entry::CapClaim(_claim) => EntryType::CapClaim,
       Entry::CapGrant(_grant) => EntryType::CapGrant,
       Entry::App(_entry_bytes) => get_entry_type(eh)?,
+      Entry::CounterSign(_data, _bytes) => unreachable!(),
    })
 }
 
@@ -162,6 +163,7 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
 pub(crate) fn is_type(entry: Entry, type_candidat: EntryType) -> bool {
    trace!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
    let res =  match entry {
+      Entry::CounterSign(_data, _bytes) => unreachable!(),
       Entry::Agent(_agent_hash) => EntryType::AgentPubKey == type_candidat,
       Entry::CapClaim(_claim) => EntryType::CapClaim == type_candidat,
       Entry::CapGrant(_grant) => EntryType::CapGrant == type_candidat,

@@ -22,10 +22,10 @@ pub async fn test() {
    //test_pub_enc_key().await;
 
    // Handle
-   //test_handle().await;
+   test_handle().await;
 
    // Mail
-   test_encryption().await;
+   //test_encryption().await;
    //test_mail_dm().await;
    //test_mail_pending().await;
 
@@ -60,7 +60,7 @@ pub async fn test_list_apps() {
 
    let list_apps = |conductor: ConductorHandle, cell: SweetCell| async move {
       conductor
-         .list_active_apps_for_cell_id(cell.cell_id())
+         .list_running_apps_for_required_cell_id(cell.cell_id())
          .await
          .unwrap()
    };

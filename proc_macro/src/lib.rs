@@ -76,7 +76,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
          //println!(" fn_name = {:?}", fn_name);
          let result = holochain_util::tokio_helper::block_on(async {
             // -- call_zome
-            let cell_ids = conductor.list_cell_ids().await.expect("list_cell_ids() should work");
+            let cell_ids = conductor.list_cell_ids(None).await.expect("list_cell_ids() should work");
             //println!("Cell IDs : {:?}", cell_ids);
             assert!(!cell_ids.is_empty());
             let cell_id = cell_ids[0].clone();
