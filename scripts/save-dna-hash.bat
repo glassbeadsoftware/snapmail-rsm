@@ -4,3 +4,5 @@ REM Compile the exe
 cargo build --package wasm_utils
 REM Compute hash of dna
 .\target\debug\hash_wasm  > dna_hash.txt
+REM Show hash
+.\target\debug\hash_wasm
