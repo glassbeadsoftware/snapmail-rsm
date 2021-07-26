@@ -12,8 +12,8 @@ path = "src/main.rs"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 anyhow = "1.0"
 base64 = "0.13"
-tokio = { version = "1.5", features = [ "full" ] }
-# 385 deps wtf
-holochain_types = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain_types" }
-# 550 deps wtf
-#holochain_types = { path = "../../holochain-develop/crates/holochain_types" }
+tokio = { version = "1.8.1", features = [ "full" ] }
+serde = { version = "1.0", features = [ "derive", "rc" ] }
+
+holochain_serialized_bytes = "=0.0.51"
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holo_hash", features =["hashing"]}

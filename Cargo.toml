@@ -12,3 +12,8 @@ opt-level = "z"
 
 [profile.release]
 opt-level = "z"
+
+[patch.crates-io]
+#holochain = { path = "../../../holochain-develop/crates/holochain" }
+#holochain_util = { path = "../../../holochain-develop/crates/holochain_util" }
+#holochain_conductor_api = { path = "../../../holochain-develop/crates/holochain_conductor_api" }
