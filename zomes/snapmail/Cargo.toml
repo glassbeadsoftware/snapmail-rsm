@@ -13,15 +13,15 @@ name = "snapmail"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-shrinkwraprs = "0.3.0"
+shrinkwraprs = "=0.3.0"
 chrono = "=0.4.6"
-serde = "1.0"
-strum = "0.19"
-strum_macros = "0.19"
-derive_more = "0.99.9"
-bincode = "1.1"
+serde = { version = "=1.0.123", default-features = false }
+strum = "=0.19"
+strum_macros = "=0.19"
+derive_more = "=0.99.16"
+bincode = "=1.3.3"
 
-snapmail_proc_macro = {path = "../../proc_macro", default-features = false }
+snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 # online
 hdk = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "hdk", default-features = false }
 holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holo_hash", default-features = false }
@@ -36,13 +36,11 @@ thiserror = "1.0.24"
 
 # online
 holochain_serialized_bytes = "=0.0.51"
-#holochain_serialized_bytes = { git = "https://github.com/holochain/holochain-serialization.git" }
 holochain = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain", default-features = false, features = ["only_check_wasms"] }
 holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain_util", default-features = false }
 holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain_conductor_api", default-features = false }
 
 # local
-##holochain_serialized_bytes = { git = "https://github.com/holochain/holochain-serialization.git", default-features = false, features = ["only_check_wasms"] }
 #holochain = { path = "../../../holochain-develop/crates/holochain" }
 #holochain_util = { path = "../../../holochain-develop/crates/holochain_util" }
 #holochain_conductor_api = { path = "../../../holochain-develop/crates/holochain_conductor_api" }

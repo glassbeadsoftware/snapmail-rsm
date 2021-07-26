@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 //! crate::dna::wasm is a module for managing webassembly code
 //!  - within the in-memory dna struct
 //!  - and serialized to json

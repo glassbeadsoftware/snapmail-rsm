@@ -14,7 +14,10 @@ sed -i "s/$value/$1/g" sweettest/Cargo.toml
 sed -i "s/$value/$1/g" zomes/snapmail/Cargo.toml
 
 # Replace REV in wasm_utils/Cargo.toml
-sed -i "s/$value/$1/g" wasm_utils/Cargo.toml
+sed -i "s/$value/$1/g" crates/wasm_utils/Cargo.toml
+
+# Replace REV in dna_wasm/Cargo.toml
+sed -i "s/$value/$1/g" crates/dna_wasm/Cargo.toml
 
 # Replace REV in holochain_rev.txt
 sed -i "s/$value/$1/g" holochain_rev.txt
