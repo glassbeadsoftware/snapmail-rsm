@@ -1,8 +1,6 @@
 
 use hdk::prelude::*;
 
-//pub use validation::*;
-
 use crate::{
   link_kind::*,
    utils::*,
