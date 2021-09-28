@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 use hdk::prelude::element::ElementEntry;
-use hdk::prelude::countersigning::CounterSigningSessionData;
+//use hdk::prelude::countersigning::CounterSigningSessionData;
 
 use crate::{
     handle::*,
@@ -25,7 +25,7 @@ fn validate(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
     };
     /// Determine where to dispatch according to base
     let result = match entry {
-        Entry::CounterSign(data, bytes) => validate_counter_sign_entry(data, bytes, maybe_package),
+        Entry::CounterSign(_data, _bytes) => Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into())), //validate_counter_sign_entry(data, bytes, maybe_package),
         Entry::Agent(agent_hash) => validate_agent_entry(agent_hash, maybe_package),
         Entry::CapClaim(claim) => validate_claim_entry(claim, maybe_package),
         Entry::CapGrant(grant) => validate_grant_entry(grant, maybe_package),
@@ -191,15 +191,16 @@ fn validate_grant_entry(
     //Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into()))
 }
 
-///
-fn validate_counter_sign_entry(
-    _data: CounterSigningSessionData,
-    _bytes: AppEntryBytes,
-    _maybe_validation_package: Option<ValidationPackage>,
-) -> ExternResult<ValidateCallbackResult>
-{
-    trace!("*** validate_counter_sign_entry() called!");
-    // FIXME validation
-    //Ok(ValidateCallbackResult::Valid)
-    Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into()))
-}
+
+//
+//fn validate_counter_sign_entry(
+//    _data: Box<CounterSigningSessionData, Global>,
+//    _bytes: AppEntryBytes,
+//    _maybe_validation_package: Option<ValidationPackage>,
+//) -> ExternResult<ValidateCallbackResult>
+//{
+//    trace!("*** validate_counter_sign_entry() called!");
+//    // FIXME validation
+//    //Ok(ValidateCallbackResult::Valid)
+//    Ok(ValidateCallbackResult::Invalid("Validation failed: Not authorized".into()))
+//}

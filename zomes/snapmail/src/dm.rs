@@ -45,8 +45,9 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    )?;
    debug!("calling remote receive_dm() DONE ; dm = {:?}", dm);
    return match response {
-   ZomeCallResponse::Ok(output) => Ok(output.decode()?),
-   ZomeCallResponse::Unauthorized(_, _, _, _) => Ok(DirectMessageProtocol::Failure("Unauthorized".to_string())),
-   ZomeCallResponse::NetworkError(e) => Ok(DirectMessageProtocol::Failure(format!("NetworkError: {:?}", e))),
+       ZomeCallResponse::Ok(output) => Ok(output.decode()?),
+       ZomeCallResponse::Unauthorized(_, _, _, _) => Ok(DirectMessageProtocol::Failure("Unauthorized".to_string())),
+       ZomeCallResponse::NetworkError(e) => Ok(DirectMessageProtocol::Failure(format!("NetworkError: {:?}", e))),
+       ZomeCallResponse::CountersigningSession(e) => Ok(DirectMessageProtocol::Failure(format!("CountersigningSession: {:?}", e))),
    };
 }

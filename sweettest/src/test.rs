@@ -25,8 +25,8 @@ pub async fn test() {
    test_handle().await;
 
    // Mail
-   //test_encryption().await;
-   //test_mail_dm().await;
+   test_encryption().await;
+   test_mail_dm().await;
    //test_mail_pending().await;
 
    // File

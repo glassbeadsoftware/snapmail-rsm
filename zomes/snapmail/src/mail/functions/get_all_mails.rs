@@ -46,7 +46,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     /// Change all OutMail into a MailItem
     for outmail_element in created_outmails {
         let outmail_hh = outmail_element.header_hashed().as_hash().to_owned();
-        let date: i64 = outmail_element.header().timestamp().0;
+        let date: i64 = outmail_element.header().timestamp().as_seconds_and_nanos().0;
         let maybe_state = get_outmail_state(&outmail_hh);
         if let Err(_err) = maybe_state {
             continue;
@@ -68,7 +68,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     /// Change all InMail into a MailItem
     for inmail_element in created_inmails {
         let inmail_hh = inmail_element.header_hashed().as_hash().to_owned();
-        let date: i64 = inmail_element.header().timestamp().0;
+        let date: i64 = inmail_element.header().timestamp().as_seconds_and_nanos().0;
         let maybe_state = get_inmail_state(&inmail_hh);
         if let Err(_err) = maybe_state {
             continue;

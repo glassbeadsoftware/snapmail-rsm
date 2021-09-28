@@ -102,6 +102,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
                },
                ZomeCallResponse::Unauthorized(_, _, _, _) => Err(crate::api_error::SnapmailApiError::Unauthorized),
                ZomeCallResponse::NetworkError(err) => Err(crate::api_error::SnapmailApiError::NetworkError(err)),
+               ZomeCallResponse::CountersigningSession(err) => Err(crate::api_error::SnapmailApiError::Unauthorized),
             };
             api_result
          }, DEFAULT_TIMEOUT).map_err(|_e| crate::api_error::SnapmailApiError::Timeout)?;

@@ -5,7 +5,7 @@ edition = "2018"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 shrinkwraprs = { version = "0.3.0", default-features = false }
-chrono = { version = "=0.4.6", default-features = false }
+chrono = { version = "=0.4.19", default-features = false }
 serde = { version = "1.0", default-features = false }
 strum = { version = "0.19", default-features = false }
 strum_macros = { version = "0.19", default-features = false }
@@ -21,12 +21,12 @@ maplit = { version = "1", default-features = false }
 snapmail = { path = "../zomes/snapmail", default-features = false }
 
 # online
-holochain = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain", default-features = false, features = ["test_utils"] }
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holo_hash", default-features = false  }
-holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain_zome_types", default-features = false  }
-kitsune_p2p = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "kitsune_p2p", default-features = false  }
-holochain_state = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain_state", default-features = false  }
-holochain_p2p = { git = "https://github.com/holochain/holochain.git", rev = "c5dbdf28825927106bc32d186dd54f20d35df468", package = "holochain_p2p", default-features = false  }
+holochain = { git = "https://github.com/holochain/holochain.git", rev = "221f3424a919224dcf1950d1059e8b88aba08f7b", package = "holochain", default-features = false, features = ["test_utils"] }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "221f3424a919224dcf1950d1059e8b88aba08f7b", package = "holo_hash", default-features = false  }
+holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "221f3424a919224dcf1950d1059e8b88aba08f7b", package = "holochain_zome_types", default-features = false  }
+kitsune_p2p = { git = "https://github.com/holochain/holochain.git", rev = "221f3424a919224dcf1950d1059e8b88aba08f7b", package = "kitsune_p2p", default-features = false  }
+holochain_state = { git = "https://github.com/holochain/holochain.git", rev = "221f3424a919224dcf1950d1059e8b88aba08f7b", package = "holochain_state", default-features = false  }
+holochain_p2p = { git = "https://github.com/holochain/holochain.git", rev = "221f3424a919224dcf1950d1059e8b88aba08f7b", package = "holochain_p2p", default-features = false  }
 
 # local
 #holochain = { path = "../../holochain-develop/crates/holochain" }

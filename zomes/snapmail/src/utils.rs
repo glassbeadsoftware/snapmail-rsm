@@ -21,7 +21,7 @@ pub(crate) fn to_timestamp(duration: Duration) -> Timestamp {
 /// Returns number of seconds since UNIX_EPOCH
 pub fn snapmail_now() -> u64 {
     let now = sys_time().expect("sys_time() should always work");
-    now.as_secs()
+    now.as_seconds_and_nanos().0 as u64
 }
 
 /// Get Element at address using query()
@@ -185,7 +185,7 @@ pub fn get_latest_typed_from_eh<T: TryFrom<SerializedBytes, Error = SerializedBy
                 _ => {
                     let mut sortlist = details.updates.to_vec();
                     // unix timestamp should work for sorting
-                    sortlist.sort_by_key(|update| update.header().timestamp().0);
+                    sortlist.sort_by_key(|update| update.header().timestamp().as_micros());
                     // sorts in ascending order, so take the last element
                     let last = sortlist.last().unwrap().to_owned();
                     Some(get_header_hash(last))
