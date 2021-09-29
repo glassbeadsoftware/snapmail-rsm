@@ -1,6 +1,6 @@
 [package]
 name = "snapmail"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2018"
 
 # Ensure that this is not inside of any other workspace.
