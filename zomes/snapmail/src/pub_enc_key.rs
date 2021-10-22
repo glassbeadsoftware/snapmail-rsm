@@ -43,8 +43,7 @@ impl PubEncKey {
 pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
    /// Get All Handle links on agent ; should have only one
    let key_links = get_links(from.into(), LinkKind::EncKey.as_tag_opt())
-      .expect("No reason for this to fail")
-      .into_inner();
+      .expect("No reason for this to fail");
    assert!(key_links.len() <= 1);
    if key_links.len() == 0 {
       error!("No PubEncKey found for this agent");

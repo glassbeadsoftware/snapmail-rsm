@@ -27,8 +27,8 @@ pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMail
     let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
     /// Grab info
     let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
-    let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?.into_inner();
-    let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?.into_inner();
+    let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?;
+    let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
     /// Determine state
     if pendings.len() == receipient_count {
         return Ok(OutMailState::Pending);
@@ -67,13 +67,13 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
     /// Get OutMail Entry
     let inmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
     /// Get OutAck
-    let links_result = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
+    let links_result = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?;
     if links_result.len() < 1 {
         return Ok(InMailState::Arrived);
     }
     let ack_link = links_result[0].clone();
     /// Get PendingAck
-    let links_result = get_links(ack_link.target, LinkKind::Pending.as_tag_opt())?.into_inner();
+    let links_result = get_links(ack_link.target, LinkKind::Pending.as_tag_opt())?;
     /// If link found, it means Ack has not been received
     if links_result.len() > 0 {
         return Ok(InMailState::Acknowledged);

@@ -9,7 +9,7 @@ use crate::{
 #[hdk_extern]
 fn init_caps(_: ()) -> ExternResult<()> {
    let mut functions: GrantedFunctions = BTreeSet::new();
-   functions.insert((zome_info()?.zome_name, REMOTE_ENDPOINT.into()));
+   functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
    create_cap_grant(
       CapGrantEntry {
          tag: "".into(),

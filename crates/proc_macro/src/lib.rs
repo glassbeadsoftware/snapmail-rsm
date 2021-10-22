@@ -84,7 +84,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
             let call_result = conductor.call_zome(holochain_conductor_api::ZomeCall {
                cap: None,
                cell_id,
-               zome_name: crate::ZOME_NAME.into(),
+               name: crate::ZOME_NAME.into(),
                fn_name: fn_name.into(),
                provenance,
                payload,

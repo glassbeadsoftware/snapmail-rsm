@@ -41,7 +41,7 @@ pub fn get_all_arrived_mail(_: ()) -> ExternResult<Vec<HeaderHash>> {
         let links_result = get_links(
             inmail_eh.clone(),
             LinkKind::Acknowledgment.as_tag_opt(),
-        )?.into_inner();
+        )?;
         /// If link found, it means Ack has not been received
         if links_result.len() > 0 {
             continue;

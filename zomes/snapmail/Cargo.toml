@@ -23,8 +23,8 @@ bincode = "=1.3.3"
 
 snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 # online
-hdk = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "hdk", default-features = false }
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holo_hash", default-features = false }
+hdk = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "hdk", default-features = false }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holo_hash", default-features = false }
 
 # local
 #hdk = { path = "../../../holochain-develop/crates/hdk" }
@@ -36,9 +36,9 @@ thiserror = "1.0.24"
 
 # online
 holochain_serialized_bytes = "=0.0.51"
-holochain = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain", default-features = false, features = ["only_check_wasms"] }
-holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain_util", default-features = false }
-holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain_conductor_api", default-features = false }
+holochain = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain", default-features = false, features = ["only_check_wasms"] }
+holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain_util", default-features = false }
+holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain_conductor_api", default-features = false }
 
 # local
 #holochain = { path = "../../../holochain-develop/crates/holochain" }

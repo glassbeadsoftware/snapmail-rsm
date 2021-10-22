@@ -25,7 +25,7 @@ pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBee
     /// Get all ``receipt`` links
     // FIXME: have tag filtering working when calling get_links
     // let links_result: Vec<Link> = get_links(outmail_eh, LinkKind::Receipt.as_tag_opt())?.into_inner();
-    let links_result: Vec<Link> = get_links(outmail_eh, None)?.into_inner();
+    let links_result: Vec<Link> = get_links(outmail_eh, None)?;
     debug!("links_result: {:?}", links_result);
     /// Make list of Receipt authors
     let mut receipt_authors: Vec<AgentPubKey> = Vec::new();

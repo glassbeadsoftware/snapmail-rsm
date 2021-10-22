@@ -38,7 +38,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    debug!("calling remote receive_dm() ; dm = {:?}", dm);
    let response = call_remote(
       destination,
-      zome_info()?.zome_name,
+      zome_info()?.name,
       REMOTE_ENDPOINT.to_string().into(),
       None,
       &dm_packet,

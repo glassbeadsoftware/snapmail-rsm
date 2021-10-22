@@ -19,7 +19,7 @@ pub fn check_incoming_ack(_:()) -> ExternResult<Vec<EntryHash>> {
         my_agent_eh.clone(),
         LinkKind::AckInbox.as_tag_opt(),
         //None,
-    )?.into_inner();
+    )?;
     debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each link
     let mut updated_outmails = Vec::new();

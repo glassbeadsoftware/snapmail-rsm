@@ -22,7 +22,7 @@ pub fn check_incoming_mail(_:()) -> ExternResult<Vec<HeaderHash>> {
         my_agent_eh.clone(),
         //None,
         LinkKind::MailInbox.as_tag_opt(),
-        )?.into_inner();
+        )?;
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();

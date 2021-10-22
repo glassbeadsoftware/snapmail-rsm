@@ -33,7 +33,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     /// Make sure its an InMail ...
     let (inmail_eh, inmail) = get_typed_from_hh::<InMail>(inmail_hh.clone())?;
     /// ... has not already been acknowledged
-    let res = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?.into_inner();
+    let res = get_links(inmail_eh.clone(), LinkKind::Acknowledgment.as_tag_opt())?;
     if res.len() > 0 {
         return error("Mail has already been acknowledged");
     }

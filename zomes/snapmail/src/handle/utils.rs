@@ -13,7 +13,7 @@ use crate::{
 pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
     let path_hash = Path::from(path_kind::Directory).hash()?;
     let entry_results = get_links(path_hash, LinkKind::Members.as_tag_opt())?;
-    Ok(entry_results.into_inner())
+    Ok(entry_results)
 }
 
 
@@ -21,8 +21,7 @@ pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
 pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, HeaderHash)> {
     /// Get All Handle links on agent ; should have only one
     let handle_links = get_links(agent_id.into(), LinkKind::Handle.as_tag_opt())
-       .expect("No reason for this to fail")
-       .into_inner();
+       .expect("No reason for this to fail");
     assert!(handle_links.len() <= 1);
     if handle_links.len() == 0 {
         warn!("No handle found for this agent:");

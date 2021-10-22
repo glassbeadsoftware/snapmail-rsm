@@ -21,12 +21,12 @@ maplit = { version = "1", default-features = false }
 snapmail = { path = "../zomes/snapmail", default-features = false }
 
 # online
-holochain = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain", default-features = false, features = ["test_utils"] }
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holo_hash", default-features = false  }
-holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain_zome_types", default-features = false  }
-kitsune_p2p = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "kitsune_p2p", default-features = false  }
-holochain_state = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain_state", default-features = false  }
-holochain_p2p = { git = "https://github.com/holochain/holochain.git", rev = "af7de6eca55d8dd3d22bbfccee738fd11f2a2e12", package = "holochain_p2p", default-features = false  }
+holochain = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain", default-features = false, features = ["test_utils"] }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holo_hash", default-features = false  }
+holochain_zome_types = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain_zome_types", default-features = false  }
+kitsune_p2p = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "kitsune_p2p", default-features = false  }
+holochain_state = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain_state", default-features = false  }
+holochain_p2p = { git = "https://github.com/holochain/holochain.git", rev = "de6194f5e25fab74712dc0fbbe893af3fda5f5a3", package = "holochain_p2p", default-features = false  }
 
 # local
 #holochain = { path = "../../holochain-develop/crates/holochain" }
