@@ -11,7 +11,7 @@ use hdk::prelude::*;
 
 /// Zome Callback
 #[hdk_extern]
-fn post_commit(_headers: HeaderHashes) -> ExternResult<PostCommitCallbackResult> {
+fn post_commit(_: Vec<SignedHeaderHashed>) -> ExternResult<PostCommitCallbackResult> {
    //debug!("post_commit() called: {:?}", info);
    debug!("post_commit() called");
    Ok(PostCommitCallbackResult::Success)
