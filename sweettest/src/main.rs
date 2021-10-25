@@ -1,3 +1,4 @@
+use std::env;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod test;
@@ -9,7 +10,14 @@ pub mod setup;
 #[cfg(not(target_arch = "wasm32"))]
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
-   crate::test::test().await;
+   let args: Vec<String> = env::args().collect();
+   //println!("{:?}", args);
+   let arg= if args.len() > 1 {
+      args[1].clone()
+   } else {
+      String::new()
+   };
+   crate::test::test(arg).await;
 }
 
 /// Dummy main for wasm32 target

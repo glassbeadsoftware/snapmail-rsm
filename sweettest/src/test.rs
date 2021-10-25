@@ -16,24 +16,32 @@ use crate::setup::*;
 use crate::test_mail::*;
 
 ///
-pub async fn test() {
-   //test_list_apps().await;
-
-   //test_pub_enc_key().await;
-
+pub async fn test(arg: String) {
+   // Admin API test
+   if arg == "" {
+      test_list_apps().await;
+   }
+   // Pub Key
+   if arg == "all" || arg == "key" {
+      test_pub_enc_key().await;
+   }
    // Handle
-   test_handle().await;
-
+   if arg == "all" || arg == "handle" {
+      test_handle().await;
+   }
    // Mail
-   test_encryption().await;
-   test_mail_dm().await;
-   //test_mail_pending().await;
-
+   if arg == "all" || arg == "mail" {
+      test_encryption().await;
+      test_mail_dm().await;
+      test_mail_pending().await;
+   }
    // File
-   std::env::set_var("WASM_LOG", "WARN");
-   //test_file_dm().await;
-
+   if arg == "all" || arg == "file" {
+      std::env::set_var("WASM_LOG", "WARN");
+      test_file_dm().await;
+   }
 }
+
 
 ///
 pub async fn test_list_apps() {
@@ -73,6 +81,7 @@ pub async fn test_list_apps() {
    );
 }
 
+
 ///
 pub async fn test_pub_enc_key() {
    let (conductor, alex, cell1) = setup_1_conductor().await;
@@ -89,9 +98,8 @@ pub async fn test_pub_enc_key() {
    //let _enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
 
    //let _handle_address1: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", "toto").await;
-
-
 }
+
 
 ///
 pub async fn test_handle() {

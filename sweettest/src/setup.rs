@@ -149,10 +149,10 @@ fn print_element(element: &SourceChainJsonElement) -> String {
    str
 }
 
-pub async fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
+pub fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
    let cell_id = cell.cell_id();
    let space = cell_id.dna_hash().to_kitsune();
-   let env = conductor.get_p2p_env(space).await;
+   let env = conductor.get_p2p_env(space);
    let peer_dump = p2p_agent_store::dump_state(
       env.into(),
       Some(cell_id.clone()),
@@ -163,11 +163,11 @@ pub async fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
 
 pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: &SweetCell) {
    let cell_id = cell.cell_id();
-   let vault = conductor.get_cell_env_readonly(cell_id).await.unwrap();
+   let vault = conductor.get_cell_env_readonly(cell_id).unwrap();
 
    let space = cell_id.dna_hash().to_kitsune();
 
-   let env = conductor.get_p2p_env(space).await;
+   let env = conductor.get_p2p_env(space);
    let peer_dump = p2p_agent_store::dump_state(
       env.into(),
       Some(cell_id.clone()),
