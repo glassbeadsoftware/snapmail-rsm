@@ -20,6 +20,7 @@ strum = "=0.19"
 strum_macros = "=0.19"
 derive_more = "=0.99.16"
 bincode = "=1.3.3"
+base64 = {version = "0.13"}
 
 snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 # online

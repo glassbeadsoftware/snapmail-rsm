@@ -92,12 +92,13 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
 
 
 fn print_element(element: &SourceChainJsonElement) -> String {
-   let mut str = format!("{:?}", element.header.header_type());
-
+   let mut str = format!("({}) ", element.header_address);
 
    // if (element.header.header_type() == HeaderType::CreateLink) {
    //    str += &format!(" '{:?}'", element.header.tag());
    // }
+
+   str += &format!("{:?30}", element.header.header_type());
 
    match &element.header {
       Header::CreateLink(create_link) => {
