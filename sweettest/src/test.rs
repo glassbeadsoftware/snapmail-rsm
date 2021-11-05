@@ -32,6 +32,7 @@ pub async fn test(arg: String) {
    // Mail
    if arg == "all" || arg == "mail" {
       test_encryption().await;
+      test_mail_self().await;
       test_mail_dm().await;
       test_mail_pending().await;
    }
@@ -221,7 +222,7 @@ pub async fn send_file_dm(size: usize) {
       bcc: vec![],
       manifest_address_list: vec![manifest_address],
    };
-   let _mail_output: SendMailOutput = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   let _mail_output: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
    // Check if received
    let all_arrived: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "get_all_arrived_mail", ()).await;

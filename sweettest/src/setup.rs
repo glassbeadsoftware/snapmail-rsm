@@ -10,7 +10,9 @@ use colored::*;
 use futures::future;
 use snapmail::{
    handle::*,
+   EntryKind,
 };
+use strum::AsStaticRef;
 
 pub const DNA_FILEPATH: &str = "./snapmail.dna";
 pub const ALEX_NICK: &str = "alex";
@@ -44,6 +46,7 @@ pub async fn setup_1_conductor() -> (SweetConductor, AgentPubKey, SweetCell) {
    (conductor, alex, cell1)
 }
 
+
 ///
 pub async fn setup_conductors(n: usize) -> (SweetConductorBatch, Vec<AgentPubKey>, SweetAppBatch) {
    let dna = SweetDnaFile::from_bundle(std::path::Path::new(DNA_FILEPATH))
@@ -72,6 +75,7 @@ pub async fn setup_conductors(n: usize) -> (SweetConductorBatch, Vec<AgentPubKey
    (conductors, all_agents, apps)
 }
 
+
 ///
 pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, SweetAppBatch) {
    let (conductors, agents, apps) = setup_conductors(3).await;
@@ -92,25 +96,25 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
 
 
 fn print_element(element: &SourceChainJsonElement) -> String {
-   let mut str = format!("({}) ", element.header_address);
+   let mut str = format!("{:?} ", element.header.header_type());
+  // let mut str = format!("({}) ", element.header_address);
 
    // if (element.header.header_type() == HeaderType::CreateLink) {
    //    str += &format!(" '{:?}'", element.header.tag());
    // }
 
-   str += &format!("{:?30}", element.header.header_type());
-
    match &element.header {
       Header::CreateLink(create_link) => {
          let s = std::str::from_utf8(&create_link.tag.0).unwrap();
-         str += &format!(" '{}'", s);
+         str += &format!("'{}'", s);
       },
       Header::Create(create_entry) => {
             let mut s = String::new();
             match &create_entry.entry_type {
             EntryType::App(app_entry_type) => {
-               s += " AppEntry ";
-               s += &format!("{}", app_entry_type.id().0);
+               let entry_kind: &'static str = EntryKind::from_index(&app_entry_type.id()).as_static();
+               s += "AppEntry ";
+               s += &format!("'{}'", entry_kind);
             },
             _ => {
                s += &format!("{:?}", create_entry.entry_type);
@@ -122,8 +126,9 @@ fn print_element(element: &SourceChainJsonElement) -> String {
          let mut s = String::new();
          match &update_entry.entry_type {
             EntryType::App(app_entry_type) => {
-               s += " AppEntry ";
-               s += &format!("{}", app_entry_type.id().0).green();
+               let entry_kind: &'static str = EntryKind::from_index(&app_entry_type.id()).as_static();
+               s += "AppEntry ";
+               s += &format!("'{}'", entry_kind).green();
             },
             _ => {
                s += &format!("{:?}", update_entry.entry_type);
@@ -144,10 +149,12 @@ fn print_element(element: &SourceChainJsonElement) -> String {
    //    }
    // }
 
+   let mut line = format!("{:<40} ({})", str, element.header_address);
+
    if element.header.is_genesis() {
-      str = str.blue().to_string();
+      line = line.blue().to_string();
    }
-   str
+   line
 }
 
 pub fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
@@ -194,7 +201,7 @@ pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: 
    let mut count = 0;
    for element in &json_dump.elements {
       let str = print_element(&element);
-      println!(" {:02}. {}", count, str);
+      println!(" {:2}. {}", count, str);
       count += 1;
    }
 
