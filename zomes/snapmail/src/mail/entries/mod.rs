@@ -33,18 +33,20 @@ pub enum InMailState {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OutMailState {
+    //// OutMail written, but has not been sent to recepients
+    //PartiallySent,
     // Has a pending link for each receipient
     Pending,
     // Has less pending links than receipients, and no receipt links
     PartiallyArrived_NoAcknowledgement,
     // Has less pending links than receipients, and less receipt links than receipients
     PartiallyArrived_PartiallyAcknowledged,
-    // Has no pending links, and a receipt link for each receipient
+    // Has no pending links, and no receipt links
     Arrived_NoAcknowledgement,
     // Has no pending links, and less receipt links than receipients
     Arrived_PartiallyAcknowledged,
     // Has no pendings links, and a receipt link for each receipient
-    Received,
+    FullyAcknowledged,
     //
     Deleted,
 }

@@ -65,7 +65,7 @@ pub async fn test_mail_self() {
    };
    let outmail_hh: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
    /// Should NOT be considered 'received'
-   let maybe_received: HasMailBeenReceivedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_received", outmail_hh.clone()).await;
+   let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
    println!("maybe_received: {:?}", maybe_received);
    assert!(maybe_received.is_err());
    /// Check if arrived
@@ -92,7 +92,7 @@ pub async fn test_mail_self() {
    println!("has_acked: {:?}", has_acked);
    assert!(has_acked);
    /// Should be considered 'received'
-   let maybe_received: HasMailBeenReceivedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_received", outmail_hh.clone()).await;
+   let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
    println!("maybe_received: {:?}", maybe_received);
    assert!(maybe_received.is_ok());
 }
@@ -127,7 +127,7 @@ pub async fn test_mail_dm() {
    assert!(rec_mail.is_ok());
    assert_eq!("blablabla", rec_mail.unwrap().mail.payload);
 
-   let maybe_received: HasMailBeenReceivedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_received", outmail_hh.clone()).await;
+   let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
    println!("maybe_received: {:?}", maybe_received);
    assert!(maybe_received.is_err());
 
@@ -135,7 +135,7 @@ pub async fn test_mail_dm() {
 
    consistency_10s(&cells).await;
 
-   let maybe_received: HasMailBeenReceivedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_received", outmail_hh.clone()).await;
+   let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
    println!("maybe_received2: {:?}", maybe_received);
    assert!(maybe_received.is_ok());
 
@@ -196,7 +196,7 @@ pub async fn test_mail_pending() {
    };
    let outmail_hh: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
    println!("outmail_hh: {:?}", outmail_hh);
-   let mail_output: HasMailBeenReceivedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_received", outmail_hh).await;
+   let mail_output: HasMailBeenFullyAcknowledgedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh).await;
    println!("mail_output: {:?}", mail_output);
    assert!(mail_output.is_ok());
 

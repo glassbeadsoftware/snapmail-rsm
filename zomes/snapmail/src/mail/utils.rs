@@ -38,7 +38,7 @@ pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMail
             return Ok(OutMailState::Arrived_NoAcknowledgement);
         }
         if receipts.len() == receipient_count {
-            return Ok(OutMailState::Received);
+            return Ok(OutMailState::FullyAcknowledged);
         }
         return Ok(OutMailState::Arrived_PartiallyAcknowledged);
     }

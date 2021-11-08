@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
+pub struct HasMailBeenFullyAcknowledgedOutput(Result<(), Vec<AgentPubKey>>);
 
 
 /// Zome function
@@ -16,7 +16,7 @@ pub struct HasMailBeenReceivedOutput(Result<(), Vec<AgentPubKey>>);
 /// If false, returns list of agents who's receipt is missing.
 #[hdk_extern]
 #[snapmail_api]
-pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenReceivedOutput> {
+pub fn has_mail_been_fully_acknowledged(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenFullyAcknowledgedOutput> {
     /// Get OutMail
     let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;
     /// Merge all recepients lists into one
@@ -45,5 +45,5 @@ pub fn has_mail_been_received(outmail_hh: HeaderHash) -> ExternResult<HasMailBee
     debug!("diff: {:?}", diff);
     /// Done
     let result = if diff.len() > 0 { Err(diff) } else { Ok(()) };
-    Ok(HasMailBeenReceivedOutput(result))
+    Ok(HasMailBeenFullyAcknowledgedOutput(result))
 }
