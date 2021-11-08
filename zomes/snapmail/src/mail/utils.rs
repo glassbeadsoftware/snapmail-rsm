@@ -7,7 +7,9 @@ use crate::{
 };
 
 /// Get State of an OutMail
-pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMailState> {
+#[hdk_extern]
+#[snapmail_api]
+pub(crate) fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
     /// Get OutMail Details
     let maybe_details = get_details(outmail_hh.clone(), GetOptions::latest())?;
     if maybe_details.is_none() {
@@ -23,7 +25,8 @@ pub(crate) fn get_outmail_state(outmail_hh: &HeaderHash) -> ExternResult<OutMail
     }
     /// Get OutMail Entry
     let outmail: OutMail = get_typed_from_el(el_details.element.clone())
-       .expect("Should be a OutMail entry");
+       ?;
+       //.expect("Should be a OutMail entry");
     let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
     /// Grab info
     let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();

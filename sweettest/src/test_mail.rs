@@ -4,6 +4,7 @@ use snapmail::{
    handle::*,
    mail::*,
    pub_enc_key::*,
+   mail::entries::*,
 };
 
 use holo_hash::*;
@@ -157,34 +158,36 @@ pub async fn test_mail_dm() {
 /// TODO: shutdown doesn't work
 pub async fn test_mail_pending() {
    /// Setup
-   // let (mut conductors, agents, apps) = setup_3_conductors().await;
-   // let cells = apps.cells_flattened();
+   let (mut conductors, agents, apps) = setup_3_conductors().await;
+   let cells = apps.cells_flattened();
+
+
    /// Setup Alex
-   let (mut conductor0, alex, cell0) = setup_1_conductor().await;
-   /// Setup Billy
-   let billy;
-   {
-      let (mut conductor1, billy_temp, cell1) = setup_1_conductor().await;
-      let _: HeaderHash = conductor1.call(&cell1.zome("snapmail"), "set_handle", BILLY_NICK).await;
-      billy = billy_temp.clone();
-      conductor1.shutdown().await;
-   }
-   /// Setup Camille
-   let (mut conductor2, camille, cell2) = setup_1_conductor().await;
-   //let mut conductors = vec![&mut conductor1, &mut conductor2, &mut conductor3];
-   let _agents = vec![&alex, &billy, &camille];
-   //let cells = vec![&cell1, &cell2, &cell3];
-
-   let _: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "set_handle", ALEX_NICK).await;
-
-   let _: HeaderHash = conductor2.call(&cell2.zome("snapmail"), "set_handle", CAMILLE_NICK).await;
+   // let (mut conductor0, alex, cell0) = setup_1_conductor().await;
+   // /// Setup Billy
+   // let billy;
+   // {
+   //    let (mut conductor1, billy_temp, cell1) = setup_1_conductor().await;
+   //    let _: HeaderHash = conductor1.call(&cell1.zome("snapmail"), "set_handle", BILLY_NICK).await;
+   //    billy = billy_temp.clone();
+   //    conductor1.shutdown().await;
+   // }
+   // /// Setup Camille
+   // let (mut conductor2, camille, cell2) = setup_1_conductor().await;
+   // //let mut conductors = vec![&mut conductor1, &mut conductor2, &mut conductor3];
+   // let _agents = vec![&alex, &billy, &camille];
+   // //let cells = vec![&cell0, &cell1, &cell2];
+   //
+   // let _: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "set_handle", ALEX_NICK).await;
+   //
+   // let _: HeaderHash = conductor2.call(&cell2.zome("snapmail"), "set_handle", CAMILLE_NICK).await;
 
    // consistency_10s(cells.as_slice()).await;
    //println!("consistency done!");
 
-   //conductors[1].shutdown().await;
-
-   //consistency_10s(cells.as_slice()).await;
+   /// B goes offline
+   conductors[1].shutdown().await;
+   consistency_10s(cells.as_slice()).await;
 
    //conductors[1].shutdown().await;
 
@@ -194,31 +197,44 @@ pub async fn test_mail_pending() {
 
    //println!("agents: {:?}", agents);
 
-
-   println!("\n\n\n SETUP DONE\n\n");
+   //println!("\n\n\n SETUP DONE\n\n");
 
 
    /// A sends to B
    let mail = SendMailInput {
       subject: "test-outmail".to_string(),
       payload: "blablabla".to_string(),
-      to: vec![billy.clone()], // agents,
+      to: vec![agents[1].clone()], // agents,
       cc: vec![],
       bcc: vec![],
       manifest_address_list: vec![],
    };
-   let outmail_hh: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
+   let outmail_hh: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
    println!("outmail_hh: {:?}", outmail_hh);
-   let mail_output: HasMailBeenFullyAcknowledgedOutput = conductor0.call(&cell0.zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh).await;
-   println!("mail_output: {:?}", mail_output);
-   assert!(mail_output.is_ok());
+   let mail_state: OutMailState = conductors[0].call(&cells[0].zome("snapmail"), "get_outmail_state", outmail_hh).await;
+   println!("mail_state: {:?}", mail_state);
+   assert!(mail_state == OutMailState::Pending);
 
+   /// B goes online
    // consistency_10s(&cells).await;
-   // conductors[1].startup().await;
+   conductors[1].startup().await;
+   //consistency_10s(&cells).await;
+   tokio::time::sleep(std::time::Duration::from_millis(3*1000)).await;
+
+
+   /// B checks inbox
+   let mails: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "check_mail_inbox", ()).await;
+   assert_eq!(1, mails.len());
+
    //
-   // consistency_10s(&cells).await;
-   //
-   // let received_mail: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "check_incoming_mail", ()).await;
-   // //println!("received_mail: {:?}", received_mail);
-   // assert_eq!(received_mail.len(), 1);
+   // let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
+   // for _ in 0..10u32 {
+   //    unacknowledged_inmails = conductor0.call(&cell0.zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
+   //    if unacknowledged_inmails.len() > 0 {
+   //       break;
+   //    }
+   //    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+   // }
+   // println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
+   // assert_eq!(1, unacknowledged_inmails.len());
 }
