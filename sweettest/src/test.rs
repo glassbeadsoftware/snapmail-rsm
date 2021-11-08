@@ -33,8 +33,8 @@ pub async fn test(arg: String) {
    if arg == "all" || arg == "mail" {
       //test_encryption().await;
       //test_mail_self().await;
-      test_mail_dm().await;
-      //test_mail_pending().await;
+      //test_mail_dm().await;
+      test_mail_pending().await;
    }
    // File
    if arg == "all" || arg == "file" {
@@ -224,12 +224,19 @@ pub async fn send_file_dm(size: usize) {
    };
    let _mail_output: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
-   // Check if received
-   let all_arrived: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
-   //println!("all_arrived: {:?}", all_arrived);
-   assert_eq!(1, all_arrived.len());
+   /// B checks if arrived
+   let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
+   for _ in 0..10u32 {
+      unacknowledged_inmails = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
+      if unacknowledged_inmails.len() > 0 {
+         break;
+      }
+      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+   }
+   println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
+   assert_eq!(1, unacknowledged_inmails.len());
 
-   let received_mail: GetMailOutput = conductors[1].call(&cells[1].zome("snapmail"), "get_mail", all_arrived[0].clone()).await;
+   let received_mail: GetMailOutput = conductors[1].call(&cells[1].zome("snapmail"), "get_mail", unacknowledged_inmails[0].clone()).await;
    println!("received_mail: {:?}", received_mail);
    assert!(received_mail.0.is_some());
    let rec_mail = received_mail.0.unwrap();

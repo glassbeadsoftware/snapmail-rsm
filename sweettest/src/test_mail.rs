@@ -156,12 +156,12 @@ pub async fn test_mail_dm() {
 
 /// TODO: shutdown doesn't work
 pub async fn test_mail_pending() {
-   // Setup
+   /// Setup
    // let (mut conductors, agents, apps) = setup_3_conductors().await;
    // let cells = apps.cells_flattened();
-
+   /// Setup Alex
    let (mut conductor0, alex, cell0) = setup_1_conductor().await;
-
+   /// Setup Billy
    let billy;
    {
       let (mut conductor1, billy_temp, cell1) = setup_1_conductor().await;
@@ -169,8 +169,8 @@ pub async fn test_mail_pending() {
       billy = billy_temp.clone();
       conductor1.shutdown().await;
    }
+   /// Setup Camille
    let (mut conductor2, camille, cell2) = setup_1_conductor().await;
-
    //let mut conductors = vec![&mut conductor1, &mut conductor2, &mut conductor3];
    let _agents = vec![&alex, &billy, &camille];
    //let cells = vec![&cell1, &cell2, &cell3];
@@ -194,7 +194,11 @@ pub async fn test_mail_pending() {
 
    //println!("agents: {:?}", agents);
 
-   // Send
+
+   println!("\n\n\n SETUP DONE\n\n");
+
+
+   /// A sends to B
    let mail = SendMailInput {
       subject: "test-outmail".to_string(),
       payload: "blablabla".to_string(),
