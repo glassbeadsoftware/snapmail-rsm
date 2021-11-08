@@ -104,7 +104,7 @@ pub async fn test_mail_dm() {
    let (conductors, agents, apps) = setup_3_conductors().await;
    let cells = apps.cells_flattened();
 
-   // Send
+   // A sends to B
    let mail = SendMailInput {
       subject: "test-outmail".to_string(),
       payload: "blablabla".to_string(),
@@ -114,33 +114,41 @@ pub async fn test_mail_dm() {
       manifest_address_list: vec![],
    };
    let outmail_hh: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
-   // Check if received
-   let unacknowledged_inmails: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
-   //println!("unacknowledged_inmails: {:?}", all_arrived);
+
+   /// B checks if arrived
+   let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
+   for _ in 0..10u32 {
+      unacknowledged_inmails = conductors[0].call(&cells[0].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
+      if unacknowledged_inmails.len() > 0 {
+         break;
+      }
+   }
+   println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
    assert_eq!(1, unacknowledged_inmails.len());
 
    let received_mail: GetMailOutput = conductors[1].call(&cells[1].zome("snapmail"), "get_mail", unacknowledged_inmails[0].clone()).await;
    //println!("received_mail: {:?}", received_mail);
-
    assert!(received_mail.0.is_some());
    let rec_mail = received_mail.0.unwrap();
    assert!(rec_mail.is_ok());
    assert_eq!("blablabla", rec_mail.unwrap().mail.payload);
 
+   /// A acks msg
    let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
    println!("maybe_received: {:?}", maybe_received);
    assert!(maybe_received.is_err());
-
    let _ack_eh: EntryHash = conductors[1].call(&cells[1].zome("snapmail"), "acknowledge_mail", unacknowledged_inmails[0].clone()).await;
 
    println!("\n\n Waiting for consistency.....\n");
    consistency_10s(&cells).await;
 
+   /// A checks if msg has been acknowledged
    println!("*** Calling has_mail_been_fully_acknowledged()");
    let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
    println!("maybe_received2: {:?}", maybe_received);
    assert!(maybe_received.is_ok());
 
+   /// B checks if ack has been received
    let has_acked: bool = conductors[1].call(&cells[1].zome("snapmail"), "has_ack_been_received", unacknowledged_inmails[0].clone()).await;
    println!("has_acked: {:?}", has_acked);
    assert!(has_acked);
