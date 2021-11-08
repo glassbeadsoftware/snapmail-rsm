@@ -1,3 +1,5 @@
+#![allow(unused_doc_comments)]
+
 use std::env;
 
 #[cfg(not(target_arch = "wasm32"))]

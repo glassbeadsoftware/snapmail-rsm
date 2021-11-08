@@ -75,6 +75,7 @@ pub async fn test_mail_self() {
       if unacknowledged_inmails.len() > 0 {
          break;
       }
+      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
    }
    println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
    assert_eq!(1, unacknowledged_inmails.len());
@@ -118,10 +119,11 @@ pub async fn test_mail_dm() {
    /// B checks if arrived
    let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
    for _ in 0..10u32 {
-      unacknowledged_inmails = conductors[0].call(&cells[0].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
+      unacknowledged_inmails = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
       if unacknowledged_inmails.len() > 0 {
          break;
       }
+      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
    }
    println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
    assert_eq!(1, unacknowledged_inmails.len());
@@ -138,9 +140,6 @@ pub async fn test_mail_dm() {
    println!("maybe_received: {:?}", maybe_received);
    assert!(maybe_received.is_err());
    let _ack_eh: EntryHash = conductors[1].call(&cells[1].zome("snapmail"), "acknowledge_mail", unacknowledged_inmails[0].clone()).await;
-
-   println!("\n\n Waiting for consistency.....\n");
-   consistency_10s(&cells).await;
 
    /// A checks if msg has been acknowledged
    println!("*** Calling has_mail_been_fully_acknowledged()");

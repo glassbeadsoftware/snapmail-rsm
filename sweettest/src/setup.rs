@@ -43,6 +43,8 @@ pub async fn setup_1_conductor() -> (SweetConductor, AgentPubKey, SweetCell) {
 
    let cell1 = app1.into_cells()[0].clone();
 
+   println!("\n\n\n SETUP DONE\n\n");
+
    (conductor, alex, cell1)
 }
 
@@ -90,6 +92,7 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
    let handle_list: Vec<HandleItem> = conductors[0].call(&cells[0].zome("snapmail"), "get_all_handles", ()).await;
    assert_eq!(3, handle_list.len());
 
+   println!("\n\n\n SETUP DONE\n\n");
 
    (conductors, agents, apps)
 }
