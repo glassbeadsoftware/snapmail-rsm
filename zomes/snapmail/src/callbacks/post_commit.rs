@@ -65,7 +65,10 @@ fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<PostCo
          let outmail = get_typed_from_eh::<OutMail>(eh.clone())?;
          send_committed_mail(&eh, outmail)?;
       },
-      EntryKind::OutAck => {},
+      EntryKind::OutAck => {
+         let outack = get_typed_from_eh::<OutAck>(eh.clone())?;
+         send_committed_ack(&eh, outack)?;
+      },
       EntryKind::FileManifest => {
          let _manifest = get_typed_from_eh::<FileManifest>(eh)?;
       },

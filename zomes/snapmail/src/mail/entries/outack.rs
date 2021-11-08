@@ -4,14 +4,13 @@ use hdk::prelude::*;
 #[hdk_entry(id = "outack", visibility = "private")]
 #[derive(Clone, PartialEq)]
 pub struct OutAck {
-    // n/a
-    //pub name: String,
+    pub inmail_eh: EntryHash,
 }
 
 impl OutAck {
-    pub fn new() -> Self {
+    pub fn new(inmail_eh: EntryHash) -> Self {
         Self {
-            //name: "empty".to_string(),
+            inmail_eh,
         }
     }
 }

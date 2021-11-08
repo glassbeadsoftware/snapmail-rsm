@@ -9,6 +9,7 @@ mod get_all_unacknowledged_inmails;
 mod has_ack_been_received;
 mod has_mail_been_fully_acknowleged;
 mod delete_mail;
+mod request_acks;
 
 pub use self::{
    acknowledge_mail::*,
@@ -21,4 +22,5 @@ pub use self::{
    has_mail_been_fully_acknowleged::*,
    send_mail::*,
    delete_mail::*,
+   request_acks::*,
 };
