@@ -33,8 +33,6 @@ pub enum InMailState {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OutMailState {
-    //// OutMail written, but has not been sent to recepients
-    //PartiallySent,
     // Has a pending link for each receipient
     Pending,
     // Has less pending links than receipients, and no receipt links

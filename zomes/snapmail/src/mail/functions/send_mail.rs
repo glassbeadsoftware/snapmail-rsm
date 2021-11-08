@@ -21,34 +21,46 @@ pub enum SendSuccessKind {
     OK_PENDING(HeaderHash),
 }
 
-/// Struct holding all result data from a send request
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SendMailOutput {
-    pub outmail: HeaderHash,
-    pub to_pendings: HashMap<String, HeaderHash>,
-    pub cc_pendings: HashMap<String, HeaderHash>,
-    pub bcc_pendings: HashMap<String, HeaderHash>,
+// /// Struct holding all result data from a send request
+// #[derive(Serialize, Deserialize, Debug, Clone)]
+// pub struct SendMailOutput {
+//     pub outmail: HeaderHash,
+//     pub to_pendings: HashMap<String, HeaderHash>,
+//     pub cc_pendings: HashMap<String, HeaderHash>,
+//     pub bcc_pendings: HashMap<String, HeaderHash>,
+// }
+//
+// impl SendMailOutput {
+//     pub fn new(outmail_hh: HeaderHash) -> Self {
+//         Self {
+//             outmail: outmail_hh,
+//             to_pendings: HashMap::new(),
+//             cc_pendings: HashMap::new(),
+//             bcc_pendings: HashMap::new(),
+//         }
+//     }
+//
+//     pub fn add_pending(&mut self, kind: RecipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
+//         let agent_str = format!("{}", agent_id);
+//         match kind {
+//             RecipientKind::TO => self.to_pendings.insert(agent_str, hh),
+//             RecipientKind::CC => self.cc_pendings.insert(agent_str, hh),
+//             RecipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
+//         };
+//     }
+// }
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SendMailInput {
+    pub subject: String,
+    pub payload: String,
+    pub to: Vec<AgentPubKey>,
+    pub cc: Vec<AgentPubKey>,
+    pub bcc: Vec<AgentPubKey>,
+    pub manifest_address_list: Vec<HeaderHash>,
 }
 
-impl SendMailOutput {
-    pub fn new(outmail_hh: HeaderHash) -> Self {
-        Self {
-            outmail: outmail_hh,
-            to_pendings: HashMap::new(),
-            cc_pendings: HashMap::new(),
-            bcc_pendings: HashMap::new(),
-        }
-    }
-
-    pub fn add_pending(&mut self, kind: RecipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
-        let agent_str = format!("{}", agent_id);
-        match kind {
-            RecipientKind::TO => self.to_pendings.insert(agent_str, hh),
-            RecipientKind::CC => self.cc_pendings.insert(agent_str, hh),
-            RecipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
-        };
-    }
-}
 
 ///
 fn send_manifest_by_dm(
@@ -230,16 +242,6 @@ fn send_mail_to(
     Ok(SendSuccessKind::OK_PENDING(pending_mail_hh))
 }
 
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SendMailInput {
-    pub subject: String,
-    pub payload: String,
-    pub to: Vec<AgentPubKey>,
-    pub cc: Vec<AgentPubKey>,
-    pub bcc: Vec<AgentPubKey>,
-    pub manifest_address_list: Vec<HeaderHash>,
-}
 
 /// Zone Function
 /// Send Mail: Creates and commits OutMail. Files must already be committed.

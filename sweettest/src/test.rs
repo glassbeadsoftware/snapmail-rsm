@@ -225,7 +225,7 @@ pub async fn send_file_dm(size: usize) {
    let _mail_output: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
    // Check if received
-   let all_arrived: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "get_all_arrived_mail", ()).await;
+   let all_arrived: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
    //println!("all_arrived: {:?}", all_arrived);
    assert_eq!(1, all_arrived.len());
 
