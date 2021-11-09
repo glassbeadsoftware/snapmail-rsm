@@ -213,7 +213,7 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash
 
 
 ///
-fn send_mail_to(
+pub(crate) fn send_mail_to(
     outmail_eh: &EntryHash,
     mail: &Mail,
     destination: &AgentPubKey,
@@ -240,7 +240,6 @@ fn send_mail_to(
         assert!(matches!(res, ZomeCallResponse::Ok { .. }));
         return Ok(SendSuccessKind::OK_SELF);
     }
-
     /// Try sending directly to other Agent if Online
     let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
     if result.is_ok() {
@@ -249,7 +248,6 @@ fn send_mail_to(
         let err = result.err().unwrap();
         debug!("send_mail_by_dm() failed: {:?}", err);
     }
-
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self
     let pending_mail = PendingMail::from_mail(
@@ -309,12 +307,8 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
 /// if receipient not online, creates a PendingMail on the DHT.
 pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternResult<()> {
     debug!("CALLED send_committed_mail() {:?}", outmail_eh);
-    /// Merge recepient lists
-    let mut recepients: Vec<AgentPubKey> = outmail.bcc.clone();
-    recepients.append(&mut outmail.mail.cc.clone());
-    recepients.append(&mut outmail.mail.to.clone());
-    recepients.sort();
-    recepients.dedup();
+    /// Get recepients
+    let recepients= outmail.recepients();
     /// Get all attachments manifests
     let mut file_manifest_list = Vec::new();
     for attachment in outmail.mail.attachments.clone() {

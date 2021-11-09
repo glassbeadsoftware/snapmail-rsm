@@ -7,6 +7,8 @@ use crate::{
    mail::entries::*,
    mail::utils::{get_inmail_state, get_outmail_state},
    utils::*,
+   mail::send_mail_to,
+   file::get_manifest,
 };
 
 
@@ -42,12 +44,32 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
       let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
       let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?;
       let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
-
       if receipient_count == pendings.len() + receipts.len() {
          continue;
       }
       hhs.push(outmail_hh);
-      // FIXME look for missing acks
+      /// Get file manifest
+      let mut file_manifest_list = Vec::new();
+      for attachment in outmail.mail.attachments.clone() {
+         let manifest = get_manifest(attachment.manifest_eh.into())?;
+         file_manifest_list.push(manifest.clone());
+      }
+      /// Look for missing acks
+      let recepients= outmail.recepients();
+      let mut pending_agents: Vec<AgentPubKey> = pendings.iter().map(|link| {
+         LinkKind::Pendings.unconcat_hash(&link.tag).unwrap()
+      }).collect();
+      let receipt_agents: Vec<AgentPubKey> = receipts.iter().map(|link| {
+         LinkKind::Receipt.unconcat_hash(&link.tag).unwrap()
+      }).collect();
+      pending_agents.extend_from_slice(&receipt_agents);
+      /// Send mail to each missing ack/pending
+      for recepient in recepients {
+         if pending_agents.contains(&recepient) {
+            continue;
+         }
+         let _res = send_mail_to(&outmail_eh, &outmail.mail, &recepient, &file_manifest_list);
+      }
    }
    /// Done
    Ok(hhs)

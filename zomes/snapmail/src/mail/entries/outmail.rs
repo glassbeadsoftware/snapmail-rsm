@@ -43,4 +43,15 @@ impl OutMail {
         let mail = Mail { date_sent, subject, payload, to, cc, attachments };
         OutMail::new(mail, bcc)
     }
+
+    /// Merge recepient lists
+    pub fn recepients(&self) -> Vec<AgentPubKey> {
+        let mut recepients: Vec<AgentPubKey> = self.bcc.clone();
+        recepients.append(&mut self.mail.cc.clone());
+        recepients.append(&mut self.mail.to.clone());
+        recepients.sort();
+        recepients.dedup();
+        recepients
+    }
+
 }
