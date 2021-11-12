@@ -10,6 +10,7 @@ mod has_ack_been_received;
 mod has_mail_been_fully_acknowleged;
 mod delete_mail;
 mod request_acks;
+mod get_outmail_state;
 
 pub use self::{
    acknowledge_mail::*,
@@ -23,4 +24,5 @@ pub use self::{
    send_mail::*,
    delete_mail::*,
    request_acks::*,
+   get_outmail_state::*,
 };

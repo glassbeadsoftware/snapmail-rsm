@@ -5,7 +5,8 @@ use crate::{
     // link_kind,
     entry_kind::*,
     mail::entries::*,
-    mail::utils::{get_inmail_state, get_outmail_state},
+    mail::get_outmail_state,
+    mail::utils::get_inmail_state,
     utils::*,
 };
 
