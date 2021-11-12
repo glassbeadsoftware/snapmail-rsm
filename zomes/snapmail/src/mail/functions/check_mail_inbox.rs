@@ -135,19 +135,3 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
     debug!("incoming_mail new_inmails.len() = {} (for {})", new_inmails.len(), &my_agent_eh);
     Ok(new_inmails)
 }
-
-
-/// Delete Pendings links from outmail to `to` agent
-fn delete_pendings_link(outmail_eh: &EntryHash, to: &AgentPubKey) -> ExternResult<HeaderHash> {
-    let pendings_links_result = get_links(
-        outmail_eh.clone(),
-        //None,
-        Some(LinkKind::Pendings.concat_hash(to)),
-    )?;
-    debug!("pendings_links_result: {:?}", pendings_links_result);
-    if pendings_links_result.len() != 1 {
-        return error("Pendings link not found");
-    }
-    let res = delete_link(pendings_links_result[0].create_link_hash.clone());
-    res
-}

@@ -14,6 +14,7 @@ use crate::{
 
 
 /// Zome Function
+/// Re-send mail to OutMails for which we have missing acks
 /// Return list of OutMails for which we requested acks
 #[hdk_extern]
 #[snapmail_api]
