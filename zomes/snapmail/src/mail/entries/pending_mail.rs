@@ -59,7 +59,7 @@ impl PendingMail {
       trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
+      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
          .expect("Decryption should work");
       trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
       let decrypted = match maybe_decrypted {

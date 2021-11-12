@@ -10,6 +10,7 @@ use crate::{
 #[hdk_extern]
 #[snapmail_api]
 pub(crate) fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
+    debug!(" *** get_outmail_state(): ");
     /// Get OutMail Details
     let maybe_details = get_details(outmail_hh.clone(), GetOptions::latest())?;
     if maybe_details.is_none() {
@@ -29,18 +30,23 @@ pub(crate) fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailS
        //.expect("Should be a OutMail entry");
     let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
     /// Grab info
-    let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
+    let recepient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
     let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?;
     let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
+
+    debug!("  - recepients: {}", recepient_count);
+    debug!("  -   pendings: {}", pendings.len());
+    debug!("  -   receipts: {}", receipts.len());
+
     /// Determine state
-    if pendings.len() == receipient_count {
+    if pendings.len() == recepient_count {
         return Ok(OutMailState::Pending);
     }
     if pendings.len() == 0 {
         if receipts.len() == 0 {
             return Ok(OutMailState::Arrived_NoAcknowledgement);
         }
-        if receipts.len() == receipient_count {
+        if receipts.len() == recepient_count {
             return Ok(OutMailState::FullyAcknowledged);
         }
         return Ok(OutMailState::Arrived_PartiallyAcknowledged);

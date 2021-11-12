@@ -11,6 +11,7 @@ use crate::{
     },
     send_dm,
     utils::*,
+    constants::*,
 };
 
 
@@ -63,23 +64,24 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
     /// Get InMail
     let inmail = get_typed_from_eh::<InMail>(outack.inmail_eh.clone())?;
     /// Try Direct sharing of Acknowledgment
-    debug!("Sending ack via DM ...");
-    let me = agent_info()?.agent_latest_pubkey;
-    let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
-    if res.is_ok() {
-        debug!("Acknowledgment shared !");
-        return Ok(());
+    if CAN_DM {
+        debug!("Sending ack via DM ...");
+        let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
+        if res.is_ok() {
+            debug!("Acknowledgment shared !");
+            return Ok(());
+        }
+        let err = res.err().unwrap();
+        debug!("Direct sharing of Acknowledgment failed: {}", err);
     }
     /// Otherwise share Acknowledgement via DHT
-    let err = res.err().unwrap();
-    debug!("Direct sharing of Acknowledgment failed: {}", err);
     let payload = CommitPendingAckInput {
         outack_eh: outack_eh.clone(),
         outmail_eh: inmail.outmail_eh,
         original_sender: inmail.from,
     };
     let _pending_mail_hh = call_remote(
-        me,
+        agent_info()?.agent_latest_pubkey,
         zome_info()?.name,
         "commit_pending_ack".to_string().into(),
         None,

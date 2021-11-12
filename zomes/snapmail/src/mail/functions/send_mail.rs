@@ -12,6 +12,7 @@ use crate::{
     mail::receive::*,
     LinkKind,
     file::{FileManifest, FileChunk, get_manifest},
+    constants::*,
 };
 
 #[allow(non_camel_case_types)]
@@ -241,12 +242,14 @@ pub(crate) fn send_mail_to(
         return Ok(SendSuccessKind::OK_SELF);
     }
     /// Try sending directly to other Agent if Online
-    let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
-    if result.is_ok() {
-        return Ok(SendSuccessKind::OK_DIRECT);
-    } else {
-        let err = result.err().unwrap();
-        debug!("send_mail_by_dm() failed: {:?}", err);
+    if CAN_DM {
+        let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
+        if result.is_ok() {
+            return Ok(SendSuccessKind::OK_DIRECT);
+        } else {
+            let err = result.err().unwrap();
+            debug!("send_mail_by_dm() failed: {:?}", err);
+        }
     }
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self

@@ -10,6 +10,7 @@ use crate::{
     file::{FileManifest},
 };
 
+
 /// Zome Function
 /// Check for PendingMails and convert to InMails
 /// Return list of new InMail addresses created after checking for PendingMails
@@ -17,7 +18,8 @@ use crate::{
 #[snapmail_api]
 pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
     /// Lookup `mail_inbox` links on my agentId
-    let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
+    let me = agent_info()?.agent_latest_pubkey;
+    let my_agent_eh = EntryHash::from(me.clone());
     let links_result = get_links(
         my_agent_eh.clone(),
         //None,
@@ -26,8 +28,8 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();
-    for link in &links_result {
-        let pending_mail_eh = link.target.clone();
+    for inbox_link in &links_result {
+        let pending_mail_eh = inbox_link.target.clone();
         let maybe_el = get(pending_mail_eh.clone(), GetOptions::latest())?;
         if maybe_el.is_none() {
             warn!("Header not found for pending mail entry");
@@ -50,13 +52,20 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
         }
         //debug!("inmail_hh: {}", maybe_inmail_hh.clone().unwrap());
         new_inmails.push(maybe_inmail_hh.unwrap());
-        /// Remove link from this agent address
-        let res = delete_link(link.create_link_hash.clone());
+        /// Remove inbox link
+        let res = delete_link(inbox_link.create_link_hash.clone());
         if let Err(err) = res {
             error!("Remove ``mail_inbox`` link failed:");
             error!(?err);
             continue;
         }
+        // /// Remove Pendings link
+        // let res = delete_pendings_link(&inmail.outmail_eh, &me);
+        // if let Err(err) = res {
+        //     error!("Remove ``pendings`` link failed:");
+        //     error!(?err);
+        //     continue;
+        // }
         //debug!("delete_link res: {:?}", res);
         /// Delete PendingMail entry
         let res = delete_entry(pending_hh.clone());
@@ -125,4 +134,20 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
     }
     debug!("incoming_mail new_inmails.len() = {} (for {})", new_inmails.len(), &my_agent_eh);
     Ok(new_inmails)
+}
+
+
+/// Delete Pendings links from outmail to `to` agent
+fn delete_pendings_link(outmail_eh: &EntryHash, to: &AgentPubKey) -> ExternResult<HeaderHash> {
+    let pendings_links_result = get_links(
+        outmail_eh.clone(),
+        //None,
+        Some(LinkKind::Pendings.concat_hash(to)),
+    )?;
+    debug!("pendings_links_result: {:?}", pendings_links_result);
+    if pendings_links_result.len() != 1 {
+        return error("Pendings link not found");
+    }
+    let res = delete_link(pendings_links_result[0].create_link_hash.clone());
+    res
 }

@@ -9,7 +9,9 @@ members = [
 ]
 
 [profile.dev]
-opt-level = "z"
+lto = false
+opt-level = 0
+overflow-checks = false
 
 [profile.release]
 opt-level = "z"
