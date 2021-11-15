@@ -9,4 +9,4 @@ pub const CHUNK_MAX_SIZE: usize = 200 * 1024;
 pub const FILE_MAX_SIZE: usize = 10 * 1024 * 1024;
 
 /// PSEUDO CONDITIONAL COMPILATION FOR DEBUGGING / TESTING
-pub const CAN_DM: bool = false;
+pub const CAN_DM: bool = true;

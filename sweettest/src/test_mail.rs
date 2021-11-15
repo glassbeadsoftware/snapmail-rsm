@@ -257,6 +257,8 @@ pub async fn test_mail_pending() {
                  |mail_state: &OutMailState| {mail_state == &OutMailState::FullyAcknowledged})
       .await
       .expect("Should have FullyAcknowledged state");
+
+   print_chain(&conductors[0], &agents[0], &cells[0]).await;
 }
 
 

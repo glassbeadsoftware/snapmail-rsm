@@ -97,7 +97,7 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
    (conductors, agents, apps)
 }
 
-
+/// TODO: Color per public/private state
 fn print_element(element: &SourceChainJsonElement) -> String {
    let mut str = format!("{:?} ", element.header.header_type());
   // let mut str = format!("({}) ", element.header_address);
@@ -108,8 +108,9 @@ fn print_element(element: &SourceChainJsonElement) -> String {
 
    match &element.header {
       Header::CreateLink(create_link) => {
-         let s = std::str::from_utf8(&create_link.tag.0).unwrap();
-         str += &format!("'{}'", s);
+         // let s = std::str::from_utf8(&create_link.tag.0).unwrap();
+         let s = String::from_utf8_lossy(&create_link.tag.0).to_string();
+         str += &format!("'{:.20}'", s).yellow().to_string();
       },
       Header::Create(create_entry) => {
             let mut s = String::new();
@@ -118,12 +119,18 @@ fn print_element(element: &SourceChainJsonElement) -> String {
                let entry_kind: &'static str = EntryKind::from_index(&app_entry_type.id()).as_static();
                s += "AppEntry ";
                s += &format!("'{}'", entry_kind);
+               if app_entry_type.visibility() == &EntryVisibility::Public {
+                  s = s.green().to_string();
+               } else {
+                  s = s.red().to_string();
+               }
             },
             _ => {
                s += &format!("{:?}", create_entry.entry_type);
+               s = s.green().to_string();
             }
          };
-         str += &s.green().to_string();
+         str += &s;
       },
       Header::Update(update_entry) => {
          let mut s = String::new();
@@ -138,6 +145,14 @@ fn print_element(element: &SourceChainJsonElement) -> String {
             }
          };
          str += &s.yellow().to_string();
+      },
+      Header::DeleteLink(delete_link) => {
+         let s = format!("{}", delete_link.link_add_address);
+         str += &format!("'{:.25}'", s).yellow().to_string();
+      },
+      Header::Delete(delete_entry) => {
+         let s = format!("{}", delete_entry.deletes_address);
+         str += &format!("'{:.25}'", s).green().to_string();
       }
       _ => {},
    }
