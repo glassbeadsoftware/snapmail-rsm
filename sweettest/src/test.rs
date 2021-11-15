@@ -31,10 +31,10 @@ pub async fn test(arg: String) {
    }
    // Mail
    if arg == "all" || arg == "mail" {
-      test_encryption().await;
-      test_mail_self().await;
-      test_mail_dm().await;
-      //test_mail_pending().await;
+      //test_encryption().await;
+      //test_mail_self().await;
+      //test_mail_dm().await;
+      test_mail_pending().await;
    }
    // File
    if arg == "all" || arg == "file" {

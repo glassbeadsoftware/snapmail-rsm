@@ -1,5 +1,3 @@
-use holochain::sweettest::*;
-
 use snapmail::{
    handle::*,
    mail::*,
@@ -118,16 +116,11 @@ pub async fn test_mail_dm() {
    let outmail_hh: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
    /// B checks if arrived
-   let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
-   for _ in 0..10u32 {
-      unacknowledged_inmails = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
-      if unacknowledged_inmails.len() > 0 {
-         break;
-      }
-      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-   }
-   println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
-   assert_eq!(1, unacknowledged_inmails.len());
+   let unacknowledged_inmails: Vec<HeaderHash> = try_zome_call(&conductors[1], cells[1], "get_all_unacknowledged_inmails", (),
+                 |unacknowledged_inmails: &Vec<HeaderHash>| {unacknowledged_inmails.len() == 1})
+      .await
+      .expect("Should have an unacknowledged inmail");
+
 
    let received_mail: GetMailOutput = conductors[1].call(&cells[1].zome("snapmail"), "get_mail", unacknowledged_inmails[0].clone()).await;
    //println!("received_mail: {:?}", received_mail);
@@ -144,9 +137,10 @@ pub async fn test_mail_dm() {
 
    /// A checks if msg has been acknowledged
    println!("*** Calling has_mail_been_fully_acknowledged()");
-   let maybe_received: HasMailBeenFullyAcknowledgedOutput = conductors[0].call(&cells[0].zome("snapmail"), "has_mail_been_fully_acknowledged", outmail_hh.clone()).await;
-   println!("maybe_received2: {:?}", maybe_received);
-   assert!(maybe_received.is_ok());
+   try_zome_call(&conductors[0], cells[0], "has_mail_been_fully_acknowledged", outmail_hh.clone(),
+                 |maybe_received: &HasMailBeenFullyAcknowledgedOutput| {maybe_received.is_ok()})
+      .await
+      .expect("Should have received ack");
 
    /// B checks if ack has been received
    let has_acked: bool = conductors[1].call(&cells[1].zome("snapmail"), "has_ack_been_received", unacknowledged_inmails[0].clone()).await;
@@ -258,22 +252,4 @@ pub async fn test_mail_pending() {
       .expect("Should have FullyAcknowledged state");
 
    print_chain(&conductors[0], &agents[0], &cells[0]).await;
-}
-
-
-///
-async fn try_zome_call<T,P>(conductor: &SweetConductor, cell: &SweetCell, fn_name: &str, payload: P, predicat: fn(res: &T) -> bool) -> Result<T, ()>
-   where
-      T: serde::de::DeserializeOwned + std::fmt::Debug,
-      P: Clone + serde::Serialize + std::fmt::Debug,
-{
-   for _ in 0..10u32 {
-      let res: T = conductor.call(&cell.zome("snapmail"), fn_name, payload.clone())
-         .await;
-      if predicat(&res) {
-         return Ok(res);
-      }
-      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-   }
-   Err(())
 }

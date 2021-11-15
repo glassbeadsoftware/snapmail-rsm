@@ -74,12 +74,9 @@ fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<()>{
       },
       EntryKind::FileChunk => {
          let _chunk = get_typed_from_eh::<FileChunk>(eh)?;
-      },
-      /// Add type handling here
-      /// ..
-
-      ///
-      _ => unreachable!(),
+      }
+      // Add type handling here
+      // ..
    }
    // Done
    Ok(())

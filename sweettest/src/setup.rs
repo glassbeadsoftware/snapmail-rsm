@@ -225,3 +225,21 @@ pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: 
 
    println!(" ====== SOURCE-CHAIN STATE DUMP END  ===== {}", json_dump.elements.len());
 }
+
+
+///
+pub async fn try_zome_call<T,P>(conductor: &SweetConductor, cell: &SweetCell, fn_name: &str, payload: P, predicat: fn(res: &T) -> bool) -> Result<T, ()>
+   where
+      T: serde::de::DeserializeOwned + std::fmt::Debug,
+      P: Clone + serde::Serialize + std::fmt::Debug,
+{
+   for _ in 0..10u32 {
+      let res: T = conductor.call(&cell.zome("snapmail"), fn_name, payload.clone())
+                            .await;
+      if predicat(&res) {
+         return Ok(res);
+      }
+      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+   }
+   Err(())
+}
