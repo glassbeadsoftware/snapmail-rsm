@@ -1,15 +1,13 @@
 use hdk::prelude::*;
 
-use std::collections::HashMap;
-
 use crate::{
     utils::*,
     send_dm,
-    mail::entries::{PendingMail, RecipientKind, Mail, OutMail, InMail},
+    mail::entries::{PendingMail, Mail, OutMail, InMail},
     dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
-    mail::receive::*,
+    //mail::receive::*,
     LinkKind,
     file::{FileManifest, FileChunk, get_manifest},
     constants::*,
@@ -21,35 +19,6 @@ pub enum SendSuccessKind {
     OK_DIRECT,
     OK_PENDING,
 }
-
-// /// Struct holding all result data from a send request
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// pub struct SendMailOutput {
-//     pub outmail: HeaderHash,
-//     pub to_pendings: HashMap<String, HeaderHash>,
-//     pub cc_pendings: HashMap<String, HeaderHash>,
-//     pub bcc_pendings: HashMap<String, HeaderHash>,
-// }
-//
-// impl SendMailOutput {
-//     pub fn new(outmail_hh: HeaderHash) -> Self {
-//         Self {
-//             outmail: outmail_hh,
-//             to_pendings: HashMap::new(),
-//             cc_pendings: HashMap::new(),
-//             bcc_pendings: HashMap::new(),
-//         }
-//     }
-//
-//     pub fn add_pending(&mut self, kind: RecipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
-//         let agent_str = format!("{}", agent_id);
-//         match kind {
-//             RecipientKind::TO => self.to_pendings.insert(agent_str, hh),
-//             RecipientKind::CC => self.cc_pendings.insert(agent_str, hh),
-//             RecipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
-//         };
-//     }
-// }
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -310,8 +279,8 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
 /// if receipient not online, creates a PendingMail on the DHT.
 pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternResult<()> {
     debug!("CALLED send_committed_mail() {:?}", outmail_eh);
-    /// Get recepients
-    let recepients= outmail.recepients();
+    /// Get recipients
+    let recipients = outmail.recipients();
     /// Get all attachments manifests
     let mut file_manifest_list = Vec::new();
     for attachment in outmail.mail.attachments.clone() {
@@ -319,7 +288,7 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
         file_manifest_list.push(manifest.clone());
     }
     /// Send to each recepient
-    for agent in recepients {
+    for agent in recipients {
         let _res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list);
     }
     /// Done

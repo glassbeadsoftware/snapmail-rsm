@@ -97,7 +97,7 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
    (conductors, agents, apps)
 }
 
-/// TODO: Color per public/private state
+///
 fn print_element(element: &SourceChainJsonElement) -> String {
    let mut str = format!("{:?} ", element.header.header_type());
   // let mut str = format!("({}) ", element.header_address);

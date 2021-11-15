@@ -5,7 +5,6 @@ use crate::{
    link_kind::*,
    entry_kind::*,
    mail::entries::*,
-   mail::utils::get_inmail_state,
    utils::*,
    mail::get_outmail_state,
    mail::send_mail_to,
@@ -57,7 +56,7 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
          file_manifest_list.push(manifest.clone());
       }
       /// Look for missing acks
-      let recepients= outmail.recepients();
+      let recipients = outmail.recipients();
       let mut pending_agents: Vec<AgentPubKey> = pendings.iter().map(|link| {
          LinkKind::Pendings.unconcat_hash(&link.tag).unwrap()
       }).collect();
@@ -66,11 +65,11 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
       }).collect();
       pending_agents.extend_from_slice(&receipt_agents);
       /// Send mail to each missing ack/pending
-      for recepient in recepients {
-         if pending_agents.contains(&recepient) {
+      for recipient in recipients {
+         if pending_agents.contains(&recipient) {
             continue;
          }
-         let _res = send_mail_to(&outmail_eh, &outmail.mail, &recepient, &file_manifest_list);
+         let _res = send_mail_to(&outmail_eh, &outmail.mail, &recipient, &file_manifest_list);
       }
    }
    /// Done

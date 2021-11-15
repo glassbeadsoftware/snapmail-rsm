@@ -1,9 +1,6 @@
 use hdk::prelude::*;
-// use hdk::prelude::element::ElementEntry;
 
 use crate::{
-   handle::*,
-   //chunk::*,
    file::*,
    mail::entries::*,
    mail::functions::*,
@@ -20,8 +17,9 @@ fn post_commit(signedHeaderList: Vec<SignedHeaderHashed>) -> ExternResult<PostCo
    for signedHeader in signedHeaderList {
       //debug!(" - {:?}", signedHeader.header().entry_type());
       let header = signedHeader.header();
-      let hash = signedHeader.as_hash().get_raw_39();
-      let hash64 = format!("u{}", base64::encode_config(hash, base64::URL_SAFE_NO_PAD));
+
+      //let hash = signedHeader.as_hash().get_raw_39();
+      //let hash64 = format!("u{}", base64::encode_config(hash, base64::URL_SAFE_NO_PAD));
       // debug!(" - {} ({:?})", hash64, signedHeader.header().entry_type());
 
       if header.entry_type().is_none() {

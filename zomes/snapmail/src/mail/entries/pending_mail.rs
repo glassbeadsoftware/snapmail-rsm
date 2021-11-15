@@ -6,7 +6,7 @@ use crate::pub_enc_key::*;
 
 /// Entry representing a mail on the DHT waiting to be received by receipient.
 /// The receipient is the agentId where the entry is linked from.
-/// The mail is encrypted with the recepient's public encryption key.
+/// The mail is encrypted with the recipient's public encryption key.
 ///
 #[hdk_entry(id = "pending_mail")]
 #[derive(Clone, PartialEq)]

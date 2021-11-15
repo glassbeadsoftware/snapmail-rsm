@@ -1,10 +1,9 @@
-use holochain::test_utils::consistency_10s;
 use holochain::sweettest::*;
 
 use snapmail::{
    handle::*,
    mail::*,
-   pub_enc_key::*,
+   //pub_enc_key::*,
    mail::entries::*,
 };
 
@@ -159,7 +158,7 @@ pub async fn test_mail_dm() {
 /// TODO: shutdown doesn't work
 pub async fn test_mail_pending() {
    /// Setup
-   let (mut conductors, agents, apps) = setup_3_conductors().await;
+   let (conductors, agents, apps) = setup_3_conductors().await;
    let cells = apps.cells_flattened();
 
    /// Setup Alex

@@ -44,14 +44,14 @@ impl OutMail {
         OutMail::new(mail, bcc)
     }
 
-    /// Merge recepient lists
-    pub fn recepients(&self) -> Vec<AgentPubKey> {
-        let mut recepients: Vec<AgentPubKey> = self.bcc.clone();
-        recepients.append(&mut self.mail.cc.clone());
-        recepients.append(&mut self.mail.to.clone());
-        recepients.sort();
-        recepients.dedup();
-        recepients
+    /// Merge recipient lists
+    pub fn recipients(&self) -> Vec<AgentPubKey> {
+        let mut recipients: Vec<AgentPubKey> = self.bcc.clone();
+        recipients.append(&mut self.mail.cc.clone());
+        recipients.append(&mut self.mail.to.clone());
+        recipients.sort();
+        recipients.dedup();
+        recipients
     }
 
 }

@@ -20,8 +20,8 @@ pub fn has_mail_been_fully_acknowledged(outmail_hh: HeaderHash) -> ExternResult<
     /// Get OutMail
     let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;
     /// Merge all recepients lists into one
-    let all_recepients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
-    debug!("all_recepients: {:?} ({})", all_recepients, outmail_hh);
+    let all_recipients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
+    debug!("all_recipients: {:?} ({})", all_recipients, outmail_hh);
     /// Get all ``receipt`` links
     // FIXME: have tag filtering working when calling get_links
     // let links_result: Vec<Link> = get_links(outmail_eh, LinkKind::Receipt.as_tag_opt())?.into_inner();
@@ -39,9 +39,9 @@ pub fn has_mail_been_fully_acknowledged(outmail_hh: HeaderHash) -> ExternResult<
     }
     debug!("receipt_authors: {:?}", receipt_authors);
     /// Diff lists
-    let diff: Vec<AgentPubKey>  = all_recepients.into_iter()
-        .filter(|recepient| !receipt_authors.contains(recepient))
-        .collect();
+    let diff: Vec<AgentPubKey>  = all_recipients.into_iter()
+                                                .filter(|recipient| !receipt_authors.contains(recipient))
+                                                .collect();
     debug!("diff: {:?}", diff);
     /// Done
     let result = if diff.len() > 0 { Err(diff) } else { Ok(()) };

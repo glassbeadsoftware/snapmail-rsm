@@ -104,7 +104,7 @@ pub async fn test_pub_enc_key() {
 
 ///
 pub async fn test_handle() {
-   let (conductor, alex, cell1) = setup_1_conductor().await;
+   let (conductor, _alex, cell1) = setup_1_conductor().await;
 
    let name = "alex";
    println!("Calling get_my_handle()");
