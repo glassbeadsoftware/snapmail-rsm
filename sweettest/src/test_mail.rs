@@ -41,7 +41,7 @@ pub async fn test_encryption() {
       if length == 3 {
          break;
       }
-      print_peers(&conductor0, &cell0);
+      print_peers(&conductor0, &cell0).await;
       tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
    }
    assert_eq!(3, length);

@@ -9,7 +9,7 @@ use crate::{
 /// Get State of an OutMail
 #[hdk_extern]
 #[snapmail_api]
-pub(crate) fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
+pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
    debug!(" *** get_outmail_state(): ");
    /// Get OutMail Details
    let maybe_details = get_details(outmail_hh.clone(), GetOptions::latest())?;

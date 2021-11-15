@@ -175,14 +175,14 @@ fn print_element(element: &SourceChainJsonElement) -> String {
    line
 }
 
-pub fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
+pub async fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
    let cell_id = cell.cell_id();
    let space = cell_id.dna_hash().to_kitsune();
    let env = conductor.get_p2p_env(space);
    let peer_dump = p2p_agent_store::dump_state(
       env.into(),
       Some(cell_id.clone()),
-   ).expect("p2p_store should not fail");
+   ).await.expect("p2p_store should not fail");
    println!(" *** peer_dump: {:?}",peer_dump.peers);
 }
 
@@ -197,7 +197,7 @@ pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: 
    let peer_dump = p2p_agent_store::dump_state(
       env.into(),
       Some(cell_id.clone()),
-   ).expect("p2p_store should not fail");
+   ).await.expect("p2p_store should not fail");
 
 
    // let p2p_env = conductor

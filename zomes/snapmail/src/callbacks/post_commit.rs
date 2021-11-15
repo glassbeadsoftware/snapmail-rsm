@@ -10,8 +10,8 @@ use crate::{
 use crate::strum::AsStaticRef;
 
 /// Zome Callback
-#[hdk_extern]
-fn post_commit(signedHeaderList: Vec<SignedHeaderHashed>) -> ExternResult<PostCommitCallbackResult> {
+#[hdk_extern(infallible)]
+fn post_commit(signedHeaderList: Vec<SignedHeaderHashed>) {
    //debug!("post_commit() called: {:?}", hhList);
    debug!("post_commit() called");
    for signedHeader in signedHeaderList {
@@ -32,15 +32,17 @@ fn post_commit(signedHeaderList: Vec<SignedHeaderHashed>) -> ExternResult<PostCo
          EntryType::CapClaim => {},
          EntryType::CapGrant => {},
          EntryType::App(app_type) => {
-            return post_commit_app(entry_hash.clone(), app_type.clone());
+            let res = post_commit_app(entry_hash.clone(), app_type.clone());
+            if let Err(e) = res {
+               error!("post_commit() error: {:?}", e);
+            }
          },
       }
    }
-   Ok(PostCommitCallbackResult::Success)
 }
 
 
-fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<PostCommitCallbackResult> {
+fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<()>{
    let entry_kind = EntryKind::from_index(&app_type.id());
    debug!(" - {} ({})",  entry_kind.as_static(), eh);
    match entry_kind {
@@ -80,6 +82,6 @@ fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<PostCo
       _ => unreachable!(),
    }
    // Done
-   Ok(PostCommitCallbackResult::Success)
+   Ok(())
 }
 

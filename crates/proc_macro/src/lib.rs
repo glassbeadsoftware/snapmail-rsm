@@ -86,7 +86,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
                zome_name: crate::ZOME_NAME.into(),
                fn_name: fn_name.into(),
                payload,
-               cap: None,
+               cap_secret: None,
                provenance,
             })
             .await
