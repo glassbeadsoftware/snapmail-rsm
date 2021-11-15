@@ -9,19 +9,19 @@ use crate::{
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_all_arrived_mail(_: ()) -> ExternResult<Vec<HeaderHash>> {
+pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<HeaderHash>> {
     /// Get all InMails with query
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .entry_type(EntryKind::InMail.as_type());
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
-        error!("get_all_arrived_mail() inmail_result failed: {:?}", err);
+        error!("get_all_unacknowledged_inmails() inmail_result failed: {:?}", err);
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
     let inmails: Vec<Element> = maybe_inmail_result.unwrap();
-    debug!("get_all_arrived_mail() inmails[{}]: {:?}", inmails.len(), inmails);
+    debug!("get_all_unacknowledged_inmails() inmails[{}]: {:?}", inmails.len(), inmails);
 
     // DEBUG - Output dummy values instead
     // let mut unreads = Vec::new();

@@ -11,19 +11,20 @@ use crate::{
     },
     send_dm,
     utils::*,
+    constants::*,
 };
 
 
 /// Zome function
 /// DEBUG
-#[hdk_extern]
-pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
-    let outack = OutAck::new();
-    debug!("create_outack() called");
-    let outack_hh = create_entry(&outack)?;
-    debug!("create_outack() done");
-    Ok(outack_hh)
-}
+// #[hdk_extern]
+// pub fn create_outack(_:()) -> ExternResult<HeaderHash> {
+//     let outack = OutAck::new();
+//     debug!("create_outack() called");
+//     let outack_hh = create_entry(&outack)?;
+//     debug!("create_outack() done");
+//     Ok(outack_hh)
+// }
 
 /// Zome function
 /// Return EntryHash of newly created OutAck
@@ -38,14 +39,12 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
         return error("Mail has already been acknowledged");
     }
     debug!("Not acknowledged yet");
-
     /// Write OutAck
-    let outack = OutAck::new();
+    let outack = OutAck::new(inmail_eh.clone());
     let outack_hh = create_entry(&outack)?;
     let outack_eh = hh_to_eh(outack_hh)?;
     debug!("Creating ack link...");
     let _ = create_link(inmail_eh, outack_eh.clone(), LinkKind::Acknowledgment.as_tag())?;
-
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
     if inmail.from.clone() == me {
@@ -55,24 +54,43 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
         };
         let res = receive_dm_ack(me, msg);
         assert!(res == DirectMessageProtocol::Success("Ack received".to_string()));
-        return Ok(outack_eh);
     }
-
-    /// Try Direct sharing of Acknowledgment
-    debug!("Sending ack via DM ...");
-    let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
-    if res.is_ok() {
-        debug!("Acknowledgment shared !");
-        return Ok(outack_eh);
-    }
-    /// Otherwise share Acknowledgement via DHT
-    let err = res.err().unwrap();
-    debug!("Direct sharing of Acknowledgment failed: {}", err);
-    let _ = acknowledge_mail_pending(&outack_eh, &inmail.outmail_eh, &inmail.from)?;
-
-    /// Done
     Ok(outack_eh)
 }
+
+
+///
+pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult<()> {
+    /// Get InMail
+    let inmail = get_typed_from_eh::<InMail>(outack.inmail_eh.clone())?;
+    /// Try Direct sharing of Acknowledgment
+    if CAN_DM {
+        debug!("Sending ack via DM ...");
+        let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
+        if res.is_ok() {
+            debug!("Acknowledgment shared !");
+            return Ok(());
+        }
+        let err = res.err().unwrap();
+        debug!("Direct sharing of Acknowledgment failed: {}", err);
+    }
+    /// Otherwise share Acknowledgement via DHT
+    let payload = CommitPendingAckInput {
+        outack_eh: outack_eh.clone(),
+        outmail_eh: inmail.outmail_eh,
+        original_sender: inmail.from,
+    };
+    let _pending_mail_hh = call_remote(
+        agent_info()?.agent_latest_pubkey,
+        zome_info()?.name,
+        "commit_pending_ack".to_string().into(),
+        None,
+        payload,
+    )?;
+    /// Done
+    Ok(())
+}
+
 
 /// Try sending directly to other Agent if Online
 fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
@@ -89,22 +107,27 @@ fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     }
 }
 
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct CommitPendingAckInput {
+    outack_eh: EntryHash,
+    outmail_eh: EntryHash,
+    original_sender: AgentPubKey,
+}
+
 /// Create & Commit PendingAck
 /// Return HeaderHash of newly created PendingAck
-fn acknowledge_mail_pending(
-    outack_eh: &EntryHash,
-    outmail_eh: &EntryHash,
-    original_sender: &AgentPubKey,
-) -> ExternResult<HeaderHash> {
+#[hdk_extern]
+fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> {
     /// Commit PendingAck
-    let pending_ack = PendingAck::new(outmail_eh.clone());
+    let pending_ack = PendingAck::new(input.outmail_eh.clone());
     let pending_ack_hh = create_entry(&pending_ack)?;
     /// Create links between PendingAck and Outack & recepient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
-    let tag = LinkKind::AckInbox.concat_hash(original_sender);
-    let _ = create_link(outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
-    let _ = create_link(EntryHash::from(original_sender.clone()), pending_ack_eh, tag)?;
-    debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, original_sender);
+    let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
+    let _ = create_link(input.outack_eh, pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
+    let _ = create_link(EntryHash::from(input.original_sender.clone()), pending_ack_eh, tag)?;
+    debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, input.original_sender);
     /// Done
     Ok(pending_ack_hh)
 }

@@ -39,12 +39,12 @@ pub enum OutMailState {
     PartiallyArrived_NoAcknowledgement,
     // Has less pending links than receipients, and less receipt links than receipients
     PartiallyArrived_PartiallyAcknowledged,
-    // Has no pending links, and a receipt link for each receipient
+    // Has no pending links, and no receipt links
     Arrived_NoAcknowledgement,
     // Has no pending links, and less receipt links than receipients
     Arrived_PartiallyAcknowledged,
     // Has no pendings links, and a receipt link for each receipient
-    Received,
+    FullyAcknowledged,
     //
     Deleted,
 }

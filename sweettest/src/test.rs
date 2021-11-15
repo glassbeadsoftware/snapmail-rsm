@@ -31,8 +31,9 @@ pub async fn test(arg: String) {
    }
    // Mail
    if arg == "all" || arg == "mail" {
-      test_encryption().await;
-      test_mail_dm().await;
+      //test_encryption().await;
+      //test_mail_self().await;
+      //test_mail_dm().await;
       test_mail_pending().await;
    }
    // File
@@ -103,7 +104,7 @@ pub async fn test_pub_enc_key() {
 
 ///
 pub async fn test_handle() {
-   let (conductor, alex, cell1) = setup_1_conductor().await;
+   let (conductor, _alex, cell1) = setup_1_conductor().await;
 
    let name = "alex";
    println!("Calling get_my_handle()");
@@ -221,14 +222,21 @@ pub async fn send_file_dm(size: usize) {
       bcc: vec![],
       manifest_address_list: vec![manifest_address],
    };
-   let _mail_output: SendMailOutput = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   let _mail_output: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
-   // Check if received
-   let all_arrived: Vec<HeaderHash> = conductors[1].call(&cells[1].zome("snapmail"), "get_all_arrived_mail", ()).await;
-   //println!("all_arrived: {:?}", all_arrived);
-   assert_eq!(1, all_arrived.len());
+   /// B checks if arrived
+   let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
+   for _ in 0..10u32 {
+      unacknowledged_inmails = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
+      if unacknowledged_inmails.len() > 0 {
+         break;
+      }
+      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+   }
+   println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
+   assert_eq!(1, unacknowledged_inmails.len());
 
-   let received_mail: GetMailOutput = conductors[1].call(&cells[1].zome("snapmail"), "get_mail", all_arrived[0].clone()).await;
+   let received_mail: GetMailOutput = conductors[1].call(&cells[1].zome("snapmail"), "get_mail", unacknowledged_inmails[0].clone()).await;
    println!("received_mail: {:?}", received_mail);
    assert!(received_mail.0.is_some());
    let rec_mail = received_mail.0.unwrap();

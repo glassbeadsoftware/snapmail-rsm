@@ -1,54 +1,36 @@
 use hdk::prelude::*;
 
-use std::collections::HashMap;
-
 use crate::{
     utils::*,
     send_dm,
-    mail::entries::{PendingMail, RecipientKind, Mail, OutMail},
+    mail::entries::{PendingMail, Mail, OutMail, InMail},
     dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
-    mail::receive::*,
+    //mail::receive::*,
     LinkKind,
     file::{FileManifest, FileChunk, get_manifest},
+    constants::*,
 };
 
 #[allow(non_camel_case_types)]
 pub enum SendSuccessKind {
     OK_SELF,
     OK_DIRECT,
-    OK_PENDING(HeaderHash),
+    OK_PENDING,
 }
 
-/// Struct holding all result data from a send request
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SendMailOutput {
-    pub outmail: HeaderHash,
-    pub to_pendings: HashMap<String, HeaderHash>,
-    pub cc_pendings: HashMap<String, HeaderHash>,
-    pub bcc_pendings: HashMap<String, HeaderHash>,
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SendMailInput {
+    pub subject: String,
+    pub payload: String,
+    pub to: Vec<AgentPubKey>,
+    pub cc: Vec<AgentPubKey>,
+    pub bcc: Vec<AgentPubKey>,
+    pub manifest_address_list: Vec<HeaderHash>,
 }
 
-impl SendMailOutput {
-    pub fn new(outmail_hh: HeaderHash) -> Self {
-        Self {
-            outmail: outmail_hh,
-            to_pendings: HashMap::new(),
-            cc_pendings: HashMap::new(),
-            bcc_pendings: HashMap::new(),
-        }
-    }
-
-    pub fn add_pending(&mut self, kind: RecipientKind, agent_id: &AgentPubKey, hh: HeaderHash) {
-        let agent_str = format!("{}", agent_id);
-        match kind {
-            RecipientKind::TO => self.to_pendings.insert(agent_str, hh),
-            RecipientKind::CC => self.cc_pendings.insert(agent_str, hh),
-            RecipientKind::BCC => self.bcc_pendings.insert(agent_str, hh),
-        };
-    }
-}
 
 ///
 fn send_manifest_by_dm(
@@ -112,8 +94,6 @@ fn send_attachment_by_dm(destination: &AgentPubKey, manifest: &FileManifest) -> 
 }
 
 
-// TODO: use post-commit callback to send the mail via DM
-
 /// Attempt sending Mail and attachments via Direct Messaging
 fn send_mail_by_dm(
     outmail_eh: &EntryHash,
@@ -149,8 +129,61 @@ fn send_mail_by_dm(
     return error(&format!("send_dm() failed: {:?}", response_dm));
 }
 
+
+#[hdk_extern]
+fn commit_inmail(inmail: InMail) -> ExternResult<HeaderHash> {
+    // debug!("commit_inmail() START **********");
+    create_entry(inmail)
+}
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct CommitPendingMailInput {
+    mail: PendingMail,
+    outmail_eh: EntryHash,
+    destination: AgentPubKey,
+}
+
+
+#[hdk_extern]
+fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash> {
+    debug!("commit_pending_mail() START **********");
+    let me = agent_info()?.agent_latest_pubkey;
+    /// Commit Pending Mail
+    let pending_mail_eh = hash_entry(&input.mail)?;
+    let maybe_pending_mail_hh = create_entry(&input.mail);
+    if let Err(err) = maybe_pending_mail_hh.clone() {
+        debug!("PendingMail create_entry() failed = {:?}", err);
+        return Err(maybe_pending_mail_hh.err().unwrap());
+    };
+    let pending_mail_hh = maybe_pending_mail_hh.unwrap();
+    debug!("pending_mail_hh = {:?}", pending_mail_hh);
+    /// Commit Pendings Link
+    let tag = LinkKind::Pendings.concat_hash(&input.destination);
+    debug!("pendings tag = {:?}", tag);
+    let maybe_link1_hh = create_link(input.outmail_eh.clone(), pending_mail_eh.clone(), tag);
+    if let Err(err) = maybe_link1_hh.clone() {
+        debug!("link1 failed = {:?}", err);
+        return Err(maybe_link1_hh.err().unwrap());
+    };
+    let link1_hh = maybe_link1_hh.unwrap();
+    debug!("link1_hh = {}", link1_hh);
+    /// Commit MailInbox Link
+    let tag = LinkKind::MailInbox.concat_hash(&me);
+    let maybe_link2_hh = create_link(EntryHash::from(input.destination.clone()), pending_mail_eh, tag);
+    if let Err(err) = maybe_link2_hh.clone() {
+        debug!("link2 failed = {:?}", err);
+        return Err(maybe_link2_hh.err().unwrap());
+    };
+    let link2_hh = maybe_link2_hh.unwrap();
+    debug!("link2_hh = {}", link2_hh);
+    /// Done
+    return Ok(pending_mail_hh)
+}
+
+
 ///
-fn send_mail_to(
+pub(crate) fn send_mail_to(
     outmail_eh: &EntryHash,
     mail: &Mail,
     destination: &AgentPubKey,
@@ -165,73 +198,58 @@ fn send_mail_to(
             outmail_eh: outmail_eh.clone(),
             mail: mail.clone(),
         };
-        let res = receive_dm_mail(me, msg);
-        assert!(res == DirectMessageProtocol::Success("Mail received".to_string()));
+        let inmail = InMail::from_direct(me.clone(), msg);
+        let res = call_remote(
+            me,
+            zome_info()?.name,
+            "commit_inmail".to_string().into(),
+            None,
+            inmail,
+        )?;
+        // debug!("commit_inmail() END : {:?}", res);
+        assert!(matches!(res, ZomeCallResponse::Ok { .. }));
         return Ok(SendSuccessKind::OK_SELF);
     }
     /// Try sending directly to other Agent if Online
-    let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
-    if result.is_ok() {
-        return Ok(SendSuccessKind::OK_DIRECT);
-    } else {
-        let err = result.err().unwrap();
-        debug!("send_mail_by_dm() failed: {:?}", err);
+    if CAN_DM {
+        let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
+        if result.is_ok() {
+            return Ok(SendSuccessKind::OK_DIRECT);
+        } else {
+            let err = result.err().unwrap();
+            debug!("send_mail_by_dm() failed: {:?}", err);
+        }
     }
     /// DM failed, send to DHT instead by creating a PendingMail
-    /// Commit PendingMail
+    /// Create and commit PendingMail with remote call to self
     let pending_mail = PendingMail::from_mail(
         mail.clone(),
         outmail_eh.clone(),
         destination.clone(),
     )?;
-    let pending_mail_eh = hash_entry(&pending_mail)?;
-    let maybe_pending_mail_hh = create_entry(&pending_mail);
-    if let Err(err) = maybe_pending_mail_hh.clone() {
-        debug!("PendingMail create_entry() failed = {:?}", err);
-        return Err(maybe_pending_mail_hh.err().unwrap());
+    let payload = CommitPendingMailInput {
+        mail: pending_mail,
+        outmail_eh: outmail_eh.clone(),
+        destination: destination.clone(),
     };
-    let pending_mail_hh = maybe_pending_mail_hh.unwrap();
-    debug!("pending_mail_hh = {}", pending_mail_hh);
-    /// Commit Pendings Link
-    let tag = LinkKind::Pendings.concat_hash(destination);
-    debug!("pendings tag = {:?}", tag);
-    let maybe_link1_hh = create_link(outmail_eh.clone(), pending_mail_eh.clone(), tag);
-    if let Err(err) = maybe_link1_hh.clone() {
-        debug!("link1 failed = {:?}", err);
-        return Err(maybe_link1_hh.err().unwrap());
-    };
-    let link1_hh = maybe_link1_hh.unwrap();
-    debug!("link1_hh = {}", link1_hh);
-    /// Commit MailInbox Link
-    let tag = LinkKind::MailInbox.concat_hash(&me);
-    let maybe_link2_hh = create_link(EntryHash::from(destination.clone()), pending_mail_eh, tag);
-    if let Err(err) = maybe_link2_hh.clone() {
-        debug!("link2 failed = {:?}", err);
-        return Err(maybe_link2_hh.err().unwrap());
-    };
-    let link2_hh = maybe_link2_hh.unwrap();
-    debug!("link2_hh = {}", link2_hh);
+    let _pending_mail_hh = call_remote(
+        me,
+        zome_info()?.name,
+        "commit_pending_mail".to_string().into(),
+        None,
+        payload,
+    )?;
     /// Done
-    Ok(SendSuccessKind::OK_PENDING(pending_mail_hh))
+    Ok(SendSuccessKind::OK_PENDING)
 }
 
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct SendMailInput {
-    pub subject: String,
-    pub payload: String,
-    pub to: Vec<AgentPubKey>,
-    pub cc: Vec<AgentPubKey>,
-    pub bcc: Vec<AgentPubKey>,
-    pub manifest_address_list: Vec<HeaderHash>,
-}
 
 /// Zone Function
-/// Send Mail: Creates OutMail, tries to send directly to each receipient.
-/// if receipient not online, creates a PendingMail on the DHT.
+/// Send Mail: Creates and commits OutMail. Files must already be committed.
+/// post_commit will try to send directly to each receipient.
 #[hdk_extern]
 #[snapmail_api]
-pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
+pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
     debug!("Sending mail: {}", input.subject);
     /// Get file manifests from addresses
     let mut file_manifest_list = Vec::new();
@@ -252,32 +270,27 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<SendMailOutput> {
         file_manifest_pair_list.clone(),
     );
     let outmail_hh = create_entry(&outmail)?;
-    let outmail_eh = hash_entry(&outmail)?;
     debug!("OutMail created: {:?}", outmail_hh);
+    Ok(outmail_hh)
+}
+
+
+/// Once OutMail committed, try to send directly to each receipient.
+/// if receipient not online, creates a PendingMail on the DHT.
+pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternResult<()> {
+    debug!("CALLED send_committed_mail() {:?}", outmail_eh);
+    /// Get recipients
+    let recipients = outmail.recipients();
+    /// Get all attachments manifests
+    let mut file_manifest_list = Vec::new();
+    for attachment in outmail.mail.attachments.clone() {
+        let manifest = get_manifest(attachment.manifest_eh.into())?;
+        file_manifest_list.push(manifest.clone());
+    }
     /// Send to each recepient
-    let mut total_result = SendMailOutput::new(outmail_hh.clone());
-    /// to
-    for agent in input.to {
-        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
-        if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
-            total_result.add_pending(RecipientKind::TO, &agent, pending_hh);
-        }
-    }
-    /// cc
-    for agent in input.cc {
-        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
-        if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
-            total_result.add_pending(RecipientKind::CC, &agent, pending_hh);
-        }
-    }
-    /// bcc
-    for agent in input.bcc {
-        let res = send_mail_to(&outmail_eh, &outmail.mail, &agent, &file_manifest_list);
-        if let Ok(SendSuccessKind::OK_PENDING(pending_hh)) = res {
-            total_result.add_pending(RecipientKind::BCC, &agent, pending_hh);
-        }
+    for agent in recipients {
+        let _res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list);
     }
     /// Done
-    debug!("send's total_result: {:?}", total_result);
-    Ok(total_result)
+    Ok(())
 }

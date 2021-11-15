@@ -2,10 +2,10 @@
 manifest_version: "1"
 
 name: snapmail-app
-description: Local P2P messaging
+description: Mail-like P2P messaging
 
-slots:
-  - id: slot-1
+roles:
+  - id: snapmail-zome
     provisioning:
       strategy: create
       deferred: false
