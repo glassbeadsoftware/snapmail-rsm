@@ -85,6 +85,13 @@ pub struct Mail {
     pub attachments: Vec<AttachmentInfo>,
 }
 
+pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {
+    let me = agent_info()?.agent_latest_pubkey;
+    let signature = sign(me, mail)?;
+    Ok(signature)
+}
+
+
 /// Metadata for a mail attachment
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct AttachmentInfo {

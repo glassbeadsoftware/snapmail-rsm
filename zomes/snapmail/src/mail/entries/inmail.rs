@@ -4,6 +4,7 @@ use crate::{
     MailMessage,
     mail::entries::{Mail, PendingMail},
     pub_enc_key::*,
+    utils::*,
 };
 
 /// Entry representing a received mail.
@@ -11,9 +12,10 @@ use crate::{
 #[derive(Clone, PartialEq)]
 pub struct InMail {
     pub mail: Mail,
-    pub from: AgentPubKey,
     pub date_received: u64,
     pub outmail_eh: EntryHash,
+    pub from: AgentPubKey,
+    pub from_signature: Signature,
 }
 
 impl InMail {
@@ -22,19 +24,21 @@ impl InMail {
         from: AgentPubKey,
         date_received: u64,
         outmail_eh: EntryHash,
+        from_signature: Signature,
     ) -> Self {
         Self {
             mail,
             from,
             date_received,
             outmail_eh,
+            from_signature,
         }
     }
 
 
     pub fn from_direct(from: AgentPubKey, dm: MailMessage) -> Self {
         let received_date = crate::snapmail_now();
-        Self::new(dm.mail, from.clone(), received_date, dm.outmail_eh)
+        Self::new(dm.mail, from.clone(), received_date, dm.outmail_eh, dm.mail_signature)
     }
 
 
@@ -54,8 +58,29 @@ impl InMail {
         /// Into InMail
         let inmail = match maybe_mail {
             None => return Ok(None),
-            Some(mail) => Self::new(mail, from.clone(), received_date, pending.outmail_eh),
+            Some(mail) => {
+                Self::new(mail,
+                          from.clone(),
+                          received_date,
+                          pending.outmail_eh,
+                          pending.from_signature.clone())
+            },
         };
+        /// Check signature
+        let maybe_verified = verify_signature(from, pending.from_signature, inmail.mail.clone());
+        match maybe_verified {
+            Err(err) => {
+                let response_str = "Verifying PendingMail failed";
+                debug!("{}: {}", response_str, err);
+                return error(response_str);
+            }
+            Ok(false) => {
+                let response_str = "Failed verifying PendingMail signature";
+                debug!("{}", response_str);
+                return error(response_str);
+            }
+            Ok(true) => debug!("Valid PendingMail signature"),
+        }
         /// Done
         Ok(Some(inmail))
     }

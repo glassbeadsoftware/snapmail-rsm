@@ -49,12 +49,15 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     let me = agent_info()?.agent_latest_pubkey;
     if inmail.from.clone() == me {
         debug!("send ack to Self");
+        let ack_signature = sign(me.clone(), inmail.outmail_eh.clone())?;
         let msg = AckMessage {
             outmail_eh: inmail.outmail_eh.clone(),
+            ack_signature,
         };
         let res = receive_dm_ack(me, msg);
         assert!(res == DirectMessageProtocol::Success("Ack received".to_string()));
     }
+    /// Done
     Ok(outack_eh)
 }
 
@@ -96,7 +99,8 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
 fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     debug!("acknowledge_mail_direct() START");
     /// Create DM
-    let msg = AckMessage { outmail_eh: outmail_eh.clone() };
+    let ack_signature = sign(agent_info()?.agent_latest_pubkey, outmail_eh.clone())?;
+    let msg = AckMessage { outmail_eh: outmail_eh.clone(), ack_signature };
     /// Send DM
     let response = send_dm(from.clone(), DirectMessageProtocol::Ack(msg))?;
     /// Check Response
@@ -120,7 +124,8 @@ struct CommitPendingAckInput {
 #[hdk_extern]
 fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> {
     /// Commit PendingAck
-    let pending_ack = PendingAck::new(input.outmail_eh.clone());
+    let signature = sign(agent_info()?.agent_latest_pubkey, input.outmail_eh.clone())?;
+    let pending_ack = PendingAck::new(input.outmail_eh.clone(), signature);
     let pending_ack_hh = create_entry(&pending_ack)?;
     /// Create links between PendingAck and Outack & recepient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;

@@ -24,6 +24,7 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
     /// Check each link
     let mut updated_outmails = Vec::new();
     for link in &links_result {
+        /// Get entry on the DHT
         let pending_ack_eh = link.target.clone();
         let maybe_el = get(pending_ack_eh.clone(), GetOptions::latest())?;
         if maybe_el.is_none() {
@@ -32,15 +33,28 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
         }
         let pending_ack_hh = maybe_el.unwrap().header_address().clone();
         debug!("pending_ack_hh: {}", pending_ack_hh);
-        /// Get entry on the DHT
         let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh);
         if let Err(err) = maybe_pending_ack {
             warn!("Getting PendingAck from DHT failed: {}", err);
             continue;
         }
         let (author, pending_ack) = maybe_pending_ack.unwrap();
+        /// Check signature
+        let maybe_verified = verify_signature(author.clone(), pending_ack.from_signature.clone(), pending_ack.outmail_eh.clone());
+        match maybe_verified {
+            Err(err) => {
+                let response_str = "Verifying PendingAck failed";
+                error!("{}: {}", response_str, err);
+                continue;
+            }
+            Ok(false) => {
+                error!("Failed verifying PendingAck signature");
+                continue;
+            }
+            Ok(true) => debug!("Valid PendingAck signature"),
+        }
         /// Create InAck
-        let maybe_inack_hh = mail::commit_inack(pending_ack.outmail_eh.clone(), &author);
+        let maybe_inack_hh = mail::commit_inack(pending_ack.outmail_eh.clone(), &author, pending_ack.from_signature);
         if let Err(err) = maybe_inack_hh {
             error!("Creating InAck from PendignAck failed: {}", err);
             continue;

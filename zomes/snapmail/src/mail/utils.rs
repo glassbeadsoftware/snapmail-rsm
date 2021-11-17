@@ -41,10 +41,10 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
 
 
 /// Return address of created InAck
-pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey) -> ExternResult<HeaderHash> {
+pub(crate) fn commit_inack(outmail_eh: EntryHash, from: &AgentPubKey, ack_signature: Signature) -> ExternResult<HeaderHash> {
     debug!("Create inAck for: {} ({})", outmail_eh, from);
     /// Create InAck
-    let inack = InAck::new();
+    let inack = InAck::new(ack_signature);
     let inack_hh = create_entry(&inack)?;
     let inack_eh = hash_entry(&inack)?;
     //debug!("inack_hh: {}", inack_hh);

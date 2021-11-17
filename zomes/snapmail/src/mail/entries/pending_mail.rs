@@ -1,7 +1,7 @@
 use hdk::prelude::*;
 
 use super::Mail;
-
+use crate::mail::entries::sign_mail;
 use crate::pub_enc_key::*;
 
 /// Entry representing a mail on the DHT waiting to be received by receipient.
@@ -13,13 +13,19 @@ use crate::pub_enc_key::*;
 pub struct PendingMail {
     pub encrypted_mail: XSalsa20Poly1305EncryptedData,
     pub outmail_eh: EntryHash,
+    pub from_signature: Signature,
 }
 
 impl PendingMail {
-   pub fn new(encrypted_mail: XSalsa20Poly1305EncryptedData, outmail_eh: EntryHash) -> Self {
+   pub fn new(
+      encrypted_mail: XSalsa20Poly1305EncryptedData,
+      outmail_eh: EntryHash,
+      from_signature: Signature,
+   ) -> Self {
       Self {
          encrypted_mail,
          outmail_eh,
+         from_signature,
       }
    }
 
@@ -34,9 +40,12 @@ impl PendingMail {
       let encrypted = x_25519_x_salsa20_poly1305_encrypt(sender, recipient, data)
          .expect("Encryption should work");
       trace!("Encrypted: {:?}", encrypted.clone());
+      let signature = sign_mail(&mail).expect("Should be able to sign with my key");
+      // let me = agent_info().expect("Should have agent info").agent_latest_pubkey;
+      // let signature = sign(me, mail).expect("Should be able to sign with my key");
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Done
-      PendingMail::new(encrypted, outmail_eh)
+      PendingMail::new(encrypted, outmail_eh, signature)
    }
 
 
@@ -72,5 +81,4 @@ impl PendingMail {
       /// Done
       Some(mail)
    }
-
 }

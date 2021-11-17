@@ -51,6 +51,21 @@ pub fn receive_dm(from: AgentPubKey, dm: DirectMessageProtocol) -> DirectMessage
 /// Emits `ReceivedMail` signal.
 /// Returns Success or Failure.
 pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessageProtocol {
+    /// Check signature
+    let maybe_verified = verify_signature(from.clone(), mail_msg.mail_signature.clone(), mail_msg.mail.clone());
+    match maybe_verified {
+        Err(err) => {
+            let response_str = "Verifying MailMessage failed";
+            debug!("{}: {}", response_str, err);
+            return DirectMessageProtocol::Failure(response_str.to_string());
+        }
+        Ok(false) => {
+            let response_str = "Failed verifying MailMessage signature";
+            debug!("{}", response_str);
+            return DirectMessageProtocol::Failure(response_str.to_string());
+        }
+        Ok(true) => debug!("Valid MailMessage signature"),
+    }
     /// Create InMail
     let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
     /// Commit InMail
@@ -92,10 +107,25 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     let outmail_hh = maybe_outmail.unwrap().header_address().clone();
+    /// Check ack signature
+    let maybe_verified = verify_signature(from.clone(), ack_msg.ack_signature.clone(), ack_msg.outmail_eh.clone());
+    match maybe_verified {
+        Err(err) => {
+            let response_str = "Verifying AckMessage failed";
+            debug!("{}: {}", response_str, err);
+            return DirectMessageProtocol::Failure(response_str.to_string());
+        }
+        Ok(false) => {
+            let response_str = "Failed verifying AckMessage signature";
+            debug!("{}", response_str);
+            return DirectMessageProtocol::Failure(response_str.to_string());
+        }
+        Ok(true) => debug!("Valid AckMessage signature"),
+    }
     /// Create InAck
     let outmail_eh = ack_msg.outmail_eh.clone();
     debug!("outmail_eh = {:?}", outmail_eh);
-    let res = mail::commit_inack(outmail_eh, &from);
+    let res = mail::commit_inack(outmail_eh, &from, ack_msg.ack_signature);
     if let Err(err) = res {
         let response_str = "Failed committing InAck";
         error!("{}: {}", response_str, err);
