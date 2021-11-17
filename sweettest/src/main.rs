@@ -1,7 +1,5 @@
 #![allow(unused_doc_comments)]
 
-use std::env;
-
 #[cfg(not(target_arch = "wasm32"))]
 pub mod test;
 #[cfg(not(target_arch = "wasm32"))]
@@ -12,7 +10,7 @@ pub mod setup;
 #[cfg(not(target_arch = "wasm32"))]
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
-   let args: Vec<String> = env::args().collect();
+   let args: Vec<String> = std::env::args().collect();
    //println!("{:?}", args);
    let arg= if args.len() > 1 {
       args[1].clone()

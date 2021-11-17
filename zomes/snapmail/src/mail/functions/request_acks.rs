@@ -64,12 +64,14 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
          LinkKind::Receipt.unconcat_hash(&link.tag).unwrap()
       }).collect();
       pending_agents.extend_from_slice(&receipt_agents);
+      /// Create signature
+      let signature = sign_mail(&outmail.mail)?;
       /// Send mail to each missing ack/pending
       for recipient in recipients {
          if pending_agents.contains(&recipient) {
             continue;
          }
-         let _res = send_mail_to(&outmail_eh, &outmail.mail, &recipient, &file_manifest_list);
+         let _res = send_mail_to(&outmail_eh, &outmail.mail, &recipient, &file_manifest_list, &signature);
       }
    }
    /// Done

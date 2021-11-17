@@ -3,7 +3,7 @@ use hdk::prelude::*;
 use crate::{
     utils::*,
     send_dm,
-    mail::entries::{PendingMail, Mail, OutMail, InMail},
+    mail::entries::{PendingMail, Mail, OutMail, InMail, sign_mail},
     dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
@@ -100,6 +100,7 @@ fn send_mail_by_dm(
     mail: &Mail,
     destination: &AgentPubKey,
     manifest_list: &Vec<FileManifest>,
+    signature: &Signature,
 ) -> ExternResult<()> {
     /// -- Send Attachments
     debug!("Send Attachments");
@@ -118,6 +119,7 @@ fn send_mail_by_dm(
     let msg = MailMessage {
         outmail_eh: outmail_eh.clone(),
         mail: mail.clone(),
+        mail_signature: signature.clone(),
     };
     /// Send DM
     let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
@@ -188,6 +190,7 @@ pub(crate) fn send_mail_to(
     mail: &Mail,
     destination: &AgentPubKey,
     manifest_list: &Vec<FileManifest>,
+    signature: &Signature,
 ) -> ExternResult<SendSuccessKind> {
     debug!("send_mail_to() START - {}", destination);
     /// Shortcut to self
@@ -197,6 +200,7 @@ pub(crate) fn send_mail_to(
         let msg = MailMessage {
             outmail_eh: outmail_eh.clone(),
             mail: mail.clone(),
+            mail_signature: signature.clone(),
         };
         let inmail = InMail::from_direct(me.clone(), msg);
         let res = call_remote(
@@ -212,7 +216,7 @@ pub(crate) fn send_mail_to(
     }
     /// Try sending directly to other Agent if Online
     if CAN_DM {
-        let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list);
+        let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list, signature);
         if result.is_ok() {
             return Ok(SendSuccessKind::OK_DIRECT);
         } else {
@@ -287,9 +291,11 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
         let manifest = get_manifest(attachment.manifest_eh.into())?;
         file_manifest_list.push(manifest.clone());
     }
+    /// Create signature
+    let signature = sign_mail(&outmail.mail)?;
     /// Send to each recepient
     for agent in recipients {
-        let _res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list);
+        let _res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list, &signature);
     }
     /// Done
     Ok(())

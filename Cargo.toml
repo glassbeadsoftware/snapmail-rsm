@@ -13,9 +13,16 @@ lto = false
 opt-level = 0
 overflow-checks = false
 
+[profile.release.package.snapmail_sweettest]
+opt-level = 0
+overflow-checks = false
+
 [profile.release]
 opt-level = "z"
 lto = true # link time optimization
+
+[profile.release.build-override]
+opt-level = "z"
 
 [patch.crates-io]
 #holochain = { path = "../../../holochain-develop/crates/holochain" }

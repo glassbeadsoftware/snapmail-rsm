@@ -23,11 +23,14 @@ pub enum DirectMessageProtocol {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, SerializedBytes)]
 pub struct MailMessage {
-    pub outmail_eh: EntryHash,
     pub mail: Mail,
+    pub outmail_eh: EntryHash,
+    pub mail_signature: Signature,
 }
+
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, SerializedBytes)]
 pub struct AckMessage {
     pub outmail_eh: EntryHash,
+    pub ack_signature: Signature,
 }

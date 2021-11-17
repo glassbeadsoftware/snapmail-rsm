@@ -1,4 +1,4 @@
-
+use std::time::SystemTime;
 use holochain::sweettest::*;
 use holochain::conductor::{
    ConductorHandle,
@@ -17,6 +17,8 @@ use crate::test_mail::*;
 
 ///
 pub async fn test(arg: String) {
+   let now = SystemTime::now();
+
    // Admin API test
    if arg == "" {
       test_list_apps().await;
@@ -33,13 +35,25 @@ pub async fn test(arg: String) {
    if arg == "all" || arg == "mail" {
       //test_encryption().await;
       //test_mail_self().await;
-      test_mail_dm().await;
-      //test_mail_pending().await;
+      //test_mail_dm().await;
+      test_mail_pending().await;
    }
    // File
    if arg == "all" || arg == "file" {
       std::env::set_var("WASM_LOG", "WARN");
       test_file_dm().await;
+   }
+
+   // Print elapsed
+   match now.elapsed() {
+      Ok(elapsed) => {
+         // it prints '2'
+         println!("\n *** Test(s) duration: {} secs", elapsed.as_secs());
+      }
+      Err(e) => {
+         // an error occurred!
+         println!("Error: {:?}", e);
+      }
    }
 }
 
@@ -48,10 +62,12 @@ pub async fn test(arg: String) {
 pub async fn test_list_apps() {
    //observability::test_run().ok();
 
+   println!("Loading DNA...");
    let dna = SweetDnaFile::from_bundle(std::path::Path::new(DNA_FILEPATH))
       .await
       .unwrap();
 
+   println!("INSTALLING TWO APPS...");
    // Install two apps on the Conductor:
    // Both share a CellId in common, and also include a distinct CellId each.
    let mut conductor = SweetConductor::from_standard_config().await;
@@ -67,19 +83,19 @@ pub async fn test_list_apps() {
 
    let cell1 = app1.into_cells()[0].clone();
 
+   println!("\n LIST RUNNING APPS...");
    let list_apps = |conductor: ConductorHandle, cell: SweetCell| async move {
       conductor
          .list_running_apps_for_required_cell_id(cell.cell_id())
          .await
          .unwrap()
    };
+   let res = list_apps(conductor.clone(), cell1.clone()).await;
+   println!("list_apps = {:?}", res);
 
    // - Ensure that the first CellId is associated with both apps,
    //   and the other two are only associated with one app each.
-   assert_eq!(
-      list_apps(conductor.clone(), cell1.clone()).await,
-      hashset!["app1".to_string(), "app2".to_string()]
-   );
+   assert_eq!(res, hashset!["app1".to_string(), "app2".to_string()]);
 }
 
 

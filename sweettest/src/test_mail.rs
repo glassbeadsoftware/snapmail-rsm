@@ -27,9 +27,9 @@ pub async fn test_encryption() {
 
    print_chain(&conductor0, &alex, &cells[0]).await;
 
-   // println!("Waiting for consistency...");
-   // consistency_10s(cells.as_slice()).await;
-   // println!("consistency done!");
+   //println!("Waiting for consistency...");
+   //holochain::test_utils::consistency_10s(cells.as_slice()).await;
+   //println!("consistency done!");
 
    let mut length = 0;
    for _ in 0..10u32 {
