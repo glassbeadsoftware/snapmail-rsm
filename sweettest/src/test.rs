@@ -27,16 +27,19 @@ pub async fn test(arg: String) {
    if arg == "all" || arg == "key" {
       test_pub_enc_key().await;
    }
+   // Encryption
+   if arg == "all" || arg == "enc" {
+      test_encryption().await;
+   }
    // Handle
    if arg == "all" || arg == "handle" {
       test_handle().await;
    }
    // Mail
    if arg == "all" || arg == "mail" {
-      //test_encryption().await;
       //test_mail_self().await;
-      //test_mail_dm().await;
-      test_mail_pending().await;
+      test_mail_dm().await;
+      //test_mail_pending().await;
    }
    // File
    if arg == "all" || arg == "file" {
