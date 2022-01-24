@@ -74,9 +74,9 @@ fn validate_app_entry(
             res
         },
         EntryKind::Path => {
-            let maybe_content = Path::try_from(sb.clone());
+            let maybe_content = PathEntry::try_from(sb.clone());
             if let Err(_err) = maybe_content {
-                return error("Failed to deserialize Path");
+                return error("Failed to deserialize PathEntry");
             }
             // FIXME validation
             Ok(ValidateCallbackResult::Valid)

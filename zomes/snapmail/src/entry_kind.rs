@@ -31,7 +31,7 @@ entry_defs![
    FileChunk::entry_def(),
    FileManifest::entry_def(),
    /// -- Other
-   Path::entry_def()
+   PathEntry::entry_def()
 ];
 
 /// Listing all Entry kinds for this DNA
@@ -188,7 +188,7 @@ fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> 
    match entry_kind {
       EntryKind::PubEncKey => PubEncKey::try_from(sb.clone()).is_ok(),
       EntryKind::Handle => Handle::try_from(sb.clone()).is_ok(),
-      EntryKind::Path => Path::try_from(sb.clone()).is_ok(),
+      EntryKind::Path => PathEntry::try_from(sb.clone()).is_ok(),
       EntryKind::InMail => InMail::try_from(sb.clone()).is_ok(),
       EntryKind::InAck => InAck::try_from(sb.clone()).is_ok(),
       EntryKind::PendingMail => PendingMail::try_from(sb.clone()).is_ok(),

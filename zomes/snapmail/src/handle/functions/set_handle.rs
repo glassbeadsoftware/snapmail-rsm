@@ -49,7 +49,7 @@ pub fn set_handle(new_name: String) -> ExternResult<HeaderHash> {
     )?;
     debug!("**** Handle linked to agent!");
     /// Link Handle to DNA entry for a global directory
-    let directory_address = Path::from(path_kind::Directory).hash().expect("Directory Path should hash");
+    let directory_address = Path::from(path_kind::Directory).path_entry_hash().expect("Directory Path should hash");
     let _ = create_link(directory_address, new_handle_eh, LinkKind::Members.as_tag())?;
     /// Done
     return Ok(new_handle_hh);

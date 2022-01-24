@@ -210,7 +210,7 @@ pub async fn print_peers(conductor: &SweetConductor, cell: &SweetCell) {
 ///
 pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: &SweetCell) {
    let cell_id = cell.cell_id();
-   let vault = conductor.get_cell_env_readonly(cell_id).unwrap();
+   let vault = conductor.get_authored_env(cell_id.dna_hash()).unwrap();
 
    let space = cell_id.dna_hash().to_kitsune();
 

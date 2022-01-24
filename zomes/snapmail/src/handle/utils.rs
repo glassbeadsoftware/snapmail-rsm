@@ -11,7 +11,7 @@ use crate::{
 
 /// Get 'Members' links on the DNA entry
 pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
-    let path_hash = Path::from(path_kind::Directory).hash()?;
+    let path_hash = Path::from(path_kind::Directory).path_entry_hash()?;
     let entry_results = get_links(path_hash, LinkKind::Members.as_tag_opt())?;
     Ok(entry_results)
 }
