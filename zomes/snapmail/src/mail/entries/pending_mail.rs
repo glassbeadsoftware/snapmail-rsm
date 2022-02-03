@@ -54,8 +54,10 @@ impl PendingMail {
    pub fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self> {
       /// Get my key
       let my_agent_key = agent_info()?.agent_latest_pubkey;
+      debug!("get_enc_key() for sender {:?}", my_agent_key);
       let sender_key = get_enc_key(my_agent_key)?;
       /// Get recipient's key
+      debug!("get_enc_key() for recipient {:?}", to);
       let recipient_key = get_enc_key(to)?;
       /// Create
       debug!("pending_mail: recipient_key = {:?}", recipient_key);
@@ -68,7 +70,7 @@ impl PendingMail {
       trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
          .expect("Decryption should work");
       trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
       let decrypted = match maybe_decrypted {

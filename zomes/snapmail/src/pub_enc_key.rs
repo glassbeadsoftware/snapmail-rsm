@@ -85,7 +85,7 @@ fn test_encryption(to: AgentPubKey) -> ExternResult<()> {
    debug!("- recipient = {:?}", recipient.clone());
    /// Normal decrypt
    let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, encrypted.clone());
-   debug!("maybe_decrypted normal = {:?}", maybe_decrypted);
+   debug!("  maybe_decrypted normal = {:?}", maybe_decrypted);
    /// Inverted keys
    let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, encrypted.clone());
    debug!("maybe_decrypted inverted = {:?}", maybe_decrypted);

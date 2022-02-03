@@ -127,7 +127,7 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
     let signature = sign(agent_info()?.agent_latest_pubkey, input.outmail_eh.clone())?;
     let pending_ack = PendingAck::new(input.outmail_eh.clone(), signature);
     let pending_ack_hh = create_entry(&pending_ack)?;
-    /// Create links between PendingAck and Outack & recepient inbox
+    /// Create links between PendingAck and Outack & recipient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
     let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
     let _ = create_link(input.outack_eh, pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;

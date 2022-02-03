@@ -64,21 +64,21 @@ pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
 
    /// Determine state
    if pendings.len() == recipient_count {
-      return Ok(OutMailState::Pending);
+      return Ok(OutMailState::AllPending);
    }
    if pendings.len() == 0 {
       if receipts.len() == 0 {
-         return Ok(OutMailState::Arrived_NoAcknowledgement);
+         return Ok(OutMailState::NoPendings_NoAcknowledgement);
       }
       if receipts.len() == recipient_count {
          return Ok(OutMailState::FullyAcknowledged);
       }
-      return Ok(OutMailState::Arrived_PartiallyAcknowledged);
+      return Ok(OutMailState::NoPendings_PartiallyAcknowledged);
    }
    if receipts.len() == 0 {
-      return Ok(OutMailState::PartiallyArrived_NoAcknowledgement);
+      return Ok(OutMailState::SomePendings_NoAcknowledgement);
    }
-   return Ok(OutMailState::PartiallyArrived_PartiallyAcknowledged);
+   return Ok(OutMailState::SomePendings_PartiallyAcknowledged);
 }
 
 

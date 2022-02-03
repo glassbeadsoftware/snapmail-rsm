@@ -18,34 +18,34 @@ use crate::{
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum InMailState {
-    // PendingMail available
+    /// PendingMail available
     Incoming,
-    // InMail written, no pendingMail
+    /// InMail written, no pendingMail
     Arrived,
-    // OutAck written, PendingAck available
+    /// OutAck written, PendingAck available
     Acknowledged,
-    // OutAck written, no PendingAck
+    /// OutAck written, no PendingAck
     AckReceived,
-    //
+    ///
     Deleted,
 }
 
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OutMailState {
-    // Has a pending link for each receipient
-    Pending,
-    // Has less pending links than receipients, and no receipt links
-    PartiallyArrived_NoAcknowledgement,
-    // Has less pending links than receipients, and less receipt links than receipients
-    PartiallyArrived_PartiallyAcknowledged,
-    // Has no pending links, and no receipt links
-    Arrived_NoAcknowledgement,
-    // Has no pending links, and less receipt links than receipients
-    Arrived_PartiallyAcknowledged,
-    // Has no pendings links, and a receipt link for each receipient
+    /// Has a pending link for each recipient
+    AllPending,
+    /// Has no pending links, and no receipt links
+    NoPendings_NoAcknowledgement,
+    /// Has no pending links, and less receipt links than recipients
+    NoPendings_PartiallyAcknowledged,
+    /// Has less pending links than recipients, and no receipt links
+    SomePendings_NoAcknowledgement,
+    /// Has less pending links than recipients, and less receipt links than recipients
+    SomePendings_PartiallyAcknowledged,
+    /// Has no pendings links, and a receipt link for each recipient
     FullyAcknowledged,
-    //
+    ///
     Deleted,
 }
 

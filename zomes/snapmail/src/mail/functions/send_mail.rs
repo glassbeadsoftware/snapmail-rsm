@@ -224,6 +224,7 @@ pub(crate) fn send_mail_to(
             debug!("send_mail_by_dm() failed: {:?}", err);
         }
     }
+    debug!("Creating pending_mail...");
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self
     let pending_mail = PendingMail::from_mail(
@@ -236,13 +237,15 @@ pub(crate) fn send_mail_to(
         outmail_eh: outmail_eh.clone(),
         destination: destination.clone(),
     };
-    let _pending_mail_hh = call_remote(
+    debug!("send_mail_to() - calling commit_pending_mail()");
+    let pending_mail_hh = call_remote(
         me,
         zome_info()?.name,
         "commit_pending_mail".to_string().into(),
         None,
         payload,
     )?;
+    debug!("send_mail_to() - pending_mail_hh: {:?}", pending_mail_hh);
     /// Done
     Ok(SendSuccessKind::OK_PENDING)
 }
@@ -293,7 +296,7 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
     }
     /// Create signature
     let signature = sign_mail(&outmail.mail)?;
-    /// Send to each recepient
+    /// Send to each recipient
     for agent in recipients {
         let _res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list, &signature);
     }
