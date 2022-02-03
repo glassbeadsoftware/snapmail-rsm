@@ -12,7 +12,7 @@ pub struct HasMailBeenFullyAcknowledgedOutput(Result<(), Vec<AgentPubKey>>);
 
 
 /// Zome function
-/// Check if agent received receipts from all receipients of one of its OutMail.
+/// Check if agent received receipts from all recipients of one of its OutMail.
 /// If false, returns list of agents who's receipt is missing.
 #[hdk_extern]
 #[snapmail_api]

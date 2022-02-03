@@ -16,6 +16,7 @@ use crate::{
     file::FileManifest,
 };
 
+/// Possible states of an InMail entry
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum InMailState {
     /// PendingMail available
@@ -30,22 +31,28 @@ pub enum InMailState {
     Deleted,
 }
 
+/// State of a single delivery of a mail or ack to a unique recipient
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum DeliveryState {
+    /// Initial state
+    Unsent,
+    /// Pending entry has been created and shared or DM has been sent and received
+    Sent,
+    /// Ack received and stored
+    Acknowledged,
+}
 
+
+/// Possible states of an OutMail entry
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OutMailState {
-    /// Has a pending link for each recipient
-    AllPending,
-    /// Has no pending links, and no receipt links
-    NoPendings_NoAcknowledgement,
-    /// Has no pending links, and less receipt links than recipients
-    NoPendings_PartiallyAcknowledged,
-    /// Has less pending links than recipients, and no receipt links
-    SomePendings_NoAcknowledgement,
-    /// Has less pending links than recipients, and less receipt links than recipients
-    SomePendings_PartiallyAcknowledged,
-    /// Has no pendings links, and a receipt link for each recipient
-    FullyAcknowledged,
-    ///
+    /// (orange) Initial state
+    Unsent,
+    /// (black) All deliveries have been sent (pending or sent link)
+    AllSent,
+    /// (green) Has a receipt link for each recipient
+    AllAcknowledged,
+    /// (red) Delete requested by owner
     Deleted,
 }
 
@@ -61,6 +68,7 @@ pub struct MailItem {
     pub author: AgentPubKey,
     pub mail: Mail,
     pub state: MailState,
+    // pub delivery_states: Map<AgentPubKey, DeliveryState>
     pub bcc: Vec<AgentPubKey>,
     pub date: i64,
 }
@@ -83,6 +91,30 @@ pub struct Mail {
     pub to: Vec<AgentPubKey>,
     pub cc: Vec<AgentPubKey>,
     pub attachments: Vec<AttachmentInfo>,
+}
+
+impl Mail {
+    pub fn new(subject: String,
+               payload: String,
+               to: Vec<AgentPubKey>,
+               in_cc: Vec<AgentPubKey>,
+               attachments: Vec<AttachmentInfo>,
+    ) -> Self {
+        assert_ne!(0, attachments.len() + payload.len() + subject.len());
+        /// Remove duplicate recipients
+        let cc = filter_up(&to, &in_cc);
+        /// Create Mail
+        let date_sent = crate::snapmail_now();
+        /// Done
+        Self {
+            date_sent,
+            subject,
+            payload,
+            to,
+            cc,
+            attachments,
+        }
+    }
 }
 
 pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {
@@ -112,4 +144,12 @@ impl AttachmentInfo {
             orig_filesize: manifest.orig_filesize,
         }
     }
+}
+
+
+/// Remove elements of first list present in second list
+pub(crate) fn filter_up(upper_list: &Vec<AgentPubKey>, lower_list: &Vec<AgentPubKey>) -> Vec<AgentPubKey> {
+    let mut new_lower_list = lower_list.clone();
+    new_lower_list.retain(|x| !upper_list.contains(x));
+    new_lower_list
 }

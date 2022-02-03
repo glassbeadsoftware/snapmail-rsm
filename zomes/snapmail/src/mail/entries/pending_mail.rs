@@ -4,8 +4,8 @@ use super::Mail;
 use crate::mail::entries::sign_mail;
 use crate::pub_enc_key::*;
 
-/// Entry representing a mail on the DHT waiting to be received by receipient.
-/// The receipient is the agentId where the entry is linked from.
+/// Entry representing a mail on the DHT waiting to be received by recipient.
+/// The recipient is the agentId where the entry is linked from.
 /// The mail is encrypted with the recipient's public encryption key.
 ///
 #[hdk_entry(id = "pending_mail")]
