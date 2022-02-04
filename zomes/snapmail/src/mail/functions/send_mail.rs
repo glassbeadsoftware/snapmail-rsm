@@ -250,7 +250,7 @@ pub(crate) fn send_mail_to(
 
 /// Zone Function
 /// Send Mail: Creates and commits OutMail. Files must already be committed.
-/// post_commit will try to send directly to each receipient.
+/// post_commit() will try to send directly to each receipient.
 #[hdk_extern]
 #[snapmail_api]
 pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
