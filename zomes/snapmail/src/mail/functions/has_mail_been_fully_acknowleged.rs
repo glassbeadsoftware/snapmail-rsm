@@ -12,14 +12,14 @@ pub struct HasMailBeenFullyAcknowledgedOutput(Result<(), Vec<AgentPubKey>>);
 
 
 /// Zome function
-/// Check if agent received receipts from all receipients of one of its OutMail.
+/// Check if agent received receipts from all recipients of one of its OutMail.
 /// If false, returns list of agents who's receipt is missing.
 #[hdk_extern]
 #[snapmail_api]
 pub fn has_mail_been_fully_acknowledged(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenFullyAcknowledgedOutput> {
     /// Get OutMail
     let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;
-    /// Merge all recepients lists into one
+    /// Merge all recipients lists into one
     let all_recipients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
     debug!("all_recipients: {:?} ({})", all_recipients, outmail_hh);
     /// Get all ``receipt`` links

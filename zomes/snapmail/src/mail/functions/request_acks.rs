@@ -42,10 +42,10 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
       debug!(" outmail_element = {:?}", outmail_element);
       let outmail: OutMail = get_typed_from_el(outmail_element)?;
       let outmail_eh = hash_entry(outmail.clone())?;
-      let receipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
+      let recipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
       let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?;
       let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
-      if receipient_count == pendings.len() + receipts.len() {
+      if recipient_count == pendings.len() + receipts.len() {
          continue;
       }
       hhs.push(outmail_hh);

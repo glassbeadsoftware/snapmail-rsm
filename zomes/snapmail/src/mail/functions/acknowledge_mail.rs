@@ -62,7 +62,7 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
 }
 
 
-///
+/// Called by post_commit()
 pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult<()> {
     /// Get InMail
     let inmail = get_typed_from_eh::<InMail>(outack.inmail_eh.clone())?;
@@ -71,6 +71,20 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
         debug!("Sending ack via DM ...");
         let res = send_dm_ack(&inmail.outmail_eh, &inmail.from);
         if res.is_ok() {
+
+            // /// Create Sent link
+            // let payload = CommitSentLinkInput {
+            //     outack_eh: outack_eh.clone(),
+            //     to: inmail.from.clone(),
+            // };
+            // let _res = call_remote(
+            //     agent_info()?.agent_latest_pubkey,
+            //     zome_info()?.name,
+            //     "commit_sent_link".to_string().into(),
+            //     None,
+            //     payload,
+            // )?; // Can't fallback if this fails. Must notify the error.
+
             debug!("Acknowledgment shared !");
             return Ok(());
         }
@@ -127,7 +141,7 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
     let signature = sign(agent_info()?.agent_latest_pubkey, input.outmail_eh.clone())?;
     let pending_ack = PendingAck::new(input.outmail_eh.clone(), signature);
     let pending_ack_hh = create_entry(&pending_ack)?;
-    /// Create links between PendingAck and Outack & recepient inbox
+    /// Create links between PendingAck and Outack & recipient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
     let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
     let _ = create_link(input.outack_eh, pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
@@ -135,4 +149,24 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
     debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, input.original_sender);
     /// Done
     Ok(pending_ack_hh)
+}
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct CommitSentLinkInput {
+    pub outack_eh: EntryHash,
+    pub to: AgentPubKey,
+}
+
+/// Create & Commit 'Sent' link
+/// Return HeaderHash of newly created link
+#[hdk_extern]
+fn commit_sent_link(input: CommitSentLinkInput) -> ExternResult<HeaderHash> {
+    debug!("commit_sent_link(): {:?} ", input);
+    let hh = create_link(
+        input.outack_eh.clone(),
+        input.outack_eh,
+        LinkKind::Sent.as_tag(),
+    )?;
+    Ok(hh)
 }

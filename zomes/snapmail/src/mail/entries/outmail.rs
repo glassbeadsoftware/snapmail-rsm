@@ -4,6 +4,7 @@ use crate::{
     mail::entries::{
         Mail,
         AttachmentInfo,
+        filter_up,
     },
     file::FileManifest,
 };
@@ -29,18 +30,20 @@ impl OutMail {
         payload: String,
         to: Vec<AgentPubKey>,
         cc: Vec<AgentPubKey>,
-        bcc: Vec<AgentPubKey>,
+        in_bcc: Vec<AgentPubKey>,
         file_manifest_list: Vec<(EntryHash, FileManifest)>,
     ) -> Self {
-        assert_ne!(0, to.len() + cc.len() + bcc.len());
-        // TODO: remove duplicate receipients
-
+        assert_ne!(0, to.len() + cc.len() + in_bcc.len());
+        /// Remove duplicate recipients
+        let mut bcc = filter_up(&to, &in_bcc);
+        bcc = filter_up(&cc, &bcc);
+        /// Get attachments
         let attachments: Vec<AttachmentInfo> = file_manifest_list
             .iter().map(|(eh, manifest)| AttachmentInfo::from_manifest(manifest.clone(), eh.clone()))
             .collect();
-
-        let date_sent = crate::snapmail_now();
-        let mail = Mail { date_sent, subject, payload, to, cc, attachments };
+        /// Create Mail
+        let mail = Mail::new(subject, payload, to, cc, attachments);
+        /// Done
         OutMail::new(mail, bcc)
     }
 

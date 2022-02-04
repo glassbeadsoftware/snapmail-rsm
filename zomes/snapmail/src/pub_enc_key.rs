@@ -41,6 +41,8 @@ impl PubEncKey {
 #[hdk_extern]
 #[snapmail_api]
 pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
+   debug !("*** get_enc_key() CALLED by {}", call_info()?.function_name);
+
    /// Get All Handle links on agent ; should have only one
    let key_links = get_links(from.into(), LinkKind::EncKey.as_tag_opt())
       .expect("No reason for this to fail");
@@ -85,7 +87,7 @@ fn test_encryption(to: AgentPubKey) -> ExternResult<()> {
    debug!("- recipient = {:?}", recipient.clone());
    /// Normal decrypt
    let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, encrypted.clone());
-   debug!("maybe_decrypted normal = {:?}", maybe_decrypted);
+   debug!("  maybe_decrypted normal = {:?}", maybe_decrypted);
    /// Inverted keys
    let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, encrypted.clone());
    debug!("maybe_decrypted inverted = {:?}", maybe_decrypted);

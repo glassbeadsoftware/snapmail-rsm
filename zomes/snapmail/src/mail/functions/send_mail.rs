@@ -134,7 +134,7 @@ fn send_mail_by_dm(
 
 #[hdk_extern]
 fn commit_inmail(inmail: InMail) -> ExternResult<HeaderHash> {
-    // debug!("commit_inmail() START **********");
+    debug!("commit_inmail() START **********");
     create_entry(inmail)
 }
 
@@ -192,7 +192,7 @@ pub(crate) fn send_mail_to(
     manifest_list: &Vec<FileManifest>,
     signature: &Signature,
 ) -> ExternResult<SendSuccessKind> {
-    debug!("send_mail_to() START - {}", destination);
+    debug!("send_mail_to() START - {:?}", destination);
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
     if destination.clone() == me {
@@ -203,14 +203,15 @@ pub(crate) fn send_mail_to(
             mail_signature: signature.clone(),
         };
         let inmail = InMail::from_direct(me.clone(), msg);
-        let res = call_remote(
-            me,
+        debug!("send_mail_to() REMOTE CALLING...");
+        let res = call_remote( // call(
+            me, // CallTargetCell::Local,
             zome_info()?.name,
             "commit_inmail".to_string().into(),
             None,
             inmail,
         )?;
-        // debug!("commit_inmail() END : {:?}", res);
+        debug!("commit_inmail() END : {:?}", res);
         assert!(matches!(res, ZomeCallResponse::Ok { .. }));
         return Ok(SendSuccessKind::OK_SELF);
     }
@@ -224,6 +225,7 @@ pub(crate) fn send_mail_to(
             debug!("send_mail_by_dm() failed: {:?}", err);
         }
     }
+    debug!("Creating pending_mail...");
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self
     let pending_mail = PendingMail::from_mail(
@@ -236,13 +238,15 @@ pub(crate) fn send_mail_to(
         outmail_eh: outmail_eh.clone(),
         destination: destination.clone(),
     };
-    let _pending_mail_hh = call_remote(
+    debug!("send_mail_to() - calling commit_pending_mail()");
+    let pending_mail_hh = call_remote(
         me,
         zome_info()?.name,
         "commit_pending_mail".to_string().into(),
         None,
         payload,
     )?;
+    debug!("send_mail_to() - pending_mail_hh: {:?}", pending_mail_hh);
     /// Done
     Ok(SendSuccessKind::OK_PENDING)
 }
@@ -250,7 +254,7 @@ pub(crate) fn send_mail_to(
 
 /// Zone Function
 /// Send Mail: Creates and commits OutMail. Files must already be committed.
-/// post_commit() will try to send directly to each receipient.
+/// post_commit will try to send directly to each recipient.
 #[hdk_extern]
 #[snapmail_api]
 pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
@@ -279,8 +283,8 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
 }
 
 
-/// Once OutMail committed, try to send directly to each receipient.
-/// if receipient not online, creates a PendingMail on the DHT.
+/// Once OutMail committed, try to send directly to each recipient.
+/// if recipient not online, creates a PendingMail on the DHT.
 pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternResult<()> {
     debug!("CALLED send_committed_mail() {:?}", outmail_eh);
     /// Get recipients
@@ -293,10 +297,46 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
     }
     /// Create signature
     let signature = sign_mail(&outmail.mail)?;
-    /// Send to each recepient
+    /// Send to each recipient
     for agent in recipients {
-        let _res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list, &signature);
+        let res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list, &signature);
+        match res {
+            // Create 'Sent' link when successfully sent via DM
+            Ok(SendSuccessKind::OK_SELF | SendSuccessKind::OK_DIRECT) => {
+                let payload = CommitSentsLinkInput {
+                    outmail_eh: outmail_eh.clone(),
+                    to: agent.clone(),
+                };
+                let _res = call_remote(
+                    agent_info()?.agent_latest_pubkey,
+                    zome_info()?.name,
+                    "commit_sents_link".to_string().into(),
+                    None,
+                    payload,
+                )?; // Can't fallback if this fails. Must notify the error.
+            },
+            Ok(_) => {},
+            Err(e) => {
+                debug!("send_mail_to() failed: {}", e);
+            }
+        }
     }
     /// Done
     Ok(())
+}
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct CommitSentsLinkInput {
+    pub outmail_eh: EntryHash,
+    pub to: AgentPubKey,
+}
+
+/// Create & Commit 'Sent' link
+/// Return HeaderHash of newly created link
+#[hdk_extern]
+fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<HeaderHash> {
+    debug!("commit_sents_link(): {:?} ", input);
+    let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, LinkKind::Sents.as_tag())?;
+    Ok(hh)
 }

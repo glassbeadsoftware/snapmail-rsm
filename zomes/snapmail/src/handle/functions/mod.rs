@@ -6,7 +6,7 @@ mod set_handle;
 mod get_all_handles;
 
 //mod get_my_handle_history;
-//mod find_agent;
+mod find_agent;
 
 pub use self::{
     ping_agent::*,
@@ -18,5 +18,5 @@ pub use self::{
     get_all_handles::*,
    
    // get_my_handle_history::*,
-    //find_agent::*,
+    find_agent::*,
 };

@@ -30,55 +30,26 @@ pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
    //.expect("Should be a OutMail entry");
    let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
    /// Grab info
-   let recipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
+   let recipient_count = outmail.recipients().len();
    let initial_pendings = get_links(outmail_eh.clone(), LinkKind::Pendings.as_tag_opt())?;
+   let sents = get_links(outmail_eh.clone(), LinkKind::Sents.as_tag_opt())?;
    let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
 
    debug!("  -   recipients: {}", recipient_count);
    debug!("  -     receipts: {}", receipts.len());
-   debug!("  - ini-pendings: {}", initial_pendings.len());
+   debug!("  -     pendings: {}", initial_pendings.len());
+   debug!("  -        sents: {}", sents.len());
 
-   // Check each pending if it has been deleted
-   let mut pendings= Vec::new();
-   for pending_link in initial_pendings {
-      let el = get(pending_link.target.clone(), GetOptions::latest())?
-         .ok_or(WasmError::Guest(String::from("details not found")))?;
-      let hh: HeaderHash = el.header_address().clone();
-      let details = get_details(hh, GetOptions::latest())?
-         .ok_or(WasmError::Guest(String::from("details not found")))?;
-      //debug!("  -      details: {:?}", details);
-      let deletes = match details {
-         Details::Element(details) => details.deletes,
-         Details::Entry(_) => unreachable!("in get_outmail_state(). Must be a Element."),
-      };
-      trace!("  -      deletes: {:?}", deletes);
-      /// Check if deleted
-      if deletes.len() > 0 {
-         delete_link(pending_link.create_link_hash)?;
-         trace!(" *** Deleted link to: {:?}", pending_link.tag);
-         continue;
-      }
-      pendings.push(pending_link.clone());
-   }
-   debug!("  -     pendings: {}", pendings.len());
 
-   /// Determine state
-   if pendings.len() == recipient_count {
-      return Ok(OutMailState::Pending);
+   if receipts.len() == recipient_count {
+      return Ok(OutMailState::AllAcknowledged);
    }
-   if pendings.len() == 0 {
-      if receipts.len() == 0 {
-         return Ok(OutMailState::Arrived_NoAcknowledgement);
-      }
-      if receipts.len() == recipient_count {
-         return Ok(OutMailState::FullyAcknowledged);
-      }
-      return Ok(OutMailState::Arrived_PartiallyAcknowledged);
+
+   if receipts.len() == initial_pendings.len() + sents.len() {
+      return Ok(OutMailState::AllSent);
    }
-   if receipts.len() == 0 {
-      return Ok(OutMailState::PartiallyArrived_NoAcknowledgement);
-   }
-   return Ok(OutMailState::PartiallyArrived_PartiallyAcknowledged);
+
+   return Ok(OutMailState::Unsent);
 }
 
 

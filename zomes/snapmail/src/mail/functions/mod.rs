@@ -7,7 +7,8 @@ mod check_ack_inbox;
 mod check_mail_inbox;
 mod get_all_unacknowledged_inmails;
 mod has_ack_been_received;
-mod has_mail_been_fully_acknowleged;
+//mod has_mail_been_fully_acknowleged;
+mod is_outack_sent;
 mod delete_mail;
 mod request_acks;
 mod get_outmail_state;
@@ -20,7 +21,8 @@ pub use self::{
    get_mail::*,
    get_all_mails::*,
    has_ack_been_received::*,
-   has_mail_been_fully_acknowleged::*,
+   //has_mail_been_fully_acknowleged::*,
+   is_outack_sent::*,
    send_mail::*,
    delete_mail::*,
    request_acks::*,
