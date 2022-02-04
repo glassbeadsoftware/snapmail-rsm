@@ -134,7 +134,7 @@ fn send_mail_by_dm(
 
 #[hdk_extern]
 fn commit_inmail(inmail: InMail) -> ExternResult<HeaderHash> {
-    // debug!("commit_inmail() START **********");
+    debug!("commit_inmail() START **********");
     create_entry(inmail)
 }
 
@@ -192,7 +192,7 @@ pub(crate) fn send_mail_to(
     manifest_list: &Vec<FileManifest>,
     signature: &Signature,
 ) -> ExternResult<SendSuccessKind> {
-    debug!("send_mail_to() START - {}", destination);
+    debug!("send_mail_to() START - {:?}", destination);
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
     if destination.clone() == me {
@@ -203,14 +203,15 @@ pub(crate) fn send_mail_to(
             mail_signature: signature.clone(),
         };
         let inmail = InMail::from_direct(me.clone(), msg);
-        let res = call_remote(
-            me,
+        debug!("send_mail_to() REMOTE CALLING...");
+        let res = call_remote( // call(
+            me, // CallTargetCell::Local,
             zome_info()?.name,
             "commit_inmail".to_string().into(),
             None,
             inmail,
         )?;
-        // debug!("commit_inmail() END : {:?}", res);
+        debug!("commit_inmail() END : {:?}", res);
         assert!(matches!(res, ZomeCallResponse::Ok { .. }));
         return Ok(SendSuccessKind::OK_SELF);
     }

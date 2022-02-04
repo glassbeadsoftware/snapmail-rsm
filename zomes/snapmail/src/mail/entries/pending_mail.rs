@@ -2,7 +2,9 @@ use hdk::prelude::*;
 
 use super::Mail;
 use crate::mail::entries::sign_mail;
-use crate::pub_enc_key::*;
+use crate::{
+   utils::*,
+};
 
 /// Entry representing a mail on the DHT waiting to be received by recipient.
 /// The recipient is the agentId where the entry is linked from.
@@ -51,19 +53,42 @@ impl PendingMail {
 
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
+   /// called from post_commit()
    pub fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self> {
       /// Get my key
-      let my_agent_key = agent_info()?.agent_latest_pubkey;
-      debug!("get_enc_key() for sender {:?}", my_agent_key);
-      let sender_key = get_enc_key(my_agent_key)?;
+      let me = agent_info()?.agent_latest_pubkey;
+      debug!("get_enc_key() for sender {:?}", me);
+      let maybe_sender_key = call_remote(
+         me.clone(),
+         zome_info()?.name,
+         "get_enc_key".to_string().into(),
+         None,
+         me.clone(),
+      )?;
+      debug!("get_enc_key() for sender result: {:?}", maybe_sender_key);
+      let sender_key = match maybe_sender_key {
+         ZomeCallResponse::Ok(output) => output.decode()?,
+         _ => return error("Self call to get_enc_key(sender) failed")
+      };
+
       /// Get recipient's key
       debug!("get_enc_key() for recipient {:?}", to);
-      let recipient_key = get_enc_key(to)?;
+      let maybe_recipient_key = call_remote(
+         me.clone(),
+         zome_info()?.name,
+         "get_enc_key".to_string().into(),
+         None,
+         to.clone(),
+      )?;
+      debug!("get_enc_key() for recipient result: {:?}", maybe_recipient_key);
+      let recipient_key = match maybe_recipient_key {
+         ZomeCallResponse::Ok(output) => output.decode()?,
+         _ => return error("Self call to get_enc_key(recipient) failed")
+      };
       /// Create
       debug!("pending_mail: recipient_key = {:?}", recipient_key);
       Ok(Self::create(mail, outmail_eh, sender_key, recipient_key))
    }
-
 
    /// Attempt to decrypt pendingMail with provided keys
    pub fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {

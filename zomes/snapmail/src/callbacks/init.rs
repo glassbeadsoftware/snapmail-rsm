@@ -10,6 +10,7 @@ use crate::{
 fn init_caps(_: ()) -> ExternResult<()> {
    let mut functions: GrantedFunctions = BTreeSet::new();
    functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
+   //functions.insert((zome_info()?.name, "get_enc_key".into()));
    create_cap_grant(
       CapGrantEntry {
          tag: "".into(),
