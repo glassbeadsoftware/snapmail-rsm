@@ -204,8 +204,8 @@ pub(crate) fn send_mail_to(
         };
         let inmail = InMail::from_direct(me.clone(), msg);
         debug!("send_mail_to() REMOTE CALLING...");
-        let res = call_remote( // call(
-            me, // CallTargetCell::Local,
+        let res = call_remote(
+            me,
             zome_info()?.name,
             "commit_inmail".to_string().into(),
             None,

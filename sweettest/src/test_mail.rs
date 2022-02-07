@@ -6,6 +6,7 @@ use snapmail::{
 };
 
 use holo_hash::*;
+use tokio::time::{sleep, Duration};
 
 use crate::setup::*;
 
@@ -69,20 +70,25 @@ pub async fn test_mail_self() {
    println!("outmail_state: {:?}", outmail_state);
    assert!(outmail_state == OutMailState::AllSent);
 
-   /// Check if arrived
+   //sleep(Duration::from_millis(500)).await;
+
+   /// Check if acknowledged
    let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
    for _ in 0..10u32 {
       unacknowledged_inmails = conductor0.call(&cell0.zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
       if unacknowledged_inmails.len() > 0 {
          break;
       }
-      tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+      sleep(Duration::from_millis(100)).await;
    }
    println!("unacknowledged_inmails: {:?}", unacknowledged_inmails);
    assert_eq!(1, unacknowledged_inmails.len());
+
+   //print_chain(&conductor0, &alex, &cell0).await;
+
    /// Get mail
    let received_mail: GetMailOutput = conductor0.call(&cell0.zome("snapmail"), "get_mail", unacknowledged_inmails[0].clone()).await;
-   //println!("received_mail: {:?}", received_mail);
+   println!("received_mail: {:?}", received_mail);
    assert!(received_mail.0.is_some());
    let rec_mail = received_mail.0.unwrap();
    assert!(rec_mail.is_ok());
@@ -97,13 +103,15 @@ pub async fn test_mail_self() {
    let outmail_state: OutMailState = conductor0.call(&cell0.zome("snapmail"), "get_outmail_state", outmail_hh.clone()).await;
    println!("outmail_state: {:?}", outmail_state);
    assert!(outmail_state == OutMailState::AllAcknowledged);
+
+   sleep(Duration::from_millis(500)).await;
 }
 
 
 ///
 pub async fn test_mail_dm() {
    // Setup
-   let (mut conductors, agents, apps) = setup_3_conductors().await;
+   let (conductors, agents, apps) = setup_3_conductors().await;
    let cells = apps.cells_flattened();
 
    // A sends to B
@@ -153,8 +161,7 @@ pub async fn test_mail_dm() {
    // println!("outmail_state: {:?}", outmail_state);
    // assert!(outmail_state == OutMailState::AllAcknowledged);
 
-   conductors[0].shutdown().await;
-   conductors[1].shutdown().await;
+   sleep(Duration::from_millis(500)).await;
 }
 
 
