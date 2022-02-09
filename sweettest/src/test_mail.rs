@@ -94,7 +94,8 @@ pub async fn test_mail_self() {
    assert!(rec_mail.is_ok());
    assert_eq!("blablabla", rec_mail.unwrap().mail.payload);
    /// Ack mail
-   let _ack_eh: EntryHash = conductor0.call(&cell0.zome("snapmail"), "acknowledge_mail", unacknowledged_inmails[0].clone()).await;
+   let ack_eh: EntryHash = conductor0.call(&cell0.zome("snapmail"), "acknowledge_mail", unacknowledged_inmails[0].clone()).await;
+   println!("ack_eh: {:?}", ack_eh);
    /// Check Ack
    let has_acked: bool = conductor0.call(&cell0.zome("snapmail"), "has_ack_been_received", unacknowledged_inmails[0].clone()).await;
    println!("has_acked: {:?}", has_acked);
@@ -143,7 +144,8 @@ pub async fn test_mail_dm() {
    let outmail_state: OutMailState = conductors[0].call(&cells[0].zome("snapmail"), "get_outmail_state", outmail_hh.clone()).await;
    println!("outmail_state: {:?}", outmail_state);
    assert!(outmail_state == OutMailState::AllSent);
-   let _ack_eh: EntryHash = conductors[1].call(&cells[1].zome("snapmail"), "acknowledge_mail", unacknowledged_inmails[0].clone()).await;
+   let ack_eh: EntryHash = conductors[1].call(&cells[1].zome("snapmail"), "acknowledge_mail", unacknowledged_inmails[0].clone()).await;
+   println!("ack_eh: {:?}", ack_eh);
 
    // /// A checks if msg has been acknowledged
    // println!("*** Calling has_mail_been_fully_acknowledged()");
@@ -165,13 +167,13 @@ pub async fn test_mail_dm() {
 }
 
 
-/// TODO: shutdown doesn't work
+/// WARNING: shutdown doesn't work
 pub async fn test_mail_pending() {
    /// Setup
-   let (conductors, agents, apps) = setup_3_conductors().await;
+   let (mut conductors, agents, apps) = setup_3_conductors().await;
    let cells = apps.cells_flattened();
 
-   /// Setup Alex
+   // /// Setup
    // let (mut conductor0, alex, cell0) = setup_1_conductor().await;
    // /// Setup Billy
    // let billy;
@@ -194,11 +196,9 @@ pub async fn test_mail_pending() {
    // consistency_10s(cells.as_slice()).await;
    //println!("consistency done!");
 
-   /// B goes offline
-   //conductors[1].shutdown().await;
-   //consistency_10s(cells.as_slice()).await;
 
-   //conductors[1].shutdown().await;
+   /// B goes offline
+   conductors[1].shutdown().await;
 
    // let enc_key: holochain_zome_types::X25519PubKey = conductors[1].call(&cells[1].zome("snapmail"), "get_my_enc_key", ()).await;
 
@@ -225,19 +225,21 @@ pub async fn test_mail_pending() {
    ).await;
    println!("outmail_hh: {:?}", outmail_hh);
 
+   sleep(Duration::from_millis(20 * 1000)).await;
+
    /// Check status: Should be 'Pending'
    /// B checks inbox
    try_zome_call(&conductors[0], cells[0], "get_outmail_state", outmail_hh.clone(),
-                 |mail_state: &OutMailState| {mail_state == &OutMailState::Unsent })
+                 |mail_state: &OutMailState| {mail_state == &OutMailState::AllSent })
       .await
-      .expect("Should have pending state");
+      .expect("Should have AllSent state");
 
 
    /// B goes online
-   // consistency_10s(&cells).await;
-   //conductors[1].startup().await;
-   //consistency_10s(&cells).await;
-   //tokio::time::sleep(std::time::Duration::from_millis(3*1000)).await;
+   conductors[1].startup().await;
+
+
+   sleep(Duration::from_millis(10 * 1000)).await;
 
 
    /// B checks inbox

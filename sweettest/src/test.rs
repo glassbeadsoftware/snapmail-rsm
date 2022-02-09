@@ -35,11 +35,17 @@ pub async fn test(arg: String) {
    if arg == "all" || arg == "handle" {
       test_handle().await;
    }
-   // Mail
-   if arg == "all" || arg == "mail" {
+   // Mail self
+   if arg == "all" || arg == "self" {
       test_mail_self().await;
-      //test_mail_dm().await;
-      //test_mail_pending().await;
+   }
+   // Mail via DM
+   if arg == "all" || arg == "mail" {
+      test_mail_dm().await;
+   }
+   // Mail via DHT
+   if arg == "all" || arg == "pending" {
+      test_mail_pending().await;
    }
    // File
    if arg == "all" || arg == "file" {
