@@ -10,8 +10,9 @@ use crate::{
     //mail::receive::*,
     LinkKind,
     file::{FileManifest, FileChunk, get_manifest},
-    constants::*,
 };
+use crate::mail::entries::DeliveryConfirmation;
+
 
 #[allow(non_camel_case_types)]
 pub enum SendSuccessKind {
@@ -179,6 +180,9 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash
     };
     let link2_hh = maybe_link2_hh.unwrap();
     debug!("link2_hh = {}", link2_hh);
+    /// Create DeliveryConfirmation
+    let confirmation = DeliveryConfirmation::new(input.outmail_eh,input.destination);
+    let _ = create_entry(confirmation)?;
     /// Done
     return Ok(pending_mail_hh)
 }
@@ -216,15 +220,14 @@ pub(crate) fn send_mail_to(
         return Ok(SendSuccessKind::OK_SELF);
     }
     /// Try sending directly to other Agent if Online
-    if CAN_DM {
-        let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list, signature);
-        if result.is_ok() {
-            return Ok(SendSuccessKind::OK_DIRECT);
-        } else {
-            let err = result.err().unwrap();
-            debug!("send_mail_by_dm() failed: {:?}", err);
-        }
+    let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list, signature);
+    if result.is_ok() {
+        return Ok(SendSuccessKind::OK_DIRECT);
+    } else {
+        let err = result.err().unwrap();
+        debug!("send_mail_by_dm() failed: {:?}", err);
     }
+
     debug!("Creating pending_mail...");
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self
@@ -239,14 +242,14 @@ pub(crate) fn send_mail_to(
         destination: destination.clone(),
     };
     debug!("send_mail_to() - calling commit_pending_mail()");
-    let pending_mail_hh = call_remote(
+    let response = call_remote(
         me,
         zome_info()?.name,
         "commit_pending_mail".to_string().into(),
         None,
         payload,
     )?;
-    debug!("send_mail_to() - pending_mail_hh: {:?}", pending_mail_hh);
+    debug!("send_mail_to() - commit_pending_mail() response: {:?}", response);
     /// Done
     Ok(SendSuccessKind::OK_PENDING)
 }
@@ -303,17 +306,15 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
         match res {
             // Create 'Sent' link when successfully sent via DM
             Ok(SendSuccessKind::OK_SELF | SendSuccessKind::OK_DIRECT) => {
-                let payload = CommitSentsLinkInput {
-                    outmail_eh: outmail_eh.clone(),
-                    to: agent.clone(),
-                };
-                let _res = call_remote(
+                let confirmation = DeliveryConfirmation::new(outmail_eh.clone(), agent.clone());
+                let response = call_remote(
                     agent_info()?.agent_latest_pubkey,
                     zome_info()?.name,
-                    "commit_sents_link".to_string().into(),
+                    "commit_confirmation".to_string().into(),
                     None,
-                    payload,
+                    confirmation,
                 )?; // Can't fallback if this fails. Must notify the error.
+                debug!("commit_confirmation() response: {:?}", response);
             },
             Ok(_) => {},
             Err(e) => {
@@ -325,18 +326,19 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
     Ok(())
 }
 
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-struct CommitSentsLinkInput {
-    pub outmail_eh: EntryHash,
-    pub to: AgentPubKey,
-}
-
-/// Create & Commit 'Sent' link
-/// Return HeaderHash of newly created link
-#[hdk_extern]
-fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<HeaderHash> {
-    debug!("commit_sents_link(): {:?} ", input);
-    let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, LinkKind::Sents.as_tag())?;
-    Ok(hh)
-}
+//
+// #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+// struct CommitSentsLinkInput {
+//     pub outmail_eh: EntryHash,
+//     pub to: AgentPubKey,
+// }
+//
+// /// Create & Commit 'Sent' link
+// /// Return HeaderHash of newly created link
+// #[hdk_extern]
+// fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<HeaderHash> {
+//     debug!("commit_sents_link(): {:?} ", input);
+//     let tag = LinkKind::Sents.concat_hash(&input.to);
+//     let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, tag)?;
+//     Ok(hh)
+// }

@@ -18,8 +18,6 @@ pub const LinkSeparator: &'static str = "___";
 pub enum LinkKind {
    #[strum(props(BaseType = "Path", TargetType = "Handle"))]
    Members,
-   #[strum(props(BaseType = "InMail", TargetType = "OutAck"))]
-   Acknowledgment,
    #[strum(props(BaseType = "AgentPubKey", TargetType = "PendingAck"))]
    AckInbox,
    #[strum(props(BaseType = "AgentPubKey", TargetType = "PendingMail"))]
@@ -30,14 +28,16 @@ pub enum LinkKind {
    Pending,
    #[strum(props(BaseType = "OutMail", TargetType = "PendingMail"))]
    Pendings,
-   #[strum(props(BaseType = "OutMail", TargetType = "InAck"))]
-   Receipt,
    #[strum(props(BaseType = "AgentPubKey", TargetType = "PubEncKey"))]
    EncKey,
-   #[strum(props(BaseType = "OutAck", TargetType = "OutAck"))]
-   Sent,
-   #[strum(props(BaseType = "OutMail", TargetType = "OutMail"))]
-   Sents,
+   // #[strum(props(BaseType = "InMail", TargetType = "OutAck"))]
+   // Acknowledgment,
+   // #[strum(props(BaseType = "OutMail", TargetType = "InAck"))]
+   // Receipt,
+   // #[strum(props(BaseType = "OutAck", TargetType = "OutAck"))]
+   // Sent,
+   // #[strum(props(BaseType = "OutMail", TargetType = "OutMail"))]
+   // Sents,
 }
 
 /// Public

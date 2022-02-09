@@ -10,10 +10,11 @@ use crate::{
    mail::send_mail_to,
    file::get_manifest,
 };
+use crate::mail::get_inacks;
 
 
 /// Zome Function
-/// Re-send mail to OutMails for which we have missing acks
+/// Re-send mail to each recipient of each OutMail for which we have missing acks
 /// Return list of OutMails for which we requested acks
 #[hdk_extern]
 #[snapmail_api]
@@ -30,6 +31,10 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
    }
    let created_outmails: Vec<Element> = maybe_outmails.unwrap();
    debug!(" get_all_mails() outmails count = {}", created_outmails.len());
+
+   // Get all acks
+   let acks = get_inacks(None)?;
+
    /// Check for each OutMail
    let mut hhs = Vec::new();
    for outmail_element in created_outmails {
@@ -42,10 +47,9 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
       debug!(" outmail_element = {:?}", outmail_element);
       let outmail: OutMail = get_typed_from_el(outmail_element)?;
       let outmail_eh = hash_entry(outmail.clone())?;
-      let recipient_count = outmail.bcc.len() + outmail.mail.to.len() + outmail.mail.cc.len();
-      let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?;
-      let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
-      if recipient_count == pendings.len() + receipts.len() {
+      let recipient_count = outmail.recipients().len();
+      let outmail_acks: Vec<InAck> = acks.iter().filter(|x| x.outmail_eh == outmail_eh).cloned().collect();
+      if recipient_count == outmail_acks.len() {
          continue;
       }
       hhs.push(outmail_hh);
@@ -56,13 +60,12 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
          file_manifest_list.push(manifest.clone());
       }
       /// Look for missing acks
+      let pendings = get_links(outmail_eh.clone(), LinkKind::Pending.as_tag_opt())?;
       let recipients = outmail.recipients();
       let mut pending_agents: Vec<AgentPubKey> = pendings.iter().map(|link| {
          LinkKind::Pendings.unconcat_hash(&link.tag).unwrap()
       }).collect();
-      let receipt_agents: Vec<AgentPubKey> = receipts.iter().map(|link| {
-         LinkKind::Receipt.unconcat_hash(&link.tag).unwrap()
-      }).collect();
+      let receipt_agents: Vec<AgentPubKey> = outmail_acks.iter().map(|x| x.from.to_owned()).collect();
       pending_agents.extend_from_slice(&receipt_agents);
       /// Create signature
       let signature = sign_mail(&outmail.mail)?;

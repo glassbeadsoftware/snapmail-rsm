@@ -49,6 +49,7 @@ fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<()>{
       EntryKind::Handle => {},
       EntryKind::PubEncKey => {},
       EntryKind::Path => {},
+      EntryKind::DeliveryConfirmation => {},
       EntryKind::InMail => {
          let _inmail = get_typed_from_eh::<InMail>(eh)?;
       },

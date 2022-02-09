@@ -114,6 +114,14 @@ fn validate_app_entry(
             // FIXME
             Ok(ValidateCallbackResult::Valid)
         },
+        EntryKind::DeliveryConfirmation => {
+            let maybe_content = DeliveryConfirmation::try_from(sb.clone());
+            if let Err(_err) = maybe_content {
+                return error("Failed to deserialize DeliveryConfirmation");
+            }
+            // FIXME
+            Ok(ValidateCallbackResult::Valid)
+        },
         EntryKind::OutMail => {
             let maybe_content = OutMail::try_from(sb.clone());
             if let Err(_err) = maybe_content {

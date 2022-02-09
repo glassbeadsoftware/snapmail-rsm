@@ -4,12 +4,13 @@ mod pending_mail;
 mod pending_ack;
 mod outack;
 mod inack;
+mod delivery_confirmation;
 
 use hdk::prelude::*;
 
 pub use self::{
     inmail::*, pending_mail::*, outmail::*,
-    pending_ack::*, inack::*, outack::*,
+    pending_ack::*, inack::*, outack::*, delivery_confirmation::*,
 };
 
 use crate::{

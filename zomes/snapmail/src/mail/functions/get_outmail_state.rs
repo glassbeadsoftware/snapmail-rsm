@@ -1,10 +1,12 @@
 use hdk::prelude::*;
 
 use crate::{
-   link_kind::*,
-   mail::entries::*,
+   mail::{entries::*, utils::*},
    utils::*,
 };
+
+use std::collections::HashMap;
+use crate::mail::get_inacks;
 
 /// Get State of an OutMail
 #[hdk_extern]
@@ -30,30 +32,26 @@ pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
    //.expect("Should be a OutMail entry");
    let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
    /// Grab info
-   let recipient_count = outmail.recipients().len();
-   let initial_pendings = get_links(outmail_eh.clone(), LinkKind::Pendings.as_tag_opt())?;
-   let sents = get_links(outmail_eh.clone(), LinkKind::Sents.as_tag_opt())?;
-   let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
+   let recipient_count= outmail.recipients().len();
+   let inacks = get_inacks(Some(outmail_hh))?;
+   let confirmations = get_confirmations(outmail_eh.to_owned())?;
+   //let pendings = get_links(outmail_eh.clone(), LinkKind::Pendings.as_tag_opt())?;
 
-   debug!("  -   recipients: {}", recipient_count);
-   debug!("  -     receipts: {}", receipts.len());
-   debug!("  -     pendings: {}", initial_pendings.len());
-   debug!("  -        sents: {}", sents.len());
+   debug!("  -    recipients: {}", recipient_count);
+   debug!("  -     delivered: {}", confirmations.len());
+   debug!("  -         acked: {}", inacks.len());
+   //debug!("  -      pendings: {}", pendings.len());
 
-
-   if receipts.len() == recipient_count {
+   if recipient_count == inacks.len() {
       return Ok(OutMailState::AllAcknowledged);
    }
 
-   if receipts.len() == initial_pendings.len() + sents.len() {
+   if recipient_count == confirmations.len() {
       return Ok(OutMailState::AllSent);
    }
 
    return Ok(OutMailState::Unsent);
 }
-
-
-use std::collections::HashMap;
 
 
 /// Get full state of an OutMail
@@ -74,31 +72,21 @@ pub fn get_outmail_delivery_state(outmail_hh: HeaderHash) -> ExternResult<HashMa
    let outmail: OutMail = get_typed_from_el(el_details.element.clone())
       ?;
    let outmail_eh = el_details.element.header().entry_hash().expect("Should have an Entry");
-   /// Grab links
-   let pendings = get_links(outmail_eh.clone(), LinkKind::Pendings.as_tag_opt())?;
-   let sents = get_links(outmail_eh.clone(), LinkKind::Sents.as_tag_opt())?;
-   let receipts = get_links(outmail_eh.clone(), LinkKind::Receipt.as_tag_opt())?;
-   /// Transform links into agent lists
-   let pending_agents: Vec<AgentPubKey> = pendings.iter().map(|link| {
-      LinkKind::Pendings.unconcat_hash(&link.tag).unwrap()
-   }).collect();
-   let sent_agents: Vec<AgentPubKey> = sents.iter().map(|link| {
-      LinkKind::Sents.unconcat_hash(&link.tag).unwrap()
-   }).collect();
-   let receipt_agents: Vec<AgentPubKey> = receipts.iter().map(|link| {
-      LinkKind::Receipt.unconcat_hash(&link.tag).unwrap()
-   }).collect();
+
+   let inacks = get_inacks(Some(outmail_hh))?;
+   let acked_recipients: Vec<AgentPubKey> = inacks.iter().map(|inack| inack.from.to_owned()).collect();
+
+   let confirmations = get_confirmations(outmail_eh.to_owned())?;
+   let confirmed_recipients: Vec<AgentPubKey> = confirmations.iter().map(|x| x.destination.clone()).collect();
+
    /// Determine state of delivery for each recipient and insert result in hashmap
    let mut map = HashMap::new();
    for recipient in outmail.recipients() {
       let mut state = DeliveryState::Unsent;
-      if receipt_agents.contains(&recipient) {
+      if acked_recipients.contains(&recipient) {
          state = DeliveryState::Acknowledged
       }
-      if pending_agents.contains(&recipient) {
-         state = DeliveryState::Sent
-      }
-      if sent_agents.contains(&recipient) {
+      if confirmed_recipients.contains(&recipient) {
          state = DeliveryState::Sent
       }
       map.insert(recipient, state);

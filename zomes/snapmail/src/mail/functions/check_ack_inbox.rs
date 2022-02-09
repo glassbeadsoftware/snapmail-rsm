@@ -54,7 +54,7 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
             Ok(true) => debug!("Valid PendingAck signature"),
         }
         /// Create InAck
-        let maybe_inack_hh = mail::commit_inack(pending_ack.outmail_eh.clone(), &author, pending_ack.from_signature);
+        let maybe_inack_hh = mail::create_inack(pending_ack.outmail_eh.clone(), &author, pending_ack.from_signature);
         if let Err(err) = maybe_inack_hh {
             error!("Creating InAck from PendignAck failed: {}", err);
             continue;
