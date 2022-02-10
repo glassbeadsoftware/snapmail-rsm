@@ -12,7 +12,7 @@ use crate::mail::get_inacks;
 #[hdk_extern]
 #[snapmail_api]
 pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
-   debug!(" *** get_outmail_state(): ");
+   debug!(" *** get_outmail_state() START - {}", outmail_hh);
    /// Get OutMail Details
    let maybe_details = get_details(outmail_hh.clone(), GetOptions::latest())?;
    if maybe_details.is_none() {
@@ -26,6 +26,8 @@ pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
    if el_details.deletes.len() > 0 {
       return Ok(OutMailState::Deleted);
    }
+   //debug!(" get_outmail_state() - el_details: {:?}", el_details);
+
    /// Get OutMail Entry
    let outmail: OutMail = get_typed_from_el(el_details.element.clone())
       ?;

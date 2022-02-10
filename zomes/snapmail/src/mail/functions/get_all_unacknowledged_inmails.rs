@@ -26,6 +26,7 @@ pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<HeaderHash>> {
     /// Get all OutAcks
     let outacks = get_outacks(None)?;
     let acked_inmails: Vec<&EntryHash> = outacks.iter().map(|outack| &outack.inmail_eh).collect();
+    //debug!("acked_inmails: {:?}", acked_inmails);
     /// For each InMail
     let mut unacknowledgeds = Vec::new();
     for inmail_el in inmails {
@@ -36,5 +37,6 @@ pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<HeaderHash>> {
         }
     }
     /// Done
+    //debug!("get_all_unacknowledged_inmails() DONE ({})", unacknowledgeds.len());
     Ok(unacknowledgeds)
 }

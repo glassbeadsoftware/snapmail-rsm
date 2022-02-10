@@ -94,7 +94,7 @@ pub fn hh_to_eh(hh: HeaderHash) -> ExternResult<EntryHash> {
 
 
 /// Call get() to obtain EntryHash and AppEntry from a HeaderHash
-pub fn get_typed_from_hh<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
+pub fn get_typed_from_hh<T: TryFrom<Entry>>(hash: HeaderHash)
     -> ExternResult<(EntryHash, T)>
 {
     match get(hash.clone(), GetOptions::content())? {
@@ -108,7 +108,7 @@ pub fn get_typed_from_hh<T: TryFrom<SerializedBytes>>(hash: HeaderHash)
 
 
 /// Call get() to obtain EntryHash and AppEntry from an EntryHash
-pub fn get_typed_from_eh<T: TryFrom<SerializedBytes>>(eh: EntryHash) -> ExternResult<T> {
+pub fn get_typed_from_eh<T: TryFrom<Entry>>(eh: EntryHash) -> ExternResult<T> {
     match get(eh, GetOptions::content())? {
         Some(element) => Ok(get_typed_from_el(element)?),
         None => crate::error("Entry not found"),
@@ -116,27 +116,24 @@ pub fn get_typed_from_eh<T: TryFrom<SerializedBytes>>(eh: EntryHash) -> ExternRe
 }
 
 /// Obtain AppEntry from Element
-pub fn get_typed_from_el<T: TryFrom<SerializedBytes>>(element: Element) -> ExternResult<T> {
+pub fn get_typed_from_el<T: TryFrom<Entry>>(element: Element) -> ExternResult<T> {
     match element.entry() {
         element::ElementEntry::Present(entry) => get_typed_from_entry::<T>(entry.clone()),
         _ => crate::error("Could not convert element"),
     }
 }
 
-/// Obtain AppEntry from Entry
-pub fn get_typed_from_entry<T: TryFrom<SerializedBytes>>(entry: Entry) -> ExternResult<T> {
-    match entry {
-        Entry::App(content) => match T::try_from(content.into_sb()) {
-            Ok(e) => Ok(e),
-            Err(_) => crate::error("Could not convert entry"),
-        },
-        _ => crate::error("Could not convert entry"),
+// Obtain AppEntry from Entry
+pub fn get_typed_from_entry<T: TryFrom<Entry>>(entry: Entry) -> ExternResult<T> {
+    return match T::try_from(entry.clone()) {
+        Ok(a) => Ok(a),
+        Err(_) => error(&format!("get_typed_from_entry() failed for: {:?}", entry)),
     }
 }
 
 /// Obtain latest AppEntry at EntryHash and get its author
 /// Conditions: Must be a single author entry type
-pub(crate) fn get_typed_and_author<T: TryFrom<SerializedBytes>>(eh: &EntryHash)
+pub(crate) fn get_typed_and_author<T: TryFrom<Entry>>(eh: &EntryHash)
     -> ExternResult<(AgentPubKey, T)>
 {
     let maybe_maybe_element = get(eh.clone(), GetOptions::latest());

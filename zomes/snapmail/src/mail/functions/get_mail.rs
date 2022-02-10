@@ -16,6 +16,7 @@ pub struct GetMailOutput(pub Option<Result<InMail, OutMail>>);
 #[hdk_extern]
 #[snapmail_api]
 pub fn get_mail(hh: HeaderHash) -> ExternResult<GetMailOutput>{
+    //debug!("get_mail() START");
     return try_into_mail(hh);
 }
 

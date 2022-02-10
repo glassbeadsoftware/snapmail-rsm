@@ -64,10 +64,15 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<HeaderHash>) -> ExternResu
         error!("get_outacks() query failed: {:?}", err);
         return Err(err);
     }
+    //debug!("get_outacks() maybe_outacks: {:?}", maybe_outacks.as_ref().unwrap());
     let mut res = Vec::new();
     for outack_el in maybe_outacks.unwrap() {
         let outack = get_typed_from_el::<OutAck>(outack_el)?;
         res.push(outack)
+    }
+    //debug!("get_outacks() res.len(): {}", res.len());
+    if res.len() == 0 {
+        return Ok(Vec::new());
     }
     /// Filter for this InMail
     if let Some(inmail_hh) = maybe_inmail_filter {
@@ -97,15 +102,20 @@ pub(crate) fn get_inacks(maybe_outmail_filter: Option<HeaderHash>) -> ExternResu
         error!("get_inacks() query failed: {:?}", err);
         return Err(err);
     }
+    //debug!("get_inacks() maybe_inacks: {}", maybe_inacks.as_ref().unwrap().len());
     let mut res = Vec::new();
     for inack_el in maybe_inacks.unwrap() {
         let inack = get_typed_from_el::<InAck>(inack_el)?;
         res.push(inack)
     }
+    //debug!("get_inacks() res.len(): {}", res.len());
+    if res.len() == 0 {
+        return Ok(Vec::new());
+    }
     /// Filter for this OutMail
     if let Some(outmail_hh) = maybe_outmail_filter {
-        /// Make sure its an InMail
-        let (outmail_eh, _) = get_typed_from_hh::<InMail>(outmail_hh)?;
+        /// Make sure its an OutMail
+        let (outmail_eh, _) = get_typed_from_hh::<OutMail>(outmail_hh)?;
         res.retain(|outack| outack.outmail_eh == outmail_eh)
     }
     /// Done
@@ -122,6 +132,10 @@ pub(crate) fn get_confirmations(package_eh: EntryHash) -> ExternResult<Vec<Deliv
        .entry_type(EntryKind::DeliveryConfirmation.as_type());
     let elements = query(query_args)?;
     let mut confirmations = Vec::new();
+    //debug!("get_confirmations() elements.len(): {}", elements.len());
+    if elements.len() == 0 {
+        return Ok(Vec::new());
+    }
     /// Filter for this package
     for el in elements {
         let confirmation = get_typed_from_el::<DeliveryConfirmation>(el)?;

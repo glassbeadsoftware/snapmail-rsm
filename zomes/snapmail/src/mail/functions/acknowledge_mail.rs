@@ -40,11 +40,8 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
             outmail_eh: inmail.outmail_eh.clone(),
             ack_signature,
         };
-        let res = receive_dm_ack(me, msg);
+        let res = receive_dm_ack(me.clone(), msg);
         assert!(res == DirectMessageProtocol::Success("Ack received".to_string()));
-        // FIXME Confirm to self?
-        //let confirmation = DeliveryConfirmation::new(outack_eh, me);
-        //let _ = create_entry(confirmation)?;
     }
     /// Done
     Ok(outack_eh)
@@ -64,7 +61,7 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
         let _res = call_remote(
             agent_info()?.agent_latest_pubkey,
             zome_info()?.name,
-            "commit_comfirmation".to_string().into(),
+            "commit_confirmation".to_string().into(),
             None,
             confirmation,
         )?; // Can't fallback if this fails. Must notify the error.
@@ -95,8 +92,12 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
 /// Try sending directly to other Agent if Online
 fn send_dm_ack(outmail_eh: &EntryHash, from: &AgentPubKey) -> ExternResult<()> {
     debug!("acknowledge_mail_direct() START");
-    /// Create DM
     let ack_signature = sign(agent_info()?.agent_latest_pubkey, outmail_eh.clone())?;
+    /// Shortcut to self
+    if from.clone() == agent_info()?.agent_latest_pubkey {
+        return Ok(());
+    }
+    /// Create DM
     let msg = AckMessage { outmail_eh: outmail_eh.clone(), ack_signature };
     /// Send DM
     let response = send_dm(from.clone(), DirectMessageProtocol::Ack(msg))?;
@@ -140,7 +141,7 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
 
 /// Called during a post_commit()
 #[hdk_extern]
-fn commit_comfirmation(input: DeliveryConfirmation) -> ExternResult<HeaderHash> {
-    debug!("commit_comfirmation(): {:?} ", input.package_eh);
+fn commit_confirmation(input: DeliveryConfirmation) -> ExternResult<HeaderHash> {
+    debug!("commit_confirmation(): {:?} ", input.package_eh);
     return create_entry(input);
 }
