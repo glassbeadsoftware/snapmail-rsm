@@ -96,7 +96,7 @@ fn send_attachment_by_dm(destination: &AgentPubKey, manifest: &FileManifest) -> 
 
 
 /// Attempt sending Mail and attachments via Direct Messaging
-fn send_mail_by_dm(
+fn deliver_mail_by_dm(
     outmail_eh: &EntryHash,
     mail: &Mail,
     destination: &AgentPubKey,
@@ -115,7 +115,7 @@ fn send_mail_by_dm(
         }
     }
     /// --  Send Mail
-    debug!("send_mail_by_dm() to {}", destination);
+    debug!("deliver_mail_by_dm() to {}", destination);
     /// Create DM
     let msg = MailMessage {
         outmail_eh: outmail_eh.clone(),
@@ -124,7 +124,7 @@ fn send_mail_by_dm(
     };
     /// Send DM
     let response_dm = send_dm(destination.clone(), DirectMessageProtocol::Mail(msg))?;
-    debug!("send_mail_to() response_dm = {:?}", response_dm);
+    debug!("deliver_mail_by_dm() response_dm = {:?}", response_dm);
     /// Check Response
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(());
@@ -180,34 +180,31 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash
     };
     let link2_hh = maybe_link2_hh.unwrap();
     debug!("link2_hh = {}", link2_hh);
-    /// Create DeliveryConfirmation
-    let confirmation = DeliveryConfirmation::new(input.outmail_eh,input.destination);
-    let _ = create_entry(confirmation)?;
     /// Done
     return Ok(pending_mail_hh)
 }
 
 
 ///
-pub(crate) fn send_mail_to(
+pub(crate) fn deliver_mail(
     outmail_eh: &EntryHash,
     mail: &Mail,
     destination: &AgentPubKey,
     manifest_list: &Vec<FileManifest>,
     signature: &Signature,
 ) -> ExternResult<SendSuccessKind> {
-    debug!("send_mail_to() START - {:?}", destination);
+    debug!("deliver_mail() START - {:?}", destination);
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
     if destination.clone() == me {
-        debug!("send_mail_to() Self");
+        debug!("deliver_mail() Self");
         let msg = MailMessage {
             outmail_eh: outmail_eh.clone(),
             mail: mail.clone(),
             mail_signature: signature.clone(),
         };
         let inmail = InMail::from_direct(me.clone(), msg);
-        debug!("send_mail_to() REMOTE CALLING...");
+        debug!("deliver_mail() REMOTE CALLING...");
         let res = call_remote(
             me,
             zome_info()?.name,
@@ -220,7 +217,7 @@ pub(crate) fn send_mail_to(
         return Ok(SendSuccessKind::OK_SELF);
     }
     /// Try sending directly to other Agent if Online
-    let result = send_mail_by_dm(outmail_eh, mail, destination, manifest_list, signature);
+    let result = deliver_mail_by_dm(outmail_eh, mail, destination, manifest_list, signature);
     if result.is_ok() {
         return Ok(SendSuccessKind::OK_DIRECT);
     } else {
@@ -228,7 +225,7 @@ pub(crate) fn send_mail_to(
         debug!("send_mail_by_dm() failed: {:?}", err);
     }
 
-    debug!("Creating pending_mail...");
+    debug!("deliver_mail() - Creating pending_mail...");
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self
     let pending_mail = PendingMail::from_mail(
@@ -241,7 +238,7 @@ pub(crate) fn send_mail_to(
         outmail_eh: outmail_eh.clone(),
         destination: destination.clone(),
     };
-    debug!("send_mail_to() - calling commit_pending_mail()");
+    debug!("deliver_mail() - calling commit_pending_mail()");
     let response = call_remote(
         me,
         zome_info()?.name,
@@ -249,7 +246,7 @@ pub(crate) fn send_mail_to(
         None,
         payload,
     )?;
-    debug!("send_mail_to() - commit_pending_mail() response: {:?}", response);
+    debug!("deliver_mail() - commit_pending_mail() response: {:?}", response);
     /// Done
     Ok(SendSuccessKind::OK_PENDING)
 }
@@ -302,7 +299,7 @@ pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternRe
     let signature = sign_mail(&outmail.mail)?;
     /// Send to each recipient
     for agent in recipients {
-        let res = send_mail_to(outmail_eh, &outmail.mail, &agent, &file_manifest_list, &signature);
+        let res = deliver_mail(outmail_eh, &outmail.mail, &agent, &file_manifest_list, &signature);
         match res {
             // Create 'Sent' link when successfully sent via DM
             Ok(SendSuccessKind::OK_SELF | SendSuccessKind::OK_DIRECT) => {

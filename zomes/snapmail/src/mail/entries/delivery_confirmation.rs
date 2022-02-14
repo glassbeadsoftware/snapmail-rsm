@@ -6,14 +6,14 @@ use hdk::prelude::*;
 pub struct DeliveryConfirmation {
     /// EntryHash to OutMail or OutAck on same chain
     pub package_eh: EntryHash,
-    pub destination: AgentPubKey,
+    pub recipient: AgentPubKey,
 }
 
 impl DeliveryConfirmation {
-    pub fn new(package_eh: EntryHash, destination: AgentPubKey) -> Self {
+    pub fn new(package_eh: EntryHash, recipient: AgentPubKey) -> Self {
         Self {
             package_eh,
-            destination,
+            recipient,
         }
     }
 }

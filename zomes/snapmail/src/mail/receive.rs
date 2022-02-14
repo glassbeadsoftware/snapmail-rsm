@@ -82,7 +82,7 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
         address: inmail_hh,
         author: from.clone(),
         mail: mail_msg.mail.clone(),
-        state: MailState::In(InMailState::Arrived),
+        state: MailState::In(InMailState::Unacknowledged),
         bcc: Vec::new(),
         date: snapmail_now() as i64, // FIXME
     };

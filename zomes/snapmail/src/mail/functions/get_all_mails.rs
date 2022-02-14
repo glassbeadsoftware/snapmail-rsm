@@ -70,7 +70,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     for inmail_element in created_inmails {
         let inmail_hh = inmail_element.header_hashed().as_hash().to_owned();
         let date: i64 = inmail_element.header().timestamp().as_seconds_and_nanos().0;
-        let maybe_state = get_inmail_state(&inmail_hh);
+        let maybe_state = get_inmail_state(inmail_hh.clone());
         if let Err(_err) = maybe_state {
             continue;
         }

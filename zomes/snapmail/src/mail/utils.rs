@@ -9,7 +9,7 @@ use crate::{
 
 
 /// Get State of InMail
-pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailState> {
+pub(crate) fn get_inmail_state(inmail_hh: HeaderHash) -> ExternResult<InMailState> {
     /// Get inMail Details
     let maybe_details = get_details(inmail_hh.clone(), GetOptions::latest())?;
     if maybe_details.is_none() {
@@ -23,22 +23,28 @@ pub(crate) fn get_inmail_state(inmail_hh: &HeaderHash) -> ExternResult<InMailSta
     if el_details.deletes.len() > 0 {
         return Ok(InMailState::Deleted);
     }
-
+    let inmail: InMail = get_typed_from_el(el_details.element.clone())?;
     /// Get OutAck
     let outacks = get_outacks(Some(inmail_hh.to_owned()))?;
     if outacks.len() < 1 {
-        return Ok(InMailState::Arrived);
+        return Ok(InMailState::Unacknowledged);
     }
+    /// Determine OutAck delivery state
     let outack = outacks[0].to_owned();
     let outack_eh = hash_entry(outack)?;
-
-    /// Get PendingAck
-    let links_result = get_links(outack_eh, LinkKind::Pending.as_tag_opt())?;
-    /// If link found, it means Ack has not been received
-    if links_result.len() > 0 {
-        return Ok(InMailState::Acknowledged);
-    }
-    Ok(InMailState::AckReceived)
+    let confirmation_created = try_confirming_pending_has_been_received(outack_eh.clone(), &inmail.from)?;
+    let outack_state = if confirmation_created {
+        DeliveryState::Delivered
+    } else {
+         get_delivery_state(outack_eh, &inmail.from)?
+    };
+    /// Map to inmail state
+    let inmail_state = match outack_state {
+        DeliveryState::Unsent => InMailState::AckUnsent,
+        DeliveryState::Pending => InMailState::AckPending,
+        DeliveryState::Delivered => InMailState::AckDelivered,
+    };
+    Ok(inmail_state)
 }
 
 
@@ -145,4 +151,80 @@ pub(crate) fn get_confirmations(package_eh: EntryHash) -> ExternResult<Vec<Deliv
     }
     /// Done
     Ok(confirmations)
+}
+
+
+/// If no confirmation, and there is a pending/s link but no inbox link, create a DeliveryConfirmation
+/// Return true if a DeliveryConfirmation has been created
+pub(crate) fn try_confirming_pending_has_been_received(package_eh: EntryHash, recipient: &AgentPubKey) -> ExternResult<bool> {
+    /// Check confirmations
+    let confirmations = get_confirmations(package_eh.clone())?;
+    if !confirmations.is_empty() {
+        return Ok(false);
+    }
+    /// If a pending link and and inbox link match, still waiting for confirmation
+    /// OutAck case
+    let pending_links = get_links(package_eh.clone(), Some(LinkKind::Pending.as_tag()))?;
+    for pending_link in pending_links.iter() {
+        if pending_link.tag == LinkKind::Pending.as_tag() {
+            /// Check for inbox link: If no link, it means it has been deleted by recipient
+            let links = get_links(recipient.to_owned().into(), LinkKind::AckInbox.as_tag_opt())?;
+            for link in links.iter() {
+                let res = LinkKind::AckInbox.unconcat_hash(&link.tag);
+                if let Ok(agent) = res {
+                    // inbox link found ; check if tag is recipient
+                    if &agent == recipient {
+                        return Ok(false);
+                    }
+                }
+            }
+        }
+    }
+    /// OutMail case
+    let pendings_links = get_links(package_eh.clone(), Some(LinkKind::Pendings.as_tag()))?;
+    let inbox_links = get_links(recipient.to_owned().into(), LinkKind::MailInbox.as_tag_opt())?;
+    let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x|x.target.clone()).collect();
+    for pendings_link in pendings_links.iter() {
+        let res = LinkKind::Pendings.unconcat_hash(&pendings_link.tag);
+        if let Ok(agent) = res {
+            // inbox link found ; check if tag is recipient
+            if &agent == recipient {
+                if inbox_targets.contains(&pendings_link.target) {
+                    return Ok(false);
+                }
+            }
+        }
+    }
+    /// Create confirmation if conditions are met
+    let confirmation = DeliveryConfirmation::new(package_eh.clone(), recipient.clone());
+    let _ = create_entry(confirmation)?;
+    Ok(true)
+}
+
+
+///
+pub fn get_delivery_state(package_eh: EntryHash, recipient: &AgentPubKey) -> ExternResult<DeliveryState> {
+    /// Look for a DeliveryConfirmation entry
+    let confirmations = get_confirmations(package_eh.clone())?;
+    let confirmed_recipients: Vec<AgentPubKey> = confirmations.iter().map(|x| x.recipient.clone()).collect();
+    if confirmed_recipients.contains(recipient) {
+        return Ok(DeliveryState::Delivered)
+    }
+    /// Look for a Pending/s link
+    let links = get_links(package_eh.clone(), Some(LinkKind::Pending.as_tag()))?;
+    for link in links {
+        /// OutAck
+        if link.tag == LinkKind::Pending.as_tag() {
+            return Ok(DeliveryState::Pending)
+        }
+        /// OutMail
+        let maybe_pendings = LinkKind::Pendings.unconcat_hash(&link.tag);
+        if let Ok(agent) = maybe_pendings {
+            if &agent == recipient {
+                return Ok(DeliveryState::Pending)
+            }
+        }
+    }
+    /// None found
+    Ok(DeliveryState::Unsent)
 }

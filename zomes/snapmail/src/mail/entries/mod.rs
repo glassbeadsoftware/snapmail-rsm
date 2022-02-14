@@ -20,40 +20,43 @@ use crate::{
 /// Possible states of an InMail entry
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum InMailState {
-    /// PendingMail available
-    Incoming,
-    /// InMail written, no pendingMail
-    Arrived,
-    /// OutAck written, PendingAck available
-    Acknowledged,
-    /// OutAck written, no PendingAck
-    AckReceived,
-    ///
+    /// InMail committed, no OutAck
+    Unacknowledged,
+    /// OutAck committed, no confirmation, no pending
+    AckUnsent,
+    /// OutAck committed, PendingAck available
+    AckPending,
+    /// OutAck committed, confirmation commited
+    AckDelivered,
+    /// Delete entry commited
     Deleted,
 }
 
 /// State of a single delivery of a mail or ack to a unique recipient
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum DeliveryState {
-    /// Initial state
+    /// Initial state ; entry committed
     Unsent,
-    /// Pending entry has been created and shared or DM has been sent and received
-    Sent,
-    /// Ack received and stored
-    Acknowledged,
+    /// Link to Pending entry is alive
+    Pending,
+    /// DeliveryConfirmation committed, We have proof object has been received:
+    /// DM has been sent successfully or link to pending has been deleted
+    Delivered,
 }
 
 
 /// Possible states of an OutMail entry
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum OutMailState {
-    /// (orange) Initial state
+    /// (orange) Initial state ; OutMail committed
     Unsent,
-    /// (black) All deliveries have been sent (pending or sent link)
+    /// (yellow) All deliveries have been sent (no Unsent state)
     AllSent,
-    /// (green) Has a receipt link for each recipient
+    /// (black) All deliveries have been received (no Unsent or pending state)
+    AllReceived,
+    /// (green) Has a InAck for each recipient
     AllAcknowledged,
-    /// (red) Delete requested by owner
+    /// (red) Delete entry commited
     Deleted,
 }
 
