@@ -215,7 +215,7 @@ pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: 
    let space = cell_id.dna_hash().to_kitsune();
 
    let env = conductor.get_p2p_env(space);
-   let peer_dump = p2p_agent_store::dump_state(
+   let _peer_dump = p2p_agent_store::dump_state(
       env.into(),
       Some(cell_id.clone()),
    ).await.expect("p2p_store should not fail");
@@ -228,7 +228,7 @@ pub async fn print_chain(conductor: &SweetConductor, agent: &AgentPubKey, cell: 
    //    .expect("invalid cell space");
    // let peer_dump = p2p_agent_store::dump_state(p2p_env.into(), Some(cell_id.clone()))?;
 
-   println!(" *** peer_dump: {:?}",peer_dump.peers);
+   //println!(" *** peer_dump: {:?}",peer_dump.peers);
 
    let json_dump = dump_state(vault.clone().into(), agent.clone()).await.unwrap();
    //let json = serde_json::to_string_pretty(&json_dump).unwrap();
