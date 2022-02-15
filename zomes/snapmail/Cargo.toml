@@ -15,7 +15,7 @@ crate-type = [ "cdylib", "rlib" ]
 [dependencies]
 shrinkwraprs = "=0.3.0"
 chrono = "=0.4.19"
-serde = { version = "=1.0.123", default-features = false }
+serde = { version = "1.0", default-features = false }
 strum = "=0.19"
 strum_macros = "=0.19"
 derive_more = "=0.99.16"
@@ -24,8 +24,8 @@ base64 = {version = "0.13"}
 
 snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 # online
-hdk = { git = "https://github.com/holochain/holochain.git", rev = "1767dfc2d73ed107ac20dddc3fa56e46856c45cd", package = "hdk", default-features = false }
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "1767dfc2d73ed107ac20dddc3fa56e46856c45cd", package = "holo_hash", default-features = false }
+hdk = { git = "https://github.com/holochain/holochain.git", rev = "296a08dc25e799c6fb3da3eecafc457179d9bd59", package = "hdk", default-features = false }
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "296a08dc25e799c6fb3da3eecafc457179d9bd59", package = "holo_hash", default-features = false }
 
 # local
 #hdk = { path = "../../../holochain-develop/crates/hdk" }
@@ -37,9 +37,9 @@ thiserror = "1.0.24"
 
 # online
 holochain_serialized_bytes = "=0.0.51"
-holochain = { git = "https://github.com/holochain/holochain.git", rev = "1767dfc2d73ed107ac20dddc3fa56e46856c45cd", package = "holochain", default-features = false, features = ["only_check_wasms"] }
-holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "1767dfc2d73ed107ac20dddc3fa56e46856c45cd", package = "holochain_util", default-features = false }
-holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "1767dfc2d73ed107ac20dddc3fa56e46856c45cd", package = "holochain_conductor_api", default-features = false }
+holochain = { git = "https://github.com/holochain/holochain.git", rev = "296a08dc25e799c6fb3da3eecafc457179d9bd59", package = "holochain", default-features = false, features = ["only_check_wasms"] }
+holochain_util = { git = "https://github.com/holochain/holochain.git", rev = "296a08dc25e799c6fb3da3eecafc457179d9bd59", package = "holochain_util", default-features = false }
+holochain_conductor_api = { git = "https://github.com/holochain/holochain.git", rev = "296a08dc25e799c6fb3da3eecafc457179d9bd59", package = "holochain_conductor_api", default-features = false }
 
 # local
 #holochain = { path = "../../../holochain-develop/crates/holochain" }

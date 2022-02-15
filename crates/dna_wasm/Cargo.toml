@@ -8,4 +8,4 @@ edition = "2018"
 serde = { version = "1.0", features = [ "derive", "rc" ] }
 
 holochain_serialized_bytes = "=0.0.51"
-holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "1767dfc2d73ed107ac20dddc3fa56e46856c45cd", package = "holo_hash", features =["encoding", "hashing"]}
+holo_hash = { git = "https://github.com/holochain/holochain.git", rev = "296a08dc25e799c6fb3da3eecafc457179d9bd59", package = "holo_hash", features =["encoding", "hashing"]}
