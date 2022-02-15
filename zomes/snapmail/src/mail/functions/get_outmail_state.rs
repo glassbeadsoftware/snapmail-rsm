@@ -81,7 +81,7 @@ pub fn get_outmail_delivery_state(outmail_hh: HeaderHash) -> ExternResult<HashMa
    let mut map = HashMap::new();
    for recipient in outmail.recipients() {
       /// Check pending
-      let confirmation_created = try_confirming_pending_has_been_received(outmail_eh.clone(), &recipient)?;
+      let confirmation_created = try_confirming_pending_mail_has_been_received(outmail_eh.clone(), &recipient)?;
       if confirmation_created {
          map.insert(recipient.clone(), DeliveryState::Delivered);
       } else {

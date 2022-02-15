@@ -35,7 +35,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
             warn!("Header not found for pending mail entry");
             continue;
         }
-        let pending_hh = maybe_el.unwrap().header_address().clone();
+        //let pending_hh = maybe_el.unwrap().header_address().clone();
         /// Get entry on the DHT
         let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
@@ -67,13 +67,14 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
         //     continue;
         // }
         //debug!("delete_link res: {:?}", res);
-        /// Delete PendingMail entry
-        let res = delete_entry(pending_hh.clone());
-        if let Err(err) = res.clone() {
-            error!("Delete PendingMail failed: {:?}", err);
-            //continue; // TODO: figure out why delete entry fails
-        }
-        //debug!("delete_entry res: {:?}", res);
+
+        // /// Delete PendingMail entry
+        // let res = delete_entry(pending_hh.clone());
+        // if let Err(err) = res.clone() {
+        //     error!("Delete PendingMail failed: {:?}", err);
+        //     //continue; // TODO: figure out why delete entry fails
+        // }
+        // //debug!("delete_entry res: {:?}", res);
 
         debug!("incoming_mail attachments: {}", inmail.clone().mail.attachments.len());
         /// Retrieve and write FileManifest for each attachment

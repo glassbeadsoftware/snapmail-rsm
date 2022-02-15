@@ -285,10 +285,18 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
 
 /// Once OutMail committed, try to send directly to each recipient.
 /// if recipient not online, creates a PendingMail on the DHT.
-pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail) -> ExternResult<()> {
+pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail, whitelist: Option<Vec<AgentPubKey>>) -> ExternResult<()> {
     debug!("CALLED send_committed_mail() {:?}", outmail_eh);
-    /// Get recipients
-    let recipients = outmail.recipients();
+    /// Get filtered recipients
+    let recipients = match whitelist {
+        None => outmail.recipients(),
+        Some(list) => {
+            outmail.recipients().iter()
+               .filter(|x| list.contains(x))
+               .cloned()
+               .collect()
+        }
+    };
     /// Get all attachments manifests
     let mut file_manifest_list = Vec::new();
     for attachment in outmail.mail.attachments.clone() {

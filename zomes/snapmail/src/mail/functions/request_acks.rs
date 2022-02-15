@@ -25,11 +25,11 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
       .entry_type(EntryKind::OutMail.as_type());
    let maybe_outmails = query(outmail_query_args);
    if let Err(err) = maybe_outmails {
-      error!("get_all_mails() outmail_result failed: {:?}", err);
+      error!("request_acks() outmail_result failed: {:?}", err);
       return Err(err);
    }
    let created_outmails: Vec<Element> = maybe_outmails.unwrap();
-   debug!(" get_all_mails() outmails count = {}", created_outmails.len());
+   debug!(" request_acks() outmails count = {}", created_outmails.len());
 
    // Get all acks
    let acks = get_inacks(None)?;

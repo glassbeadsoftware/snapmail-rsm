@@ -12,6 +12,9 @@ mod is_outack_sent;
 mod delete_mail;
 mod request_acks;
 mod get_outmail_state;
+mod resend_outmails;
+mod resend_outacks;
+
 
 pub use self::{
    acknowledge_mail::*,
@@ -26,5 +29,7 @@ pub use self::{
    send_mail::*,
    delete_mail::*,
    request_acks::*,
+   resend_outmails::*,
+   resend_outacks::*,
    get_outmail_state::*,
 };

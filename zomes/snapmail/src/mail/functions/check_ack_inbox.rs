@@ -66,11 +66,11 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
             error!(?err);
             continue;
         }
-        /// Delete PendingAck
-        let res = delete_entry(pending_ack_hh.clone());
-        if let Err(err) = res {
-            error!("Delete PendignAck failed: {}", err);
-        }
+        // /// Delete PendingAck
+        // let res = delete_entry(pending_ack_hh.clone());
+        // if let Err(err) = res {
+        //     error!("Delete PendignAck failed: {}", err);
+        // }
         /// Add to return list
         updated_outmails.push(pending_ack.outmail_eh.clone());
     }

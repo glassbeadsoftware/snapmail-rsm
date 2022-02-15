@@ -70,7 +70,6 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
     }
     let err = res.err().unwrap();
     debug!("Direct sharing of Acknowledgment failed: {}", err);
-
     /// Otherwise share Acknowledgement via DHT
     let payload = CommitPendingAckInput {
         outack_eh: outack_eh.clone(),
@@ -121,6 +120,7 @@ struct CommitPendingAckInput {
 /// Return HeaderHash of newly created PendingAck
 #[hdk_extern]
 fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> {
+    debug!("commit_pending_ack() - START");
     /// Commit PendingAck
     let signature = sign(agent_info()?.agent_latest_pubkey, input.outmail_eh.clone())?;
     let pending_ack = PendingAck::new(input.outmail_eh.clone(), signature);
@@ -131,9 +131,6 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
     let _ = create_link(input.outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
     let _ = create_link(EntryHash::from(input.original_sender.clone()), pending_ack_eh, tag)?;
     debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, input.original_sender);
-    /// Create DeliveryConfirmation
-    let confirmation = DeliveryConfirmation::new(input.outack_eh,input.original_sender);
-    let _ = create_entry(confirmation)?;
     /// Done
     Ok(pending_ack_hh)
 }

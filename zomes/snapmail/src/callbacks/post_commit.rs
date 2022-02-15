@@ -64,7 +64,7 @@ fn post_commit_app(eh: EntryHash, app_type: AppEntryType) -> ExternResult<()>{
       },
       EntryKind::OutMail => {
          let outmail = get_typed_from_eh::<OutMail>(eh.clone())?;
-         send_committed_mail(&eh, outmail)?;
+         send_committed_mail(&eh, outmail, None)?;
       },
       EntryKind::OutAck => {
          let outack = get_typed_from_eh::<OutAck>(eh.clone())?;
