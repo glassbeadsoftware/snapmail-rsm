@@ -1,7 +1,8 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
-   mail::{entries::*, utils::*}, utils::*
+   mail::{entries::*, utils::*},
 };
 
 use std::collections::HashMap;

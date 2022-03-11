@@ -1,7 +1,7 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
-    utils::*,
     mail::{utils::get_confirmations, get_outacks, entries::InMail},
 };
 
@@ -11,7 +11,7 @@ use crate::{
 #[snapmail_api]
 pub fn has_ack_been_delivered(inmail_hh: HeaderHash) -> ExternResult<bool> {
    /// Make sure its an inmail
-   let inmail_eh = hh_to_eh(inmail_hh.clone())?;
+   let inmail_eh = get_eh(inmail_hh.clone())?;
    let _ = get_typed_from_eh::<InMail>(inmail_eh)?;
    /// Get inmail's outack
    let inacks = get_outacks(Some(inmail_hh))?;

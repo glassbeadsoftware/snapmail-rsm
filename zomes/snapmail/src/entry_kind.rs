@@ -6,11 +6,12 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 use strum::EnumProperty;
 
+use zome_utils::*;
+
 use crate::{
    handle::*,
    mail::entries::*,
    file::*,
-   utils::*,
    pub_enc_key::*,
 };
 
@@ -158,7 +159,7 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
       Entry::Agent(_agent_hash) => EntryType::AgentPubKey,
       Entry::CapClaim(_claim) => EntryType::CapClaim,
       Entry::CapGrant(_grant) => EntryType::CapGrant,
-      Entry::App(_entry_bytes) => get_entry_type(eh)?,
+      Entry::App(_entry_bytes) => get_entry_type_from_eh(eh)?,
       Entry::CounterSign(_data, _bytes) => unreachable!(),
    })
 }

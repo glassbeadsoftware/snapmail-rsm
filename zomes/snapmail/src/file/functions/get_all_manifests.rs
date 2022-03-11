@@ -1,9 +1,9 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     entry_kind::*,
     file::FileManifest,
-    utils::*,
 };
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]

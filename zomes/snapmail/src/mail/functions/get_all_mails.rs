@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use hdk::prelude::query::ChainQueryFilter;
+use zome_utils::*;
 
 use crate::{
     // link_kind,
@@ -7,7 +8,6 @@ use crate::{
     mail::entries::*,
     mail::get_outmail_state,
     mail::utils::get_inmail_state,
-    utils::*,
 };
 
 

@@ -1,10 +1,8 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use super::Mail;
 use crate::mail::entries::sign_mail;
-use crate::{
-   utils::*,
-};
 
 /// Entry representing a mail on the DHT waiting to be received by recipient.
 /// The recipient is the agentId where the entry is linked from.

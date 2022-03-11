@@ -1,8 +1,8 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     file::FileChunk,
-    utils::*,
 };
 
 /// Zome function

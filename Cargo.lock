@@ -4566,6 +4566,7 @@ dependencies = [
  "strum 0.19.5",
  "strum_macros 0.19.4",
  "thiserror",
+ "zome_utils",
 ]
 
 [[package]]
@@ -5848,4 +5849,14 @@ dependencies = [
  "quote",
  "syn",
  "synstructure",
+]
+
+[[package]]
+name = "zome_utils"
+version = "0.0.122"
+source = "git+https://github.com/ddd-mtl/zome-utils?branch=122#4ba4741fb666438b842b63152aa7d89893ee6cbb"
+dependencies = [
+ "hdk",
+ "holo_hash",
+ "serde",
 ]

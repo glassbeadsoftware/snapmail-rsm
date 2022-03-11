@@ -1,10 +1,10 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     link_kind::*,
     entry_kind::*,
     mail::entries::*,
-    utils::*,
 };
 
 

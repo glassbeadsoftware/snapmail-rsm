@@ -1,11 +1,11 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
    file::*,
    mail::entries::*,
    mail::functions::*,
    entry_kind::*,
-   utils::*,
 };
 use crate::strum::AsStaticRef;
 

@@ -1,7 +1,7 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
-    utils::*,
     send_dm,
     mail::entries::{PendingMail, Mail, OutMail, InMail, sign_mail},
     dm_protocol::{
@@ -263,7 +263,7 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
     let mut file_manifest_list = Vec::new();
     let mut file_manifest_pair_list = Vec::new();
     for manifest_hh in input.manifest_address_list.clone() {
-        let manifest_eh = hh_to_eh(manifest_hh.clone())?;
+        let manifest_eh = get_eh(manifest_hh.clone())?;
         let manifest = get_manifest(manifest_hh.clone().into())?;
         file_manifest_list.push(manifest.clone());
         file_manifest_pair_list.push((manifest_eh, manifest))

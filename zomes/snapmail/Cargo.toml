@@ -25,6 +25,8 @@ base64 = {version = "0.13"}
 hdk = { version = "0.0.122", default-features = false }
 holo_hash = { version = "0.0.19", default-features = false }
 
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "122" }
+
 snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 
 

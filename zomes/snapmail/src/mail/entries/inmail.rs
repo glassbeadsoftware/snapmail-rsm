@@ -1,10 +1,10 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     MailMessage,
     mail::entries::{Mail, PendingMail},
     pub_enc_key::*,
-    utils::*,
 };
 
 /// Entry representing a received mail.
@@ -37,13 +37,13 @@ impl InMail {
 
 
     pub fn from_direct(from: AgentPubKey, dm: MailMessage) -> Self {
-        let received_date = crate::snapmail_now();
+        let received_date = zome_utils::now();
         Self::new(dm.mail, from.clone(), received_date, dm.outmail_eh, dm.mail_signature)
     }
 
 
     pub fn try_from_pending(pending: PendingMail, from: AgentPubKey) -> ExternResult<Option<Self>> {
-        let received_date = crate::snapmail_now();
+        let received_date = zome_utils::now();
         /// Get my key
         let my_agent_key = agent_info()?.agent_latest_pubkey;
         debug!("try_from_pending my_agent_key: {}", my_agent_key);

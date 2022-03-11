@@ -1,8 +1,8 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     mail::entries::InMail,
-    utils::*,
     file::dm::request_manifest_by_dm,
     signal_protocol::*,
 };

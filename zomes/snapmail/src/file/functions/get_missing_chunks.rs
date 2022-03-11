@@ -1,8 +1,8 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     file::{FileManifest, dm::request_chunk_by_dm},
-    utils::*,
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

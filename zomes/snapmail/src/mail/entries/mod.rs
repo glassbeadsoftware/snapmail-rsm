@@ -108,7 +108,7 @@ impl Mail {
         /// Remove duplicate recipients
         let cc = filter_up(&to, &in_cc);
         /// Create Mail
-        let date_sent = crate::snapmail_now();
+        let date_sent = zome_utils::now();
         /// Done
         Self {
             date_sent,
