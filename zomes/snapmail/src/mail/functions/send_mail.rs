@@ -285,7 +285,10 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
 
 /// Once OutMail committed, try to send directly to each recipient.
 /// if recipient not online, creates a PendingMail on the DHT.
-pub fn send_committed_mail(outmail_eh: &EntryHash, outmail: OutMail, whitelist: Option<Vec<AgentPubKey>>) -> ExternResult<()> {
+pub fn send_committed_mail(
+    outmail_eh: &EntryHash,
+    outmail: OutMail,
+    whitelist: Option<Vec<AgentPubKey>>) -> ExternResult<()> {
     debug!("CALLED send_committed_mail() {:?}", outmail_eh);
     /// Get filtered recipients
     let recipients = match whitelist {

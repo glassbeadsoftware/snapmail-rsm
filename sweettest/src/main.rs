@@ -7,6 +7,8 @@ pub mod test_mail;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod setup;
 
+pub const DNA_FILEPATH: &str = "./snapmail.dna";
+
 #[cfg(not(target_arch = "wasm32"))]
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {

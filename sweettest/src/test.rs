@@ -1,8 +1,6 @@
 use std::time::SystemTime;
 use holochain::sweettest::*;
-use holochain::conductor::{
-   ConductorHandle,
-};
+use holochain::conductor::ConductorHandle;
 use maplit::hashset;
 use snapmail::{
     handle::*,
@@ -12,8 +10,11 @@ use snapmail::{
  };
 use holo_hash::*;
 
+use crate::DNA_FILEPATH;
 use crate::setup::*;
 use crate::test_mail::*;
+
+use sweettest_utils::*;
 
 ///
 pub async fn test(arg: String) {
@@ -110,7 +111,7 @@ pub async fn test_list_apps() {
 
 ///
 pub async fn test_pub_enc_key() {
-   let (conductor, alex, cell1) = setup_1_conductor().await;
+   let (conductor, alex, cell1) = setup_1_conductor(DNA_FILEPATH).await;
 
    println!("Calling get_my_enc_key()");
    let enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
@@ -129,7 +130,7 @@ pub async fn test_pub_enc_key() {
 
 ///
 pub async fn test_handle() {
-   let (conductor, _alex, cell1) = setup_1_conductor().await;
+   let (conductor, _alex, cell1) = setup_1_conductor(DNA_FILEPATH).await;
 
    let name = "alex";
    println!("Calling get_my_handle()");
