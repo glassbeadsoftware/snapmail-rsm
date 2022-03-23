@@ -1032,6 +1032,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "dna_wasm"
+version = "0.0.1"
+dependencies = [
+ "holo_hash",
+ "holochain_serialized_bytes",
+ "serde",
+]
+
+[[package]]
 name = "dns-parser"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5454,6 +5463,16 @@ name = "wasm-bindgen-shared"
 version = "0.2.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d958d035c4438e28c70e4321a2911302f10135ce78a9c7834c0cab4123d06a2"
+
+[[package]]
+name = "wasm_utils"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "base64",
+ "dna_wasm",
+ "tokio",
+]
 
 [[package]]
 name = "wasmer"

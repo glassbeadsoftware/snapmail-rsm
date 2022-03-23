@@ -3,9 +3,9 @@ resolver = "2"
 members = [
   "zomes/snapmail",
   "sweettest",
-  #"crates/wasm_utils",
-  #"crates/proc_macro",
-  #"crates/dna_wasm",
+  "crates/wasm_utils",
+  "crates/proc_macro",
+  "crates/dna_wasm",
 ]
 
 [profile.dev]

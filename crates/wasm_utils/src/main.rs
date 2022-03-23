@@ -1,4 +1,5 @@
 #![allow(unused_doc_comments)]
+#![allow(unused_attributes)]
 
 #[cfg(not(target_arch = "wasm32"))]
 use dna_wasm::{DnaWasm, DnaWasmHashed};
