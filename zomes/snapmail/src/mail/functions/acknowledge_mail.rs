@@ -1,4 +1,5 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     link_kind::*,
@@ -11,7 +12,6 @@ use crate::{
         receive::receive_dm_ack,
     },
     send_dm,
-    utils::*,
 };
 
 /// Zome function
@@ -29,8 +29,8 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     debug!("Not acknowledged yet");
     /// Write OutAck
     let outack = OutAck::new(inmail_eh.clone());
-    let outack_hh = create_entry(&outack)?;
-    let outack_eh = hh_to_eh(outack_hh)?;
+    let _hh = create_entry(&outack)?;
+    let outack_eh = hash_entry(outack.clone())?;
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
     if inmail.from.clone() == me {

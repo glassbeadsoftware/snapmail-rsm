@@ -1,10 +1,7 @@
-
 use hdk::prelude::*;
+use zome_utils::*;
 
-use crate::{
-  link_kind::*,
-   utils::*,
-};
+use crate::link_kind::*;
 
 /// Entry representing the Public Encryption Key of an Agent
 #[hdk_entry(id = "PubEncKey", visibility = "public")]

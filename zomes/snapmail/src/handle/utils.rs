@@ -1,8 +1,8 @@
 use hdk::prelude::*;
 use hdk::prelude::link::Link;
+use zome_utils::*;
 
 use crate::{
-    utils::*,
     link_kind::*,
     path_kind,
     handle::Handle,

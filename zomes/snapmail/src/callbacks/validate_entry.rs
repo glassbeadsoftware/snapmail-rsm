@@ -1,12 +1,12 @@
 use hdk::prelude::*;
 use hdk::prelude::element::ElementEntry;
 //use hdk::prelude::countersigning::CounterSigningSessionData;
+use zome_utils::*;
 
 use crate::{
     handle::*,
     mail::entries::*,
     entry_kind::*,
-    utils::*,
     file::*,
     pub_enc_key::*,
 };

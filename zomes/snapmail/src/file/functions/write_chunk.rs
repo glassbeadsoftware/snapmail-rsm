@@ -2,7 +2,6 @@ use hdk::prelude::*;
 
 use crate::{
     file::FileChunk,
-    utils::*,
 };
 
 
@@ -12,6 +11,7 @@ use crate::{
 #[snapmail_api]
 pub fn write_chunk(input_chunk: FileChunk) -> ExternResult<EntryHash> {
     trace!(" write_chunk() {:?}", input_chunk);
-    let chunk_hh = create_entry(&input_chunk)?;
-    return hh_to_eh(chunk_hh);
+    let eh = hash_entry(input_chunk.clone());
+    let _hh = create_entry(&input_chunk)?;
+    return eh;
 }

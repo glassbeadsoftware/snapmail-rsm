@@ -1,7 +1,7 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
-    utils::*,
     signal_protocol::*,
     file::{FileChunk, FileManifest},
     mail::{
@@ -13,7 +13,7 @@ use crate::{
         },
     },
     DirectMessageProtocol, MailMessage, AckMessage,
-    ReceivedAck, snapmail_now,
+    ReceivedAck,
 };
 
 ///
@@ -84,7 +84,7 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
         mail: mail_msg.mail.clone(),
         state: MailState::In(InMailState::Unacknowledged),
         bcc: Vec::new(),
-        date: snapmail_now() as i64, // FIXME
+        date: zome_utils::now() as i64, // FIXME
     };
     let res = emit_signal(&SignalProtocol::ReceivedMail(item));
     if let Err(err) = res {

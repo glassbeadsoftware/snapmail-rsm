@@ -1,8 +1,8 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     mail::entries::PendingMail,
-    utils::*,
     signal_protocol::*,
     file::dm::{request_chunk_by_dm, request_manifest_by_dm},
     link_kind::*,

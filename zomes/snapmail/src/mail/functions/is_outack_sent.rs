@@ -1,9 +1,9 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
    //link_kind::*,
    mail::entries::*,
-   utils::*,
 };
 use crate::mail::get_confirmations;
 

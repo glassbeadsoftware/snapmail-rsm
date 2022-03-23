@@ -1,9 +1,9 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     handle::utils::*,
     handle::Handle,
-    utils::*,
 };
 
 #[derive(Serialize, Deserialize, Debug)]

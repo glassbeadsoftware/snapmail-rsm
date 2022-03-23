@@ -1,9 +1,9 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
    handle::Handle,
    handle::utils::get_members,
-   utils::get_typed_and_author,
 };
 
 /// Get all agentIds that have a certain handle

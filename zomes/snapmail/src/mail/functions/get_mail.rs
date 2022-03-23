@@ -1,7 +1,7 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
-    utils::*,
     mail::entries::{
         InMail, OutMail,
     },

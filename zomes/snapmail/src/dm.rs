@@ -1,8 +1,9 @@
 use hdk::prelude::*;
+use zome_utils::*;
+
 use crate::{
    mail,
    dm_protocol::*,
-   utils::*,
 };
 
 pub const REMOTE_ENDPOINT: &'static str = "receive_dm";

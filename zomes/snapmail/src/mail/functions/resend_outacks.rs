@@ -1,10 +1,10 @@
 use hdk::prelude::*;
 use hdk::prelude::query::ChainQueryFilter;
+use zome_utils::*;
 
 use crate::{
    entry_kind::*,
    mail::entries::*,
-   utils::*,
    mail::{
       get_delivery_state,
       send_committed_ack,

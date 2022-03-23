@@ -1,9 +1,9 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     file::{FileManifest, FileChunk},
     DirectMessageProtocol, DirectMessageProtocol::*,
-    utils::*,
     dm::*,
 };
 

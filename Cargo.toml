@@ -3,9 +3,9 @@ resolver = "2"
 members = [
   "zomes/snapmail",
   "sweettest",
-  "crates/wasm_utils",
-  "crates/proc_macro",
-  "crates/dna_wasm",
+  #"crates/wasm_utils",
+  #"crates/proc_macro",
+  #"crates/dna_wasm",
 ]
 
 [profile.dev]
@@ -23,8 +23,3 @@ lto = true # link time optimization
 
 [profile.release.build-override]
 opt-level = "z"
-
-[patch.crates-io]
-#holochain = { path = "../../../holochain-develop/crates/holochain" }
-#holochain_util = { path = "../../../holochain-develop/crates/holochain_util" }
-#holochain_conductor_api = { path = "../../../holochain-develop/crates/holochain_conductor_api" }
