@@ -4,7 +4,7 @@
 cargo build --release --target wasm32-unknown-unknown
 # Compile the exe
 cargo build --package wasm_utils
-# Compute hash of dna
-value=`./target/debug/hash_wasm`
-echo "$value" > dna_hash.txt
-#echo "NEW DNA HASH = '$value'"
+# Compute hash of zome
+value=`./target/debug/hash_zome`
+echo "$value" > zome_hash.txt
+#echo "NEW ZOME HASH = '$value'"
