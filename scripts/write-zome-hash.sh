@@ -7,4 +7,5 @@ cargo build --package wasm_utils
 # Compute hash of zome
 value=`./target/debug/hash_zome`
 echo "$value" > zome_hash.txt
-#echo "NEW ZOME HASH = '$value'"
+echo
+echo "ZOME HASH = $value"
