@@ -165,7 +165,7 @@ pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryT
 }
 
 /// Try to deserialize entry to given type
-pub(crate) fn is_type(entry: Entry, type_candidat: EntryType) -> bool {
+pub(crate) fn is_entry_of_type(entry: Entry, type_candidat: EntryType) -> bool {
    trace!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
    let res =  match entry {
       Entry::CounterSign(_data, _bytes) => unreachable!(),

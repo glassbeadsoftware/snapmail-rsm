@@ -7,8 +7,7 @@ use strum::AsStaticRef;
 use strum_macros::EnumIter;
 use strum::EnumProperty;
 
-use zome_utils::*;
-
+use zome_utils::error;
 use crate::entry_kind::*;
 
 pub const LinkSeparator: &'static str = "___";
@@ -87,11 +86,11 @@ impl LinkKind {
       candidat: ValidateCreateLinkData,
       _maybe_hash: Option<AgentPubKey>,
    ) -> ExternResult<ValidateLinkCallbackResult> {
-      if !is_type(candidat.base, self.allowed_base_type()) {
+      if !is_entry_of_type(candidat.base, self.allowed_base_type()) {
          let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
-      if !is_type(candidat.target, self.allowed_target_type()) {
+      if !is_entry_of_type(candidat.target, self.allowed_target_type()) {
          let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
          return Ok(ValidateLinkCallbackResult::Invalid(msg));
       }
