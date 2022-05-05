@@ -7,7 +7,7 @@ Native application for Windows, Linux and MacOS is available [here](https://gith
 
 Some design documentation is available in the `/spec` folder.
 
-CI and NIX configs are not set up for the moment.
+CI and NIX configs are not set up for the moment. 
 
 
 ## Building

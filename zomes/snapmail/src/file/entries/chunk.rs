@@ -24,7 +24,7 @@ impl FileChunk {
 }
 
 ///
-pub(crate) fn validate_chunk(chunk: FileChunk, _maybe_validation_package: Option<ValidationPackage>)
+pub(crate) fn validate_chunk(chunk: FileChunk)
     -> ExternResult<ValidateCallbackResult>
 {
     /// Check size

@@ -7,27 +7,30 @@ use crate::{
    link_kind::*,
 };
 
-/// Zome Callback
-#[hdk_extern]
-fn validate_create_link(candidat: ValidateCreateLinkData)
-   -> ExternResult<ValidateLinkCallbackResult>
+/// Validation sub callback
+pub fn validate_create_link(
+   signed_create_link: SignedHashed<CreateLink>,
+   base: Entry,
+   target: Entry,
+) -> ExternResult<ValidateCallbackResult>
 {
-   let tag_str = String::from_utf8_lossy(&candidat.link_add.tag.0);
-   trace!("*** `validate_create_link()` callback called: {}", tag_str);
+   let create_link = signed_create_link.hashed.into_inner().0;
+   let tag_str = String::from_utf8_lossy(&create_link.tag.0);
+   trace!("*** `validate_create_link()` called: {}", tag_str);
 
    for link_kind in LinkKind::iter() {
       /// Try validating static link kind
       if tag_str == link_kind.as_static() {
-         return link_kind.validate_types(candidat, None);
+         return link_kind.validate_types(base, target, None);
       }
       /// Or try validating dynamic link kind
-      let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&candidat.link_add.tag);
+      let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&create_link.tag);
       //debug!("*** maybe_hash of {} = {:?}", link_kind.as_static(), maybe_hash);
       if let Ok(from) = maybe_hash {
-         return link_kind.validate_types(candidat, Some(from));
+         return link_kind.validate_types(base, target, Some(from));
       }
    }
-   Ok(ValidateLinkCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
+   Ok(ValidateCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
 }
 
 
@@ -56,15 +59,3 @@ fn validate_create_link(candidat: ValidateCreateLinkData)
 //    // TODO: Check if new Handle is different from currrent
 //    Ok(ValidateLinkCallbackResult::Valid);
 // }
-
-/// Zome Callback
-/// TODO: Should not be valide by default
-#[hdk_extern]
-fn validate_delete_link(_delete_link_submission: ValidateDeleteLinkData)
-   -> ExternResult<ValidateLinkCallbackResult>
-{
-   trace!("*** validate_delete_link() callback called!");
-   //let _delete_link = validate_delete_link.delete_link;
-   // Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
-   Ok(ValidateLinkCallbackResult::Valid)
-}

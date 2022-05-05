@@ -18,7 +18,7 @@ pub struct FileManifest {
 
 ///
 /// TODO: Check if data_hash not already stored in source chain
-pub(crate) fn validate_file(manifest: FileManifest, _maybe_validation_package: Option<ValidationPackage>)
+pub(crate) fn validate_file(manifest: FileManifest)
     -> ExternResult<ValidateCallbackResult>
 {
     /// Check size

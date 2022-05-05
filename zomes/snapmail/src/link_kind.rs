@@ -83,18 +83,19 @@ impl LinkKind {
    /// Check if link edges have correct types
    pub fn validate_types(
       self,
-      candidat: ValidateCreateLinkData,
+      base: Entry,
+      target: Entry,
       _maybe_hash: Option<AgentPubKey>,
-   ) -> ExternResult<ValidateLinkCallbackResult> {
-      if !is_entry_of_type(candidat.base, self.allowed_base_type()) {
+   ) -> ExternResult<ValidateCallbackResult> {
+      if !is_entry_of_type(base, self.allowed_base_type()) {
          let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
-         return Ok(ValidateLinkCallbackResult::Invalid(msg));
+         return Ok(ValidateCallbackResult::Invalid(msg));
       }
-      if !is_entry_of_type(candidat.target, self.allowed_target_type()) {
+      if !is_entry_of_type(target, self.allowed_target_type()) {
          let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
-         return Ok(ValidateLinkCallbackResult::Invalid(msg));
+         return Ok(ValidateCallbackResult::Invalid(msg));
       }
-      Ok(ValidateLinkCallbackResult::Valid)
+      Ok(ValidateCallbackResult::Valid)
    }
 }
 
