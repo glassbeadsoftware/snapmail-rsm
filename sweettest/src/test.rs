@@ -111,14 +111,14 @@ pub async fn test_list_apps() {
 
 ///
 pub async fn test_pub_enc_key() {
-   let (conductor, alex, cell1) = setup_1_conductor(DNA_FILEPATH).await;
+   let (conductor, _alex, cell1) = setup_1_conductor(DNA_FILEPATH).await;
 
    println!("Calling get_my_enc_key()");
    let enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
    println!("enc_key: {:?}", enc_key);
    //assert_eq!("<noname>", handle);
 
-   print_chain(&conductor, &alex, &cell1).await;
+   print_chain(&conductor, &cell1).await;
 
    //let _ :() = conductor.call(&cell1.zome("snapmail"), "init_caps", ()).await;
 

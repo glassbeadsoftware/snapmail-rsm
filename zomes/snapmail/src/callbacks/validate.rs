@@ -38,12 +38,16 @@ fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             // Ok(ValidateLinkCallbackResult::Invalid("Not authorized".into()))
             Ok(ValidateCallbackResult::Valid)
         },
-        Op::RegisterUpdate { .. } => Ok(ValidateCallbackResult::Invalid(
-            "updating entries isn't valid".to_string(),
-        )),
-        Op::RegisterDelete { .. } => Ok(ValidateCallbackResult::Invalid(
-            "deleting entries isn't valid".to_string(),
-        )),
+        Op::RegisterUpdate { .. } => {
+            // TODO: Should not be valide by default
+            Ok(ValidateCallbackResult::Valid)
+            //Ok(ValidateCallbackResult::Invalid("updating entries isn't valid".to_string()))
+        },
+        Op::RegisterDelete { .. } => {
+            // TODO: Should not be valide by default
+            Ok(ValidateCallbackResult::Valid)
+            //Ok(ValidateCallbackResult::Invalid("deleting entries isn't valid".to_string()))
+        },
 
         Op::RegisterAgentActivity { .. } => {
             /// TODO: anti-spam? For now no limits or conditions for agent activity.

@@ -32,7 +32,7 @@ pub async fn test_encryption() {
    let _: HeaderHash = conductors[1].call(&cells[1].zome("snapmail"), "set_handle", BILLY_NICK).await;
    let _: HeaderHash = conductors[2].call(&cells[2].zome("snapmail"), "set_handle", CAMILLE_NICK).await;
 
-   print_chain(&conductors[0], &agents[0], &cells[0]).await;
+   print_chain(&conductors[0], &cells[0]).await;
 
    //println!("Waiting for consistency...");
    //holochain::test_utils::consistency_10s(cells.as_slice()).await;
@@ -72,7 +72,7 @@ pub async fn test_mail_self() {
    let outmail_hh: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
 
    sleep(Duration::from_millis(500)).await;
-   print_chain(&conductor0, &alex, &cell0).await;
+   print_chain(&conductor0,&cell0).await;
 
    /// Should NOT be considered 'acknowledged'
    let outmail_state: OutMailState = conductor0.call(&cell0.zome("snapmail"), "get_outmail_state", outmail_hh.clone()).await;
@@ -80,7 +80,7 @@ pub async fn test_mail_self() {
    assert!(outmail_state == OutMailState::AllReceived);
 
    sleep(Duration::from_millis(500)).await;
-   print_chain(&conductor0, &alex, &cell0).await;
+   print_chain(&conductor0,&cell0).await;
 
    /// Check if acknowledged
    let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
@@ -95,7 +95,7 @@ pub async fn test_mail_self() {
    assert_eq!(1, unacknowledged_inmails.len());
 
    sleep(Duration::from_millis(500)).await;
-   print_chain(&conductor0, &alex, &cell0).await;
+   print_chain(&conductor0,  &cell0).await;
 
    /// Get mail
    let received_mail: GetMailOutput = conductor0.call(&cell0.zome("snapmail"), "get_mail", unacknowledged_inmails[0].clone()).await;
@@ -109,7 +109,7 @@ pub async fn test_mail_self() {
    println!("ack_eh: {:?}", ack_eh);
 
    sleep(Duration::from_millis(500)).await;
-   print_chain(&conductor0, &alex, &cell0).await;
+   print_chain(&conductor0, &cell0).await;
 
    /// Check Ack
    let has_acked: bool = conductor0.call(&cell0.zome("snapmail"), "has_ack_been_delivered", unacknowledged_inmails[0].clone()).await;
@@ -258,14 +258,14 @@ pub async fn test_mail_pending() {
       .expect("Should have AllSent state");
 
 
-   print_chain(&conductors[0], &agents[0], &cells[0]).await;
+   print_chain(&conductors[0],  &cells[0]).await;
 
    /// B goes online
    conductors[1].startup().await;
 
-   print_chain(&conductors[1], &agents[1], &cells[1]).await;
+   print_chain(&conductors[1], &cells[1]).await;
    sleep(Duration::from_millis(30 * 1000)).await;
-   print_chain(&conductors[1], &agents[1], &cells[1]).await;
+   print_chain(&conductors[1],  &cells[1]).await;
 
    /// B checks inbox
    try_zome_call(&conductors[1], cells[1], "snapmail","check_mail_inbox", (), |res:&Vec<HeaderHash>| {res.len() > 0})
@@ -294,5 +294,5 @@ pub async fn test_mail_pending() {
       .await
       .expect("Should have FullyAcknowledged state");
 
-   print_chain(&conductors[0], &agents[0], &cells[0]).await;
+   print_chain(&conductors[0],  &cells[0]).await;
 }
