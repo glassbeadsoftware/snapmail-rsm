@@ -24,7 +24,9 @@ pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
     /// ... has not already been acknowledged
     let acks = get_outacks(Some(inmail_hh))?;
     if acks.len() > 0 {
-        return error("Mail has already been acknowledged");
+        let outack_eh = hash_entry(acks[0].clone())?;
+        return Ok(outack_eh)
+        //return error("Mail has already been acknowledged");
     }
     debug!("Not acknowledged yet");
     /// Write OutAck
