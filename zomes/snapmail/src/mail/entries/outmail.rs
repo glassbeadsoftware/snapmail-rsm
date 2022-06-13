@@ -1,4 +1,5 @@
 use hdk::prelude::*;
+use zome_utils::*;
 
 use crate::{
     mail::entries::{
@@ -14,20 +15,25 @@ use crate::{
 #[derive(Clone, PartialEq)]
 pub struct OutMail {
     pub mail: Mail,
+    pub reply_of: Option<HeaderHash>,
     pub bcc: Vec<AgentPubKey>,
 }
 
 ///
 impl OutMail {
-    pub fn new(mail: Mail, bcc: Vec<AgentPubKey>) -> Self {
+    ///
+    pub fn new(mail: Mail, bcc: Vec<AgentPubKey>, reply_of: Option<HeaderHash>) -> Self {
         Self {
-            mail, bcc,
+            mail, reply_of, bcc,
         }
     }
 
+
+    ///
     pub fn create(
         subject: String,
         payload: String,
+        reply_of: Option<HeaderHash>,
         to: Vec<AgentPubKey>,
         cc: Vec<AgentPubKey>,
         in_bcc: Vec<AgentPubKey>,
@@ -41,11 +47,17 @@ impl OutMail {
         let attachments: Vec<AttachmentInfo> = file_manifest_list
             .iter().map(|(eh, manifest)| AttachmentInfo::from_manifest(manifest.clone(), eh.clone()))
             .collect();
+        /// Make sure reply_of is valid
+        if let Some(reply_hh) = reply_of.clone() {
+            let maybe = get_local_from_hh(reply_hh);
+            assert!(maybe.is_ok());
+        }
         /// Create Mail
         let mail = Mail::new(subject, payload, to, cc, attachments);
         /// Done
-        OutMail::new(mail, bcc)
+        OutMail::new(mail, bcc, reply_of)
     }
+
 
     /// Merge recipient lists
     pub fn recipients(&self) -> Vec<AgentPubKey> {

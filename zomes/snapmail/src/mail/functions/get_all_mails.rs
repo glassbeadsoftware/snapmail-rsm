@@ -2,6 +2,8 @@ use hdk::prelude::*;
 use hdk::prelude::query::ChainQueryFilter;
 use zome_utils::*;
 
+use std::collections::HashMap;
+
 use crate::{
     // link_kind,
     entry_kind::*,
@@ -9,6 +11,8 @@ use crate::{
     mail::get_outmail_state,
     mail::utils::get_inmail_state,
 };
+
+
 
 
 /// Zome Function
@@ -45,6 +49,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     let mut item_list = Vec::new();
     let my_agent_address = agent_info()?.agent_latest_pubkey;
     /// Change all OutMail into a MailItem
+    let mut reply_map = HashMap::new();
     for outmail_element in created_outmails {
         let outmail_hh = outmail_element.header_hashed().as_hash().to_owned();
         let date: i64 = outmail_element.header().timestamp().as_seconds_and_nanos().0;
@@ -54,9 +59,14 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
         }
         debug!(" outmail_element = {:?}", outmail_element);
         let outmail: OutMail = get_typed_from_el(outmail_element)?;
+        // Fill reply map
+        if let Some(reply_of) = outmail.reply_of.clone() {
+            reply_map.insert(reply_of, outmail_hh.clone());
+        }
         let state = MailState::Out(maybe_state.unwrap());
         let item = MailItem {
-            address: outmail_hh.clone(),
+            hh: outmail_hh.clone(),
+            reply: outmail.reply_of,
             author: my_agent_address.clone(),
             mail: outmail.mail,
             state,
@@ -77,7 +87,8 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
         let state = MailState::In(maybe_state.unwrap());
         let inmail: InMail = get_typed_from_el(inmail_element)?;
         let item = MailItem {
-            address: inmail_hh.clone(),
+            hh: inmail_hh.clone(),
+            reply: reply_map.get(&inmail_hh).cloned(),
             author: inmail.from,
             mail: inmail.mail,
             state,

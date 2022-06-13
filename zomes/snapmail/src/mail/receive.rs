@@ -79,7 +79,8 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     debug!("inmail_address: {:?}", inmail_hh);
     /// Emit signal
     let item = MailItem {
-        address: inmail_hh,
+        hh: inmail_hh,
+        reply: None,
         author: from.clone(),
         mail: mail_msg.mail.clone(),
         state: MailState::In(InMailState::Unacknowledged),

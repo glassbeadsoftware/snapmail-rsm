@@ -68,7 +68,8 @@ pub enum MailState {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct MailItem {
-    pub address: HeaderHash,
+    pub hh: HeaderHash,
+    pub reply: Option<HeaderHash>, // OutMail = reply_of ; InMail = reply
     pub author: AgentPubKey,
     pub mail: Mail,
     pub state: MailState,

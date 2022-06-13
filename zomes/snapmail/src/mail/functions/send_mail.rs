@@ -26,6 +26,7 @@ pub enum SendSuccessKind {
 pub struct SendMailInput {
     pub subject: String,
     pub payload: String,
+    pub reply_of: Option<HeaderHash>,
     pub to: Vec<AgentPubKey>,
     pub cc: Vec<AgentPubKey>,
     pub bcc: Vec<AgentPubKey>,
@@ -272,6 +273,7 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
     let outmail = OutMail::create(
         input.subject,
         input.payload,
+        input.reply_of,
         input.to.clone(),
         input.cc.clone(),
         input.bcc.clone(),
