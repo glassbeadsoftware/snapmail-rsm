@@ -15,7 +15,6 @@ pub fn find_agent(handle: String) -> ExternResult<Vec<AgentPubKey>> {
    let mut agent_list = Vec::new();
    /// Find handle entry whose author is agentId
    for member_link in member_links {
-
       let res = get_typed_and_author::<Handle>(&member_link.target);
       if let Err(err) = res {
          warn!("Retrieving Handle from DHT failed: {}", err);

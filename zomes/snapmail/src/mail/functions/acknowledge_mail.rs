@@ -130,8 +130,16 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
     /// Create links between PendingAck and OutAck & recipient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
     let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
-    let _ = create_link(input.outack_eh.clone(), pending_ack_eh.clone(), LinkKind::Pending.as_tag())?;
-    let _ = create_link(EntryHash::from(input.original_sender.clone()), pending_ack_eh, tag)?;
+    let _ = create_link(
+        input.outack_eh.clone(),
+        pending_ack_eh.clone(),
+        HdkLinkType::Any,
+        LinkKind::Pending.as_tag())?;
+    let _ = create_link(
+        EntryHash::from(input.original_sender.clone()),
+        pending_ack_eh,
+        HdkLinkType::Any,
+        tag)?;
     debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, input.original_sender);
     /// Done
     Ok(pending_ack_hh)

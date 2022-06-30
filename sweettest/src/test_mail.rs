@@ -67,6 +67,7 @@ pub async fn test_mail_self() {
       to: vec![alex.clone()],
       cc: vec![],
       bcc: vec![],
+      reply_of: None,
       manifest_address_list: vec![],
    };
    let outmail_hh: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
@@ -137,6 +138,7 @@ pub async fn test_mail_dm() {
       to: vec![agents[1].clone()],
       cc: vec![],
       bcc: vec![],
+      reply_of: None,
       manifest_address_list: vec![],
    };
    let outmail_hh: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
@@ -239,6 +241,7 @@ pub async fn test_mail_pending() {
       to: vec![agents[1].clone()], // agents,
       cc: vec![],
       bcc: vec![],
+      reply_of: None,
       manifest_address_list: vec![],
    };
    let outmail_hh: HeaderHash = conductors[0].call(

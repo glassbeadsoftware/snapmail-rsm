@@ -8,17 +8,23 @@ use crate::{
 };
 
 /// Validation sub callback
-pub fn validate_create_link(
-   signed_create_link: SignedHashed<CreateLink>,
-   base: Entry,
-   target: Entry,
-) -> ExternResult<ValidateCallbackResult>
+pub fn validate_create_link(signed_create_link: SignedHashed<CreateLink>)
+   -> ExternResult<ValidateCallbackResult>
 {
    let create_link = signed_create_link.hashed.into_inner().0;
    let tag_str = String::from_utf8_lossy(&create_link.tag.0);
    trace!("*** `validate_create_link()` called: {}", tag_str);
 
    for link_kind in LinkKind::iter() {
+      /// Get the entries linked
+      let base =
+         must_get_entry(create_link.base_address.clone().into())?
+         .as_content()
+         .to_owned();
+      let target =
+         must_get_entry(create_link.target_address.clone().into())?
+            .as_content()
+            .to_owned();
       /// Try validating static link kind
       if tag_str == link_kind.as_static() {
          return link_kind.validate_types(base, target, None);

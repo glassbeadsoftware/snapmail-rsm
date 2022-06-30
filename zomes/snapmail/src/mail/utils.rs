@@ -166,15 +166,15 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
     let mut pending_found = false;
     /// If a pending link and and inbox link match, still waiting for confirmation
     let pendings_links = get_links(package_eh.clone(), Some(LinkKind::Pendings.as_tag()))?;
-    let inbox_links = get_links(recipient.to_owned().into(), LinkKind::MailInbox.as_tag_opt())?;
-    let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x|x.target.clone()).collect();
+    let inbox_links = get_links(recipient.to_owned(), LinkKind::MailInbox.as_tag_opt())?;
+    let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x|x.target.clone().into()).collect();
     for pendings_link in pendings_links.iter() {
         let res = LinkKind::Pendings.unconcat_hash(&pendings_link.tag);
         if let Ok(agent) = res {
             // inbox link found ; check if tag is recipient
             if &agent == recipient {
                 pending_found = true;
-                if inbox_targets.contains(&pendings_link.target) {
+                if inbox_targets.contains(&pendings_link.target.clone().into()) {
                     return Ok(false);
                 }
             }
@@ -209,7 +209,7 @@ pub(crate) fn try_confirming_pending_ack_has_been_received(package_eh: EntryHash
             continue;
         }
         /// Check for inbox link: If no link, it means it has been deleted by recipient
-        let links = get_links(recipient.to_owned().into(), LinkKind::AckInbox.as_tag_opt())?;
+        let links = get_links(recipient.to_owned(), LinkKind::AckInbox.as_tag_opt())?;
         for link in links.iter() {
             let res = LinkKind::AckInbox.unconcat_hash(&link.tag);
             if let Ok(agent) = res {

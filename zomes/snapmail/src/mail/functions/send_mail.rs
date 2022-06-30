@@ -165,7 +165,11 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash
     /// Commit Pendings Link
     let tag = LinkKind::Pendings.concat_hash(&input.destination);
     debug!("pendings tag = {:?}", tag);
-    let maybe_link1_hh = create_link(input.outmail_eh.clone(), pending_mail_eh.clone(), tag);
+    let maybe_link1_hh = create_link(
+        input.outmail_eh.clone(),
+        pending_mail_eh.clone(),
+        HdkLinkType::Any,
+        tag);
     if let Err(err) = maybe_link1_hh.clone() {
         debug!("link1 failed = {:?}", err);
         return Err(maybe_link1_hh.err().unwrap());
@@ -174,7 +178,11 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash
     debug!("link1_hh = {}", link1_hh);
     /// Commit MailInbox Link
     let tag = LinkKind::MailInbox.concat_hash(&me);
-    let maybe_link2_hh = create_link(EntryHash::from(input.destination.clone()), pending_mail_eh, tag);
+    let maybe_link2_hh = create_link(
+        EntryHash::from(input.destination.clone()),
+        pending_mail_eh,
+        HdkLinkType::Any,
+        tag);
     if let Err(err) = maybe_link2_hh.clone() {
         debug!("link2 failed = {:?}", err);
         return Err(maybe_link2_hh.err().unwrap());
@@ -349,6 +357,6 @@ pub fn send_committed_mail(
 // fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<HeaderHash> {
 //     debug!("commit_sents_link(): {:?} ", input);
 //     let tag = LinkKind::Sents.concat_hash(&input.to);
-//     let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, tag)?;
+//     let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, HdkLinkType::Any, tag)?;
 //     Ok(hh)
 // }

@@ -246,6 +246,7 @@ pub async fn send_file_dm(size: usize) {
       to: vec![agents[1].clone()],
       cc: vec![],
       bcc: vec![],
+      reply_of: None,
       manifest_address_list: vec![manifest_address],
    };
    let _mail_output: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;

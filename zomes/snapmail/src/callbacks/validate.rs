@@ -29,8 +29,8 @@ fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             let actual_header= header.hashed.into_inner().0;
             return validate_entry(entry, Some(actual_header.entry_type()));
         },
-        Op::RegisterCreateLink { create_link, base, target} => {
-            return validate_create_link(create_link, base, target);
+        Op::RegisterCreateLink { create_link } => {
+            return validate_create_link(create_link);
         },
         Op::RegisterDeleteLink { .. } => {
             // TODO: Should not be valide by default
