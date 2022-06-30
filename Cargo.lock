@@ -4898,7 +4898,7 @@ dependencies = [
 [[package]]
 name = "sweettest_utils"
 version = "0.0.127"
-source = "git+https://github.com/ddd-mtl/sweettest-utils?branch=136#7dcd374a31d7f9dc34d4f0a4214e0b55c61ce5c6"
+source = "git+https://github.com/ddd-mtl/sweettest-utils?branch=136#ed6749d1c6b2bb3a424ea2f95c8c83446b0cc112"
 dependencies = [
  "colored",
  "futures",
