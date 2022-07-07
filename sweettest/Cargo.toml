@@ -18,13 +18,13 @@ tokio-stream = { version = "0.1", default-features = false }
 maplit = { version = "1", default-features = false }
 
 holochain = { version = "0.0.141", default-features = false, features = ["test_utils"]  }
-holo_hash = { version = "0.0.27", default-features = false, features = ["encoding"] }
-holochain_zome_types = { version = "0.0.35", default-features = false  }
+holo_hash = { version = "0.0.26", default-features = false, features = ["encoding"] }
+holochain_zome_types = { version = "0.0.34", default-features = false  }
 
-kitsune_p2p = { version = "0.0.35", default-features = false  }
-holochain_state = { version = "0.0.43", default-features = false  }
-holochain_p2p = { version = "0.0.41", default-features = false  }
+kitsune_p2p = { version = "0.0.34", default-features = false  }
+holochain_state = { version = "0.0.41", default-features = false  }
+holochain_p2p = { version = "0.0.39", default-features = false  }
 
-sweettest_utils = { git = "https://github.com/ddd-mtl/sweettest-utils", branch = "136" }
+sweettest_utils = { git = "https://github.com/ddd-mtl/sweettest-utils", branch = "134" }
 
 snapmail = { path = "../zomes/snapmail", default-features = false }
