@@ -1,4 +1,4 @@
-use hdk::prelude::*;
+use hdi::prelude::*;
 
 use crate::{
     CHUNK_MAX_SIZE,
@@ -22,6 +22,7 @@ impl FileChunk {
         }
     }
 }
+
 
 ///
 pub(crate) fn validate_chunk(chunk: FileChunk)

@@ -18,7 +18,7 @@ pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
 
 
 /// Return Element of latest Handle Entry for agent
-pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, HeaderHash)> {
+pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, ActionHash)> {
     /// Get All Handle links on agent ; should have only one
     let handle_links = get_links(agent_id, LinkKind::Handle.as_tag_opt())
        .expect("No reason for this to fail");

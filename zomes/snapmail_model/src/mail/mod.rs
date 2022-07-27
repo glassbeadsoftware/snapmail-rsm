@@ -6,7 +6,7 @@ mod outack;
 mod inack;
 mod delivery_confirmation;
 
-use hdk::prelude::*;
+use hdi::prelude::*;
 
 pub use self::{
     inmail::*, pending_mail::*, outmail::*,
@@ -68,8 +68,8 @@ pub enum MailState {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct MailItem {
-    pub hh: HeaderHash,
-    pub reply: Option<HeaderHash>, // OutMail = reply_of ; InMail = reply
+    pub hh: ActionHash,
+    pub reply: Option<ActionHash>, // OutMail = reply_of ; InMail = reply
     pub author: AgentPubKey,
     pub mail: Mail,
     pub state: MailState,
@@ -109,7 +109,7 @@ impl Mail {
         /// Remove duplicate recipients
         let cc = filter_up(&to, &in_cc);
         /// Create Mail
-        let date_sent = zome_utils::now();
+        let date_sent = 42; //FIXME: zome_utils::now();
         /// Done
         Self {
             date_sent,
@@ -122,11 +122,6 @@ impl Mail {
     }
 }
 
-pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {
-    let me = agent_info()?.agent_latest_pubkey;
-    let signature = sign(me, mail)?;
-    Ok(signature)
-}
 
 
 /// Metadata for a mail attachment
@@ -140,7 +135,7 @@ pub struct AttachmentInfo {
 }
 
 impl AttachmentInfo {
-    fn from_manifest(manifest: FileManifest, manifest_eh: EntryHash) -> Self {
+    pub fn from_manifest(manifest: FileManifest, manifest_eh: EntryHash) -> Self {
         Self {
             manifest_eh: manifest_eh.clone(),
             data_hash: manifest.data_hash.clone(),

@@ -10,7 +10,7 @@ use crate::{
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GetMissingAttachmentsInput {
     pub from: AgentPubKey,
-    pub inmail_hh: HeaderHash,
+    pub inmail_hh: ActionHash,
 }
 
 /// Zome Function

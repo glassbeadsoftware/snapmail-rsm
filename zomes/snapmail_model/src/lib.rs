@@ -1,16 +1,33 @@
-use hdk::prelude::*;
+#![allow(non_upper_case_globals)]
+#![allow(unused_doc_comments)]
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
+#![allow(unused_attributes)]
 
-use std::str::FromStr;
+pub mod handle;
+pub mod handle_validation;
+pub mod pub_enc_key;
+pub mod mail;
+pub mod file;
+pub mod constants;
 
-use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
-use strum::EnumProperty;
+use hdi::prelude::*;
 
-use zome_utils::*;
+//use std::str::FromStr;
+
+//use strum::IntoEnumIterator;
+//use strum_macros::EnumIter;
+//use strum::EnumProperty;
+
+pub use tracing::*;
+
+//use zome_utils::*;
+
+pub use constants::*;
 
 use crate::{
    handle::*,
-   mail::entries::*,
+   mail::*,
    file::*,
    pub_enc_key::*,
 };
@@ -185,56 +202,58 @@ pub enum EntryKind {
 // }
 //
 
-/// Get EntryType out of an Entry
-pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryType> {
-   Ok(match entry {
-      Entry::Agent(_agent_hash) => EntryType::AgentPubKey,
-      Entry::CapClaim(_claim) => EntryType::CapClaim,
-      Entry::CapGrant(_grant) => EntryType::CapGrant,
-      Entry::App(_entry_bytes) => get_entry_type_from_eh(eh)?,
-      Entry::CounterSign(_data, _bytes) => unreachable!(),
-   })
-}
 
-/// Try to deserialize entry to given type
-pub(crate) fn is_entry_of_type(entry: Entry, type_candidat: EntryType) -> bool {
-   trace!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
-   let res =  match entry {
-      Entry::CounterSign(_data, _bytes) => unreachable!(),
-      Entry::Agent(_agent_hash) => EntryType::AgentPubKey == type_candidat,
-      Entry::CapClaim(_claim) => EntryType::CapClaim == type_candidat,
-      Entry::CapGrant(_grant) => EntryType::CapGrant == type_candidat,
-      Entry::App(entry_bytes) => {
-         let mut res = false;
-         if let EntryType::App(app_entry_type) = type_candidat.clone() {
-            res = can_deserialize(app_entry_type.id(), entry_bytes)
-         }
-         res
-       },
-   };
-   //debug!("*** is_type({:?}) result = {}", type_candidat, res);
-   res
-}
-
-///
-fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> bool {
-   trace!("*** can_deserialize() called! ({:?})", entry_type_id);
-   let sb = entry_bytes.into_sb();
-   let entry_kind = EntryKind::from_index(&entry_type_id);
-
-   match entry_kind {
-      EntryKind::PubEncKey => PubEncKey::try_from(sb.clone()).is_ok(),
-      EntryKind::Handle => Handle::try_from(sb.clone()).is_ok(),
-      //EntryKind::Path => PathEntry::try_from(sb.clone()).is_ok(),
-      EntryKind::InMail => InMail::try_from(sb.clone()).is_ok(),
-      EntryKind::InAck => InAck::try_from(sb.clone()).is_ok(),
-      EntryKind::PendingMail => PendingMail::try_from(sb.clone()).is_ok(),
-      EntryKind::PendingAck => PendingAck::try_from(sb.clone()).is_ok(),
-      EntryKind::DeliveryConfirmation => DeliveryConfirmation::try_from(sb.clone()).is_ok(),
-      EntryKind::OutMail => OutMail::try_from(sb.clone()).is_ok(),
-      EntryKind::OutAck => OutAck::try_from(sb.clone()).is_ok(),
-      EntryKind::FileManifest => FileManifest::try_from(sb.clone()).is_ok(),
-      EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_ok(),
-   }
-}
-
+//
+// /// Get EntryType out of an Entry
+// pub fn determine_entry_type(eh: EntryHash, entry: &Entry) -> ExternResult<EntryType> {
+//    Ok(match entry {
+//       Entry::Agent(_agent_hash) => EntryType::AgentPubKey,
+//       Entry::CapClaim(_claim) => EntryType::CapClaim,
+//       Entry::CapGrant(_grant) => EntryType::CapGrant,
+//       Entry::App(_entry_bytes) => get_entry_type_from_eh(eh)?,
+//       Entry::CounterSign(_data, _bytes) => unreachable!(),
+//    })
+// }
+//
+// /// Try to deserialize entry to given type
+// pub(crate) fn is_entry_of_type(entry: Entry, type_candidat: EntryType) -> bool {
+//    trace!("*** is_type() called: {:?} == {:?} ?", type_candidat, entry);
+//    let res =  match entry {
+//       Entry::CounterSign(_data, _bytes) => unreachable!(),
+//       Entry::Agent(_agent_hash) => EntryType::AgentPubKey == type_candidat,
+//       Entry::CapClaim(_claim) => EntryType::CapClaim == type_candidat,
+//       Entry::CapGrant(_grant) => EntryType::CapGrant == type_candidat,
+//       Entry::App(entry_bytes) => {
+//          let mut res = false;
+//          if let EntryType::App(app_entry_type) = type_candidat.clone() {
+//             res = can_deserialize(app_entry_type.id(), entry_bytes)
+//          }
+//          res
+//        },
+//    };
+//    //debug!("*** is_type({:?}) result = {}", type_candidat, res);
+//    res
+// }
+//
+// ///
+// fn can_deserialize(entry_type_id: EntryDefIndex, entry_bytes: AppEntryBytes) -> bool {
+//    trace!("*** can_deserialize() called! ({:?})", entry_type_id);
+//    let sb = entry_bytes.into_sb();
+//    let entry_kind = EntryKind::from_index(&entry_type_id);
+//
+//    match entry_kind {
+//       EntryKind::PubEncKey => PubEncKey::try_from(sb.clone()).is_ok(),
+//       EntryKind::Handle => Handle::try_from(sb.clone()).is_ok(),
+//       //EntryKind::Path => PathEntry::try_from(sb.clone()).is_ok(),
+//       EntryKind::InMail => InMail::try_from(sb.clone()).is_ok(),
+//       EntryKind::InAck => InAck::try_from(sb.clone()).is_ok(),
+//       EntryKind::PendingMail => PendingMail::try_from(sb.clone()).is_ok(),
+//       EntryKind::PendingAck => PendingAck::try_from(sb.clone()).is_ok(),
+//       EntryKind::DeliveryConfirmation => DeliveryConfirmation::try_from(sb.clone()).is_ok(),
+//       EntryKind::OutMail => OutMail::try_from(sb.clone()).is_ok(),
+//       EntryKind::OutAck => OutAck::try_from(sb.clone()).is_ok(),
+//       EntryKind::FileManifest => FileManifest::try_from(sb.clone()).is_ok(),
+//       EntryKind::FileChunk => FileChunk::try_from(sb.clone()).is_ok(),
+//    }
+// }
+//

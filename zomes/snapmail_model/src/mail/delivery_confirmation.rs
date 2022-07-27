@@ -1,4 +1,4 @@
-use hdk::prelude::*;
+use hdi::prelude::*;
 
 /// Entry for a received Acknowledgement Receipt
 #[hdk_entry_helper]

@@ -26,11 +26,11 @@ pub enum SendSuccessKind {
 pub struct SendMailInput {
     pub subject: String,
     pub payload: String,
-    pub reply_of: Option<HeaderHash>,
+    pub reply_of: Option<ActionHash>,
     pub to: Vec<AgentPubKey>,
     pub cc: Vec<AgentPubKey>,
     pub bcc: Vec<AgentPubKey>,
-    pub manifest_address_list: Vec<HeaderHash>,
+    pub manifest_address_list: Vec<ActionHash>,
 }
 
 
@@ -135,7 +135,7 @@ fn deliver_mail_by_dm(
 
 
 #[hdk_extern]
-fn commit_inmail(inmail: InMail) -> ExternResult<HeaderHash> {
+fn commit_inmail(inmail: InMail) -> ExternResult<ActionHash> {
     debug!("commit_inmail() START **********");
     create_entry(inmail)
 }
@@ -150,7 +150,7 @@ struct CommitPendingMailInput {
 
 
 #[hdk_extern]
-fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<HeaderHash> {
+fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<ActionHash> {
     debug!("commit_pending_mail() START **********");
     let me = agent_info()?.agent_latest_pubkey;
     /// Commit Pending Mail
@@ -266,7 +266,7 @@ pub(crate) fn deliver_mail(
 /// post_commit will try to send directly to each recipient.
 #[hdk_extern]
 #[snapmail_api]
-pub fn send_mail(input: SendMailInput) -> ExternResult<HeaderHash> {
+pub fn send_mail(input: SendMailInput) -> ExternResult<ActionHash> {
     debug!("Sending mail: {}", input.subject);
     /// Get file manifests from addresses
     let mut file_manifest_list = Vec::new();
@@ -352,9 +352,9 @@ pub fn send_committed_mail(
 // }
 //
 // /// Create & Commit 'Sent' link
-// /// Return HeaderHash of newly created link
+// /// Return ActionHash of newly created link
 // #[hdk_extern]
-// fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<HeaderHash> {
+// fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<ActionHash> {
 //     debug!("commit_sents_link(): {:?} ", input);
 //     let tag = LinkKind::Sents.concat_hash(&input.to);
 //     let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, HdkLinkType::Any, tag)?;

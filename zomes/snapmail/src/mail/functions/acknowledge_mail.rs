@@ -18,7 +18,7 @@ use crate::{
 /// Return EntryHash of newly created OutAck
 #[hdk_extern]
 #[snapmail_api]
-pub fn acknowledge_mail(inmail_hh: HeaderHash) -> ExternResult<EntryHash> {
+pub fn acknowledge_mail(inmail_hh: ActionHash) -> ExternResult<EntryHash> {
     /// Make sure its an InMail ...
     let (inmail_eh, inmail) = get_typed_from_hh::<InMail>(inmail_hh.clone())?;
     /// ... has not already been acknowledged
@@ -119,9 +119,9 @@ struct CommitPendingAckInput {
 }
 
 /// Create & Commit PendingAck
-/// Return HeaderHash of newly created PendingAck
+/// Return ActionHash of newly created PendingAck
 #[hdk_extern]
-fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> {
+fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<ActionHash> {
     debug!("commit_pending_ack() - START");
     /// Commit PendingAck
     let signature = sign(agent_info()?.agent_latest_pubkey, input.outmail_eh.clone())?;
@@ -148,7 +148,7 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<HeaderHash> 
 
 /// Called during a post_commit()
 #[hdk_extern]
-fn commit_confirmation(input: DeliveryConfirmation) -> ExternResult<HeaderHash> {
+fn commit_confirmation(input: DeliveryConfirmation) -> ExternResult<ActionHash> {
     debug!("commit_confirmation(): {:?} ", input.package_eh);
     return create_entry(input);
 }

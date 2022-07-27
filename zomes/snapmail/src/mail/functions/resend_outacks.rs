@@ -17,7 +17,7 @@ use crate::{
 /// Return list of OutAcks which we tried to deliver again
 #[hdk_extern]
 #[snapmail_api]
-fn resend_outacks(_: ()) -> ExternResult<Vec<HeaderHash>> {
+fn resend_outacks(_: ()) -> ExternResult<Vec<ActionHash>> {
    let query_args = ChainQueryFilter::default()
       .include_entries(true)
       .header_type(HeaderType::Create)

@@ -9,7 +9,7 @@ use crate::{
 /// Zome function
 #[hdk_extern]
 #[snapmail_api]
-pub fn has_ack_been_delivered(inmail_hh: HeaderHash) -> ExternResult<bool> {
+pub fn has_ack_been_delivered(inmail_hh: ActionHash) -> ExternResult<bool> {
    /// Make sure its an inmail
    let inmail_eh = get_eh(inmail_hh.clone())?;
    let _ = get_typed_from_eh::<InMail>(inmail_eh)?;

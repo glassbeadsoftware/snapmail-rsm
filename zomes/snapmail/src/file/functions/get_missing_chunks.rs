@@ -14,7 +14,7 @@ pub struct GetMissingChunksInput {
 /// Zome Function
 /// Request missing chunks for an attachment
 /// Returns number of remaining missing chunks
-/// TODO: Return vec of missing chunk HeaderHash
+/// TODO: Return vec of missing chunk ActionHash
 #[hdk_extern]
 #[snapmail_api]
 pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {

@@ -10,7 +10,7 @@ use crate::{
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<HeaderHash>> {
+pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<ActionHash>> {
     /// Get all InMails
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)

@@ -15,13 +15,13 @@ pub struct GetMailOutput(pub Option<Result<InMail, OutMail>>);
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_mail(hh: HeaderHash) -> ExternResult<GetMailOutput>{
+pub fn get_mail(hh: ActionHash) -> ExternResult<GetMailOutput>{
     //debug!("get_mail() START");
     return try_into_mail(hh);
 }
 
 /// Get InMail or OutMail at address
-pub(crate) fn try_into_mail(hh: HeaderHash) -> ExternResult<GetMailOutput> {
+pub(crate) fn try_into_mail(hh: ActionHash) -> ExternResult<GetMailOutput> {
     /// Get Element at address
     // let element = match get_local(address) {
     //     Ok(element) => element,

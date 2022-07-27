@@ -3,39 +3,14 @@ use zome_utils::*;
 
 use crate::link_kind::*;
 
-/// Entry representing the Public Encryption Key of an Agent
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
-pub struct PubEncKey {
-   pub value: X25519PubKey,
+/// Ridiculous
+pub fn create_PubEncKey() -> PubEncKey {
+   let value = create_x25519_keypair().expect("Create Keypair should work");
+   PubEncKey::new(value)
 }
 
-impl PubEncKey {
-   pub fn new() -> Self {
-      let value = create_x25519_keypair().expect("Create Keypair should work");
-      Self {
-         value,
-      }
-   }
 
-   /// Create public encryption key and broadcast it
-   pub fn create_and_share() -> ExternResult<()> {
-      let new_key = PubEncKey::new();
-      let key_eh = hash_entry(&new_key)?;
-      let key_hh = create_entry(new_key)?;
-      let my_agent_address = agent_info()?.agent_latest_pubkey;
-      debug !("key_hh = {:?}", key_hh);
-      let _ = create_link(
-         my_agent_address,
-         key_eh.clone(),
-         HdkLinkType::Any,
-         LinkKind::EncKey.as_tag(),
-      )?;
-      debug!("**** EncKey linked to agent!");
-      Ok(())
-   }
-}
-
+///
 #[hdk_extern]
 #[snapmail_api]
 pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
@@ -92,16 +67,3 @@ fn test_encryption(to: AgentPubKey) -> ExternResult<()> {
    /// Done
    Ok(())
 }
-
-// -- VALIDATION -- //
-
-///
-pub fn validate_PubEncKey_entry(_: PubEncKey) -> ExternResult<ValidateCallbackResult> {
-   trace!("*** validate_PubEncKey_entry() called!");
-   Ok(ValidateCallbackResult::Valid)
-}
-
-// #[hdk_extern]
-// fn validate_PubEncKey_delete(_: ValidateData) -> ExternResult<ValidateCallbackResult> {
-//    Ok(ValidateCallbackResult::Invalid("Agent must always have a Handle".into()))
-// }

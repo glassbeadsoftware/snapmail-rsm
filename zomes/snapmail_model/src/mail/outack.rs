@@ -1,4 +1,4 @@
-use hdk::prelude::*;
+use hdi::prelude::*;
 
 /// Entry for an Acknowledgement Receipt of a Mail authored by this agent
 #[hdk_entry_helper]

@@ -11,7 +11,7 @@ use crate::mail::get_inacks;
 /// Get State of an OutMail
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
+pub fn get_outmail_state(outmail_hh: ActionHash) -> ExternResult<OutMailState> {
    debug!(" *** get_outmail_state() START - {}", outmail_hh);
 
    /// Check if deleted
@@ -63,7 +63,7 @@ pub fn get_outmail_state(outmail_hh: HeaderHash) -> ExternResult<OutMailState> {
 /// Return delivery state for each OutMail's recipient
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_outmail_delivery_state(outmail_hh: HeaderHash) -> ExternResult<HashMap<AgentPubKey, DeliveryState>> {
+pub fn get_outmail_delivery_state(outmail_hh: ActionHash) -> ExternResult<HashMap<AgentPubKey, DeliveryState>> {
    debug!(" *** get_outmail_delivery_state(): ");
    /// Get OutMail Details
    let maybe_details = get_details(outmail_hh.clone(), GetOptions::latest())?;

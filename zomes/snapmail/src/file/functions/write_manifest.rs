@@ -17,7 +17,7 @@ pub struct WriteManifestInput {
 /// Write file manifest to source chain
 #[hdk_extern]
 #[snapmail_api]
-pub fn write_manifest(input: WriteManifestInput) -> ExternResult<HeaderHash> {
+pub fn write_manifest(input: WriteManifestInput) -> ExternResult<ActionHash> {
     let manifest = FileManifest {
         data_hash: input.data_hash,
         filename: input.filename,

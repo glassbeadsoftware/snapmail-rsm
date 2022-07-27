@@ -1,4 +1,4 @@
-use hdk::prelude::*;
+use hdi::prelude::*;
 
 use crate::{
     FILE_MAX_SIZE,

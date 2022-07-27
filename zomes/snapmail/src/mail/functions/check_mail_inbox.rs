@@ -16,7 +16,7 @@ use crate::{
 /// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
 #[snapmail_api]
-pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
+pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
     /// Lookup `mail_inbox` links on my agentId
     let me = agent_info()?.agent_latest_pubkey;
     let my_agent_eh = EntryHash::from(me.clone());
@@ -139,7 +139,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<HeaderHash>> {
 
 
 // /// Delete Pendings links from outmail to `to` agent
-// fn delete_pendings_link(outmail_eh: &EntryHash, to: &AgentPubKey) -> ExternResult<HeaderHash> {
+// fn delete_pendings_link(outmail_eh: &EntryHash, to: &AgentPubKey) -> ExternResult<ActionHash> {
 //     let pendings_links_result = get_links(
 //         outmail_eh.clone(),
 //         //None,

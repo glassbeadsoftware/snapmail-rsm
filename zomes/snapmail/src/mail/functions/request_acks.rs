@@ -17,7 +17,7 @@ use crate::mail::get_inacks;
 /// Return list of OutMails for which we requested acks
 #[hdk_extern]
 #[snapmail_api]
-pub fn request_acks(_: ()) -> ExternResult<Vec<HeaderHash>> {
+pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
    /// Get all Create OutMail headers with query
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)

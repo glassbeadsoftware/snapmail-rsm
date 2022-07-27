@@ -20,5 +20,5 @@ pub enum SignalProtocol {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReceivedAck {
     pub from: AgentPubKey,
-    pub for_mail: HeaderHash,
+    pub for_mail: ActionHash,
 }

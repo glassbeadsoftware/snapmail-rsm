@@ -1,34 +1,18 @@
 use hdk::prelude::*;
-use zome_utils::*;
 
-use super::Mail;
-use crate::mail::entries::sign_mail;
+use
 
-/// Entry representing a mail on the DHT waiting to be received by recipient.
-/// The recipient is the agentId where the entry is linked from.
-/// The mail is encrypted with the recipient's public encryption key.
-///
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
-pub struct PendingMail {
-    pub encrypted_mail: XSalsa20Poly1305EncryptedData,
-    pub outmail_eh: EntryHash,
-    pub from_signature: Signature,
+// From your crate
+pub trait PendingMailExt {
+   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> Self;
+   fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self>;
+   fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail>;
+   fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>>;
 }
 
-impl PendingMail {
-   pub fn new(
-      encrypted_mail: XSalsa20Poly1305EncryptedData,
-      outmail_eh: EntryHash,
-      from_signature: Signature,
-   ) -> Self {
-      Self {
-         encrypted_mail,
-         outmail_eh,
-         from_signature,
-      }
-   }
 
+///
+impl PendingMailExt for PendingMail {
 
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
@@ -52,7 +36,7 @@ impl PendingMail {
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
    /// called from post_commit()
-   pub fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self> {
+   fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self> {
       /// Get my key
       let me = agent_info()?.agent_latest_pubkey;
       debug!("get_enc_key() for sender {:?}", me);
@@ -89,7 +73,7 @@ impl PendingMail {
    }
 
    /// Attempt to decrypt pendingMail with provided keys
-   pub fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {
+   fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {
       trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
@@ -105,5 +89,51 @@ impl PendingMail {
          .expect("Deserialization should work");
       /// Done
       Some(mail)
+   }
+
+
+
+
+   fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>> {
+      let received_date = zome_utils::now();
+      /// Get my key
+      let my_agent_key = agent_info()?.agent_latest_pubkey;
+      debug!("try_from_pending my_agent_key: {}", my_agent_key);
+      let recipient_key = get_enc_key(my_agent_key.clone())?;
+      debug!("try_from_pending recipient_key: {:?}", recipient_key);
+      /// Get sender's key
+      let sender_key = get_enc_key(from.clone())?;
+      debug!("try_from_pending sender_key: {:?}", sender_key);
+      /// Decrypt
+      let maybe_mail = self.attempt_decrypt(sender_key, recipient_key);
+      debug!("try_from_pending maybe_mail: {:?}", maybe_mail);
+      /// Into InMail
+      let inmail = match maybe_mail {
+         None => return Ok(None),
+         Some(mail) => {
+            InMail::new(mail,
+                        from.clone(),
+                        received_date,
+                        self.outmail_eh,
+                        self.from_signature.clone())
+         },
+      };
+      /// Check signature
+      let maybe_verified = verify_signature(from, self.from_signature, inmail.mail.clone());
+      match maybe_verified {
+         Err(err) => {
+            let response_str = "Verifying PendingMail failed";
+            debug!("{}: {}", response_str, err);
+            return error(response_str);
+         }
+         Ok(false) => {
+            let response_str = "Failed verifying PendingMail signature";
+            debug!("{}", response_str);
+            return error(response_str);
+         }
+         Ok(true) => debug!("Valid PendingMail signature"),
+      }
+      /// Done
+      Ok(Some(inmail))
    }
 }

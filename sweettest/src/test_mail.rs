@@ -28,9 +28,9 @@ pub async fn test_encryption() {
    //
    // let cells = vec![&cell0, &cell1, &cell2];
 
-   let _: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "set_handle", ALEX_NICK).await;
-   let _: HeaderHash = conductors[1].call(&cells[1].zome("snapmail"), "set_handle", BILLY_NICK).await;
-   let _: HeaderHash = conductors[2].call(&cells[2].zome("snapmail"), "set_handle", CAMILLE_NICK).await;
+   let _: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "set_handle", ALEX_NICK).await;
+   let _: ActionHash = conductors[1].call(&cells[1].zome("snapmail"), "set_handle", BILLY_NICK).await;
+   let _: ActionHash = conductors[2].call(&cells[2].zome("snapmail"), "set_handle", CAMILLE_NICK).await;
 
    print_chain(&conductors[0], &cells[0]).await;
 
@@ -70,7 +70,7 @@ pub async fn test_mail_self() {
       reply_of: None,
       manifest_address_list: vec![],
    };
-   let outmail_hh: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
+   let outmail_hh: ActionHash = conductor0.call(&cell0.zome("snapmail"), "send_mail", mail).await;
 
    sleep(Duration::from_millis(500)).await;
    print_chain(&conductor0,&cell0).await;
@@ -84,7 +84,7 @@ pub async fn test_mail_self() {
    print_chain(&conductor0,&cell0).await;
 
    /// Check if acknowledged
-   let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
+   let mut unacknowledged_inmails: Vec<ActionHash> = Vec::new();
    for _ in 0..10u32 {
       unacknowledged_inmails = conductor0.call(&cell0.zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
       if unacknowledged_inmails.len() > 0 {
@@ -141,14 +141,14 @@ pub async fn test_mail_dm() {
       reply_of: None,
       manifest_address_list: vec![],
    };
-   let outmail_hh: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   let outmail_hh: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
    //sleep(Duration::from_millis(500)).await;
    //print_chain(&conductors[0], &agents[0], &cells[0]).await;
 
    /// B checks if arrived
-   let unacknowledged_inmails: Vec<HeaderHash> = try_zome_call(&conductors[1], cells[1], "snapmail","get_all_unacknowledged_inmails", (),
-                 |unacknowledged_inmails: &Vec<HeaderHash>| {unacknowledged_inmails.len() == 1})
+   let unacknowledged_inmails: Vec<ActionHash> = try_zome_call(&conductors[1], cells[1], "snapmail","get_all_unacknowledged_inmails", (),
+                 |unacknowledged_inmails: &Vec<ActionHash>| {unacknowledged_inmails.len() == 1})
       .await
       .expect("Should have an unacknowledged inmail");
 
@@ -204,7 +204,7 @@ pub async fn test_mail_pending() {
    // let billy;
    // {
    //    let (mut conductor1, billy_temp, cell1) = setup_1_conductor().await;
-   //    let _: HeaderHash = conductor1.call(&cell1.zome("snapmail"), "set_handle", BILLY_NICK).await;
+   //    let _: ActionHash = conductor1.call(&cell1.zome("snapmail"), "set_handle", BILLY_NICK).await;
    //    billy = billy_temp.clone();
    //    conductor1.shutdown().await;
    // }
@@ -214,9 +214,9 @@ pub async fn test_mail_pending() {
    // let _agents = vec![&alex, &billy, &camille];
    // //let cells = vec![&cell0, &cell1, &cell2];
    //
-   // let _: HeaderHash = conductor0.call(&cell0.zome("snapmail"), "set_handle", ALEX_NICK).await;
+   // let _: ActionHash = conductor0.call(&cell0.zome("snapmail"), "set_handle", ALEX_NICK).await;
    //
-   // let _: HeaderHash = conductor2.call(&cell2.zome("snapmail"), "set_handle", CAMILLE_NICK).await;
+   // let _: ActionHash = conductor2.call(&cell2.zome("snapmail"), "set_handle", CAMILLE_NICK).await;
 
    // consistency_10s(cells.as_slice()).await;
    //println!("consistency done!");
@@ -244,7 +244,7 @@ pub async fn test_mail_pending() {
       reply_of: None,
       manifest_address_list: vec![],
    };
-   let outmail_hh: HeaderHash = conductors[0].call(
+   let outmail_hh: ActionHash = conductors[0].call(
       &cells[0].zome("snapmail"),
       "send_mail",
       mail,
@@ -271,10 +271,10 @@ pub async fn test_mail_pending() {
    print_chain(&conductors[1],  &cells[1]).await;
 
    /// B checks inbox
-   try_zome_call(&conductors[1], cells[1], "snapmail","check_mail_inbox", (), |res:&Vec<HeaderHash>| {res.len() > 0})
+   try_zome_call(&conductors[1], cells[1], "snapmail","check_mail_inbox", (), |res:&Vec<ActionHash>| {res.len() > 0})
       .await
       .expect("Should have one mail");
-   let mail_hhs = try_zome_call(&conductors[1], cells[1], "snapmail","get_all_unacknowledged_inmails", (), |res:&Vec<HeaderHash>| {res.len() > 0})
+   let mail_hhs = try_zome_call(&conductors[1], cells[1], "snapmail","get_all_unacknowledged_inmails", (), |res:&Vec<ActionHash>| {res.len() > 0})
       .await
       .expect("Should have one mail");
 

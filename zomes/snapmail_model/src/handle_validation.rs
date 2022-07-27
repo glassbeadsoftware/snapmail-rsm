@@ -1,11 +1,15 @@
-use hdk::prelude::*;
+use hdi::prelude::*;
+
+use tracing::*;
+
 use crate::handle::Handle;
+
 
 /// Validates the handle's name field
 fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
     // TODO: Do check with a regex
     // Check: min & max character count
-    trace!("*** check_name: {} ({})", name, name.len());
+    debug!("*** check_name: {} ({})", name, name.len());
     if name.len() < 2 {
         return Ok(ValidateCallbackResult::Invalid("Name too short".into()));
     }
@@ -17,7 +21,7 @@ fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
 
 ///
 pub fn validate_handle_entry(handle: Handle) -> ExternResult<ValidateCallbackResult> {
-    trace!("*** validate_handle_entry() called!");
+    debug!("*** validate_handle_entry() called!");
     return check_name(handle.name);
 }
 

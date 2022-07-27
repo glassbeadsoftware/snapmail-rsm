@@ -7,7 +7,7 @@ use crate::{
 /// Zome function
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_my_handle_history(initial_handle_address: HeaderHash) -> Vec<String> {
+pub fn get_my_handle_history(initial_handle_address: ActionHash) -> Vec<String> {
 
     let history_result = get_details(&initial_handle_address, GetOptions::latest());
     if let Err(_e) = history_result {

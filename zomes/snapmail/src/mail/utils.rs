@@ -9,7 +9,7 @@ use crate::{
 
 
 /// Get State of InMail
-pub(crate) fn get_inmail_state(inmail_hh: HeaderHash) -> ExternResult<InMailState> {
+pub(crate) fn get_inmail_state(inmail_hh: ActionHash) -> ExternResult<InMailState> {
     /// Get inMail Details
     let maybe_details = get_details(inmail_hh.clone(), GetOptions::latest())?;
     if maybe_details.is_none() {
@@ -49,7 +49,7 @@ pub(crate) fn get_inmail_state(inmail_hh: HeaderHash) -> ExternResult<InMailStat
 
 
 /// Return address of created InAck
-pub(crate) fn create_inack(outmail_eh: EntryHash, from: &AgentPubKey, ack_signature: Signature) -> ExternResult<HeaderHash> {
+pub(crate) fn create_inack(outmail_eh: EntryHash, from: &AgentPubKey, ack_signature: Signature) -> ExternResult<ActionHash> {
     debug!("Create inAck for: {} ({})", outmail_eh, from);
     let inack = InAck::new(outmail_eh.clone(), from.clone(), ack_signature);
     let inack_hh = create_entry(&inack)?;
@@ -59,7 +59,7 @@ pub(crate) fn create_inack(outmail_eh: EntryHash, from: &AgentPubKey, ack_signat
 }
 
 ///
-pub(crate) fn get_outacks(maybe_inmail_filter: Option<HeaderHash>) -> ExternResult<Vec<OutAck>> {
+pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResult<Vec<OutAck>> {
      /// Get all OutAck entries
     let outacks_query_args = ChainQueryFilter::default()
        .include_entries(true)
@@ -90,14 +90,14 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<HeaderHash>) -> ExternResu
     Ok(res)
 }
 
-// pub(crate) fn has_been_acknowledged(inmail_hh: HeaderHash) -> ExternResult<bool> {
+// pub(crate) fn has_been_acknowledged(inmail_hh: ActionHash) -> ExternResult<bool> {
 //     let list = get_outacks(inmail_hh)?;
 //     Ok(list.len() > 0)
 // }
 
 
 ///
-pub(crate) fn get_inacks(maybe_outmail_filter: Option<HeaderHash>) -> ExternResult<Vec<InAck>> {
+pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResult<Vec<InAck>> {
     /// Get all InAck entries
     let outacks_query_args = ChainQueryFilter::default()
        .include_entries(true)

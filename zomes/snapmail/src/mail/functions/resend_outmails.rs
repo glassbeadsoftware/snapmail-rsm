@@ -17,7 +17,7 @@ use crate::{
 /// Return list of OutMails for which we tried to deliver mail again
 #[hdk_extern]
 #[snapmail_api]
-fn resend_outmails(_: ()) -> ExternResult<Vec<HeaderHash>> {
+fn resend_outmails(_: ()) -> ExternResult<Vec<ActionHash>> {
    /// Get all Create OutMail headers with query
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)

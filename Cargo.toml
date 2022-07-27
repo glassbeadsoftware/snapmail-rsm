@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+  "zomes/snapmail_model",
   "zomes/snapmail",
 #  "sweettest",
   "crates/proc_macro",

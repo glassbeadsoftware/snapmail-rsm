@@ -1687,13 +1687,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "hdi"
+version = "0.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fe4766117a038486b2b287e4f2ed549d28e1f2c3931da9ec2972eaf108b843b"
+dependencies = [
+ "hdk_derive 0.0.41",
+ "holo_hash",
+ "holochain_integrity_types",
+ "holochain_wasmer_guest",
+ "paste",
+ "serde",
+ "serde_bytes",
+]
+
+[[package]]
 name = "hdk"
 version = "0.0.141"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0db76282197f5885766433702f69742ed87c1db4c6de6f2dd03c9b51579d4a2c"
 dependencies = [
  "getrandom 0.2.7",
- "hdk_derive",
+ "hdk_derive 0.0.40",
  "holo_hash",
  "holochain_deterministic_integrity",
  "holochain_wasmer_guest",
@@ -1711,6 +1726,22 @@ name = "hdk_derive"
 version = "0.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "837aad832a49a30b488208b38db90baf976f8fca2598a220864436ccd1b0f1f8"
+dependencies = [
+ "darling 0.14.1",
+ "heck 0.4.0",
+ "holochain_integrity_types",
+ "paste",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "hdk_derive"
+version = "0.0.41"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b935438549aa521a0a5349448114e32ac3fb786606c804d2ee18570349483b2"
 dependencies = [
  "darling 0.14.1",
  "heck 0.4.0",
@@ -1862,7 +1893,7 @@ dependencies = [
  "futures",
  "ghost_actor 0.3.0-alpha.4",
  "hdk",
- "hdk_derive",
+ "hdk_derive 0.0.40",
  "holo_hash",
  "holochain_p2p",
  "holochain_serialized_bytes",
@@ -1911,7 +1942,7 @@ version = "0.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44ce1ee47c4d46c9b71304285a8e81d05655b1c3616cc0e42cf689daacc4599d"
 dependencies = [
- "hdk_derive",
+ "hdk_derive 0.0.40",
  "holo_hash",
  "holochain_integrity_types",
  "holochain_wasmer_guest",
@@ -4963,7 +4994,7 @@ checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 
 [[package]]
 name = "snapmail"
-version = "0.1.18"
+version = "0.2.141"
 dependencies = [
  "base64",
  "bincode",
@@ -4977,11 +5008,34 @@ dependencies = [
  "holochain_util",
  "serde",
  "shrinkwraprs",
+ "snapmail_model",
  "snapmail_proc_macro",
  "strum 0.19.5",
  "strum_macros 0.19.4",
  "thiserror",
  "zome_utils",
+]
+
+[[package]]
+name = "snapmail_model"
+version = "0.2.141"
+dependencies = [
+ "base64",
+ "bincode",
+ "chrono",
+ "derive_more",
+ "hdi",
+ "holo_hash",
+ "holochain",
+ "holochain_conductor_api",
+ "holochain_serialized_bytes",
+ "holochain_util",
+ "serde",
+ "shrinkwraprs",
+ "strum 0.19.5",
+ "strum_macros 0.19.4",
+ "thiserror",
+ "tracing",
 ]
 
 [[package]]

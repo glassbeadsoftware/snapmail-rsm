@@ -124,7 +124,7 @@ pub async fn test_pub_enc_key() {
 
    //let _enc_key: holochain_zome_types::X25519PubKey = conductor.call(&cell1.zome("snapmail"), "get_my_enc_key", ()).await;
 
-   //let _handle_address1: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", "toto").await;
+   //let _handle_address1: ActionHash = conductor.call(&cell1.zome("snapmail"), "set_handle", "toto").await;
 }
 
 
@@ -138,7 +138,7 @@ pub async fn test_handle() {
    println!("handle: {:?}", handle);
    assert_eq!("<noname>", handle);
 
-   let handle_address1: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
+   let handle_address1: ActionHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
    println!("handle_address1: {:?}", handle_address1);
    //tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
    let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
@@ -146,7 +146,7 @@ pub async fn test_handle() {
    assert_eq!(name, handle);
 
    let name = "bobby";
-   let _handle_address2: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
+   let _handle_address2: ActionHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
    let handle: String = conductor.call(&cell1.zome("snapmail"), "get_my_handle", ()).await;
    println!("handle: {:?}", handle);
    assert_eq!(name, handle);
@@ -158,7 +158,7 @@ pub async fn test_handle() {
    assert_eq!(name, handle_list[0].name);
 
    let name = "camille";
-   let _handle_address3: HeaderHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
+   let _handle_address3: ActionHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
 
    let mut handle = String::new();
    for _ in 0..3u32 {
@@ -237,7 +237,7 @@ pub async fn send_file_dm(size: usize) {
       orig_filesize: data_string.len(),
       chunks: chunk_list.clone(),
    };
-   let manifest_address: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "write_manifest", manifest_params).await;
+   let manifest_address: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "write_manifest", manifest_params).await;
 
    // Send
    let mail = SendMailInput {
@@ -249,10 +249,10 @@ pub async fn send_file_dm(size: usize) {
       reply_of: None,
       manifest_address_list: vec![manifest_address],
    };
-   let _mail_output: HeaderHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   let _mail_output: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
 
    /// B checks if arrived
-   let mut unacknowledged_inmails: Vec<HeaderHash> = Vec::new();
+   let mut unacknowledged_inmails: Vec<ActionHash> = Vec::new();
    for _ in 0..10u32 {
       unacknowledged_inmails = conductors[1].call(&cells[1].zome("snapmail"), "get_all_unacknowledged_inmails", ()).await;
       if unacknowledged_inmails.len() > 0 {

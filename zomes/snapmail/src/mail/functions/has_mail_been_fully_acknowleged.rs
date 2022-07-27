@@ -16,7 +16,7 @@
 // /// If false, returns list of agents who's receipt is missing.
 // #[hdk_extern]
 // #[snapmail_api]
-// pub fn has_mail_been_fully_acknowledged(outmail_hh: HeaderHash) -> ExternResult<HasMailBeenFullyAcknowledgedOutput> {
+// pub fn has_mail_been_fully_acknowledged(outmail_hh: ActionHash) -> ExternResult<HasMailBeenFullyAcknowledgedOutput> {
 //     /// Get OutMail
 //     let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;
 //     /// Merge all recipients lists into one

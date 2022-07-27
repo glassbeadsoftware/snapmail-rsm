@@ -1,4 +1,4 @@
-use hdk::prelude::*;
+use hdi::prelude::*;
 
 /// Entry representing an AcknowldegmentReceipt on the DHT waiting to be received
 #[hdk_entry_helper]
