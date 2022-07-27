@@ -1,7 +1,7 @@
 use hdk::prelude::*;
 
 /// Entry for a received Acknowledgement Receipt
-#[hdk_entry(id = "inack", visibility = "private")]
+#[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct InAck {
     pub outmail_eh: EntryHash,

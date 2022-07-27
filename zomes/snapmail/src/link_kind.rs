@@ -13,6 +13,7 @@ use crate::entry_kind::*;
 pub const LinkSeparator: &'static str = "___";
 
 /// List of all Link kinds handled by this Zome
+#[hdk_link_types]
 #[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum LinkKind {
    #[strum(props(BaseType = "Path", TargetType = "Handle"))]

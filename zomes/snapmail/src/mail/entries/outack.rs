@@ -1,7 +1,7 @@
 use hdk::prelude::*;
 
 /// Entry for an Acknowledgement Receipt of a Mail authored by this agent
-#[hdk_entry(id = "outack", visibility = "private")]
+#[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct OutAck {
     pub inmail_eh: EntryHash,

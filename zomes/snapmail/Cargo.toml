@@ -22,10 +22,10 @@ derive_more = "=0.99.16"
 bincode = "=1.3.3"
 base64 = {version = "0.13"}
 
-hdk = { version = "0.0.136", default-features = false }
-holo_hash = { version = "0.0.27", default-features = false }
+hdk = { version = "0.0.141", default-features = false }
+holo_hash = { version = "0.0.30", default-features = false }
 
-zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "136" }
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "141" }
 
 snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 
@@ -33,7 +33,7 @@ snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = fals
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thiserror = "1.0.24"
 holochain_serialized_bytes = "=0.0.51"
-holochain = { version = "0.0.143", default-features = false }
+holochain = { version = "0.0.149", default-features = false }
 holochain_util = { version = "0.0.10", default-features = false }
-holochain_conductor_api = { version = "0.0.43", default-features = false }
+holochain_conductor_api = { version = "0.0.49", default-features = false }
 

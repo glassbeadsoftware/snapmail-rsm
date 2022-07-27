@@ -8,7 +8,7 @@ use crate::{
 };
 
 /// Entry representing a received mail.
-#[hdk_entry(id = "inmail", visibility = "private")]
+#[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct InMail {
     pub mail: Mail,

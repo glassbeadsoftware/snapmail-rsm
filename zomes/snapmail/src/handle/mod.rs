@@ -8,7 +8,7 @@ pub use functions::*;
 pub use validation::*;
 
 /// Entry representing the username of an Agent
-#[hdk_entry(id = "Handle", visibility = "public")]
+#[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Handle {
     pub name: String,

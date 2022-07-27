@@ -8,7 +8,7 @@ use crate::mail::entries::sign_mail;
 /// The recipient is the agentId where the entry is linked from.
 /// The mail is encrypted with the recipient's public encryption key.
 ///
-#[hdk_entry(id = "pending_mail")]
+#[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct PendingMail {
     pub encrypted_mail: XSalsa20Poly1305EncryptedData,

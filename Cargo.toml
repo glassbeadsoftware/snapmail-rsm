@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
   "zomes/snapmail",
-  "sweettest",
+#  "sweettest",
   "crates/proc_macro",
 ]
 
