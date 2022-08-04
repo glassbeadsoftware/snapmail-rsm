@@ -1,10 +1,9 @@
 use hdk::prelude::*;
 use hdk::prelude::query::ChainQueryFilter;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-   entry_kind::*,
-   mail::entries::*,
    mail::{
       get_outmail_delivery_state,
       send_committed_mail,
@@ -18,26 +17,26 @@ use crate::{
 #[hdk_extern]
 #[snapmail_api]
 fn resend_outmails(_: ()) -> ExternResult<Vec<ActionHash>> {
-   /// Get all Create OutMail headers with query
+   /// Get all Create OutMail actions with query
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)
-      .header_type(HeaderType::Create)
-      .entry_type(EntryKind::OutMail.as_type());
+      .action_type(ActionType::Create)
+      .entry_type(UnitEntryTypes::OutMail.try_into().unwrap());
    let maybe_outmails = query(outmail_query_args);
    if let Err(err) = maybe_outmails {
       error!("resend_outmails() outmail_result failed: {:?}", err);
       return Err(err);
    }
-   let created_outmails: Vec<Element> = maybe_outmails.unwrap();
+   let created_outmails: Vec<Record> = maybe_outmails.unwrap();
    debug!(" resend_outmails() outmails count = {}", created_outmails.len());
 
    /// Check for each OutMail
-   let mut hhs = Vec::new();
+   let mut ahs = Vec::new();
    for outmail_el in created_outmails {
-      let hh = outmail_el.header_address().to_owned();
-      let eh = outmail_el.header().entry_hash().unwrap();
-      let outmail: OutMail = get_typed_from_el(outmail_el.clone())?;
-      let states = get_outmail_delivery_state(hh.clone())?;
+      let ah = outmail_el.action_address().to_owned();
+      let eh = outmail_el.action().entry_hash().unwrap();
+      let outmail: OutMail = get_typed_from_record(outmail_el.clone())?;
+      let states = get_outmail_delivery_state(ah.clone())?;
       let unsent_recipients: Vec<AgentPubKey> = states.iter()
          .filter(|pair| pair.1 == &DeliveryState::Unsent)
          .map(|(recipient, _)| recipient)
@@ -47,9 +46,9 @@ fn resend_outmails(_: ()) -> ExternResult<Vec<ActionHash>> {
          continue;
       }
       /// Some acks are missing ; send mail again
-      hhs.push(hh);
+      ahs.push(ah);
       /// Send mail to each missing ack/pending
       let _ = send_committed_mail(eh, outmail, Some(unsent_recipients))?;
    }
-   Ok(hhs)
+   Ok(ahs)
 }

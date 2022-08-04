@@ -1,8 +1,5 @@
 use hdk::prelude::*;
-
-use crate::{
-    file::FileManifest,
-};
+use snapmail_model::*;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct WriteManifestInput {
@@ -25,5 +22,5 @@ pub fn write_manifest(input: WriteManifestInput) -> ExternResult<ActionHash> {
         orig_filesize: input.orig_filesize,
         chunks: input.chunks,
     };
-    return create_entry(&manifest);
+    return create_entry(SnapmailEntry::FileManifest(manifest));
 }

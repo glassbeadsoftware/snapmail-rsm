@@ -1,9 +1,5 @@
 use hdk::prelude::*;
-
-use crate::{
-    file::FileChunk,
-};
-
+use snapmail_model::*;
 
 /// Zome function
 /// Write base64 file as string to source chain
@@ -12,6 +8,6 @@ use crate::{
 pub fn write_chunk(input_chunk: FileChunk) -> ExternResult<EntryHash> {
     trace!(" write_chunk() {:?}", input_chunk);
     let eh = hash_entry(input_chunk.clone());
-    let _hh = create_entry(&input_chunk)?;
+    let _ah = create_entry(SnapmailEntry::FileChunk(input_chunk.clone()))?;
     return eh;
 }

@@ -1,8 +1,9 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-    file::{FileManifest, dm::request_chunk_by_dm},
+    file::{dm::request_chunk_by_dm},
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

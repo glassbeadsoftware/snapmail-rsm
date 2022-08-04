@@ -1,9 +1,9 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-    file::{FileManifest, FileChunk},
-    DirectMessageProtocol, DirectMessageProtocol::*,
+    DirectMessageProtocol,
     dm::*,
 };
 
@@ -25,7 +25,7 @@ pub(crate) fn request_chunk_by_dm(destination: AgentPubKey, chunk_eh: EntryHash)
     match maybe_response.unwrap() {
         DirectMessageProtocol::Chunk(chunk) => {
             /// Commit FileChunk
-            let maybe_address = create_entry(&chunk);
+            let maybe_address = create_entry(SnapmailEntry::FileChunk(chunk.clone()));
             if let Err(err) = maybe_address {
                 let response_str = "Failed committing RequestChunk";
                 debug!("{}: {}", response_str, err);
@@ -59,7 +59,7 @@ pub(crate) fn request_manifest_by_dm(destination: AgentPubKey, manifest_eh: Entr
     match maybe_response.unwrap() {
         DirectMessageProtocol::FileManifest(manifest) => {
             /// Commit FileManifest
-            let maybe_address = create_entry(&manifest);
+            let maybe_address = create_entry(SnapmailEntry::FileManifest(manifest.clone()));
             if let Err(err) = maybe_address {
                 let response_str = "Failed committing FileManifest";
                 debug!("{}: {}", response_str, err);
@@ -69,7 +69,7 @@ pub(crate) fn request_manifest_by_dm(destination: AgentPubKey, manifest_eh: Entr
             debug!("received manifest_address: {}",  manifest_address);
             Ok(Some(manifest))
         },
-        UnknownEntry => Ok(None),
+        DirectMessageProtocol::UnknownEntry => Ok(None),
         _ => error("send_dm() of FileManifest failed 3".into()),
     }
 }

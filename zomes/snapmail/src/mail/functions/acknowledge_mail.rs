@@ -1,13 +1,11 @@
 use hdk::prelude::*;
 use zome_utils::*;
+use snapmail_model::*;
 
 use crate::{
     link_kind::*,
     dm_protocol::{DirectMessageProtocol, AckMessage},
     mail::{
-        entries::{
-            InMail, PendingAck, OutAck, DeliveryConfirmation,
-        },
         utils::*,
         receive::receive_dm_ack,
     },
@@ -18,11 +16,11 @@ use crate::{
 /// Return EntryHash of newly created OutAck
 #[hdk_extern]
 #[snapmail_api]
-pub fn acknowledge_mail(inmail_hh: ActionHash) -> ExternResult<EntryHash> {
+pub fn acknowledge_mail(inmail_ah: ActionHash) -> ExternResult<EntryHash> {
     /// Make sure its an InMail ...
-    let (inmail_eh, inmail) = get_typed_from_hh::<InMail>(inmail_hh.clone())?;
+    let (inmail_eh, inmail) = get_typed_from_ah::<InMail>(inmail_ah.clone())?;
     /// ... has not already been acknowledged
-    let acks = get_outacks(Some(inmail_hh))?;
+    let acks = get_outacks(Some(inmail_ah))?;
     if acks.len() > 0 {
         let outack_eh = hash_entry(acks[0].clone())?;
         return Ok(outack_eh)
@@ -31,7 +29,7 @@ pub fn acknowledge_mail(inmail_hh: ActionHash) -> ExternResult<EntryHash> {
     debug!("Not acknowledged yet");
     /// Write OutAck
     let outack = OutAck::new(inmail_eh.clone());
-    let _hh = create_entry(&outack)?;
+    let _ah = create_entry(SnapmailEntry::OutAck(outack.clone()))?;
     let outack_eh = hash_entry(outack.clone())?;
     /// Shortcut to self
     let me = agent_info()?.agent_latest_pubkey;
@@ -78,7 +76,7 @@ pub fn send_committed_ack(outack_eh: &EntryHash, outack: OutAck) -> ExternResult
         outmail_eh: inmail.outmail_eh,
         original_sender: inmail.from,
     };
-    let _pending_mail_hh = call_remote(
+    let _pending_mail_ah = call_remote(
         agent_info()?.agent_latest_pubkey,
         zome_info()?.name,
         "commit_pending_ack".to_string().into(),
@@ -126,23 +124,25 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<ActionHash> 
     /// Commit PendingAck
     let signature = sign(agent_info()?.agent_latest_pubkey, input.outmail_eh.clone())?;
     let pending_ack = PendingAck::new(input.outmail_eh.clone(), signature);
-    let pending_ack_hh = create_entry(&pending_ack)?;
+    let pending_ack_ah = create_entry(SnapmailEntry::PendingAck(pending_ack.clone()))?;
     /// Create links between PendingAck and OutAck & recipient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
-    let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
+    // let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
     let _ = create_link(
         input.outack_eh.clone(),
         pending_ack_eh.clone(),
-        HdkLinkType::Any,
-        LinkKind::Pending.as_tag())?;
+        LinkKind::Pending,
+        LinkTag::from(()),
+    )?;
     let _ = create_link(
         EntryHash::from(input.original_sender.clone()),
         pending_ack_eh,
-        HdkLinkType::Any,
-        tag)?;
-    debug!("pending_ack_hh: {:?} (for {})", pending_ack_hh, input.original_sender);
+        LinkKind::AckInbox,
+        LinkKind::from_agent(&input.original_sender),
+    )?;
+    debug!("pending_ack_ah: {:?} (for {})", pending_ack_ah, input.original_sender);
     /// Done
-    Ok(pending_ack_hh)
+    Ok(pending_ack_ah)
 }
 
 
@@ -150,5 +150,5 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<ActionHash> 
 #[hdk_extern]
 fn commit_confirmation(input: DeliveryConfirmation) -> ExternResult<ActionHash> {
     debug!("commit_confirmation(): {:?} ", input.package_eh);
-    return create_entry(input);
+    return create_entry(SnapmailEntry::DeliveryConfirmation(input));
 }

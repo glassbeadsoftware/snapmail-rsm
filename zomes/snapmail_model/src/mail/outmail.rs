@@ -21,6 +21,7 @@ impl OutMail {
         }
     }
 
+
     /// Merge recipient lists
     pub fn recipients(&self) -> Vec<AgentPubKey> {
         let mut recipients: Vec<AgentPubKey> = self.bcc.clone();

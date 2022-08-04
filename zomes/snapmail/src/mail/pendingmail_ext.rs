@@ -1,11 +1,16 @@
 use hdk::prelude::*;
+use snapmail_model::*;
+use zome_utils::*;
 
-use
+use crate::{
+   mail::utils::*,
+   get_enc_key::*,
+};
 
 // From your crate
 pub trait PendingMailExt {
-   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> Self;
-   fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self>;
+   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> PendingMail;
+   fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<PendingMail>;
    fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail>;
    fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>>;
 }
@@ -16,7 +21,7 @@ impl PendingMailExt for PendingMail {
 
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
-   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> Self {
+   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> PendingMail {
       /// Serialize
       let serialized = bincode::serialize(&mail).unwrap();
       let data: XSalsa20Poly1305Data = serialized.into();
@@ -36,7 +41,7 @@ impl PendingMailExt for PendingMail {
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
    /// called from post_commit()
-   fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<Self> {
+   fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<PendingMail> {
       /// Get my key
       let me = agent_info()?.agent_latest_pubkey;
       debug!("get_enc_key() for sender {:?}", me);
@@ -49,7 +54,7 @@ impl PendingMailExt for PendingMail {
       )?;
       debug!("get_enc_key() for sender result: {:?}", maybe_sender_key);
       let sender_key = match maybe_sender_key {
-         ZomeCallResponse::Ok(output) => output.decode()?,
+         ZomeCallResponse::Ok(output) => output.decode().expect("Deserialization should never fail"),
          _ => return error("Self call to get_enc_key(sender) failed")
       };
 
@@ -64,7 +69,7 @@ impl PendingMailExt for PendingMail {
       )?;
       debug!("get_enc_key() for recipient result: {:?}", maybe_recipient_key);
       let recipient_key = match maybe_recipient_key {
-         ZomeCallResponse::Ok(output) => output.decode()?,
+         ZomeCallResponse::Ok(output) => output.decode().expect("Deserialization should never fail"),
          _ => return error("Self call to get_enc_key(recipient) failed")
       };
       /// Create
@@ -114,12 +119,12 @@ impl PendingMailExt for PendingMail {
             InMail::new(mail,
                         from.clone(),
                         received_date,
-                        self.outmail_eh,
+                        self.outmail_eh.clone(),
                         self.from_signature.clone())
          },
       };
       /// Check signature
-      let maybe_verified = verify_signature(from, self.from_signature, inmail.mail.clone());
+      let maybe_verified = verify_signature(from, self.from_signature.clone(), inmail.mail.clone());
       match maybe_verified {
          Err(err) => {
             let response_str = "Verifying PendingMail failed";

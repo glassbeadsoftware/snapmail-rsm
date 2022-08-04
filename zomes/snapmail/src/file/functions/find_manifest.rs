@@ -1,11 +1,8 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 
-use crate::{
-    file::{
-        FileManifest,
-        get_all_manifests,
-    },
-};
+use crate::file::get_all_manifests;
+
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FindManifestOutput(pub Option<FileManifest>);

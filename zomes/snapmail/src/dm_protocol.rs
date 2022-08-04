@@ -1,10 +1,5 @@
 use hdk::prelude::*;
-
-use crate::{
-    mail::entries::Mail,
-    file::{FileChunk, FileManifest},
-};
-
+use snapmail_model::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, SerializedBytes)]
 pub enum DirectMessageProtocol {
@@ -32,7 +27,13 @@ pub struct MailMessage {
 impl MailMessage {
     pub fn into_inmail(&self, from: AgentPubKey) -> InMail {
         let received_date = zome_utils::now();
-        InMail::new(self.mail, from.clone(), received_date, self.outmail_eh, self.mail_signature)
+        InMail::new(
+            self.mail.clone(),
+            from.clone(),
+            received_date,
+            self.outmail_eh.clone(),
+            self.mail_signature.clone(),
+        )
     }
 }
 

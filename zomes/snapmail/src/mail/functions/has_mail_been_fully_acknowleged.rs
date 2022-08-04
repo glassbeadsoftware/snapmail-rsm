@@ -16,12 +16,12 @@
 // /// If false, returns list of agents who's receipt is missing.
 // #[hdk_extern]
 // #[snapmail_api]
-// pub fn has_mail_been_fully_acknowledged(outmail_hh: ActionHash) -> ExternResult<HasMailBeenFullyAcknowledgedOutput> {
+// pub fn has_mail_been_fully_acknowledged(outmail_ah: ActionHash) -> ExternResult<HasMailBeenFullyAcknowledgedOutput> {
 //     /// Get OutMail
-//     let (outmail_eh, outmail) = get_typed_from_hh::<OutMail>(outmail_hh.clone())?;
+//     let (outmail_eh, outmail) = get_typed_from_ah::<OutMail>(outmail_ah.clone())?;
 //     /// Merge all recipients lists into one
 //     let all_recipients: Vec<AgentPubKey> = [outmail.mail.to, outmail.mail.cc, outmail.bcc].concat();
-//     debug!("all_recipients: {:?} ({})", all_recipients, outmail_hh);
+//     debug!("all_recipients: {:?} ({})", all_recipients, outmail_ah);
 //     /// Get all ``receipt`` links
 //     // FIXME: have tag filtering working when calling get_links
 //     // let links_result: Vec<Link> = get_links(outmail_eh, LinkKind::Receipt.as_tag_opt())?.into_inner();

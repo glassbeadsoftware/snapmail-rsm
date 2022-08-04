@@ -1,4 +1,5 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 
 use strum::IntoEnumIterator;
 use strum::AsStaticRef;
@@ -25,16 +26,18 @@ pub fn validate_create_link(signed_create_link: SignedHashed<CreateLink>)
          must_get_entry(create_link.target_address.clone().into())?
             .as_content()
             .to_owned();
-      /// Try validating static link kind
-      if tag_str == link_kind.as_static() {
-         return link_kind.validate_types(base, target, None);
-      }
-      /// Or try validating dynamic link kind
-      let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&create_link.tag);
-      //debug!("*** maybe_hash of {} = {:?}", link_kind.as_static(), maybe_hash);
-      if let Ok(from) = maybe_hash {
-         return link_kind.validate_types(base, target, Some(from));
-      }
+
+      // FIXME
+      // /// Try validating static link kind
+      // if tag_str == link_kind.as_static() {
+      //    return link_kind.validate_types(base, target, None);
+      // }
+      // /// Or try validating dynamic link kind
+      // let maybe_hash: ExternResult<AgentPubKey> = link_kind.unconcat_hash(&create_link.tag);
+      // //debug!("*** maybe_hash of {} = {:?}", link_kind.as_static(), maybe_hash);
+      // if let Ok(from) = maybe_hash {
+      //    return link_kind.validate_types(base, target, Some(from));
+      // }
    }
    Ok(ValidateCallbackResult::Invalid(format!("Unknown tag: {}", tag_str).into()))
 }

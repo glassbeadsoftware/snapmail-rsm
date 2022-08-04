@@ -68,7 +68,7 @@ pub enum MailState {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct MailItem {
-    pub hh: ActionHash,
+    pub ah: ActionHash,
     pub reply: Option<ActionHash>, // OutMail = reply_of ; InMail = reply
     pub author: AgentPubKey,
     pub mail: Mail,
@@ -147,8 +147,8 @@ impl AttachmentInfo {
 }
 
 
-/// Remove elements of first list present in second list
-pub(crate) fn filter_up(upper_list: &Vec<AgentPubKey>, lower_list: &Vec<AgentPubKey>) -> Vec<AgentPubKey> {
+/// Remove records of first list present in second list
+pub fn filter_up(upper_list: &Vec<AgentPubKey>, lower_list: &Vec<AgentPubKey>) -> Vec<AgentPubKey> {
     let mut new_lower_list = lower_list.clone();
     new_lower_list.retain(|x| !upper_list.contains(x));
     new_lower_list

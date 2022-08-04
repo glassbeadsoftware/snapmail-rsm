@@ -1,10 +1,8 @@
 use hdk::prelude::*;
 use zome_utils::*;
+use snapmail_model::*;
 
-use crate::{
-    handle::utils::*,
-    handle::Handle,
-};
+use crate:: handle::utils::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HandleItem {
@@ -33,13 +31,13 @@ pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
          None => continue,
       };
       let maybe_maybe_element = get(handle_and_hash.1.clone(), GetOptions::latest());
-      let element = match maybe_maybe_element {
-         Ok(Some(el)) => el,
+      let record = match maybe_maybe_element {
+         Ok(Some(record)) => record,
          _ => continue,
       };
       let item = HandleItem {
          name: handle_and_hash.0.name.clone(),
-         agentId: element.header().author().clone(),
+         agentId: record.action().author().clone(),
          handle_eh: handle_and_hash.2.clone(),
       };
       handle_list.push(item);

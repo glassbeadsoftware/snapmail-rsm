@@ -1,8 +1,5 @@
 use hdk::prelude::*;
-
-use crate::{
-    handle::Handle,
-};
+use snapmail_model::*;
 
 /// Zome function
 #[hdk_extern]
@@ -27,7 +24,7 @@ pub fn get_my_handle_history(initial_handle_address: ActionHash) -> Vec<String> 
 
     for item in history.items {
         let handle_entry = item.entry.expect("should have entry");
-        trace!("History headers length: {}", item.headers.len());
+        trace!("History actions length: {}", item.actions.len());
         trace!("item crud status: {:?}", item.meta.unwrap().crud_status);
         let handle = crate::into_typed::<Handle>(handle_entry).expect("Should be Handle");
         handle_list.push(handle.name);

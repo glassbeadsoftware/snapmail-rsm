@@ -1,8 +1,8 @@
 use hdk::prelude::*;
 use zome_utils::*;
+use snapmail_model::*;
 
 use crate::{
-    mail::entries::InMail,
     file::dm::request_manifest_by_dm,
     signal_protocol::*,
 };
@@ -10,7 +10,7 @@ use crate::{
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GetMissingAttachmentsInput {
     pub from: AgentPubKey,
-    pub inmail_hh: ActionHash,
+    pub inmail_ah: ActionHash,
 }
 
 /// Zome Function
@@ -18,7 +18,7 @@ pub struct GetMissingAttachmentsInput {
 #[hdk_extern]
 #[snapmail_api]
 pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResult<u32> {
-    let (_eh, inmail) = get_typed_from_hh::<InMail>(input.inmail_hh.clone())?;
+    let (_eh, inmail) = get_typed_from_ah::<InMail>(input.inmail_ah.clone())?;
     let mut missing = 0;
     for attachment_info in inmail.mail.attachments {
         let manifest_eh = attachment_info.manifest_eh;

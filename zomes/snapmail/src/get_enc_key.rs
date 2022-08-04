@@ -1,13 +1,8 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::link_kind::*;
-
-/// Ridiculous
-pub fn create_PubEncKey() -> PubEncKey {
-   let value = create_x25519_keypair().expect("Create Keypair should work");
-   PubEncKey::new(value)
-}
 
 
 ///
@@ -17,7 +12,7 @@ pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
    debug !("*** get_enc_key() CALLED by {}", call_info()?.function_name);
 
    /// Get All Handle links on agent ; should have only one
-   let key_links = get_links(from, LinkKind::EncKey.as_tag_opt())
+   let key_links = get_links(from, LinkKind::EncKey, None)
       .expect("No reason for this to fail");
    assert!(key_links.len() <= 1);
    if key_links.len() == 0 {

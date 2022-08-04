@@ -1,8 +1,8 @@
 use hdk::prelude::*;
 use hdk::prelude::query::ChainQueryFilter;
+use snapmail_model::*;
 
 use crate::{
-    entry_kind::*,
     mail::utils::*,
 };
 
@@ -14,14 +14,14 @@ pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<ActionHash>> {
     /// Get all InMails
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(EntryKind::InMail.as_type());
+       .entry_type(UnitEntryTypes::InMail.try_into().unwrap());
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
         error!("get_all_unacknowledged_inmails() inmail_result failed: {:?}", err);
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
-    let inmails: Vec<Element> = maybe_inmail_result.unwrap();
+    let inmails: Vec<Record> = maybe_inmail_result.unwrap();
     debug!("get_all_unacknowledged_inmails() inmails[{}]: {:?}", inmails.len(), inmails);
     /// Get all OutAcks
     let outacks = get_outacks(None)?;
@@ -30,10 +30,10 @@ pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<ActionHash>> {
     /// For each InMail
     let mut unacknowledgeds = Vec::new();
     for inmail_el in inmails {
-        let inmail_eh = inmail_el.header().entry_hash()
-           .expect("Missing Entry in element");
+        let inmail_eh = inmail_el.action().entry_hash()
+           .expect("Missing Entry in record");
         if !acked_inmails.contains(&inmail_eh) {
-            unacknowledgeds.push(inmail_el.header_address().to_owned())
+            unacknowledgeds.push(inmail_el.action_address().to_owned())
         }
     }
     /// Done

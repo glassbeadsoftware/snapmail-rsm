@@ -5,7 +5,6 @@
 #![allow(unused_attributes)]
 
 extern crate strum;
-#[macro_use]
 extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
@@ -16,9 +15,8 @@ extern crate snapmail_proc_macro;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod api_error;
 
-mod constants;
+
 mod link_kind;
-mod entry_kind;
 mod path_kind;
 
 mod dm;
@@ -32,12 +30,14 @@ pub mod handle;
 pub mod mail;
 pub mod file;
 
+pub mod create_entry;
 pub mod get_enc_key;
+
+pub use snapmail_model::*;
 
 pub use dm::*;
 pub use dm_protocol::*;
-pub use constants::*;
 pub use link_kind::*;
-pub use entry_kind::*;
 pub use path_kind::*;
 pub use signal_protocol::*;
+pub use create_entry::*;

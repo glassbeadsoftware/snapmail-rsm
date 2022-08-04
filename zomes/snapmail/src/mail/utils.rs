@@ -1,31 +1,35 @@
 use hdk::prelude::*;
 use zome_utils::*;
+use snapmail_model::*;
 
-use crate::{
-    link_kind::*,
-    entry_kind::*,
-    mail::entries::*,
-};
+use crate::link_kind::*;
+
+///
+pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {
+    let me = agent_info()?.agent_latest_pubkey;
+    let signature = sign(me, mail)?;
+    Ok(signature)
+}
 
 
 /// Get State of InMail
-pub(crate) fn get_inmail_state(inmail_hh: ActionHash) -> ExternResult<InMailState> {
+pub(crate) fn get_inmail_state(inmail_ah: ActionHash) -> ExternResult<InMailState> {
     /// Get inMail Details
-    let maybe_details = get_details(inmail_hh.clone(), GetOptions::latest())?;
+    let maybe_details = get_details(inmail_ah.clone(), GetOptions::latest())?;
     if maybe_details.is_none() {
         return error("No InMail at given address");
     }
     let el_details = match maybe_details.unwrap() {
-        Details::Element(details) => details,
+        Details::Record(details) => details,
         Details::Entry(_) => unreachable!("in get_outmail_state()"),
     };
     /// Check if deleted
     if el_details.deletes.len() > 0 {
         return Ok(InMailState::Deleted);
     }
-    let inmail: InMail = get_typed_from_el(el_details.element.clone())?;
+    let inmail: InMail = get_typed_from_record(el_details.record.clone())?;
     /// Get OutAck
-    let outacks = get_outacks(Some(inmail_hh.to_owned()))?;
+    let outacks = get_outacks(Some(inmail_ah.to_owned()))?;
     if outacks.len() < 1 {
         return Ok(InMailState::Unacknowledged);
     }
@@ -52,19 +56,20 @@ pub(crate) fn get_inmail_state(inmail_hh: ActionHash) -> ExternResult<InMailStat
 pub(crate) fn create_inack(outmail_eh: EntryHash, from: &AgentPubKey, ack_signature: Signature) -> ExternResult<ActionHash> {
     debug!("Create inAck for: {} ({})", outmail_eh, from);
     let inack = InAck::new(outmail_eh.clone(), from.clone(), ack_signature);
-    let inack_hh = create_entry(&inack)?;
+    let inack_ah = create_entry(SnapmailEntry::InAck(inack))?;
     //let inack_eh = hash_entry(&inack)?;
     /// Done
-    Ok(inack_hh)
+    Ok(inack_ah)
 }
+
 
 ///
 pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResult<Vec<OutAck>> {
      /// Get all OutAck entries
     let outacks_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .header_type(HeaderType::Create)
-       .entry_type(EntryKind::OutAck.as_type());
+       .action_type(ActionType::Create)
+       .entry_type(UnitEntryTypes::OutAck.try_into().unwrap());
     let maybe_outacks = query(outacks_query_args);
     if let Err(err) = maybe_outacks {
         error!("get_outacks() query failed: {:?}", err);
@@ -73,7 +78,7 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResu
     //debug!("get_outacks() maybe_outacks: {:?}", maybe_outacks.as_ref().unwrap());
     let mut res = Vec::new();
     for outack_el in maybe_outacks.unwrap() {
-        let outack = get_typed_from_el::<OutAck>(outack_el)?;
+        let outack = get_typed_from_record::<OutAck>(outack_el)?;
         res.push(outack)
     }
     //debug!("get_outacks() res.len(): {}", res.len());
@@ -81,17 +86,18 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResu
         return Ok(Vec::new());
     }
     /// Filter for this InMail
-    if let Some(inmail_hh) = maybe_inmail_filter {
+    if let Some(inmail_ah) = maybe_inmail_filter {
         /// Make sure its an InMail
-        let (inmail_eh, _inmail) = get_typed_from_hh::<InMail>(inmail_hh)?;
+        let (inmail_eh, _inmail) = get_typed_from_ah::<InMail>(inmail_ah)?;
         res.retain(|outack| outack.inmail_eh == inmail_eh)
     }
     /// Done
     Ok(res)
 }
 
-// pub(crate) fn has_been_acknowledged(inmail_hh: ActionHash) -> ExternResult<bool> {
-//     let list = get_outacks(inmail_hh)?;
+
+// pub(crate) fn has_been_acknowledged(inmail_ah: ActionHash) -> ExternResult<bool> {
+//     let list = get_outacks(inmail_ah)?;
 //     Ok(list.len() > 0)
 // }
 
@@ -101,8 +107,8 @@ pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResu
     /// Get all InAck entries
     let outacks_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .header_type(HeaderType::Create)
-       .entry_type(EntryKind::InAck.as_type());
+       .action_type(ActionType::Create)
+       .entry_type(UnitEntryTypes::InAck.try_into().unwrap());
     let maybe_inacks = query(outacks_query_args);
     if let Err(err) = maybe_inacks {
         error!("get_inacks() query failed: {:?}", err);
@@ -111,7 +117,7 @@ pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResu
     //debug!("get_inacks() maybe_inacks: {}", maybe_inacks.as_ref().unwrap().len());
     let mut res = Vec::new();
     for inack_el in maybe_inacks.unwrap() {
-        let inack = get_typed_from_el::<InAck>(inack_el)?;
+        let inack = get_typed_from_record::<InAck>(inack_el)?;
         res.push(inack)
     }
     //debug!("get_inacks() res.len(): {}", res.len());
@@ -119,9 +125,9 @@ pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResu
         return Ok(Vec::new());
     }
     /// Filter for this OutMail
-    if let Some(outmail_hh) = maybe_outmail_filter {
+    if let Some(outmail_ah) = maybe_outmail_filter {
         /// Make sure its an OutMail
-        let (outmail_eh, _) = get_typed_from_hh::<OutMail>(outmail_hh)?;
+        let (outmail_eh, _) = get_typed_from_ah::<OutMail>(outmail_ah)?;
         res.retain(|outack| outack.outmail_eh == outmail_eh)
     }
     /// Done
@@ -134,17 +140,17 @@ pub(crate) fn get_confirmations(package_eh: EntryHash) -> ExternResult<Vec<Deliv
     /// Get all InAck entries
     let query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .header_type(HeaderType::Create)
-       .entry_type(EntryKind::DeliveryConfirmation.as_type());
-    let elements = query(query_args)?;
+       .action_type(ActionType::Create)
+       .entry_type(UnitEntryTypes::DeliveryConfirmation.try_into().unwrap());
+    let records = query(query_args)?;
     let mut confirmations = Vec::new();
-    //debug!("get_confirmations() elements.len(): {}", elements.len());
-    if elements.len() == 0 {
+    //debug!("get_confirmations() records.len(): {}", records.len());
+    if records.len() == 0 {
         return Ok(Vec::new());
     }
     /// Filter for this package
-    for el in elements {
-        let confirmation = get_typed_from_el::<DeliveryConfirmation>(el)?;
+    for record in records {
+        let confirmation = get_typed_from_record::<DeliveryConfirmation>(record)?;
         if confirmation.package_eh == package_eh {
             confirmations.push(confirmation)
         }
@@ -165,11 +171,11 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
     }
     let mut pending_found = false;
     /// If a pending link and and inbox link match, still waiting for confirmation
-    let pendings_links = get_links(package_eh.clone(), Some(LinkKind::Pendings.as_tag()))?;
-    let inbox_links = get_links(recipient.to_owned(), LinkKind::MailInbox.as_tag_opt())?;
+    let pendings_links = get_links(package_eh.clone(), LinkKind::Pendings, None)?;
+    let inbox_links = get_links(recipient.to_owned(), LinkKind::MailInbox, None)?;
     let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x|x.target.clone().into()).collect();
     for pendings_link in pendings_links.iter() {
-        let res = LinkKind::Pendings.unconcat_hash(&pendings_link.tag);
+        let res = LinkKind::into_agent(&pendings_link.tag);
         if let Ok(agent) = res {
             // inbox link found ; check if tag is recipient
             if &agent == recipient {
@@ -184,7 +190,7 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
     if pending_found {
         debug!("try_confirming_pending_mail_has_been_received() - CREATING CONFIRMATION");
         let confirmation = DeliveryConfirmation::new(package_eh.clone(), recipient.clone());
-        let _ = create_entry(confirmation)?;
+        let _ = create_entry(SnapmailEntry::DeliveryConfirmation(confirmation))?;
         return Ok(true);
     }
     /// Done
@@ -203,15 +209,12 @@ pub(crate) fn try_confirming_pending_ack_has_been_received(package_eh: EntryHash
         return Ok(false);
     }
     /// If a pending link and and inbox link match, still waiting for confirmation
-    let pending_links = get_links(package_eh.clone(), Some(LinkKind::Pending.as_tag()))?;
-    for pending_link in pending_links.iter() {
-        if pending_link.tag != LinkKind::Pending.as_tag() {
-            continue;
-        }
+    let pending_links = get_links(package_eh.clone(), LinkKind::Pending, None)?;
+    for _pending_link in pending_links.iter() {
         /// Check for inbox link: If no link, it means it has been deleted by recipient
-        let links = get_links(recipient.to_owned(), LinkKind::AckInbox.as_tag_opt())?;
+        let links = get_links(recipient.to_owned(), LinkKind::AckInbox, None)?;
         for link in links.iter() {
-            let res = LinkKind::AckInbox.unconcat_hash(&link.tag);
+            let res = LinkKind::into_agent(&link.tag);
             if let Ok(agent) = res {
                 // inbox link found ; check if tag is recipient
                 if &agent == recipient {
@@ -222,11 +225,12 @@ pub(crate) fn try_confirming_pending_ack_has_been_received(package_eh: EntryHash
         /// Create confirmation since Pending found but not inbox link
         debug!("try_confirming_pending_ack_has_been_received() - CREATING CONFIRMATION");
         let confirmation = DeliveryConfirmation::new(package_eh.clone(), recipient.clone());
-        let _ = create_entry(confirmation)?;
+        let _ = create_entry(SnapmailEntry::DeliveryConfirmation(confirmation))?;
         return Ok(true);
     }
     Ok(false)
 }
+
 
 ///
 pub fn get_delivery_state(package_eh: EntryHash, recipient: &AgentPubKey) -> ExternResult<DeliveryState> {
@@ -237,19 +241,24 @@ pub fn get_delivery_state(package_eh: EntryHash, recipient: &AgentPubKey) -> Ext
         return Ok(DeliveryState::Delivered)
     }
     /// Look for a Pending/s link
-    let links = get_links(package_eh.clone(), Some(LinkKind::Pending.as_tag()))?;
+    /// TODO: Do one query of multiple link types with HDK 145
+
+    /// OutAck
+    let pending_links = get_links(package_eh.clone(), LinkKind::Pending, None)?;
+    if pending_links.len() > 0 {
+        return Ok(DeliveryState::Pending)
+    }
+
+    /// OutMail
+    let links = get_links(package_eh.clone(), LinkKind::Pendings, None)?;
     for link in links {
-        /// OutAck
-        if link.tag == LinkKind::Pending.as_tag() {
-            return Ok(DeliveryState::Pending)
-        }
-        /// OutMail
-        let maybe_pendings = LinkKind::Pendings.unconcat_hash(&link.tag);
+        let maybe_pendings = LinkKind::into_agent(&link.tag);
         if let Ok(agent) = maybe_pendings {
             if &agent == recipient {
                 return Ok(DeliveryState::Pending)
             }
         }
+
     }
     /// None found
     Ok(DeliveryState::Unsent)

@@ -12,6 +12,7 @@ pub mod file;
 pub mod constants;
 
 use hdi::prelude::*;
+//use zome_utils::*;
 
 //use std::str::FromStr;
 
@@ -21,11 +22,9 @@ use hdi::prelude::*;
 
 pub use tracing::*;
 
-//use zome_utils::*;
 
-pub use constants::*;
-
-use crate::{
+pub use crate::{
+   constants::*,
    handle::*,
    mail::*,
    file::*,
@@ -35,7 +34,7 @@ use crate::{
 
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
-pub enum EntryKind {
+pub enum SnapmailEntry {
    #[entry_def(required_validations = 2, visibility = "public")]
    PubEncKey(PubEncKey),
    #[entry_def(required_validations = 2, visibility = "public")]
@@ -59,6 +58,21 @@ pub enum EntryKind {
    #[entry_def(required_validations = 2, visibility = "private")]
    FileManifest(FileManifest),
 }
+
+// impl SnapmailEntry {
+//    ///
+//    pub fn as_type(&self) -> EntryType {
+//       // let app_type = AppEntryType::new(
+//       //    EntryDefIndex::from(self.index()),
+//       //    ZomeId::from(0), // since we have only one zome in our DNA (thank god)
+//       //    self.visibility(),
+//       // );
+//       // EntryType::App(app_type)
+//
+//       EntryType::try_from(self).unwrap()
+//    }
+// }
+
 
 //
 // /// !! Keep Order synced with EntryKind !!
@@ -190,15 +204,6 @@ pub enum EntryKind {
 //       unreachable!();
 //    }
 //
-//    ///
-//    pub fn as_type(&self) -> EntryType {
-//       let app_type = AppEntryType::new(
-//          EntryDefIndex::from(self.index()),
-//          ZomeId::from(0), // since we have only one zome in our DNA (thank god)
-//          self.visibility(),
-//       );
-//       EntryType::App(app_type)
-//    }
 // }
 //
 

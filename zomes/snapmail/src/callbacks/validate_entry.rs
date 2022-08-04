@@ -1,10 +1,9 @@
 use hdk::prelude::*;
-
+use snapmail_model::*;
 use zome_utils::*;
+
 use crate::{
    handle::*,
-   mail::entries::*,
-   entry_kind::*,
    file::*,
    pub_enc_key::*,
 };

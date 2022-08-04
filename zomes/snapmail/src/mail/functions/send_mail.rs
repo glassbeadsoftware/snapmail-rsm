@@ -1,17 +1,20 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
+use crate::create_entry::*;
 
 use crate::{
     send_dm,
-    mail::entries::{PendingMail, Mail, OutMail, InMail, sign_mail},
+    mail::{
+        sign_mail, PendingMailExt,
+    },
     dm_protocol::{
         MailMessage, DirectMessageProtocol,
     },
     //mail::receive::*,
     LinkKind,
-    file::{FileManifest, FileChunk, get_manifest},
+    file::{get_manifest},
 };
-use crate::mail::entries::DeliveryConfirmation;
 
 
 #[allow(non_camel_case_types)]
@@ -66,7 +69,7 @@ fn send_chunk_by_dm(destination: &AgentPubKey, chunk_eh: &EntryHash) -> ExternRe
     if maybe_el.is_none() {
         return error("No chunk found at given address".into());
     }
-    let chunk = get_typed_from_el::<FileChunk>(maybe_el.unwrap())?;
+    let chunk = get_typed_from_record::<FileChunk>(maybe_el.unwrap())?;
     /// Send DM
     let response = send_dm(
         destination.clone(),
@@ -137,7 +140,7 @@ fn deliver_mail_by_dm(
 #[hdk_extern]
 fn commit_inmail(inmail: InMail) -> ExternResult<ActionHash> {
     debug!("commit_inmail() START **********");
-    create_entry(inmail)
+    create_entry(SnapmailEntry::InMail(inmail))
 }
 
 
@@ -155,42 +158,42 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<ActionHash
     let me = agent_info()?.agent_latest_pubkey;
     /// Commit Pending Mail
     let pending_mail_eh = hash_entry(&input.mail)?;
-    let maybe_pending_mail_hh = create_entry(&input.mail);
-    if let Err(err) = maybe_pending_mail_hh.clone() {
+    let maybe_pending_mail_ah = create_entry(SnapmailEntry::PendingMail(input.mail));
+    if let Err(err) = maybe_pending_mail_ah.clone() {
         debug!("PendingMail create_entry() failed = {:?}", err);
-        return Err(maybe_pending_mail_hh.err().unwrap());
+        return Err(maybe_pending_mail_ah.err().unwrap());
     };
-    let pending_mail_hh = maybe_pending_mail_hh.unwrap();
-    debug!("pending_mail_hh = {:?}", pending_mail_hh);
+    let pending_mail_ah = maybe_pending_mail_ah.unwrap();
+    debug!("pending_mail_ah = {:?}", pending_mail_ah);
     /// Commit Pendings Link
-    let tag = LinkKind::Pendings.concat_hash(&input.destination);
-    debug!("pendings tag = {:?}", tag);
-    let maybe_link1_hh = create_link(
+    let maybe_link1_ah = create_link(
         input.outmail_eh.clone(),
         pending_mail_eh.clone(),
-        HdkLinkType::Any,
-        tag);
-    if let Err(err) = maybe_link1_hh.clone() {
+        LinkKind::Pendings,
+        LinkKind::from_agent(&input.destination),
+        );
+    if let Err(err) = maybe_link1_ah.clone() {
         debug!("link1 failed = {:?}", err);
-        return Err(maybe_link1_hh.err().unwrap());
+        return Err(maybe_link1_ah.err().unwrap());
     };
-    let link1_hh = maybe_link1_hh.unwrap();
-    debug!("link1_hh = {}", link1_hh);
+    let link1_ah = maybe_link1_ah.unwrap();
+    debug!("link1_ah = {}", link1_ah);
     /// Commit MailInbox Link
-    let tag = LinkKind::MailInbox.concat_hash(&me);
-    let maybe_link2_hh = create_link(
+    //let tag = LinkKind::MailInbox.concat_hash(&me);
+    let maybe_link2_ah = create_link(
         EntryHash::from(input.destination.clone()),
         pending_mail_eh,
-        HdkLinkType::Any,
-        tag);
-    if let Err(err) = maybe_link2_hh.clone() {
+        LinkKind::MailInbox,
+        LinkKind::from_agent(&me),
+    );
+    if let Err(err) = maybe_link2_ah.clone() {
         debug!("link2 failed = {:?}", err);
-        return Err(maybe_link2_hh.err().unwrap());
+        return Err(maybe_link2_ah.err().unwrap());
     };
-    let link2_hh = maybe_link2_hh.unwrap();
-    debug!("link2_hh = {}", link2_hh);
+    let link2_ah = maybe_link2_ah.unwrap();
+    debug!("link2_ah = {}", link2_ah);
     /// Done
-    return Ok(pending_mail_hh)
+    return Ok(pending_mail_ah)
 }
 
 
@@ -212,7 +215,7 @@ pub(crate) fn deliver_mail(
             mail: mail.clone(),
             mail_signature: signature.clone(),
         };
-        let inmail = InMail::from_direct(me.clone(), msg);
+        let inmail = msg.into_inmail(me.clone());
         debug!("deliver_mail() REMOTE CALLING...");
         let res = call_remote(
             me,
@@ -271,14 +274,14 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<ActionHash> {
     /// Get file manifests from addresses
     let mut file_manifest_list = Vec::new();
     let mut file_manifest_pair_list = Vec::new();
-    for manifest_hh in input.manifest_address_list.clone() {
-        let manifest_eh = get_eh(manifest_hh.clone())?;
-        let manifest = get_manifest(manifest_hh.clone().into())?;
+    for manifest_ah in input.manifest_address_list.clone() {
+        let manifest_eh = get_eh(manifest_ah.clone())?;
+        let manifest = get_manifest(manifest_ah.clone().into())?;
         file_manifest_list.push(manifest.clone());
         file_manifest_pair_list.push((manifest_eh, manifest))
     }
     /// Create and commit OutMail
-    let outmail = OutMail::create(
+    let outmail = create_outmail(
         input.subject,
         input.payload,
         input.reply_of,
@@ -287,9 +290,9 @@ pub fn send_mail(input: SendMailInput) -> ExternResult<ActionHash> {
         input.bcc.clone(),
         file_manifest_pair_list.clone(),
     );
-    let outmail_hh = create_entry(&outmail)?;
-    debug!("OutMail created: {:?}", outmail_hh);
-    Ok(outmail_hh)
+    let outmail_ah = create_entry(SnapmailEntry::OutMail(outmail))?;
+    debug!("OutMail created: {:?}", outmail_ah);
+    Ok(outmail_ah)
 }
 
 
@@ -357,6 +360,6 @@ pub fn send_committed_mail(
 // fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<ActionHash> {
 //     debug!("commit_sents_link(): {:?} ", input);
 //     let tag = LinkKind::Sents.concat_hash(&input.to);
-//     let hh = create_link(input.outmail_eh.clone(), input.outmail_eh, HdkLinkType::Any, tag)?;
-//     Ok(hh)
+//     let ah = create_link(input.outmail_eh.clone(), input.outmail_eh, HdkLinkType::Any, tag)?;
+//     Ok(ah)
 // }

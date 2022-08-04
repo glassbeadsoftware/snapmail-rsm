@@ -1,10 +1,8 @@
 use hdk::prelude::*;
 use zome_utils::*;
+use snapmail_model::*;
 
-use crate::{
-   handle::Handle,
-   handle::utils::get_members,
-};
+use crate::handle::utils::get_members;
 
 /// Get all agentIds that have a certain handle
 /// Return [AgentId]

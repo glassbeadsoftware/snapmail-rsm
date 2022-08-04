@@ -1,17 +1,10 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
     signal_protocol::*,
-    file::{FileChunk, FileManifest},
-    mail::{
-        self,
-        entries::{
-            InMail,
-            InMailState,
-            MailItem, MailState,
-        },
-    },
+    mail,
     DirectMessageProtocol, MailMessage, AckMessage,
     ReceivedAck,
 };
@@ -67,19 +60,19 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
         Ok(true) => debug!("Valid MailMessage signature"),
     }
     /// Create InMail
-    let inmail = InMail::from_direct(from.clone(), mail_msg.clone());
+    let inmail = mail_msg.clone().into_inmail(from.clone());
     /// Commit InMail
-    let maybe_inmail_hh = create_entry(&inmail);
-    if let Err(err) = maybe_inmail_hh {
+    let maybe_inmail_ah = create_entry(SnapmailEntry::InMail(inmail));
+    if let Err(err) = maybe_inmail_ah {
         let response_str = "Failed committing InMail";
         debug!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-    let inmail_hh =  maybe_inmail_hh.unwrap();
-    debug!("inmail_address: {:?}", inmail_hh);
+    let inmail_ah =  maybe_inmail_ah.unwrap();
+    debug!("inmail_address: {:?}", inmail_ah);
     /// Emit signal
     let item = MailItem {
-        hh: inmail_hh,
+        ah: inmail_ah,
         reply: None,
         author: from.clone(),
         mail: mail_msg.mail.clone(),
@@ -95,6 +88,7 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     return DirectMessageProtocol::Success("Mail received".to_string());
 }
 
+
 /// Handle a AckMessage.
 /// Emits `ReceivedAck` signal.
 /// Returns Success or Failure.
@@ -107,7 +101,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
         warn!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-    let outmail_hh = maybe_outmail.unwrap().header_address().clone();
+    let outmail_ah = maybe_outmail.unwrap().action_address().clone();
     /// Check ack signature
     let maybe_verified = verify_signature(from.clone(), ack_msg.ack_signature.clone(), ack_msg.outmail_eh.clone());
     match maybe_verified {
@@ -135,7 +129,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
     /// Emit Signal
     let signal = SignalProtocol::ReceivedAck(ReceivedAck {
         from: from.clone(),
-        for_mail: outmail_hh,
+        for_mail: outmail_ah,
     });
     let res = emit_signal(&signal);
     if let Err(err) = res {
@@ -163,7 +157,7 @@ pub fn receive_direct_request_manifest(from: AgentPubKey, manifest_eh: EntryHash
         return DirectMessageProtocol::UnknownEntry;
     }
     debug!("Sending manifest: {}", manifest_eh);
-    let maybe_manifest = get_typed_from_el::<FileManifest>(maybe_el.unwrap());
+    let maybe_manifest = get_typed_from_record::<FileManifest>(maybe_el.unwrap());
     if let Err(_err) = maybe_manifest {
         let response_str = "Requested entry is not a FileManifest";
         error!("{}", response_str);
@@ -180,17 +174,17 @@ pub fn receive_direct_manifest(from: AgentPubKey, manifest: FileManifest) -> Dir
     debug!("received manifest from: {}", from);
     // FIXME: Check if already have file?
     /// Commit FileManifest
-    let maybe_hh = create_entry(&manifest);
-    if let Err(err) = maybe_hh {
+    let maybe_ah = create_entry(SnapmailEntry::FileManifest(manifest));
+    if let Err(err) = maybe_ah {
         let response_str = "Failed committing FileManifest";
         warn!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-    let manifest_hh = maybe_hh.unwrap();
-    debug!("received manifest_address: {}", manifest_hh);
+    let manifest_ah = maybe_ah.unwrap();
+    debug!("received manifest_address: {}", manifest_ah);
     // FIXME: emit signal
     /// Return Success response
-    return DirectMessageProtocol::Success(manifest_hh.to_string());
+    return DirectMessageProtocol::Success(manifest_ah.to_string());
 }
 
 /// Handle a RequestFileChunkMessage.
@@ -210,7 +204,7 @@ pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> D
         return DirectMessageProtocol::UnknownEntry;
     }
     debug!("Sending chunk: {}", chunk_eh);
-    let maybe_chunk = get_typed_from_el::<FileChunk>(maybe_el.unwrap());
+    let maybe_chunk = get_typed_from_record::<FileChunk>(maybe_el.unwrap());
     if let Err(_err) = maybe_chunk {
         let response_str = "Requested entry is not a FileChunk";
         error!("{}", response_str);
@@ -226,7 +220,7 @@ pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> D
 pub fn receive_direct_chunk(_from: AgentPubKey, chunk: FileChunk) -> DirectMessageProtocol {
     // FIXME: Check if already have chunk?
     /// Commit FileChunk
-    let maybe_address = create_entry(&chunk);
+    let maybe_address = create_entry(SnapmailEntry::FileChunk(chunk));
     if let Err(err) = maybe_address {
         let response_str = "Failed committing FileChunk";
         error!("{}: {}", response_str, err);

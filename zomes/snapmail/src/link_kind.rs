@@ -1,148 +1,152 @@
 use hdk::prelude::*;
-use holo_hash::hash_type::HashType;
+#[allow(unused_imports)]
+use snapmail_model::*;
+use holo_hash::hash_type::{self, HashType};
 
-use std::str::FromStr;
-
-use strum::AsStaticRef;
-use strum_macros::EnumIter;
-use strum::EnumProperty;
+//use std::str::FromStr;
+//use strum::AsStaticRef;
+//use strum_macros::EnumIter;
 
 use zome_utils::error;
-use crate::entry_kind::*;
 
 pub const LinkSeparator: &'static str = "___";
 
 /// List of all Link kinds handled by this Zome
 #[hdk_link_types]
-#[derive(AsStaticStr, EnumIter, EnumProperty, Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub enum LinkKind {
-   #[strum(props(BaseType = "Path", TargetType = "Handle"))]
    Members,
-   #[strum(props(BaseType = "AgentPubKey", TargetType = "PendingAck"))]
    AckInbox,
-   #[strum(props(BaseType = "AgentPubKey", TargetType = "PendingMail"))]
    MailInbox,
-   #[strum(props(BaseType = "AgentPubKey", TargetType = "Handle"))]
    Handle,
-   #[strum(props(BaseType = "OutAck", TargetType = "PendingAck"))]
    Pending,
-   #[strum(props(BaseType = "OutMail", TargetType = "PendingMail"))]
    Pendings,
-   #[strum(props(BaseType = "AgentPubKey", TargetType = "PubEncKey"))]
    EncKey,
-   // #[strum(props(BaseType = "InMail", TargetType = "OutAck"))]
    // Acknowledgment,
-   // #[strum(props(BaseType = "OutMail", TargetType = "InAck"))]
    // Receipt,
-   // #[strum(props(BaseType = "OutAck", TargetType = "OutAck"))]
    // Sent,
-   // #[strum(props(BaseType = "OutMail", TargetType = "OutMail"))]
    // Sents,
 }
 
-/// Public
-impl LinkKind {
 
-   /// Convert to LinkTag
-   pub fn as_tag(&self) -> LinkTag {
-      let str = self.as_static();
-      LinkTag::new(str.as_bytes().clone())
-   }
+// /// Public
+// impl LinkKind {
+//    /// Convert to LinkTag
+//    pub fn as_tag(&self) -> LinkTag {
+//       let str = self.as_static();
+//       LinkTag::new(str.as_bytes().clone())
+//    }
+//
+//    /// Convert to Option<LinkTag>
+//    pub fn as_tag_opt(&self) -> Option<LinkTag> {
+//       Some(self.as_tag())
+//    }
+//
+//    ///
+//    pub fn allowed_base_type(&self) -> EntryType {
+//       return self.prop_to_type("BaseType");
+//    }
+//
+//    ///
+//    pub fn allowed_target_type(&self) -> EntryType {
+//       return self.prop_to_type("TargetType");
+//    }
+// }
 
-   /// Convert to Option<LinkTag>
-   pub fn as_tag_opt(&self) -> Option<LinkTag> {
-      Some(self.as_tag())
-   }
 
-   ///
-   pub fn allowed_base_type(&self) -> EntryType {
-      return self.prop_to_type("BaseType");
-   }
+// /// Private
+// impl LinkKind {
+//    /// Convert an EnumProperty to an EntryType
+//    fn prop_to_type(&self, prop_name: &str) -> EntryType {
+//       let kind_str = self.get_str(prop_name).unwrap();
+//       if kind_str == "AgentPubKey" {
+//          return EntryType::AgentPubKey;
+//       }
+//       let maybe_kind = EntryKind::from_str(kind_str);
+//       if let Ok(kind) = maybe_kind {
+//          return kind.as_type();
+//       }
+//       error!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str);
+//       unreachable!()
+//    }
+//
+//    /// Check if link edges have correct types
+//    pub fn validate_types(
+//       self,
+//       base: Entry,
+//       target: Entry,
+//       _maybe_hash: Option<AgentPubKey>,
+//    ) -> ExternResult<ValidateCallbackResult> {
+//       if !is_entry_of_type(base, self.allowed_base_type()) {
+//          let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
+//          return Ok(ValidateCallbackResult::Invalid(msg));
+//       }
+//       if !is_entry_of_type(target, self.allowed_target_type()) {
+//          let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
+//          return Ok(ValidateCallbackResult::Invalid(msg));
+//       }
+//       Ok(ValidateCallbackResult::Valid)
+//    }
+// }
 
-   ///
-   pub fn allowed_target_type(&self) -> EntryType {
-      return self.prop_to_type("TargetType");
-   }
-}
-
-/// Private
-impl LinkKind {
-   /// Convert an EnumProperty to an EntryType
-   fn prop_to_type(&self, prop_name: &str) -> EntryType {
-      let kind_str = self.get_str(prop_name).unwrap();
-      if kind_str == "AgentPubKey" {
-         return EntryType::AgentPubKey;
-      }
-      let maybe_kind = EntryKind::from_str(kind_str);
-      if let Ok(kind) = maybe_kind {
-         return kind.as_type();
-      }
-      error!("!!! LinkKind::prop_to_type() Failed : {} !!!", kind_str);
-      unreachable!()
-   }
-
-   /// Check if link edges have correct types
-   pub fn validate_types(
-      self,
-      base: Entry,
-      target: Entry,
-      _maybe_hash: Option<AgentPubKey>,
-   ) -> ExternResult<ValidateCallbackResult> {
-      if !is_entry_of_type(base, self.allowed_base_type()) {
-         let msg = format!("Invalid base type for link kind `{}`", self.as_static()).into();
-         return Ok(ValidateCallbackResult::Invalid(msg));
-      }
-      if !is_entry_of_type(target, self.allowed_target_type()) {
-         let msg = format!("Invalid target type for link kind `{}`", self.as_static()).into();
-         return Ok(ValidateCallbackResult::Invalid(msg));
-      }
-      Ok(ValidateCallbackResult::Valid)
-   }
-}
 
 /// Concat
 impl LinkKind {
-   /// Create LinkTag with concatenated raw data
-   pub fn concat(&self, suffix: &[u8]) -> LinkTag {
-      let mut vec = self.as_static().as_bytes().to_vec();
-      vec.extend(LinkSeparator.as_bytes());
-      vec.extend(suffix);
-      LinkTag(vec)
-   }
+   // /// Create LinkTag with concatenated raw data
+   // pub fn concat(&self, suffix: &[u8]) -> LinkTag {
+   //    let mut vec = self.as_static().as_bytes().to_vec();
+   //    vec.extend(LinkSeparator.as_bytes());
+   //    vec.extend(suffix);
+   //    LinkTag(vec)
+   // }
+   //
+   // /// Retrieve raw data from LinkTag
+   // pub fn unconcat(&self, tag: &LinkTag) -> ExternResult<Vec<u8>> {
+   //    let raw_tag = tag.as_ref();
+   //    let mut prefix = self.as_static().as_bytes().to_vec();
+   //    prefix.extend(LinkSeparator.as_bytes());
+   //    if raw_tag.len() <= prefix.len() {
+   //       return error("Unconcat of link failed");
+   //    }
+   //    let tag_prefix = raw_tag[..prefix.len()].to_vec();
+   //    if tag_prefix != prefix {
+   //       return error("Unconcat for incorrect LinkKind");
+   //    }
+   //    let suffix = raw_tag[prefix.len()..].to_vec();
+   //    Ok(suffix)
+   // }
 
-   /// Retrieve raw data from LinkTag
-   pub fn unconcat(&self, tag: &LinkTag) -> ExternResult<Vec<u8>> {
-      let raw_tag = tag.as_ref();
-      let mut prefix = self.as_static().as_bytes().to_vec();
-      prefix.extend(LinkSeparator.as_bytes());
-      if raw_tag.len() <= prefix.len() {
-         return error("Unconcat of link failed");
-      }
-      let tag_prefix = raw_tag[..prefix.len()].to_vec();
-      if tag_prefix != prefix {
-         return error("Unconcat for incorrect LinkKind");
-      }
-      let suffix = raw_tag[prefix.len()..].to_vec();
-      Ok(suffix)
-   }
 
    /// Create LinkTag with concatenated hash
-   pub fn concat_hash<T: HashType>(&self, hash: &HoloHash<T>) -> LinkTag {
+   pub fn from_hash<T: HashType>(hash: &HoloHash<T>) -> LinkTag {
       let raw = hash.get_raw_39();
-      return self.concat(raw);
+      return raw.to_vec().into();
    }
 
+
    /// Retrieve hash from LinkTag
-   pub fn unconcat_hash<T: HashType>(&self, tag: &LinkTag) -> ExternResult<HoloHash<T>> {
-      let suffix = self.unconcat(tag)?;
-      //debug!("unconcat suffix = {:?}", suffix);
-      let maybe_hash = HoloHash::from_raw_39(suffix);
+   pub fn into_hash<T: HashType>(tag: &LinkTag) -> ExternResult<HoloHash<T>> {
+      let maybe_hash = HoloHash::from_raw_39(tag.clone().into_inner());
       //debug!("unconcat maybe_hash = {:?}", maybe_hash);
       if let Err(err) = maybe_hash {
-         return error(&format!("unconcat_hash() failed: {:?}", err));
+         return error(&format!("into_hash() failed: {:?}", err));
       }
       Ok(maybe_hash.unwrap())
    }
+
+
+   /// Create LinkTag with concatenated hash
+   pub fn from_agent(key: &AgentPubKey) -> LinkTag {
+      return Self::from_hash::<hash_type::Agent>(key);
+   }
+
+
+   /// Retrieve hash from LinkTag
+   pub fn into_agent(tag: &LinkTag) -> ExternResult<AgentPubKey> {
+      return Self::into_hash::<hash_type::Agent>(tag);
+   }
+
+
 
    // /// Create LinkTag with concatenated string
    // pub fn concat_str(self, suffix: &str) -> LinkTag {

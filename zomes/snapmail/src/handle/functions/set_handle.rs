@@ -1,20 +1,20 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 
 use crate::{
-    link_kind::*, path_kind,
-    handle::{
-        Handle,
-        utils::*,
-    },
+    path_kind,
+    link_kind::*,
+    handle::utils::*,
 };
+
 
 /// Zome Function
 /// DEBUG / TESTING ONLY
 #[hdk_extern]
 pub fn create_empty_handle(_: ()) -> ExternResult<ActionHash> {
     let new_handle = Handle::empty();
-    let hh = create_entry(&new_handle)?;
-    Ok(hh)
+    let ah = create_entry(SnapmailEntry::Handle(new_handle))?;
+    Ok(ah)
 }
 
 /// Zome Function
@@ -27,26 +27,26 @@ pub fn set_handle(new_name: String) -> ExternResult<ActionHash> {
     /// -- Check if already have Handle
     let my_agent_address = agent_info()?.agent_latest_pubkey;
     let maybe_current_handle = get_handle_element(my_agent_address.clone());
-    if let Some((current_handle, original_hh)) = maybe_current_handle {
+    if let Some((current_handle, original_ah)) = maybe_current_handle {
         if current_handle.name == new_name.to_string() {
-            return Ok(original_hh);
+            return Ok(original_ah);
         }
         /// Really new name so just update entry
-        let res = update_entry(original_hh, &new_handle)?;
-        debug!("updated_handle_hh = {:?}", res);
+        let res = update_entry(original_ah, &new_handle)?;
+        debug!("updated_handle_ah = {:?}", res);
         return Ok(res);
     }
     /// -- First Handle for this agent
     /// Commit entry and link to AgentHash
     let new_handle_eh = hash_entry(&new_handle)?;
     trace!("First Handle for this agent!!!");
-    let new_handle_hh = create_entry(&new_handle)?;
-    debug!("new_handle_hh = {:?}", new_handle_hh);
+    let new_handle_ah = create_entry(SnapmailEntry::Handle(new_handle))?;
+    debug!("new_handle_ah = {:?}", new_handle_ah);
     let _ = create_link(
         EntryHash::from(my_agent_address),
         new_handle_eh.clone(),
-        HdkLinkType::Any,
-        LinkKind::Handle.as_tag(),
+        LinkKind::Handle,
+        LinkTag::from(()),
     )?;
     debug!("**** Handle linked to agent!");
     /// Link Handle to DNA entry for a global directory
@@ -54,10 +54,11 @@ pub fn set_handle(new_name: String) -> ExternResult<ActionHash> {
     let _ = create_link(
         directory_address,
         new_handle_eh,
-        HdkLinkType::Any,
-        LinkKind::Members.as_tag())?;
+        LinkKind::Members,
+        LinkTag::from(()),
+    )?;
     /// Done
-    return Ok(new_handle_hh);
+    return Ok(new_handle_ah);
 }
 
 

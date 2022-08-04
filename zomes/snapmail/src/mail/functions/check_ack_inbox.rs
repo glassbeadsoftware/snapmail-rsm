@@ -1,9 +1,10 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
+
 
 use crate::{
     mail,
-    mail::entries::PendingAck,
     link_kind::*,
 };
 
@@ -17,8 +18,8 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
     let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
     let links_result = get_links(
         my_agent_eh.clone(),
-        LinkKind::AckInbox.as_tag_opt(),
-        //None,
+        LinkKind::AckInbox,
+        None,
     )?;
     debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each link
@@ -28,11 +29,11 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
         let pending_ack_eh = link.target.clone();
         let maybe_el = get(pending_ack_eh.clone(), GetOptions::latest())?;
         if maybe_el.is_none() {
-            warn!("Header not found for pending ack entry");
+            warn!("Action not found for pending ack entry");
             continue;
         }
-        let pending_ack_hh = maybe_el.unwrap().header_address().clone();
-        debug!("pending_ack_hh: {}", pending_ack_hh);
+        let pending_ack_ah = maybe_el.unwrap().action_address().clone();
+        debug!("pending_ack_ah: {}", pending_ack_ah);
         let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh);
         if let Err(err) = maybe_pending_ack {
             warn!("Getting PendingAck from DHT failed: {}", err);
@@ -54,8 +55,8 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
             Ok(true) => debug!("Valid PendingAck signature"),
         }
         /// Create InAck
-        let maybe_inack_hh = mail::create_inack(pending_ack.outmail_eh.clone(), &author, pending_ack.from_signature);
-        if let Err(err) = maybe_inack_hh {
+        let maybe_inack_ah = mail::create_inack(pending_ack.outmail_eh.clone(), &author, pending_ack.from_signature);
+        if let Err(err) = maybe_inack_ah {
             error!("Creating InAck from PendignAck failed: {}", err);
             continue;
         }
@@ -67,7 +68,7 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
             continue;
         }
         // /// Delete PendingAck
-        // let res = delete_entry(pending_ack_hh.clone());
+        // let res = delete_entry(pending_ack_ah.clone());
         // if let Err(err) = res {
         //     error!("Delete PendignAck failed: {}", err);
         // }

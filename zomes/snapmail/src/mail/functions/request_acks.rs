@@ -1,11 +1,11 @@
 use hdk::prelude::*;
 use hdk::prelude::query::ChainQueryFilter;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-   entry_kind::*,
-   mail::entries::*,
    mail::get_outmail_state,
+   mail::utils::*,
    mail::deliver_mail,
    file::get_manifest,
 };
@@ -18,33 +18,33 @@ use crate::mail::get_inacks;
 #[hdk_extern]
 #[snapmail_api]
 pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
-   /// Get all Create OutMail headers with query
+   /// Get all Create OutMail actions with query
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)
-      .header_type(HeaderType::Create)
-      .entry_type(EntryKind::OutMail.as_type());
+      .action_type(ActionType::Create)
+      .entry_type(UnitEntryTypes::OutMail.try_into().unwrap());
    let maybe_outmails = query(outmail_query_args);
    if let Err(err) = maybe_outmails {
       error!("request_acks() outmail_result failed: {:?}", err);
       return Err(err);
    }
-   let created_outmails: Vec<Element> = maybe_outmails.unwrap();
+   let created_outmails: Vec<Record> = maybe_outmails.unwrap();
    debug!(" request_acks() outmails count = {}", created_outmails.len());
 
    // Get all acks
    let acks = get_inacks(None)?;
 
    /// Check for each OutMail
-   let mut hhs = Vec::new();
+   let mut ahs = Vec::new();
    for outmail_element in created_outmails {
       /// Get OutMail's recipients
-      let outmail_hh = outmail_element.header_hashed().as_hash().to_owned();
-      //let date: i64 = outmail_element.header().timestamp().as_seconds_and_nanos().0;
-      let maybe_state = get_outmail_state(outmail_hh.clone());
+      let outmail_ah = outmail_element.action_hashed().as_hash().to_owned();
+      //let date: i64 = outmail_element.action().timestamp().as_seconds_and_nanos().0;
+      let maybe_state = get_outmail_state(outmail_ah.clone());
       if let Err(_err) = maybe_state {
          continue;
       }
-      let outmail: OutMail = get_typed_from_el(outmail_element)?;
+      let outmail: OutMail = get_typed_from_record(outmail_element)?;
       let outmail_eh = hash_entry(outmail.clone())?;
       let recipients = outmail.recipients();
       /// Get OutMail's inacks
@@ -53,7 +53,7 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
          continue;
       }
       /// Some acks are missing ; send mail again
-      hhs.push(outmail_hh);
+      ahs.push(outmail_ah);
       /// Get file manifest
       let mut file_manifest_list = Vec::new();
       for attachment in outmail.mail.attachments.clone() {
@@ -73,7 +73,7 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
       }
    }
    /// Done
-   Ok(hhs)
+   Ok(ahs)
 }
 
 

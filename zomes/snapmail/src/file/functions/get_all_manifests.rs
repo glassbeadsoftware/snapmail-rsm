@@ -1,10 +1,6 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
-
-use crate::{
-    entry_kind::*,
-    file::FileManifest,
-};
 
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ZomeManifestVec(Vec<FileManifest>);
@@ -18,18 +14,18 @@ pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
     /// Get all FileManifest on local chain with query
     let query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(EntryKind::FileManifest.as_type());
+       .entry_type(UnitEntryTypes::FileManifest.try_into().unwrap());
     let query_result = query(query_args);
     if let Err(err) = query_result {
         error!("find_manifest() query_result failed: {:?}", err);
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
-    let manifest_elements: Vec<Element> = query_result.unwrap();
-    /// For each File Manifest element, get its entry
+    let manifest_elements: Vec<Record> = query_result.unwrap();
+    /// For each File Manifest record, get its entry
     let mut manifest_list = Vec::new();
     for manifest_el in &manifest_elements {
-        let manifest: FileManifest = get_typed_from_el(manifest_el.clone())?;
+        let manifest: FileManifest = get_typed_from_record(manifest_el.clone())?;
         manifest_list.push(manifest);
     }
     /// Done

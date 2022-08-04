@@ -1,4 +1,6 @@
 use hdk::prelude::*;
+#[allow(unused_imports)]
+use snapmail_model::*;
 
 use crate::handle::functions::get_handle::*;
 

@@ -1,9 +1,7 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
 
-use crate::{
-    file::FileChunk,
-};
 
 /// Zome function
 /// Get chunk index and chunk as base64 string in local source chain at given address
@@ -13,16 +11,16 @@ use crate::{
 #[snapmail_api]
 pub fn get_chunk(chunk_eh: EntryHash) -> ExternResult<String> {
     debug!("get_chunk(): {}", chunk_eh);
-    /// Look for element
-    let element = match get(chunk_eh, GetOptions::content())? {
-        Some(element) => element,
-        None => return error("No element found at given address"),
+    /// Look for record
+    let record = match get(chunk_eh, GetOptions::content())? {
+        Some(record) => record,
+        None => return error("No record found at given address"),
     };
-    /// Check if element is a Manifest
-    let maybe_FileChunk: ExternResult<FileChunk> = get_typed_from_el(element.clone());
+    /// Check if record is a Manifest
+    let maybe_FileChunk: ExternResult<FileChunk> = get_typed_from_record(record.clone());
     if let Ok(chunk) = maybe_FileChunk {
         return Ok(chunk.chunk);
     }
     /// Done
-    return error("Element at given address is not a FileChunk");
+    return error("Record at given address is not a FileChunk");
 }

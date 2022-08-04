@@ -1,9 +1,7 @@
 use hdk::prelude::*;
+#[allow(unused_imports)]
+use snapmail_model::*;
 
-use crate::{
-    mail::entries::MailItem,
-    file::FileManifest,
-};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum SignalProtocol {

@@ -1,4 +1,6 @@
 use hdk::prelude::*;
+#[allow(unused_imports)]
+use snapmail_model::*;
 
 use crate::{
     send_dm,

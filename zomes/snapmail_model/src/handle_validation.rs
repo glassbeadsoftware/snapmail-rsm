@@ -33,8 +33,8 @@ pub fn validate_handle_entry(handle: Handle) -> ExternResult<ValidateCallbackRes
 // #[hdk_extern]
 // fn validate_handle_create(input: ValidateData) -> ExternResult<ValidateCallbackResult> {
 //     // FIXME: Check if author has already created a handle
-//     let element = input.element;
-//     let entry = element.into_inner().1;
+//     let record = input.record;
+//     let entry = record.into_inner().1;
 //     let entry = match entry {
 //         ElementEntry::Present(e) => e,
 //         _ => return Ok(ValidateCallbackResult::Invalid("Entry not present".into())),
@@ -45,7 +45,7 @@ pub fn validate_handle_entry(handle: Handle) -> ExternResult<ValidateCallbackRes
 
 // #[hdk_extern]
 // fn validate_handle_update(package: ValidateData) -> ExternResult<ValidateCallbackResult> {
-//     //EntryValidationData::Modify{new_entry: new_handle, old_entry: old_handle, old_entry_header:_, validation_data: _};
+//     //EntryValidationData::Modify{new_entry: new_handle, old_entry: old_handle, old_entry_action:_, validation_data: _};
 //     if new_handle.name == old_handle.name {
 //         return Ok(ValidateCallbackResult::Invalid("Trying to modify with same data".into()));
 //     }

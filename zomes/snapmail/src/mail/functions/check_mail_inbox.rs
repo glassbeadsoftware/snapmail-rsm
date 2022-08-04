@@ -1,13 +1,12 @@
 use hdk::prelude::*;
+use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-    mail::entries::PendingMail,
-    signal_protocol::*,
-    file::dm::{request_chunk_by_dm, request_manifest_by_dm},
     link_kind::*,
-    mail::entries::InMail,
-    file::{FileManifest},
+    signal_protocol::*,
+    mail::PendingMailExt,
+    file::dm::{request_chunk_by_dm, request_manifest_by_dm},
 };
 
 
@@ -22,8 +21,8 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
     let my_agent_eh = EntryHash::from(me.clone());
     let links_result = get_links(
         my_agent_eh.clone(),
-        //None,
-        LinkKind::MailInbox.as_tag_opt(),
+        LinkKind::MailInbox,
+        None,
         )?;
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each MailInbox link
@@ -32,10 +31,10 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
         let pending_mail_eh = inbox_link.target.clone();
         let maybe_el = get(pending_mail_eh.clone(), GetOptions::latest())?;
         if maybe_el.is_none() {
-            warn!("Header not found for pending mail entry");
+            warn!("Action not found for pending mail entry");
             continue;
         }
-        //let pending_hh = maybe_el.unwrap().header_address().clone();
+        //let pending_ah = maybe_el.unwrap().action_address().clone();
         /// Get entry on the DHT
         let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh);
         if let Err(err) = maybe_pending_mail {
@@ -44,14 +43,14 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
         }
         let (author, pending) = maybe_pending_mail.unwrap();
         /// Convert and Commit as InMail
-        let inmail = InMail::try_from_pending(pending, author)?.unwrap();
-        let maybe_inmail_hh = create_entry(&inmail);
-        if maybe_inmail_hh.is_err() {
+        let inmail = pending.try_into_inmail(author)?.unwrap();
+        let maybe_inmail_ah = create_entry(SnapmailEntry::InMail(inmail.clone()));
+        if maybe_inmail_ah.is_err() {
             error!("Failed committing InMail");
             continue;
         }
-        //debug!("inmail_hh: {}", maybe_inmail_hh.clone().unwrap());
-        new_inmails.push(maybe_inmail_hh.unwrap());
+        //debug!("inmail_ah: {}", maybe_inmail_ah.clone().unwrap());
+        new_inmails.push(maybe_inmail_ah.unwrap());
         /// Remove inbox link
         let res = delete_link(inbox_link.create_link_hash.clone());
         if let Err(err) = res {
@@ -69,7 +68,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
         //debug!("delete_link res: {:?}", res);
 
         // /// Delete PendingMail entry
-        // let res = delete_entry(pending_hh.clone());
+        // let res = delete_entry(pending_ah.clone());
         // if let Err(err) = res.clone() {
         //     error!("Delete PendingMail failed: {:?}", err);
         //     //continue; // TODO: figure out why delete entry fails
@@ -95,7 +94,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
             }
             let manifest = maybe_manifest.unwrap();
             /// Write
-            let maybe_file_address = create_entry(&manifest);
+            let maybe_file_address = create_entry(SnapmailEntry::FileManifest(manifest.clone()));
             if let Err(err) = maybe_file_address {
                 let response_str = "Failed committing FileManifest";
                 error!("{}: {}", response_str, err);
@@ -118,7 +117,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
                 }
                 let chunk = maybe_chunk.unwrap();
                 /// Write
-                let maybe_address = create_entry(&chunk);
+                let maybe_address = create_entry(SnapmailEntry::FileChunk(chunk));
                 if let Err(err) = maybe_address {
                     let response_str = "Failed committing FileChunk";
                     error!("{}: {}", response_str, err);
