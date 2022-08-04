@@ -33,7 +33,7 @@ holo_hash = { version = "0.0.30", default-features = false }
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thiserror = "1.0.24"
 holochain_serialized_bytes = "=0.0.51"
-holochain = { version = "0.0.149", default-features = false }
+holochain = { version = "0.0.150", default-features = false }
 holochain_util = { version = "0.0.10", default-features = false }
-holochain_conductor_api = { version = "0.0.49", default-features = false }
+holochain_conductor_api = { version = "0.0.50", default-features = false }
 
