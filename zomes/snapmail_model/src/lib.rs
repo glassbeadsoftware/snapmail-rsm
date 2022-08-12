@@ -10,6 +10,9 @@ pub mod pub_enc_key;
 pub mod mail;
 pub mod file;
 pub mod constants;
+pub mod link_kind;
+
+pub use link_kind::*;
 
 use hdi::prelude::*;
 //use zome_utils::*;

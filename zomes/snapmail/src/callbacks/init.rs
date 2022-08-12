@@ -7,7 +7,6 @@ use crate::{
    path_kind,
    //pub_enc_key::*,
    create_enc_key,
-   link_kind::*,
 };
 
 #[hdk_extern]

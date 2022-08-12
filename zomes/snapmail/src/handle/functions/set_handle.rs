@@ -3,7 +3,6 @@ use snapmail_model::*;
 
 use crate::{
     path_kind,
-    link_kind::*,
     handle::utils::*,
 };
 

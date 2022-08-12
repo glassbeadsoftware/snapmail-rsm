@@ -3,7 +3,6 @@ use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-    link_kind::*,
     signal_protocol::*,
     mail::PendingMailExt,
     file::dm::{request_chunk_by_dm, request_manifest_by_dm},

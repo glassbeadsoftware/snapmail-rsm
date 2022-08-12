@@ -3,7 +3,6 @@ use zome_utils::*;
 use snapmail_model::*;
 
 use crate::{
-    link_kind::*,
     dm_protocol::{DirectMessageProtocol, AckMessage},
     mail::{
         utils::*,

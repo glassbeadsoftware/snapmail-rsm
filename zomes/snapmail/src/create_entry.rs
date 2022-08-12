@@ -1,6 +1,5 @@
 use hdk::prelude::*;
 use snapmail_model::*;
-use crate::link_kind::*;
 use zome_utils::*;
 
 

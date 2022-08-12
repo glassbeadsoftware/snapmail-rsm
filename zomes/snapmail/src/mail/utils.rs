@@ -2,7 +2,6 @@ use hdk::prelude::*;
 use zome_utils::*;
 use snapmail_model::*;
 
-use crate::link_kind::*;
 
 ///
 pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {

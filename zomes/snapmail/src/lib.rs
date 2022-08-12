@@ -16,7 +16,6 @@ extern crate snapmail_proc_macro;
 pub mod api_error;
 
 
-mod link_kind;
 mod path_kind;
 
 mod dm;
@@ -37,7 +36,6 @@ pub use snapmail_model::*;
 
 pub use dm::*;
 pub use dm_protocol::*;
-pub use link_kind::*;
 pub use path_kind::*;
 pub use signal_protocol::*;
 pub use create_entry::*;

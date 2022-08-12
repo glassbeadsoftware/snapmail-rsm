@@ -2,8 +2,6 @@ use hdk::prelude::*;
 use snapmail_model::*;
 use zome_utils::*;
 
-use crate::link_kind::*;
-
 
 ///
 #[hdk_extern]

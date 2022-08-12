@@ -4,9 +4,6 @@ use snapmail_model::*;
 use strum::IntoEnumIterator;
 use strum::AsStaticRef;
 
-use crate::{
-   link_kind::*,
-};
 
 /// Validation sub callback
 pub fn validate_create_link(signed_create_link: SignedHashed<CreateLink>)

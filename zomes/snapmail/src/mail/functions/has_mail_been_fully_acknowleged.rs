@@ -2,7 +2,6 @@
 // use hdk::prelude::link::Link;
 //
 // use crate::{
-//     link_kind::*,
 //     mail::entries::OutMail,
 //     utils::*,
 // };

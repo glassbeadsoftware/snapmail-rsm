@@ -5,7 +5,6 @@ use zome_utils::*;
 
 use crate::{
     mail,
-    link_kind::*,
 };
 
 /// Zome Function

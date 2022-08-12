@@ -4,7 +4,6 @@ use snapmail_model::*;
 use zome_utils::*;
 
 use crate::{
-    link_kind::*,
     path_kind,
 };
 
