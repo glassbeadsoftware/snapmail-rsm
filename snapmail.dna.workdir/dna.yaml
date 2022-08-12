@@ -1,8 +1,0 @@
----
-manifest_version: "1"
-name: snapmail-dna
-uuid: ~
-properties: ~
-zomes:
-  - name: snapmail
-    bundled: ../target/wasm32-unknown-unknown/release/snapmail.wasm
