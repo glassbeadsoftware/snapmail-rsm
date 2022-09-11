@@ -26,7 +26,7 @@ require('./suites/handle')(orchestrator.registerScenario)
 
 const num = orchestrator.numRegistered()
 console.log(`Orchestrator Registered ${num} scenarios`)
-var beginning = Date.now();
+let beginning = Date.now();
 orchestrator.run().then(stats => {
     let end = Date.now();
     let elapsed = end - beginning;

@@ -57,8 +57,8 @@ const test_write_multichunk_file = async (s, t) => {
     // console.log('fileChunks: ' + JSON.stringify(fileChunks))
 
     // Write chunks
-    var chunk_list = new Array();
-    for (var i = 0; i < fileChunks.numChunks; ++i) {
+    let chunk_list = new Array();
+    for (let i = 0; i < fileChunks.numChunks; ++i) {
         //console.log('chunk' + i + ': ' + fileChunks.chunks[i])
         const chunk_params = {
             data_hash: fileChunks.dataHash,
@@ -93,7 +93,7 @@ const test_write_multichunk_file = async (s, t) => {
 
     // Get chunks
     let result_string = ''
-    for (var i = chunk_list.length - 1; i >= 0; --i) {
+    for (let i = chunk_list.length - 1; i >= 0; --i) {
         // await s.consistency()
         // sleep(10000)
         const result = await alexCell.call("snapmail", "get_chunk", chunk_list[i])

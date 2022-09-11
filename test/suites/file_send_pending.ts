@@ -77,8 +77,8 @@ const test_send_file_async = async (s, t, size) => {
     // split file
     const fileChunks = split_file(data_string)
     // Write chunks
-    var chunk_list = new Array();
-    for (var i = 0; i < fileChunks.numChunks; ++i) {
+    let chunk_list = new Array();
+    for (let i = 0; i < fileChunks.numChunks; ++i) {
         const chunk_params = {
             data_hash: fileChunks.dataHash,
             chunk_index: i,
@@ -167,7 +167,7 @@ const test_send_file_async = async (s, t, size) => {
 
     // Get chunks
     let result_string = ''
-    for (var i = chunk_list.length - 1; i >= 0; --i) {
+    for (let i = chunk_list.length - 1; i >= 0; --i) {
         // await s.consistency()
         // sleep(10000)
         const params2 = chunk_list[i]
@@ -243,8 +243,8 @@ const test_send_file_async_three = async (s, t) => {
     // split file
     const fileChunks = split_file(data_string)
     // Write chunks
-    var chunk_list = new Array();
-    for (var i = 0; i < fileChunks.numChunks; ++i) {
+    let chunk_list = new Array();
+    for (let i = 0; i < fileChunks.numChunks; ++i) {
         const chunk_params = {
             data_hash: fileChunks.dataHash,
             chunk_index: i,
@@ -356,7 +356,7 @@ const test_send_file_async_three = async (s, t) => {
 
     // Get chunks
     let result_string = ''
-    for (var i = chunk_list.length - 1; i >= 0; --i) {
+    for (let i = chunk_list.length - 1; i >= 0; --i) {
         // await s.consistency()
         const params2 = {chunk_address: chunk_list[i]}
         const result = await billyCell.call("snapmail", "get_chunk", params2)
