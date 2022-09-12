@@ -1,6 +1,6 @@
 [package]
 name = "snapmail_model"
-version = "0.2.141"
+version = "0.2.147"
 edition = "2021"
 
 # Ensure that this is not inside of any other workspace.

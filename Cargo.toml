@@ -12,9 +12,9 @@ lto = false
 opt-level = 0
 overflow-checks = false
 
-[profile.release.package.snapmail_sweettest]
-opt-level = 0
-overflow-checks = false
+#[profile.release.package.snapmail_sweettest]
+#opt-level = 0
+#overflow-checks = false
 
 [profile.release]
 opt-level = "z"
