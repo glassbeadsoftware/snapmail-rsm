@@ -1,8 +1,8 @@
 use hdi::prelude::*;
 
-use crate::{
-    CHUNK_MAX_SIZE,
-};
+// use crate::{
+//     CHUNK_MAX_SIZE,
+// };
 
 /// Entry representing a file chunk.
 #[hdk_entry_helper]
@@ -24,14 +24,14 @@ impl FileChunk {
 }
 
 
-///
-pub(crate) fn validate_chunk(chunk: FileChunk)
-    -> ExternResult<ValidateCallbackResult>
-{
-    /// Check size
-    if chunk.chunk.len() > CHUNK_MAX_SIZE {
-        return Ok(ValidateCallbackResult::Invalid(
-            format!("A file chunk can't be bigger than {} KiB", CHUNK_MAX_SIZE / 1024)));
-    }
-    Ok(ValidateCallbackResult::Valid)
-}
+//
+// pub(crate) fn validate_chunk(chunk: FileChunk)
+//     -> ExternResult<ValidateCallbackResult>
+// {
+//     /// Check size
+//     if chunk.chunk.len() > CHUNK_MAX_SIZE {
+//         return Ok(ValidateCallbackResult::Invalid(
+//             format!("A file chunk can't be bigger than {} KiB", CHUNK_MAX_SIZE / 1024)));
+//     }
+//     Ok(ValidateCallbackResult::Valid)
+// }
