@@ -4,6 +4,7 @@ name: snapmail-dna
 uuid: ~
 properties: ~
 integrity:
+  origin_time: 2022-09-25T13:55:49.200Z
   zomes:
     - name: snapmail_model
       bundled: ../target/wasm32-unknown-unknown/release/snapmail_model.wasm
