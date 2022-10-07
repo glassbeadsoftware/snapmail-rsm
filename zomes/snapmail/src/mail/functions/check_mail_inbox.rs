@@ -102,7 +102,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
             /// Add to list
             manifest_list.push(manifest);
         }
-        /// Retrieve and write each FileChunk for each attachment
+        /* Retrieve and write each FileChunk for each attachment */
         for manifest in manifest_list {
             for chunk_eh in manifest.clone().chunks {
                 /// Retrieve

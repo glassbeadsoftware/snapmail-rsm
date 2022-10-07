@@ -67,7 +67,7 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
       let missing_recipients: Vec<&AgentPubKey> = recipients.iter()
          .filter(|x| !receipt_agents.contains(x))
          .collect();
-      /// Send mail to each missing ack/pending
+      /* Send mail to each missing ack/pending */
       for recipient in missing_recipients {
          let _res = deliver_mail(&outmail_eh, &outmail.mail, recipient, &file_manifest_list, &signature);
       }

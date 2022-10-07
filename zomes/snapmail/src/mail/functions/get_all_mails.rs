@@ -75,7 +75,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
         item_list.push(item.clone());
     }
     debug!(" get_all_mails() final outmail count = {}", item_list.len());
-    /// Change all InMail into a MailItem
+    /* Change all InMail into a MailItem */
     for inmail_element in created_inmails {
         let inmail_ah = inmail_element.action_hashed().as_hash().to_owned();
         let date: i64 = inmail_element.action().timestamp().as_seconds_and_nanos().0;

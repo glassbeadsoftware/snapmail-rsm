@@ -43,7 +43,7 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
    /// Check all deliveries
    let map = get_outmail_delivery_state(outmail_ah.clone())?;
    let mut has_pending = false;
-   /// OutMail is Unsent if at least one delivery is Unsent
+   /* OutMail is Unsent if at least one delivery is Unsent */
    for state in map.values() {
       if state == &DeliveryState::Unsent {
          return Ok(OutMailState::Unsent);

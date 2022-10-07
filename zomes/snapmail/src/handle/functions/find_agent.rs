@@ -5,13 +5,12 @@ use snapmail_model::*;
 use crate::handle::utils::get_members;
 
 /// Get all agentIds that have a certain handle
-/// Return [AgentId]
 #[hdk_extern]
 #[snapmail_api]
 pub fn find_agent(handle: String) -> ExternResult<Vec<AgentPubKey>> {
    let member_links = get_members()?;
    let mut agent_list = Vec::new();
-   /// Find handle entry whose author is agentId
+   /* Find handle entry whose author is agentId */
    for member_link in member_links {
       let res = get_typed_and_author::<Handle>(&member_link.target);
       if let Err(err) = res {

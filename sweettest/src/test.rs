@@ -1,14 +1,19 @@
 use std::time::SystemTime;
+use maplit::hashset;
+
 use holochain::sweettest::*;
 use holochain::conductor::ConductorHandle;
-use maplit::hashset;
+use holo_hash::*;
+
+use snapmail_model::*;
+
+
 use snapmail::{
     handle::*,
     mail::*,
     file::*,
-   CHUNK_MAX_SIZE,
+    CHUNK_MAX_SIZE,
  };
-use holo_hash::*;
 
 use crate::DNA_FILEPATH;
 use crate::setup::*;

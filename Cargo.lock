@@ -1474,6 +1474,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ecc8c54b8ebb1e0347a75a2c1e54268c737313da693f99c0964643011e5406d"
 dependencies = [
  "futures",
+ "mockall",
  "must_future",
  "observability",
  "paste",
@@ -1738,6 +1739,7 @@ dependencies = [
  "holochain_serialized_bytes",
  "holochain_sqlite",
  "holochain_state",
+ "holochain_test_wasm_common",
  "holochain_types",
  "holochain_util",
  "holochain_wasm_test_utils",
@@ -1750,6 +1752,7 @@ dependencies = [
  "kitsune_p2p",
  "kitsune_p2p_types",
  "lazy_static",
+ "matches",
  "mockall",
  "mr_bundle",
  "must_future",
@@ -1782,6 +1785,7 @@ dependencies = [
  "tracing",
  "tracing-futures",
  "tracing-subscriber 0.2.25",
+ "unwrap_to",
  "url 1.7.2",
  "url2",
  "url_serde",
@@ -2032,6 +2036,16 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-futures",
+]
+
+[[package]]
+name = "holochain_test_wasm_common"
+version = "0.0.55"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3667bb3eba96c34658ac6e550d528052969f14854da76518d35be40dc1626c4a"
+dependencies = [
+ "hdk",
+ "serde",
 ]
 
 [[package]]
@@ -2529,6 +2543,7 @@ dependencies = [
  "arbitrary",
  "arrayref",
  "base64",
+ "blake2b_simd 0.5.11",
  "bloomfilter",
  "derive_more",
  "fixt",
@@ -2541,6 +2556,8 @@ dependencies = [
  "kitsune_p2p_timestamp",
  "kitsune_p2p_transport_quic",
  "kitsune_p2p_types",
+ "maplit",
+ "mockall",
  "must_future",
  "num-traits",
  "observability",
@@ -2678,6 +2695,7 @@ version = "0.0.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "700e02ddd2afabb1d356d891a98ce261ca6ab1499ec83211a0830ba984a05d40"
 dependencies = [
+ "arbitrary",
  "base64",
  "derive_more",
  "futures",
@@ -2686,6 +2704,7 @@ dependencies = [
  "kitsune_p2p_dht_arc",
  "lair_keystore_api",
  "lru 0.6.6",
+ "mockall",
  "nanoid 0.3.0",
  "observability",
  "once_cell",
@@ -2938,6 +2957,12 @@ checksum = "b823e83b2affd8f40a9ee8c29dbc56404c1e34cd2710921f2801e2cf29527afa"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "maplit"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
 
 [[package]]
 name = "match_cfg"
@@ -4920,7 +4945,7 @@ checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 
 [[package]]
 name = "snapmail"
-version = "0.2.147"
+version = "0.2.154"
 dependencies = [
  "base64",
  "bincode",
@@ -4942,7 +4967,7 @@ dependencies = [
 
 [[package]]
 name = "snapmail_model"
-version = "0.2.147"
+version = "0.2.154"
 dependencies = [
  "base64",
  "bincode",
@@ -4966,6 +4991,33 @@ version = "0.0.1"
 dependencies = [
  "quote",
  "syn",
+]
+
+[[package]]
+name = "snapmail_sweettest"
+version = "0.0.1"
+dependencies = [
+ "chrono",
+ "colored",
+ "derive_more",
+ "futures",
+ "holo_hash",
+ "holochain",
+ "holochain_p2p",
+ "holochain_state",
+ "holochain_zome_types",
+ "kitsune_p2p",
+ "maplit",
+ "serde",
+ "serde_json",
+ "shrinkwraprs",
+ "snapmail",
+ "snapmail_model",
+ "strum 0.19.5",
+ "strum_macros 0.19.4",
+ "sweettest_utils",
+ "tokio",
+ "tokio-stream",
 ]
 
 [[package]]
@@ -5159,6 +5211,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dcb1ed7b8330c5eed5441052651dd7a12c75e2ed88f2ec024ae1fa3a5e59945"
 dependencies = [
  "zeroize",
+]
+
+[[package]]
+name = "sweettest_utils"
+version = "0.0.165"
+source = "git+https://github.com/ddd-mtl/sweettest-utils?branch=holochain-0.0.165#28e095ff9283fc29971267ff617d4f75332454b6"
+dependencies = [
+ "colored",
+ "futures",
+ "holo_hash",
+ "holochain",
+ "holochain_state",
+ "holochain_types",
+ "holochain_zome_types",
+ "once_cell",
+ "serde",
+ "stream-cancel",
+ "tokio",
 ]
 
 [[package]]
@@ -5679,6 +5749,12 @@ name = "untrusted"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
+
+[[package]]
+name = "unwrap_to"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cad414b2eed757c1b6f810f8abc814e298a9c89176b21fae092c7a87756fb839"
 
 [[package]]
 name = "ureq"
