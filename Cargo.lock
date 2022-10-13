@@ -4945,7 +4945,7 @@ checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 
 [[package]]
 name = "snapmail"
-version = "0.2.154"
+version = "0.2.0-hdk.154"
 dependencies = [
  "base64",
  "bincode",
@@ -4967,7 +4967,7 @@ dependencies = [
 
 [[package]]
 name = "snapmail_model"
-version = "0.2.154"
+version = "0.2.0-hdk.154"
 dependencies = [
  "base64",
  "bincode",

@@ -82,7 +82,7 @@ impl PendingMailExt for PendingMail {
       trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
+      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
          .expect("Decryption should work");
       trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
       let decrypted = match maybe_decrypted {
@@ -103,15 +103,15 @@ impl PendingMailExt for PendingMail {
       let received_date = zome_utils::now();
       /// Get my key
       let my_agent_key = agent_info()?.agent_latest_pubkey;
-      debug!("try_from_pending my_agent_key: {}", my_agent_key);
+      debug!("try_into_inmail() my_agent_key: {}", my_agent_key);
       let recipient_key = get_enc_key(my_agent_key.clone())?;
-      debug!("try_from_pending recipient_key: {:?}", recipient_key);
       /// Get sender's key
       let sender_key = get_enc_key(from.clone())?;
-      debug!("try_from_pending sender_key: {:?}", sender_key);
       /// Decrypt
+      debug!("try_into_inmail() recipient_key: {:?}", recipient_key);
+      debug!("   try_into_inmail() sender_key: {:?}", sender_key);
       let maybe_mail = self.attempt_decrypt(sender_key, recipient_key);
-      debug!("try_from_pending maybe_mail: {:?}", maybe_mail);
+      debug!("   try_into_inmail() maybe_mail: {:?}", maybe_mail);
       /// Into InMail
       let inmail = match maybe_mail {
          None => return Ok(None),
