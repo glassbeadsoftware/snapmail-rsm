@@ -209,17 +209,18 @@ fn split_file(full_data_string: &str) ->  (String, Vec<String>) {
    (hash, chunks)
 }
 
+
 ///
 pub async fn send_file_dm(size: usize) {
-   // Setup
+   /// Setup
    let (conductors, agents, apps) = setup_3_conductors().await;
    let cells = apps.cells_flattened();
 
-   // - Create fake file
+   /// - Create fake file
    let data_string = "0123465789".repeat(size / 10);
    let (file_hash, file_chunks) = split_file(&data_string);
 
-   // Write chunks
+   /// Write chunks
    let mut chunk_list = Vec::new();
    let mut count: usize = 0;
    for chunk in file_chunks {
@@ -234,7 +235,7 @@ pub async fn send_file_dm(size: usize) {
    }
    chunk_list.reverse();
 
-   // Write manifest
+   /// Write manifest
    let manifest_params = WriteManifestInput {
       data_hash: file_hash,
       filename: "fake.str".to_string(),
@@ -243,8 +244,9 @@ pub async fn send_file_dm(size: usize) {
       chunks: chunk_list.clone(),
    };
    let manifest_address: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "write_manifest", manifest_params).await;
+   println!("manifest_address: {:?}", manifest_address);
 
-   // Send
+   /// Send
    let mail = SendMailInput {
       subject: "test-outmail".to_string(),
       payload: "blablabla".to_string(),
@@ -254,7 +256,8 @@ pub async fn send_file_dm(size: usize) {
       reply_of: None,
       manifest_address_list: vec![manifest_address],
    };
-   let _mail_output: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   let mail_output: ActionHash = conductors[0].call(&cells[0].zome("snapmail"), "send_mail", mail).await;
+   println!("mail_output: {:?}", mail_output);
 
    /// B checks if arrived
    let mut unacknowledged_inmails: Vec<ActionHash> = Vec::new();
@@ -278,11 +281,11 @@ pub async fn send_file_dm(size: usize) {
 
    let attachment = mail.attachments[0].clone();
 
-   // Get chunk list via manifest
+   /// Get chunk list via manifest
    let manifest: FileManifest = conductors[1].call(&cells[1].zome("snapmail"), "get_manifest", attachment.manifest_eh).await;
    println!("manifest: {:?}", manifest);
 
-   // Get chunks
+   /// Get chunks
    let mut result_string = String::new();
    //for (var i = chunk_list.length - 1; i >= 0; --i) {
    for i in 0..chunk_list.len() {
