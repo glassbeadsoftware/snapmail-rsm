@@ -1,7 +1,8 @@
 [package]
 name = "snapmail_proc_macro"
 version = "0.0.1"
-edition = "2021"
+rust-version.workspace = true
+edition.workspace = true
 
 [lib]
 proc-macro = true
