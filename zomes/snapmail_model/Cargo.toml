@@ -21,11 +21,11 @@ tracing = { version = "0.1", default-features = false }
 serde.workspace = true
 hdi.workspace = true
 
+ts-rs = "6.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thiserror = "1.0.24"
-holochain_serialized_bytes = "=0.0.51"
-holochain = { version = "0.0.165", default-features = false }
-holochain_util = { version = "0.0.12", default-features = false }
-holochain_conductor_api = { version = "0.0.62", default-features = false }
-
+holochain_serialized_bytes.workspace = true
+holochain.workspace = true
+holochain_util.workspace = true
+holochain_conductor_api.workspace = true

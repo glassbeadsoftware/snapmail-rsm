@@ -46,7 +46,7 @@ fn post_commit(signedActionList: Vec<SignedActionHashed>) {
 
 
 ///
-fn post_commit_app(eh: EntryHash, _app_type: AppEntryType) -> ExternResult<()> {
+fn post_commit_app(eh: EntryHash, _app_type: AppEntryDef) -> ExternResult<()> {
    if let Ok(outmail) = zome_utils::get_typed_from_eh::<OutMail>(eh.clone()) {
       send_committed_mail(&eh, outmail, None)?;
    }

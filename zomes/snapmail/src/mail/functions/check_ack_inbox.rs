@@ -14,18 +14,14 @@ use crate::{
 #[snapmail_api]
 pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
     /// Lookup `ack_inbox` links on my agentId
-    let my_agent_eh = EntryHash::from(agent_info()?.agent_latest_pubkey);
-    let links_result = get_links(
-        my_agent_eh.clone(),
-        LinkKind::AckInbox,
-        None,
-    )?;
-    debug!("incoming_ack links_result: {:?} (for {})", links_result, &my_agent_eh);
+    let me = agent_info()?.agent_latest_pubkey;
+    let links_result = get_links(me.clone(), LinkKind::AckInbox, None)?;
+    debug!("incoming_ack links_result: {:?} (for {})", links_result, &me);
     /// Check each link
     let mut updated_outmails = Vec::new();
     for link in &links_result {
         /// Get entry on the DHT
-        let pending_ack_eh = link.target.clone();
+        let pending_ack_eh = link.target.clone().into_entry_hash().unwrap();
         let maybe_el = get(pending_ack_eh.clone(), GetOptions::latest())?;
         if maybe_el.is_none() {
             warn!("Action not found for pending ack entry");
@@ -33,7 +29,7 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
         }
         let pending_ack_ah = maybe_el.unwrap().action_address().clone();
         debug!("pending_ack_ah: {}", pending_ack_ah);
-        let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh);
+        let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh.into());
         if let Err(err) = maybe_pending_ack {
             warn!("Getting PendingAck from DHT failed: {}", err);
             continue;
@@ -74,6 +70,6 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
         /// Add to return list
         updated_outmails.push(pending_ack.outmail_eh.clone());
     }
-    debug!("incoming_ack updated_outmails.len() = {} (for {})", updated_outmails.len(), &my_agent_eh);
+    debug!("incoming_ack updated_outmails.len() = {} (for {})", updated_outmails.len(), &me);
     Ok(updated_outmails)
 }

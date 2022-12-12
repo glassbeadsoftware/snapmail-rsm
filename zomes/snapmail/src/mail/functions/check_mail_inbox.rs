@@ -27,7 +27,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();
     for inbox_link in &links_result {
-        let pending_mail_eh = inbox_link.target.clone();
+        let pending_mail_eh = inbox_link.target.clone().into_entry_hash().unwrap();
         let maybe_el = get(pending_mail_eh.clone(), GetOptions::latest())?;
         if maybe_el.is_none() {
             warn!("Action not found for pending mail entry");
@@ -35,7 +35,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
         }
         //let pending_ah = maybe_el.unwrap().action_address().clone();
         /// Get entry on the DHT
-        let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh);
+        let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh.into());
         if let Err(err) = maybe_pending_mail {
             warn!("Getting PendingMail from DHT failed: {}", err);
             continue;
