@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+use ts_rs::TS;
 
 /// Entry for a received Acknowledgement Receipt
 #[hdk_entry_helper]

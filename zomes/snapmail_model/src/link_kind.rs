@@ -1,5 +1,6 @@
 use hdi::prelude::*;
 use holo_hash::hash_type::{self, HashType};
+use ts_rs::TS;
 
 //use std::str::FromStr;
 //use strum::AsStaticRef;
@@ -9,7 +10,7 @@ use holo_hash::hash_type::{self, HashType};
 
 /// List of all Link kinds handled by this Zome
 #[hdk_link_types]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, TS)]
 pub enum LinkKind {
    Members,
    AckInbox,

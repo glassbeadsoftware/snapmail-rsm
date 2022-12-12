@@ -1,3 +1,5 @@
 /.idea
 /.vscode
 /target
+
+zomes/snapmail_model/bindings/*.ts

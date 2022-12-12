@@ -1,14 +1,19 @@
 use hdi::prelude::*;
 //use tracing::*;
 
+use ts_rs::TS;
+
+
 //use zome_utils::*;
 
 //use crate::link_kind::*;
 
 /// Entry representing the Public Encryption Key of an Agent
 #[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, TS)]
+#[ts(export)]
 pub struct PubEncKey {
+   #[ts(type = "Uint8Array")]
    pub value: X25519PubKey,
 }
 
