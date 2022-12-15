@@ -3,9 +3,8 @@ use hdi::prelude::*;
 
 /// Entry representing the Public Encryption Key of an Agent
 #[hdk_entry_helper]
-#[derive(Clone, PartialEq, TS)]
+#[derive(Clone, PartialEq)]
 pub struct PubEncKey {
-   #[ts(type = "Uint8Array")]
    pub value: X25519PubKey,
 }
 
