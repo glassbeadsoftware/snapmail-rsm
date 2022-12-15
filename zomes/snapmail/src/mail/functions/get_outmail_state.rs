@@ -4,7 +4,7 @@ use zome_utils::*;
 
 use crate::mail::utils::*;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use crate::mail::get_inacks;
 
 /// Get State of an OutMail
@@ -62,7 +62,7 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
 /// Return delivery state for each OutMail's recipient
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<HashMap<AgentPubKey, DeliveryState>> {
+pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<BTreeMap<AgentPubKey, DeliveryState>> {
    debug!(" *** get_outmail_delivery_state(): ");
    /// Get OutMail Details
    let maybe_details = get_details(outmail_ah.clone(), GetOptions::latest())?;
@@ -78,7 +78,7 @@ pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<HashMa
    let outmail_eh = el_details.record.action().entry_hash().expect("Should have an Entry");
 
    /// Determine state of delivery for each recipient and insert result in hashmap
-   let mut map = HashMap::new();
+   let mut map = BTreeMap::new();
    for recipient in outmail.recipients() {
       /// Check pending
       let confirmation_created = try_confirming_pending_mail_has_been_received(outmail_eh.clone(), &recipient)?;

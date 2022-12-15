@@ -21,6 +21,7 @@ pub fn write_manifest(input: WriteManifestInput) -> ExternResult<ActionHash> {
         filetype: input.filetype,
         orig_filesize: input.orig_filesize,
         chunks: input.chunks,
+        content: None,
     };
     return create_entry(SnapmailEntry::FileManifest(manifest));
 }

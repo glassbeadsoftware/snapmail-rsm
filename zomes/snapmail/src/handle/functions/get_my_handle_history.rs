@@ -4,17 +4,17 @@ use snapmail_model::*;
 /// Zome function
 #[hdk_extern]
 #[snapmail_api]
-pub fn get_my_handle_history(initial_handle_address: ActionHash) -> Vec<String> {
+pub fn get_my_handle_history(initial_handle_address: ActionHash) -> ExternResult<Vec<String>> {
 
     let history_result = get_details(&initial_handle_address, GetOptions::latest());
     if let Err(_e) = history_result {
         error!("get_entry_history() failed");
-        return Vec::new();
+        return Ok(Vec::new());
     }
     let maybe_history = history_result.unwrap();
     if maybe_history.is_none() {
         error!("No history found");
-        return Vec::new();
+        return Ok(Vec::new());
     }
     let history = maybe_history.unwrap();
     debug!("History length: {}", history.items.len());
@@ -30,5 +30,5 @@ pub fn get_my_handle_history(initial_handle_address: ActionHash) -> Vec<String> 
         handle_list.push(handle.name);
     }
     debug!("handle_list = {}", handle_list.len());
-    handle_list
+    Ok(handle_list)
 }

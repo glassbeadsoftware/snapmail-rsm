@@ -1,11 +1,11 @@
 ---
 manifest_version: "1"
 
-name: snapmail-app
+name: hSnapmail
 description: Mail-like P2P messaging
 
 roles:
-  - id: snapmail-zome
+  - id: rSnapmail
     provisioning:
       strategy: create
       deferred: false

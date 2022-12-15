@@ -3,7 +3,7 @@ use snapmail_model::*;
 use hdk::prelude::query::ChainQueryFilter;
 use zome_utils::*;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::{
     // link_kind,
@@ -48,7 +48,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     let mut item_list = Vec::new();
     let my_agent_address = agent_info()?.agent_latest_pubkey;
     /// Change all OutMail into a MailItem
-    let mut reply_map = HashMap::new();
+    let mut reply_map = BTreeMap::new();
     for outmail_element in created_outmails {
         let outmail_ah = outmail_element.action_hashed().as_hash().to_owned();
         let date: i64 = outmail_element.action().timestamp().as_seconds_and_nanos().0;

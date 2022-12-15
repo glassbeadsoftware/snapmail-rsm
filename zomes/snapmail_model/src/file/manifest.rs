@@ -14,6 +14,7 @@ pub struct FileManifest {
     pub filetype: String,
     pub orig_filesize: usize,
     pub chunks: Vec<EntryHash>,
+    pub content: Option<String>, // For ViewModel ; TODO: Remove this field from data model
 }
 
 //
