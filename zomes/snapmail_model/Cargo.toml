@@ -21,7 +21,6 @@ tracing = { version = "0.1", default-features = false }
 serde.workspace = true
 hdi.workspace = true
 
-ts-rs = "6.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thiserror = "1.0.24"
