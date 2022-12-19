@@ -8,7 +8,7 @@ use zome_utils::*;
 /// Must be a valid address
 /// TODO try using a AnyDht hash
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_chunk(chunk_eh: EntryHash) -> ExternResult<String> {
     debug!("get_chunk(): {}", chunk_eh);
     /// Look for record

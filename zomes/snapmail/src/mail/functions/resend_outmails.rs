@@ -15,7 +15,7 @@ use crate::{
 /// Re-send mail to each recipient of each OutMail which has an Unsent status
 /// Return list of OutMails for which we tried to deliver mail again
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 fn resend_outmails(_: ()) -> ExternResult<Vec<ActionHash>> {
    /// Get all Create OutMail actions with query
    let outmail_query_args = ChainQueryFilter::default()

@@ -7,7 +7,7 @@ use zome_utils::*;
 /// Get manifest entry at given address
 /// Must be a valid address
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_manifest(manifest_address: AnyDhtHash) -> ExternResult<FileManifest> {
     trace!("get_manifest(): {}", manifest_address);
     /// Look for record

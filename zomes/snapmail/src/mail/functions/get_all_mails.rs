@@ -17,7 +17,7 @@ use crate::{
 /// Zome Function
 /// Return list of all InMails and OutMails in the local source chain
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     /// Get all Create InMail actions with query
     let inmail_query_args = ChainQueryFilter::default()

@@ -6,7 +6,7 @@ use crate::handle::utils::get_members;
 
 /// Get all agentIds that have a certain handle
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn find_agent(handle: String) -> ExternResult<Vec<AgentPubKey>> {
    let member_links = get_members()?;
    let mut agent_list = Vec::new();

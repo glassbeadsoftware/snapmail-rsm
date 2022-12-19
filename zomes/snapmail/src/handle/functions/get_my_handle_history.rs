@@ -3,7 +3,7 @@ use snapmail_model::*;
 
 /// Zome function
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_my_handle_history(initial_handle_address: ActionHash) -> ExternResult<Vec<String>> {
 
     let history_result = get_details(&initial_handle_address, GetOptions::latest());

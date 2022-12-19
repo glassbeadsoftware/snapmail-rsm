@@ -16,7 +16,7 @@ use crate::mail::get_inacks;
 /// Re-send mail to each recipient of each OutMail for which we have missing acks
 /// Return list of OutMails for which we requested acks
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
    /// Get all Create OutMail actions with query
    let outmail_query_args = ChainQueryFilter::default()

@@ -9,7 +9,7 @@ use crate::mail::get_inacks;
 
 /// Get State of an OutMail
 #[hdk_extern]
-#[snapmail_api]
+//[snapmail_api]
 pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
    debug!(" *** get_outmail_state() START - {}", outmail_ah);
 
@@ -61,7 +61,7 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
 
 /// Return delivery state for each OutMail's recipient
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<BTreeMap<AgentPubKey, DeliveryState>> {
    debug!(" *** get_outmail_delivery_state(): ");
    /// Get OutMail Details

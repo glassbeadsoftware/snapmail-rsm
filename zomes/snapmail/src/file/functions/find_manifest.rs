@@ -11,7 +11,7 @@ pub struct FindManifestOutput(pub Option<FileManifest>);
 /// Zome function
 /// Get manifest from file content hash
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn find_manifest(data_hash: String) -> ExternResult<FindManifestOutput> {
     debug!("find_manifest(): {}", data_hash);
     /// Get all FileManifest on local chain with query

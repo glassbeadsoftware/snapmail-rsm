@@ -89,6 +89,10 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
                payload,
                cap_secret: None,
                provenance,
+               // FIXME
+               //signature: Signature,
+               //nonce: Nonce256Bits,
+               //expires_at: Timestamp,
             })
             .await
             .map_err(|e| crate::api_error::SnapmailApiError::ConductorApiError(e))?
@@ -101,7 +105,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
                   let maybe_ret: #inner_type = io.decode().expect("Deserialization should never fail");
                   Ok(maybe_ret)
                },
-               ZomeCallResponse::Unauthorized(_, _, _, _) => Err(crate::api_error::SnapmailApiError::Unauthorized),
+               ZomeCallResponse::Unauthorized(_, _, _, _, _) => Err(crate::api_error::SnapmailApiError::Unauthorized),
                ZomeCallResponse::NetworkError(err) => Err(crate::api_error::SnapmailApiError::NetworkError(err)),
                ZomeCallResponse::CountersigningSession(err) => Err(crate::api_error::SnapmailApiError::Unauthorized),
             };

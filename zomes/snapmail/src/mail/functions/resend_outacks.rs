@@ -15,7 +15,7 @@ use crate::{
 /// Re-send outack which has an Unsent Delivery status
 /// Return list of OutAcks which we tried to deliver again
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 fn resend_outacks(_: ()) -> ExternResult<Vec<ActionHash>> {
    let query_args = ChainQueryFilter::default()
       .include_entries(true)

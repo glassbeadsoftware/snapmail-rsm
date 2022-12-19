@@ -11,7 +11,7 @@ use crate::{
 pub struct DeleteMailOutput(pub Option<ActionHash>);
 
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn delete_mail(ah: ActionHash) -> ExternResult<DeleteMailOutput> {
     /// Make sure ActionHash points to a Mail
     let maybe_mail = try_into_mail(ah.clone())?;

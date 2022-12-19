@@ -268,7 +268,7 @@ pub(crate) fn deliver_mail(
 /// Send Mail: Creates and commits OutMail. Files must already be committed.
 /// post_commit will try to send directly to each recipient.
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn send_mail(input: SendMailInput) -> ExternResult<ActionHash> {
     debug!("Sending mail: {}", input.subject);
     /// Get file manifests from addresses

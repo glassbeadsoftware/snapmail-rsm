@@ -7,7 +7,7 @@ use crate::mail::get_confirmations;
 
 /// Get State of an OutAck
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn is_outack_sent(outack_ah: ActionHash) -> ExternResult<bool> {
    debug!(" *** get_outack_state(): ");
    /// Make sure of type

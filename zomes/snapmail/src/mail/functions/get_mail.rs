@@ -10,7 +10,7 @@ pub struct GetMailOutput(pub Option<Result<InMail, OutMail>>);
 /// Zome Function
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_mail(ah: ActionHash) -> ExternResult<GetMailOutput>{
     //debug!("get_mail() START");
     return try_into_mail(ah);

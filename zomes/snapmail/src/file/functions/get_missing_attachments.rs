@@ -16,7 +16,7 @@ pub struct GetMissingAttachmentsInput {
 /// Zome Function
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResult<u32> {
     let (_eh, inmail) = get_typed_from_ah::<InMail>(input.inmail_ah.clone())?;
     let mut missing = 0;

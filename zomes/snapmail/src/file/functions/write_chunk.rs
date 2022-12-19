@@ -4,7 +4,7 @@ use snapmail_model::*;
 /// Zome function
 /// Write base64 file as string to source chain
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn write_chunk(input_chunk: FileChunk) -> ExternResult<EntryHash> {
     trace!(" write_chunk() {:?}", input_chunk);
     let eh = hash_entry(input_chunk.clone());

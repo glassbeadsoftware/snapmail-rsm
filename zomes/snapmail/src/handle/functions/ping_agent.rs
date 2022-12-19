@@ -10,7 +10,7 @@ use crate::{
 /// Zome function
 /// Return true if agent is online
 #[hdk_extern]
-#[snapmail_api]
+//#[snapmail_api]
 pub fn ping_agent(destination: AgentPubKey) -> ExternResult<bool> {
     /// Send ping DM
     debug!("ping_agent: {:?}", destination);
