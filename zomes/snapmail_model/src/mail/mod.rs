@@ -47,6 +47,7 @@ pub enum DeliveryState {
 
 /// Possible states of an OutMail entry
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+//#[serde(untagged)]
 pub enum OutMailState {
     /// (orange) Initial state ; OutMail committed
     Unsent,
@@ -69,13 +70,16 @@ pub enum MailState {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct MailItem {
     pub ah: ActionHash,
-    pub reply: Option<ActionHash>, // OutMail = reply_of ; InMail = reply
     pub author: AgentPubKey,
     pub mail: Mail,
     pub state: MailState,
     // pub delivery_states: Map<AgentPubKey, DeliveryState>
     pub bcc: Vec<AgentPubKey>,
     pub date: i64,
+    /// UI Things
+    pub reply: Option<ActionHash>, // OutMail = reply_of ; InMail = reply
+    pub reply_of: Option<ActionHash>,
+    pub status: Option<String>,
 }
 
 

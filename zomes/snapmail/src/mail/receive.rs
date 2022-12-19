@@ -73,12 +73,14 @@ pub fn receive_dm_mail(from: AgentPubKey, mail_msg: MailMessage) -> DirectMessag
     /// Emit signal
     let item = MailItem {
         ah: inmail_ah,
-        reply: None,
         author: from.clone(),
         mail: mail_msg.mail.clone(),
         state: MailState::In(InMailState::Unacknowledged),
         bcc: Vec::new(),
         date: zome_utils::now() as i64, // FIXME
+        reply: None,
+        reply_of: None,
+        status: None,
     };
     let res = emit_signal(&SignalProtocol::ReceivedMail(item));
     if let Err(err) = res {

@@ -65,12 +65,15 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
         let state = MailState::Out(maybe_state.unwrap());
         let item = MailItem {
             ah: outmail_ah.clone(),
-            reply: outmail.reply_of,
             author: my_agent_address.clone(),
             mail: outmail.mail,
             state,
             bcc: outmail.bcc.clone(),
             date,
+            reply: None,
+            reply_of: outmail.reply_of,
+            status: None,
+
         };
         item_list.push(item.clone());
     }
@@ -87,12 +90,14 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
         let inmail: InMail = get_typed_from_record(inmail_element)?;
         let item = MailItem {
             ah: inmail_ah.clone(),
-            reply: reply_map.get(&inmail_ah).cloned(),
             author: inmail.from,
             mail: inmail.mail,
             state,
             bcc: Vec::new(),
             date,
+            reply: reply_map.get(&inmail_ah).cloned(),
+            reply_of: None,
+            status: None,
         };
         item_list.push(item.clone());
     }
