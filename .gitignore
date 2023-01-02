@@ -1,5 +1,6 @@
 /.idea
 /.vscode
 /target
-
+workdir/*.dna
+workdir/*.happ
 zomes/snapmail_model/bindings/*.ts
