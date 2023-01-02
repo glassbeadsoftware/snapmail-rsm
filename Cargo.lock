@@ -1665,9 +1665,9 @@ dependencies = [
 
 [[package]]
 name = "hdi"
-version = "0.2.0-beta-rc.0"
+version = "0.2.0-beta-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff96f39f15fd40a5185b380e820866fed12e8238d42dc4fb7c54afc5c4bb410f"
+checksum = "05839f5c3c1f9babe26efc31d80a09467546e46e55270a28f6fa7df14748bb2a"
 dependencies = [
  "hdk_derive",
  "holo_hash",
@@ -1682,9 +1682,9 @@ dependencies = [
 
 [[package]]
 name = "hdk"
-version = "0.1.0-beta-rc.0"
+version = "0.1.0-beta-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "727ee77fb1395b46dd357b9e792ca4c1fbe5fcda3ea117627f8936a04ee395dd"
+checksum = "81e19e94cabf1db6441418586eb77135455062772148b39753b8241af24f2fb4"
 dependencies = [
  "getrandom 0.2.8",
  "hdi",
@@ -1764,9 +1764,9 @@ dependencies = [
 
 [[package]]
 name = "holochain"
-version = "0.1.0-beta-rc.1"
+version = "0.1.0-beta-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2186b73f060ef4bcc673093a3718c3148a9e807401a60c6f03f2a4298ea92467"
+checksum = "13e266302dcee373f0f3d3aa5502de170b9d0cecad077f0b179c988b22d29541"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1848,9 +1848,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_cascade"
-version = "0.1.0-beta-rc.0"
+version = "0.1.0-beta-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fe7e6309896d2a7c0878e86176d703c3c85cf4f43ce8ce54c2fb3cae2553765"
+checksum = "113b35700190098db3945a2968330f703f2a6802c0a499e3b2e02608eabe69d5"
 dependencies = [
  "async-trait",
  "derive_more",
@@ -2098,9 +2098,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_test_wasm_common"
-version = "0.1.0-beta-rc.0"
+version = "0.1.0-beta-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a29abc26c208d5b3193560f2bbc3fc00139e74107a31fa595838eb09a189daf"
+checksum = "d3be32d908047ff79129e5599466f78de6ac7f051511676ea0f366007a4070a3"
 dependencies = [
  "hdk",
  "serde",
@@ -5065,7 +5065,7 @@ checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
 
 [[package]]
 name = "snapmail"
-version = "0.2.0-hdk.163"
+version = "0.2.0-hdk.0.1.0-beta-rc.1"
 dependencies = [
  "base64",
  "bincode",
@@ -5087,7 +5087,7 @@ dependencies = [
 
 [[package]]
 name = "snapmail_model"
-version = "0.2.0-hdk.163"
+version = "0.2.0-hdk.0.1.0-beta-rc.1"
 dependencies = [
  "base64",
  "bincode",
@@ -6630,8 +6630,8 @@ dependencies = [
 
 [[package]]
 name = "zome_utils"
-version = "0.1.0-beta-rc.0"
-source = "git+https://github.com/ddd-mtl/zome-utils?branch=beta.rc.1#4f7134ec327235c1bbb3f7f155d7ad9fd23842ac"
+version = "0.1.0-beta-rc.1"
+source = "git+https://github.com/zippy/zome-utils?branch=beta.rc.2#49198e454e149c406b97eea919ef0a7887d79342"
 dependencies = [
  "hdk",
  "serde",
