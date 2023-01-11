@@ -5,7 +5,7 @@ name: hSnapmail
 description: Mail-like P2P messaging
 
 roles:
-  - id: rSnapmail
+  - name: rSnapmail
     provisioning:
       strategy: create
       deferred: false

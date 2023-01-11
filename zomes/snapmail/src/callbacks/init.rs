@@ -11,14 +11,14 @@ use crate::{
 
 #[hdk_extern]
 fn init_caps(_: ()) -> ExternResult<()> {
-   let mut functions: GrantedFunctions = BTreeSet::new();
-   functions.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
+   let mut fns = BTreeSet::new();
+   fns.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
    //functions.insert((zome_info()?.name, "get_enc_key".into()));
    create_cap_grant(
       CapGrantEntry {
          tag: "".into(),
          access: ().into(), // empty access converts to unrestricted
-         functions,
+         functions: GrantedFunctions::Listed(fns),
       }
    )?;
    Ok(())

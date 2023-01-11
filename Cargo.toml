@@ -8,17 +8,17 @@ members = [
 ]
 
 [workspace.package]
-version = "0.2.0-hdk.163"
+version = "0.2.0-hdk.0.1.0-beta-rc.1"
 rust-version = "1.65.0"
 edition = "2021"
 
 [workspace.dependencies]
 serde = { version = "1.0", default-features = false }
-hdi = { version = "0.2.0-beta-rc.0", default-features = false }
-hdk = { version = "0.1.0-beta-rc.0", default-features = false }
-zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "beta.rc.1" }
-holochain = { version = "0.1.0-beta-rc.1" }
-holochain_conductor_api = { version = "0.1.0-beta-rc.1", default-features = false }
+hdi = { version = "0.2.0-beta-rc.1", default-features = false }
+hdk = { version = "0.1.0-beta-rc.1", default-features = false }
+zome_utils = { git = "https://github.com/zippy/zome-utils", branch = "beta.rc.2" }
+holochain = { version = "0.1.0-beta-rc.2" }
+holochain_conductor_api = { version = "0.1.0-beta-rc.2", default-features = false }
 holochain_util = { version = "0.1.0-beta-rc.0", default-features = false }
 holochain_serialized_bytes = "=0.0.51"
 
