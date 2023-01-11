@@ -8,7 +8,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.2.0-hdk.0.1.0-beta-rc.1"
+version = "0.2.0-hdk-brc.1"
 rust-version = "1.65.0"
 edition = "2021"
 
@@ -16,7 +16,7 @@ edition = "2021"
 serde = { version = "1.0", default-features = false }
 hdi = { version = "0.2.0-beta-rc.1", default-features = false }
 hdk = { version = "0.1.0-beta-rc.1", default-features = false }
-zome_utils = { git = "https://github.com/zippy/zome-utils", branch = "beta.rc.2" }
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "beta-rc.1" }
 holochain = { version = "0.1.0-beta-rc.2" }
 holochain_conductor_api = { version = "0.1.0-beta-rc.2", default-features = false }
 holochain_util = { version = "0.1.0-beta-rc.0", default-features = false }

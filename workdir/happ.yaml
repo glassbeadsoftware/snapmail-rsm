@@ -10,7 +10,4 @@ roles:
       strategy: create
       deferred: false
     dna:
-      bundled: ./dSnapmail.dna
-      uuid: ~
-      properties: ~
-      clone_limit: 0
+      bundled: ./snapmail.dna
