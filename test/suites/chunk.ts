@@ -1,5 +1,4 @@
 import {setup_1_conductor, setup_2_conductors, setup_3_conductors, ALEX_NICK, BILLY_NICK, CAMILLE_NICK, setup_conductor_3p} from '../config';
-import { delay, htos } from '../utils';
 
 const { split_file } = require('../utils')
 
