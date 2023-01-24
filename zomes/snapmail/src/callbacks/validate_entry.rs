@@ -35,7 +35,7 @@ fn validate_app_entry(
    entry_bytes: AppEntryBytes,
 ) -> ExternResult<ValidateCallbackResult>
 {
-   trace!("*** validate_app_entry() callback called!");
+   debug!("*** validate_app_entry() entry_type_id = {}", entry_type_id);
    let sb = entry_bytes.into_sb();
    let entry_kind = EntryKind::from_index(&entry_type_id);
 

@@ -16,7 +16,7 @@ use snapmail_model::*;
 #[hdk_extern(infallible)]
 fn post_commit(signedActionList: Vec<SignedActionHashed>) {
    //debug!("post_commit() called: {:?}", ahList);
-   debug!("post_commit() called");
+   debug!("post_commit() called. Len = {}", signedActionList.len());
    for signedAction in signedActionList {
       //debug!(" - {:?}", signedAction.action().entry_type());
       let action = signedAction.action();
@@ -47,6 +47,7 @@ fn post_commit(signedActionList: Vec<SignedActionHashed>) {
 
 ///
 fn post_commit_app(eh: EntryHash, _app_type: AppEntryDef) -> ExternResult<()> {
+   debug!("post_commit_app() called");
    if let Ok(outmail) = zome_utils::get_typed_from_eh::<OutMail>(eh.clone()) {
       send_committed_mail(&eh, outmail, None)?;
    }

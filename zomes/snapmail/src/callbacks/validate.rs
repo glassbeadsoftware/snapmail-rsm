@@ -11,8 +11,8 @@ use crate::{
 /// Zome Callback
 #[hdk_extern]
 fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    trace!("*** `validate()` callback called!");
     std::panic::set_hook(Box::new(zome_panic_hook));
+    debug!("*** validate() Op = {:?}", op);
     match op {
             Op::StoreElement { record } => {
             /// Check Action

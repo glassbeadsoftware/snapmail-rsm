@@ -109,7 +109,7 @@ impl Mail {
                in_cc: Vec<AgentPubKey>,
                attachments: Vec<AttachmentInfo>,
     ) -> Self {
-        assert_ne!(0, attachments.len() + payload.len() + subject.len());
+        //assert_ne!(0, attachments.len() + payload.len() + subject.len());
         /// Remove duplicate recipients
         let cc = filter_up(&to, &in_cc);
         /// Create Mail

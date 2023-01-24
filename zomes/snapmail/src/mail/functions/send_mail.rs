@@ -270,7 +270,7 @@ pub(crate) fn deliver_mail(
 #[hdk_extern]
 //#[snapmail_api]
 pub fn send_mail(input: SendMailInput) -> ExternResult<ActionHash> {
-    debug!("Sending mail: {}", input.subject);
+    debug!("Sending mail: {:?}", input);
     /// Get file manifests from addresses
     let mut file_manifest_list = Vec::new();
     let mut file_manifest_pair_list = Vec::new();

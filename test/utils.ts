@@ -1,29 +1,5 @@
 const sjcl = require('sjcl')
 
-// const CHUNK_MAX_SIZE = 500 * 1024;
-//export const CHUNK_MAX_SIZE = 100 * 1024;
-
-export const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-
-/**
- *
- */
-export function htos(wtf) {
-    return Buffer.from(wtf).toString('base64')
-}
-
-/**
- *
- */
-// export function cellIdToStr(cell) {
-//     let res = '('
-//     res += encodeHashToBase64(cell.cellId[0])
-//     res += ', '
-//     res += encodeHashToBase64(cell.cellId[1])
-//     res += ')'
-//     return res
-// }
-
 
 /**
  *
