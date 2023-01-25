@@ -10,10 +10,6 @@ pub enum SignalProtocol {
     ReceivedFile(FileManifest),
 }
 
-// #[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
-// pub struct ReceivedMail {
-//     pub item: MailItem,
-// }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReceivedAck {
