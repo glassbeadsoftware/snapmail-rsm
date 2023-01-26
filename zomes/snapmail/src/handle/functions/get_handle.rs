@@ -12,7 +12,7 @@ pub fn get_handle(agent_id: AgentPubKey) -> ExternResult<String> {
     let maybe_current_handle = get_handle_element(agent_id);
     let str = match maybe_current_handle {
         None => "<noname>".to_string(),
-        Some((handle, _ah)) => handle.name,
+        Some((handle, _ah)) => handle.username,
     };
     Ok(str)
 }

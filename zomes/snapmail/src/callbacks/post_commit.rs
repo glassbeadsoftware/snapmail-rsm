@@ -17,7 +17,7 @@ use snapmail_model::*;
 #[hdk_extern(infallible)]
 fn post_commit(signedActionList: Vec<SignedActionHashed>) {
    //debug!("post_commit() called: {:?}", ahList);
-   debug!("post_commit() called. Len = {}", signedActionList.len());
+   debug!("post_commit() len = {}", signedActionList.len());
    for sah in signedActionList {
       //debug!(" - {:?}", signedAction.action().entry_type());
       let action = sah.action().clone();
@@ -48,14 +48,13 @@ fn post_commit(signedActionList: Vec<SignedActionHashed>) {
 
 ///
 fn post_commit_app(sah: SignedActionHashed, eh: EntryHash, _app_type: AppEntryDef) -> ExternResult<()> {
-   debug!("post_commit_app()");
+   debug!("post_commit_app() eh = {}", eh);
    if let Ok(outmail) = zome_utils::get_typed_from_eh::<OutMail>(eh.clone()) {
       send_committed_mail(&eh, outmail, None)?;
    }
    if let Ok(outack) = zome_utils::get_typed_from_eh::<OutAck>(eh.clone()) {
       send_committed_ack(&eh, outack)?;
    }
-
    /// Emit signal when InMail committed
    if let Ok(inmail) = zome_utils::get_typed_from_eh::<InMail>(eh.clone()) {
       let item = MailItem {
@@ -69,6 +68,7 @@ fn post_commit_app(sah: SignedActionHashed, eh: EntryHash, _app_type: AppEntryDe
          reply_of: None,
          status: None,
       };
+      //debug!("post_commit_app().ReceivedMail: '{}'", item.mail.subject);
       let res = emit_signal(&SignalProtocol::ReceivedMail(item));
       if let Err(err) = res {
           error!("Emit 'ReceivedMail' signal failed: {}", err);

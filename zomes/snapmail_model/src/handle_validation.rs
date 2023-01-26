@@ -22,7 +22,7 @@ fn check_name(name: String) -> ExternResult<ValidateCallbackResult> {
 ///
 pub fn validate_handle_entry(handle: Handle) -> ExternResult<ValidateCallbackResult> {
     debug!("*** validate_handle_entry() called!");
-    return check_name(handle.name);
+    return check_name(handle.username);
 }
 
 // #[hdk_extern]

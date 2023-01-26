@@ -4,26 +4,26 @@ use hdi::prelude::*;
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Handle {
-    pub name: String,
+    pub username: String,
 }
 
 impl Handle {
     pub fn new(name: String) -> Self {
         Self {
-            name,
+            username: name,
         }
     }
 
     pub fn empty() -> Self {
         Self {
-            name: String::new(),
+            username: String::new(),
         }
     }
 
     /// DEBUG
     pub fn dummy() -> Self {
         Self {
-            name: "dummy".to_string(),
+            username: "dummy".to_string(),
         }
     }
 }

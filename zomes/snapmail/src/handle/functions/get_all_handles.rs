@@ -6,14 +6,14 @@ use crate:: handle::utils::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HandleItem {
-   pub name: String,
-   pub agentId: AgentPubKey,
+   pub username: String,
+   pub agent_pub_key: AgentPubKey,
    pub handle_eh: EntryHash,
 }
 
 
-/// Get all known users
-/// Return (AgentId -> Handle entry address) Map
+/// Get all known agents.
+/// Return List of all HandleItems found on DHT.
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
@@ -36,13 +36,13 @@ pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
          _ => continue,
       };
       let item = HandleItem {
-         name: handle_and_hash.0.name.clone(),
-         agentId: record.action().author().clone(),
+         username: handle_and_hash.0.username.clone(),
+         agent_pub_key: record.action().author().clone(),
          handle_eh: handle_and_hash.2.clone(),
       };
       handle_list.push(item);
     }
-   trace!("get_all_handles() handle_map size: {}", handle_list.len());
+   debug!("get_all_handles() handle_list: {:?}", handle_list);
    /// Done
    Ok(handle_list)
 }

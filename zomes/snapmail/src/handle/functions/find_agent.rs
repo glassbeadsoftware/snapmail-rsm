@@ -18,7 +18,7 @@ pub fn find_agent(handle: String) -> ExternResult<Vec<AgentPubKey>> {
          continue;
       }
       let (author, handle_entry) = res.unwrap();
-      if handle_entry.name == handle {
+      if handle_entry.username == handle {
           agent_list.push(author);
       }
    }
