@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 
-/// Entry representing an AcknowldegmentReceipt on the DHT waiting to be received
+/// Entry representing an AcknowledgmentReceipt on the DHT waiting to be received
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct PendingAck {
