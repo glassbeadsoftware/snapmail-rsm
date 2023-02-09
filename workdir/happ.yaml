@@ -1,7 +1,7 @@
 ---
 manifest_version: "1"
 
-name: hSnapmail
+name: SnapMail
 description: Mail-like P2P messaging
 
 roles:
