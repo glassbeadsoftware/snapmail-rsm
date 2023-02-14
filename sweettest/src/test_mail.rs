@@ -147,7 +147,7 @@ pub async fn test_mail_dm() {
    //print_chain(&conductors[0], &agents[0], &cells[0]).await;
 
    /// B checks if arrived
-   let unacknowledged_inmails: Vec<ActionHash> = try_zome_call(&conductors[1], cells[1], "snapmail","get_all_unacknowledged_inmails", (),
+   let unacknowledged_inmails: Vec<ActionHash> = try_zome_call(&conductors[1], &cells[1], "snapmail","get_all_unacknowledged_inmails", (),
                  |unacknowledged_inmails: &Vec<ActionHash>| {unacknowledged_inmails.len() == 1})
       .await
       .expect("Should have an unacknowledged inmail");
@@ -255,7 +255,7 @@ pub async fn test_mail_pending() {
 
    /// Check status: Should be 'Pending'
    /// B checks inbox
-   try_zome_call(&conductors[0], cells[0], "snapmail","get_outmail_state", outmail_ah.clone(),
+   try_zome_call(&conductors[0], &cells[0], "snapmail","get_outmail_state", outmail_ah.clone(),
                  |mail_state: &OutMailState| {mail_state == &OutMailState::AllSent })
       .await
       .expect("Should have AllSent state");
@@ -271,10 +271,10 @@ pub async fn test_mail_pending() {
    print_chain(&conductors[1],  &cells[1]).await;
 
    /// B checks inbox
-   try_zome_call(&conductors[1], cells[1], "snapmail","check_mail_inbox", (), |res:&Vec<ActionHash>| {res.len() > 0})
+   try_zome_call(&conductors[1], &cells[1], "snapmail","check_mail_inbox", (), |res:&Vec<ActionHash>| {res.len() > 0})
       .await
       .expect("Should have one mail");
-   let mail_ahs = try_zome_call(&conductors[1], cells[1], "snapmail","get_all_unacknowledged_inmails", (), |res:&Vec<ActionHash>| {res.len() > 0})
+   let mail_ahs = try_zome_call(&conductors[1], &cells[1], "snapmail","get_all_unacknowledged_inmails", (), |res:&Vec<ActionHash>| {res.len() > 0})
       .await
       .expect("Should have one mail");
 
@@ -288,11 +288,11 @@ pub async fn test_mail_pending() {
 
 
    /// A checks ack inbox
-   let outmails_ehs = try_zome_call(&conductors[0], cells[0], "snapmail","check_ack_inbox", (), |res:&Vec<EntryHash>| {res.len() > 0})
+   let outmails_ehs = try_zome_call(&conductors[0], &cells[0], "snapmail","check_ack_inbox", (), |res:&Vec<EntryHash>| {res.len() > 0})
       .await
       .expect("Should have one ack");
    println!("outmails_ehs: {:?}", outmails_ehs);
-   try_zome_call(&conductors[0], cells[0], "snapmail","get_outmail_state", outmail_ah.clone(),
+   try_zome_call(&conductors[0], &cells[0], "snapmail","get_outmail_state", outmail_ah.clone(),
                  |mail_state: &OutMailState| {mail_state == &OutMailState::AllAcknowledged })
       .await
       .expect("Should have FullyAcknowledged state");

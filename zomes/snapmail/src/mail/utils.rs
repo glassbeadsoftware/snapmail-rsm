@@ -35,8 +35,8 @@ pub(crate) fn get_inmail_state(inmail_ah: ActionHash) -> ExternResult<InMailStat
     /// Determine OutAck delivery state
     let outack = outacks[0].to_owned();
     let outack_eh = hash_entry(outack)?;
-    let confirmation_created = try_confirming_pending_ack_has_been_received(outack_eh.clone(), &inmail.from)?;
-    let outack_state = if confirmation_created {
+    let confirmed = try_confirming_pending_ack_has_been_received(outack_eh.clone(), &inmail.from)?;
+    let outack_state = if confirmed {
         DeliveryState::Delivered
     } else {
          get_delivery_state(outack_eh, &inmail.from)?
@@ -201,7 +201,7 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
 /// If no confirmation, and there is a pending/s link but no inbox link, create a DeliveryConfirmation
 /// Return true if a DeliveryConfirmation has been created
 pub(crate) fn try_confirming_pending_ack_has_been_received(package_eh: EntryHash, recipient: &AgentPubKey) -> ExternResult<bool> {
-    debug!("try_confirming_pending_ack_has_been_received() - START");
+    debug!("try_confirming_pending_ack_has_been_received() {:?}", package_eh);
     /// Check confirmations
     let confirmations = get_confirmations(package_eh.clone())?;
     if !confirmations.is_empty() {

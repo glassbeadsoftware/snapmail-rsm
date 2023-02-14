@@ -101,7 +101,7 @@ pub async fn test_list_apps() {
    println!("\n LIST RUNNING APPS...");
    let list_apps = |conductor: ConductorHandle, cell: SweetCell| async move {
       conductor
-         .list_running_apps_for_required_cell_id(cell.cell_id())
+         .list_running_apps_for_dependent_cell_id(cell.cell_id())
          .await
          .unwrap()
    };
@@ -160,7 +160,7 @@ pub async fn test_handle() {
 
    let handle_list: Vec<HandleItem> = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
    assert_eq!(1, handle_list.len());
-   assert_eq!(name, handle_list[0].name);
+   assert_eq!(name, handle_list[0].username);
 
    let name = "camille";
    let _handle_address3: ActionHash = conductor.call(&cell1.zome("snapmail"), "set_handle", name.to_string()).await;
@@ -178,7 +178,7 @@ pub async fn test_handle() {
    for _ in 0..3u32 {
       let handle_list: Vec<HandleItem> = conductor.call(&cell1.zome("snapmail"), "get_all_handles", ()).await;
       assert_eq!(1, handle_list.len());
-      handle = handle_list[0].name.clone();
+      handle = handle_list[0].username.clone();
       println!("handle_list: {:?}", handle_list);
       if name == handle {
          break;

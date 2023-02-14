@@ -17,7 +17,7 @@ pub async fn setup_3_conductors() -> (SweetConductorBatch, Vec<AgentPubKey>, Swe
    let _: ActionHash = conductors[1].call(&cells[1].zome("snapmail"), "set_handle", BILLY_NICK).await;
    let _: ActionHash = conductors[2].call(&cells[2].zome("snapmail"), "set_handle", CAMILLE_NICK).await;
 
-   let _ = try_zome_call(&conductors[0], cells[0], "snapmail", "get_all_handles", (),
+   let _ = try_zome_call(&conductors[0], &cells[0], "snapmail", "get_all_handles", (),
                                                     |handle_list: &Vec<HandleItem>| handle_list.len() == 3).await;
 
    println!("\n\n\n AGENTS SETUP DONE\n\n");
