@@ -18,7 +18,7 @@ pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
       return error("No PubEncKey found for this agent");
    }
    /// Get the Entry from the link
-   let key_eh = key_links[0].target.clone().into();
+   let key_eh = key_links[0].target.clone().into_entry_hash().unwrap();
    let key_and_hash = get_latest_typed_from_eh::<PubEncKey>(key_eh)
       .expect("No reason for get_entry to crash")
       .expect("Should have it");

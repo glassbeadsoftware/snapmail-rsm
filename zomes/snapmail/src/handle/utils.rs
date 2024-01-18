@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use hdk::prelude::link::Link;
+//use hdk::prelude::link::Link;
 use snapmail_model::*;
 use zome_utils::*;
 
@@ -27,7 +27,7 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, Actio
         return None;
     }
     /// Get the Entry from the link
-    let handle_eh: EntryHash = handle_links[0].target.clone().into();
+    let handle_eh: EntryHash = handle_links[0].target.clone().into_entry_hash().unwrap();
     let handle_and_hash = get_latest_typed_from_eh::<Handle>(handle_eh.clone())
        .expect("No reason for get_entry to crash")
        .expect("Should have it");

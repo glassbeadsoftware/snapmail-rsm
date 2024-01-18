@@ -23,7 +23,7 @@ pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
    /// Find each Handle from links
    let mut handle_list = Vec::new();
    for member_link in member_links {
-      let handle_eh = member_link.target.clone().into();
+      let handle_eh = member_link.target.clone().into_entry_hash().unwrap();
       trace!("**** member_link target: {:?}", handle_eh);
       let maybe_handle_and_hash = get_latest_typed_from_eh::<Handle>(handle_eh)?;
       let handle_and_hash = match maybe_handle_and_hash {
