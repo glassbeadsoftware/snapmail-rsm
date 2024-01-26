@@ -69,7 +69,9 @@ fn post_commit_app(sah: SignedActionHashed, eh: EntryHash, _app_type: AppEntryDe
          status: None,
       };
       //debug!("post_commit_app().ReceivedMail: '{}'", item.mail.subject);
-      let res = emit_signal(&SignalProtocol::ReceivedMail(item));
+      let payload = SignalProtocol::ReceivedMail(item.clone());
+      let signal = SnapmailSignal::new(item.author, payload);
+      let res = emit_signal(&signal);
       if let Err(err) = res {
           error!("Emit 'ReceivedMail' signal failed: {}", err);
       }

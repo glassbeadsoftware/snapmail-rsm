@@ -6,7 +6,6 @@ use crate::{
     signal_protocol::*,
     mail,
     DirectMessageProtocol, MailMessage, AckMessage,
-    ReceivedAck,
 };
 
 ///
@@ -114,10 +113,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
     /// Emit Signal
-    let signal = SignalProtocol::ReceivedAck(ReceivedAck {
-        from: from.clone(),
-        for_mail: outmail_ah,
-    });
+    let signal = SnapmailSignal::new(from, SignalProtocol::ReceivedAck(outmail_ah));
     let res = emit_signal(&signal);
     if let Err(err) = res {
         error!("Emit signal failed: {}", err);
