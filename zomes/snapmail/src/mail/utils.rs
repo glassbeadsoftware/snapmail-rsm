@@ -14,7 +14,7 @@ pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {
 /// Get State of InMail
 pub(crate) fn get_inmail_state(inmail_ah: ActionHash) -> ExternResult<InMailState> {
     /// Get inMail Details
-    let maybe_details = get_details(inmail_ah.clone(), GetOptions::latest())?;
+    let maybe_details = get_details(inmail_ah.clone(), GetOptions::network())?;
     if maybe_details.is_none() {
         return error("No InMail at given address");
     }
@@ -170,8 +170,8 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
     }
     let mut pending_found = false;
     /// If a pending link and and inbox link match, still waiting for confirmation
-    let pendings_links = get_links(package_eh.clone(), LinkKind::Pendings, None)?;
-    let inbox_links = get_links(recipient.to_owned(), LinkKind::MailInbox, None)?;
+    let pendings_links = get_links(link_input(package_eh.clone(), LinkKind::Pendings, None))?;
+    let inbox_links = get_links(link_input(recipient.to_owned(), LinkKind::MailInbox, None))?;
     let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x| x.target.clone().into_entry_hash().unwrap()).collect();
     for pendings_link in pendings_links.iter() {
         let res = LinkKind::into_agent(&pendings_link.tag);
@@ -208,10 +208,10 @@ pub(crate) fn try_confirming_pending_ack_has_been_received(package_eh: EntryHash
         return Ok(false);
     }
     /// If a pending link and and inbox link match, still waiting for confirmation
-    let pending_links = get_links(package_eh.clone(), LinkKind::Pending, None)?;
+    let pending_links = get_links(link_input(package_eh.clone(), LinkKind::Pending, None))?;
     for _pending_link in pending_links.iter() {
         /// Check for inbox link: If no link, it means it has been deleted by recipient
-        let links = get_links(recipient.to_owned(), LinkKind::AckInbox, None)?;
+        let links = get_links(link_input(recipient.to_owned(), LinkKind::AckInbox, None))?;
         for link in links.iter() {
             let res = LinkKind::into_agent(&link.tag);
             if let Ok(agent) = res {
@@ -243,13 +243,13 @@ pub fn get_delivery_state(package_eh: EntryHash, recipient: &AgentPubKey) -> Ext
     /// TODO: Do one query of multiple link types with HDK 145
 
     /// OutAck
-    let pending_links = get_links(package_eh.clone(), LinkKind::Pending, None)?;
+    let pending_links = get_links(link_input(package_eh.clone(), LinkKind::Pending, None))?;
     if pending_links.len() > 0 {
         return Ok(DeliveryState::Pending)
     }
 
     /// OutMail
-    let links = get_links(package_eh.clone(), LinkKind::Pendings, None)?;
+    let links = get_links(link_input(package_eh.clone(), LinkKind::Pendings, None))?;
     for link in links {
         let maybe_pendings = LinkKind::into_agent(&link.tag);
         if let Ok(agent) = maybe_pendings {

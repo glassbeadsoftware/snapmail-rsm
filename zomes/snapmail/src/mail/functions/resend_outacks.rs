@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use hdk::prelude::query::ChainQueryFilter;
+//use hdk::prelude::query::ChainQueryFilter;
 use snapmail_model::*;
 use zome_utils::*;
 

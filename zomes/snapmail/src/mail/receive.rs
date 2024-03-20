@@ -129,7 +129,7 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
 /// Returns FileManifest, UnknownEntry or Failure.
 pub fn receive_direct_request_manifest(from: AgentPubKey, manifest_eh: EntryHash) -> DirectMessageProtocol {
     debug!("received request manifest from: {}", from);
-    let maybe_maybe_el = get(manifest_eh.clone(), GetOptions::content());
+    let maybe_maybe_el = get(manifest_eh.clone(), GetOptions::network());
     if let Err(err) = maybe_maybe_el {
         let response_str = "Failed on get_entry()";
         warn!("{}: {}", response_str, err);
@@ -176,7 +176,7 @@ pub fn receive_direct_manifest(from: AgentPubKey, manifest: FileManifest) -> Dir
 pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> DirectMessageProtocol {
     debug!("received request chunk from: {}", from);
     // FIXME: emit signal
-    let maybe_maybe_el = get(chunk_eh.clone(), GetOptions::content());
+    let maybe_maybe_el = get(chunk_eh.clone(), GetOptions::network());
     if let Err(err) = maybe_maybe_el {
         let response_str = "Failed on get_entry()";
         error!("{}: {}", response_str, err);

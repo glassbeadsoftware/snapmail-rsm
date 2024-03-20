@@ -27,7 +27,7 @@ pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {
         i += 1;
         let chunk_str = format!("Chunk {}/{}", i, chunk_count);
         /// Skip if chunk already held
-        let maybe_el = get(chunk_eh.clone(), GetOptions::content())?;
+        let maybe_el = get(chunk_eh.clone(), GetOptions::network())?;
         if let Some(_) = maybe_el {
             warn!("{} already held", chunk_str);
             continue;

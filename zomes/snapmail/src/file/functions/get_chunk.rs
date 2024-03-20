@@ -12,7 +12,7 @@ use zome_utils::*;
 pub fn get_chunk(chunk_eh: EntryHash) -> ExternResult<String> {
     debug!("get_chunk(): {}", chunk_eh);
     /// Look for record
-    let record = match get(chunk_eh, GetOptions::content())? {
+    let record = match get(chunk_eh, GetOptions::network())? {
         Some(record) => record,
         None => return error("No record found at given address"),
     };

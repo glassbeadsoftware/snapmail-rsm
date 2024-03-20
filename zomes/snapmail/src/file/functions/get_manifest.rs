@@ -11,7 +11,7 @@ use zome_utils::*;
 pub fn get_manifest(manifest_address: AnyDhtHash) -> ExternResult<FileManifest> {
     trace!("get_manifest(): {}", manifest_address);
     /// Look for record
-    let record = match get(manifest_address, GetOptions::content())? {
+    let record = match get(manifest_address, GetOptions::network())? {
         Some(record) => record,
         None => return error("No record found at given address"),
     };

@@ -35,30 +35,30 @@ pub use crate::{
 };
 
 
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(UnitEntryTypes)]
 pub enum SnapmailEntry {
-   #[entry_def(required_validations = 2, visibility = "public")]
+   #[entry_type(required_validations = 2, visibility = "public")]
    PubEncKey(PubEncKey),
-   #[entry_def(required_validations = 2, visibility = "public")]
+   #[entry_type(required_validations = 2, visibility = "public")]
    Handle(Handle),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    InMail(InMail),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    OutMail(OutMail),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    OutAck(OutAck),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    InAck(InAck),
-   #[entry_def(required_validations = 2, visibility = "public")]
+   #[entry_type(required_validations = 2, visibility = "public")]
    PendingMail(PendingMail),
-   #[entry_def(required_validations = 2, visibility = "public")]
+   #[entry_type(required_validations = 2, visibility = "public")]
    PendingAck(PendingAck),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    DeliveryConfirmation(DeliveryConfirmation),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    FileChunk(FileChunk),
-   #[entry_def(required_validations = 2, visibility = "private")]
+   #[entry_type(required_validations = 2, visibility = "private")]
    FileManifest(FileManifest),
 }
 

@@ -18,17 +18,17 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
     /// Lookup `mail_inbox` links on my agentId
     let me = agent_info()?.agent_latest_pubkey;
     let my_agent_eh = EntryHash::from(me.clone());
-    let links_result = get_links(
+    let links_result = get_links(link_input(
         my_agent_eh.clone(),
         LinkKind::MailInbox,
         None,
-        )?;
+        ))?;
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_agent_eh);
     /// Check each MailInbox link
     let mut new_inmails = Vec::new();
     for inbox_link in &links_result {
         let pending_mail_eh = inbox_link.target.clone().into_entry_hash().unwrap();
-        let maybe_el = get(pending_mail_eh.clone(), GetOptions::latest())?;
+        let maybe_el = get(pending_mail_eh.clone(), GetOptions::network())?;
         if maybe_el.is_none() {
             warn!("Action not found for pending mail entry");
             continue;

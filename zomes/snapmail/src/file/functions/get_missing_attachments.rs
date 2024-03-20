@@ -23,7 +23,7 @@ pub fn get_missing_attachments(input: GetMissingAttachmentsInput) -> ExternResul
     for attachment_info in inmail.mail.attachments {
         let manifest_eh = attachment_info.manifest_eh;
         let manifest_str = format!("Manifest {}", manifest_eh);
-        let maybe_entry = get(manifest_eh.clone(), GetOptions::content())?;
+        let maybe_entry = get(manifest_eh.clone(), GetOptions::network())?;
         let mut manifest = None;
         /// Request manifest if missing
         if let None = maybe_entry {

@@ -15,14 +15,14 @@ use crate::{
 pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
     /// Lookup `ack_inbox` links on my agentId
     let me = agent_info()?.agent_latest_pubkey;
-    let links_result = get_links(me.clone(), LinkKind::AckInbox, None)?;
+    let links_result = get_links(link_input(me.clone(), LinkKind::AckInbox, None))?;
     debug!("incoming_ack links_result: {:?} (for {})", links_result, &me);
     /// Check each link
     let mut updated_outmails = Vec::new();
     for link in &links_result {
         /// Get entry on the DHT
         let pending_ack_eh = link.target.clone().into_entry_hash().unwrap();
-        let maybe_el = get(pending_ack_eh.clone(), GetOptions::latest())?;
+        let maybe_el = get(pending_ack_eh.clone(), GetOptions::network())?;
         if maybe_el.is_none() {
             warn!("Action not found for pending ack entry");
             continue;

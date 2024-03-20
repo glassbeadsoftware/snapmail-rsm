@@ -15,7 +15,7 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
 
    /// Check if deleted
    /// Get OutMail Details
-   let maybe_details = get_details(outmail_ah.clone(), GetOptions::latest())?;
+   let maybe_details = get_details(outmail_ah.clone(), GetOptions::network())?;
    if maybe_details.is_none() {
       return error("No OutMail at given address");
    }
@@ -65,7 +65,7 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
 pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<BTreeMap<AgentPubKey, DeliveryState>> {
    debug!(" *** get_outmail_delivery_state(): ");
    /// Get OutMail Details
-   let maybe_details = get_details(outmail_ah.clone(), GetOptions::latest())?;
+   let maybe_details = get_details(outmail_ah.clone(), GetOptions::network())?;
    if maybe_details.is_none() {
       return error("No OutMail at given address");
    }

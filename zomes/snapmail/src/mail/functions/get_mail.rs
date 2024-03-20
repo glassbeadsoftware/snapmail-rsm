@@ -23,7 +23,7 @@ pub(crate) fn try_into_mail(ah: ActionHash) -> ExternResult<GetMailOutput> {
     //     Ok(record) => record,
     //     Err(_) => return Ok(GetMailOutput(None)),
     // };
-    let record = match get(ah, GetOptions::content())? {
+    let record = match get(ah, GetOptions::network())? {
         Some(record) => record,
         None => return Ok(GetMailOutput(None)),
     };

@@ -63,7 +63,7 @@ fn send_manifest_by_dm(
 ///
 fn send_chunk_by_dm(destination: &AgentPubKey, chunk_eh: &EntryHash) -> ExternResult<()> {
     debug!("send_chunk_by_dm(): {}", chunk_eh);
-    let maybe_el = get(chunk_eh.clone(), GetOptions::content())?;
+    let maybe_el = get(chunk_eh.clone(), GetOptions::network())?;
         //.expect("No reason for get_entry() to crash");
     debug!("maybe_entry =  {:?}", maybe_el);
     if maybe_el.is_none() {

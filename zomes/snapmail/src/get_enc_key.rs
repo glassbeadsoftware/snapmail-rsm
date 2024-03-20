@@ -10,7 +10,7 @@ pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
    debug !("*** get_enc_key() CALLED by {}", call_info()?.function_name);
 
    /// Get All Handle links on agent ; should have only one
-   let key_links = get_links(from, LinkKind::EncKey, None)
+   let key_links = get_links(link_input(from, LinkKind::EncKey, None))
       .expect("No reason for this to fail");
    assert!(key_links.len() <= 1);
    if key_links.len() == 0 {

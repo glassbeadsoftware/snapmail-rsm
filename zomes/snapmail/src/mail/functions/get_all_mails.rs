@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 use snapmail_model::*;
-use hdk::prelude::query::ChainQueryFilter;
+//use hdk::prelude::query::ChainQueryFilter;
 use zome_utils::*;
 
 use std::collections::BTreeMap;

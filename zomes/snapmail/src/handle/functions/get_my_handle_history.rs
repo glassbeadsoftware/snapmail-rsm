@@ -6,7 +6,7 @@ use snapmail_model::*;
 //#[snapmail_api]
 pub fn get_my_handle_history(initial_handle_address: ActionHash) -> ExternResult<Vec<String>> {
 
-    let history_result = get_details(&initial_handle_address, GetOptions::latest());
+    let history_result = get_details(&initial_handle_address, GetOptions::network());
     if let Err(_e) = history_result {
         error!("get_entry_history() failed");
         return Ok(Vec::new());

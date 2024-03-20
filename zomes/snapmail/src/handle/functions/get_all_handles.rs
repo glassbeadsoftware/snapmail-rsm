@@ -30,7 +30,7 @@ pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
          Some(eh) => eh,
          None => continue,
       };
-      let maybe_maybe_element = get(handle_and_hash.1.clone(), GetOptions::latest());
+      let maybe_maybe_element = get(handle_and_hash.1.clone(), GetOptions::network());
       let record = match maybe_maybe_element {
          Ok(Some(record)) => record,
          _ => continue,
