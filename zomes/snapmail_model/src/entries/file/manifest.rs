@@ -15,7 +15,7 @@ pub struct FileManifest {
 }
 
 
-/// Check the Handle's data integrity
+/// Check data integrity
 impl FileManifest {
     pub fn validate(&self) -> ExternResult<ValidateCallbackResult> {
         let properties = get_properties()?;

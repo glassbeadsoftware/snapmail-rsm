@@ -4,7 +4,7 @@ use holo_hash::hash_type::{self, HashType};
 #[hdk_link_types]
 #[derive(Serialize, Deserialize)]
 pub enum SnapmailLink {
-   Members,   // From "Directory" Anchor to AgentPubKey
+   Members,   // From DIRECTORY_ANCHOR to AgentPubKey
    AckInbox,  // From AgentPubKey to PendingAck (with sender's AgentPubKey as Tag)
    MailInbox, // From AgentPubKey to PendingMail (with sender's AgentPubKey as Tag)
    Handle,    // From AgentPubKey to Handle

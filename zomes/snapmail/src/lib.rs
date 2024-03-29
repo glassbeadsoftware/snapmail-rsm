@@ -15,27 +15,18 @@ extern crate strum_macros;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod api_error;
 
-
-mod path_kind;
-
 mod dm;
 mod dm_protocol;
-
 pub mod signal_protocol;
-
 mod callbacks;
-
 pub mod handle;
 pub mod mail;
 pub mod file;
-
 pub mod create_entry;
 pub mod get_enc_key;
 
 pub use snapmail_model::*;
-
 pub use dm::*;
 pub use dm_protocol::*;
-pub use path_kind::*;
 pub use signal_protocol::*;
 pub use create_entry::*;

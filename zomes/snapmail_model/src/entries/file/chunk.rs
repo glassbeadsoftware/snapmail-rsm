@@ -19,7 +19,7 @@ impl FileChunk {
         }
     }
 
-    /// Check the Handle's data integrity
+    /// Check data integrity
     pub fn validate(&self) -> ExternResult<ValidateCallbackResult> {
         let properties = get_properties()?;
         /// Check size

@@ -2,7 +2,6 @@ use hdk::prelude::*;
 use snapmail_model::*;
 
 use crate::{
-    path_kind,
     handle::utils::*,
 };
 
@@ -24,13 +23,13 @@ pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
     let new_handle = Handle::new(new_username.to_string());
     /// -- Check if already have Handle
     let my_agent_address = agent_info()?.agent_latest_pubkey;
-    let maybe_current_handle = get_handle_element(my_agent_address.clone());
-    if let Some((current_handle, original_ah)) = maybe_current_handle {
+    let maybe_current_handle = get_handle_record(my_agent_address.clone());
+    if let Some((current_handle, ah)) = maybe_current_handle {
         if current_handle.username == new_username.to_string() {
-            return Ok(original_ah);
+            return Ok(ah);
         }
         /// Really new name so just update entry
-        let res = update_entry(original_ah, &new_handle)?;
+        let res = update_entry(ah, &new_handle)?;
         debug!("updated_handle_ah = {:?}", res);
         return Ok(res);
     }
@@ -48,7 +47,7 @@ pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
     )?;
     debug!("**** Handle linked to agent!");
     /// Link Handle to DNA entry for a global directory
-    let directory_address = Path::from(path_kind::Directory).path_entry_hash().expect("Directory Path should hash");
+    let directory_address = Path::from(DIRECTORY_ANCHOR).path_entry_hash().unwrap();
     let _ = create_link(
         directory_address,
         new_handle_eh,

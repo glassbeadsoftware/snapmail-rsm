@@ -1,23 +1,18 @@
 use hdk::prelude::*;
-//use hdk::prelude::link::Link;
 use snapmail_model::*;
 use zome_utils::*;
-
-use crate::{
-    path_kind,
-};
 
 
 /// Get 'Members' links on the DNA entry
 pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
-    let path_hash = Path::from(path_kind::Directory).path_entry_hash()?;
+    let path_hash = Path::from(DIRECTORY_ANCHOR).path_entry_hash()?;
     let entry_results = get_links(link_input(path_hash, SnapmailLink::Members, None))?;
     Ok(entry_results)
 }
 
 
-/// Return Record of latest Handle Entry for agent
-pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, ActionHash)> {
+/// Return agent's latest Handle.
+pub(crate) fn get_handle_record(agent_id: AgentPubKey) -> Option<(Handle, ActionHash)> {
     /// Get All Handle links on agent ; should have only one
     let handle_links = get_links(link_input(agent_id, SnapmailLink::Handle, None))
        .expect("No reason for this to fail");
@@ -32,10 +27,10 @@ pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, Actio
        .expect("No reason for get_entry to crash")
        .expect("Should have it");
     /// Look for original record
-    let original_element = match get(handle_eh.clone(), GetOptions::network()) {
+    let maybe_record = match get(handle_eh.clone(), GetOptions::network()) {
         Ok(Some(record)) => record,
         _ => return None,
     };
     /// Done
-    return Some((handle_and_hash.0, original_element.action_address().clone()));
+    return Some((handle_and_hash.0, maybe_record.action_address().clone()));
 }
