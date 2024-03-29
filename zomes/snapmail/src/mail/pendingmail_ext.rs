@@ -98,12 +98,13 @@ impl PendingMailExt for PendingMail {
 
    /// Attempt to decrypt pendingMail with provided keys
    fn attempt_decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Option<Mail> {
-      trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
-      trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
+      debug!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
+      debug!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      let decrypted = ed_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+      //let decrypted = ed_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+      let decrypted = ed_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
           .expect("Decryption should work");
-      trace!("attempt_decrypt maybe_decrypted = {:?}", decrypted);
+      debug!("attempt_decrypt maybe_decrypted = {:?}", decrypted);
       /// Deserialize
       let mail: Mail = bincode::deserialize(decrypted.as_ref())
           .expect("Deserialization should work");
