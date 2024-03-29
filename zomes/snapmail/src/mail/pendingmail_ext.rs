@@ -4,14 +4,14 @@ use zome_utils::*;
 
 use crate::{
    mail::utils::*,
-   get_enc_key::*,
+   //get_enc_key::*,
 };
 
 // From your crate
 pub trait PendingMailExt {
-   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> PendingMail;
+   fn create(mail: Mail, outmail_eh: EntryHash, sender: AgentPubKey, recipient: AgentPubKey) -> PendingMail;
    fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<PendingMail>;
-   fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail>;
+   fn attempt_decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Option<Mail>;
    fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>>;
 }
 
@@ -21,12 +21,12 @@ impl PendingMailExt for PendingMail {
 
    /// Create PendingMail from Mail and recipient's public encryption key
    /// This will encrypt the Mail with the recipient's key
-   fn create(mail: Mail, outmail_eh: EntryHash, sender: X25519PubKey, recipient: X25519PubKey) -> PendingMail {
+   fn create(mail: Mail, outmail_eh: EntryHash, sender: AgentPubKey, recipient: AgentPubKey) -> PendingMail {
       /// Serialize
       let serialized = bincode::serialize(&mail).unwrap();
       let data: XSalsa20Poly1305Data = serialized.into();
       /// Encrypt
-      let encrypted = x_25519_x_salsa20_poly1305_encrypt(sender, recipient, data)
+      let encrypted = ed_25519_x_salsa20_poly1305_encrypt(sender.clone(), recipient.clone(), data)
          .expect("Encryption should work");
       trace!("Encrypted: {:?}", encrypted.clone());
       let signature = sign_mail(&mail).expect("Should be able to sign with my key");
@@ -77,26 +77,39 @@ impl PendingMailExt for PendingMail {
       Ok(Self::create(mail, outmail_eh, sender_key, recipient_key))
    }
 
+   // /// Attempt to decrypt pendingMail with provided keys
+   // fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {
+   //    trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
+   //    trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
+   //    /// Decrypt
+   //    let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+   //       .expect("Decryption should work");
+   //    trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
+   //    let decrypted = match maybe_decrypted {
+   //       Some(data) => data,
+   //       None => return None,
+   //    };
+   //    /// Deserialize
+   //    let mail: Mail = bincode::deserialize(decrypted.as_ref())
+   //       .expect("Deserialization should work");
+   //    /// Done
+   //    Some(mail)
+   // }
+
    /// Attempt to decrypt pendingMail with provided keys
-   fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {
+   fn attempt_decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Option<Mail> {
       trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
-         .expect("Decryption should work");
-      trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
-      let decrypted = match maybe_decrypted {
-         Some(data) => data,
-         None => return None,
-      };
+      let decrypted = ed_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+          .expect("Decryption should work");
+      trace!("attempt_decrypt maybe_decrypted = {:?}", decrypted);
       /// Deserialize
       let mail: Mail = bincode::deserialize(decrypted.as_ref())
-         .expect("Deserialization should work");
+          .expect("Deserialization should work");
       /// Done
       Some(mail)
    }
-
-
 
 
    fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>> {
@@ -104,9 +117,11 @@ impl PendingMailExt for PendingMail {
       /// Get my key
       let my_agent_key = agent_info()?.agent_latest_pubkey;
       debug!("try_into_inmail() my_agent_key: {}", my_agent_key);
-      let recipient_key = get_enc_key(my_agent_key.clone())?;
+      //let recipient_key = get_enc_key(my_agent_key.clone())?;
+      let recipient_key =  my_agent_key.clone();
       /// Get sender's key
-      let sender_key = get_enc_key(from.clone())?;
+      //let sender_key = get_enc_key(from.clone())?;
+      let sender_key = from.clone();
       /// Decrypt
       debug!("try_into_inmail() recipient_key: {:?}", recipient_key);
       debug!("   try_into_inmail() sender_key: {:?}", sender_key);
@@ -141,4 +156,26 @@ impl PendingMailExt for PendingMail {
       /// Done
       Ok(Some(inmail))
    }
+}
+
+
+#[hdk_extern]
+fn test_encryption(recipient: AgentPubKey) -> ExternResult<()> {
+   /// Get my key
+   let sender = agent_info()?.agent_latest_pubkey;
+   /// Serialize
+   let data: XSalsa20Poly1305Data = vec![1,2,3,74,4,85,48,7,87,89].into();
+   /// Encrypt
+   let encrypted = ed_25519_x_salsa20_poly1305_encrypt(sender.clone(), recipient.clone(), data)?;
+   debug!("create decrypt of: {:?}\n With:", encrypted.clone());
+   debug!("-    sender = {:?}", sender.clone());
+   debug!("- recipient = {:?}", recipient.clone());
+   /// Normal decrypt
+   let maybe_decrypted = ed_25519_x_salsa20_poly1305_decrypt(recipient.clone(), sender.clone(), encrypted.clone());
+   debug!("  maybe_decrypted normal = {:?}", maybe_decrypted);
+   /// Inverted keys
+   let maybe_decrypted = ed_25519_x_salsa20_poly1305_decrypt(sender, recipient, encrypted.clone());
+   debug!("maybe_decrypted inverted = {:?}", maybe_decrypted);
+   /// Done
+   Ok(())
 }

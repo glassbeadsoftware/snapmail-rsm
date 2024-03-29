@@ -2,7 +2,6 @@ use hdk::prelude::*;
 use snapmail_model::*;
 use zome_utils::*;
 
-
 ///
 #[hdk_extern]
 //#[snapmail_api]
@@ -25,7 +24,6 @@ pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
    /// Done
    Ok(key_and_hash.0.value)
 }
-
 
 #[hdk_extern]
 //#[snapmail_api]
