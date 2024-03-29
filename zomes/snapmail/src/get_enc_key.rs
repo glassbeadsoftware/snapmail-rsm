@@ -35,6 +35,7 @@ pub fn get_my_enc_key(_: ()) -> ExternResult<X25519PubKey> {
 }
 
 #[hdk_extern]
+#[ignore(zits)]
 fn test_encryption(to: AgentPubKey) -> ExternResult<()> {
    /// Get my key
    let my_agent_key = agent_info()?.agent_latest_pubkey;
