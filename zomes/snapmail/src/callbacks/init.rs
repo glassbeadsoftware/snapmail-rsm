@@ -35,7 +35,7 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    /// Setup initial capabilities
    init_caps(())?;
    /// Create public encryption key and broadcast it
-   create_enc_key()?;
+   //create_enc_key()?;
    //PubEncKey::create_and_share()?;
    /// Done
    debug!("*** init() callback DONE");
