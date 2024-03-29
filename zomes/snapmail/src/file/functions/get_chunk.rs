@@ -9,6 +9,7 @@ use zome_utils::*;
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_chunk(chunk_eh: EntryHash) -> ExternResult<String> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     debug!("get_chunk(): {}", chunk_eh);
     /// Look for record
     let record = match get(chunk_eh, GetOptions::network())? {

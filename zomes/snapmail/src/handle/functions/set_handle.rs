@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use snapmail_model::*;
+use zome_utils::*;
 
 use crate::{
     handle::utils::*,
@@ -9,6 +10,7 @@ use crate::{
 /// DEBUG / TESTING ONLY
 #[hdk_extern]
 pub fn create_empty_handle(_: ()) -> ExternResult<ActionHash> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     let new_handle = Handle::empty();
     let ah = create_entry(SnapmailEntry::Handle(new_handle))?;
     Ok(ah)
@@ -19,6 +21,7 @@ pub fn create_empty_handle(_: ()) -> ExternResult<ActionHash> {
 #[hdk_extern]
 //#[snapmail_api]
 pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     /// -- Create Handle Entry
     let new_handle = Handle::new(new_username.to_string());
     /// -- Check if already have Handle
@@ -57,15 +60,3 @@ pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
     /// Done
     return Ok(new_handle_ah);
 }
-
-
-/*
-/// Zome function for testing the update_entry() API function.
-#[hdk_extern]
-pub fn set_three_handles(name1: String, name2: String, name3: String) -> ExternResult<EntryHash> {
-    let res = set_handle(name1)?;
-    set_handle(name2)?;
-    set_handle(name3)?;
-    Ok(res)
-}
-*/

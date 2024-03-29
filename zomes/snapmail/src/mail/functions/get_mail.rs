@@ -11,6 +11,7 @@ pub struct GetMailOutput(pub Option<Result<InMail, OutMail>>);
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_mail(ah: ActionHash) -> ExternResult<GetMailOutput>{
+    std::panic::set_hook(Box::new(zome_panic_hook));
     //debug!("get_mail() START");
     return try_into_mail(ah);
 }

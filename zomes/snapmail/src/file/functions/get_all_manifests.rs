@@ -2,14 +2,12 @@ use hdk::prelude::*;
 use snapmail_model::*;
 use zome_utils::*;
 
-#[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct ZomeManifestVec(Vec<FileManifest>);
-
 
 /// Get all manifests stored in our source chain
 #[hdk_extern]
 //#[snapmail_api]
-pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
+pub fn get_all_manifests(_: ()) -> ExternResult<Vec<FileManifest>> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     trace!("get_all_manifests()");
     /// Get all FileManifest on local chain with query
     let query_args = ChainQueryFilter::default()
@@ -29,5 +27,5 @@ pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
         manifest_list.push(manifest);
     }
     /// Done
-    Ok(ZomeManifestVec(manifest_list))
+    Ok(manifest_list)
 }

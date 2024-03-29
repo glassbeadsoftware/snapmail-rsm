@@ -6,6 +6,7 @@ use zome_utils::*;
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    debug !("*** get_enc_key() CALLED by {}", call_info()?.function_name);
 
    /// Get All Handle links on agent ; should have only one
@@ -28,6 +29,7 @@ pub fn get_enc_key(from: AgentPubKey) -> ExternResult<X25519PubKey> {
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_my_enc_key(_: ()) -> ExternResult<X25519PubKey> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    /// Get my agent address
    let latest_pubkey = agent_info()?.agent_latest_pubkey;
    /// Get encryption key on that agent address

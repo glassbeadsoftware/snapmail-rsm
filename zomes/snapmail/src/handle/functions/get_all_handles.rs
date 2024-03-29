@@ -17,6 +17,7 @@ pub struct HandleItem {
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_all_handles(_: ()) -> ExternResult<Vec<HandleItem>> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    /// Get all Members links
    let member_links = get_members()?;
    trace!("get_all_handles() handle_links size: {:?}", member_links.len());

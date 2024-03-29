@@ -4,10 +4,30 @@ use snapmail_model::*;
 
 use crate::{
    dm::*,
-   create_enc_key,
+   //create_enc_key,
 };
 
+
+///
 #[hdk_extern]
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+   debug!("*** init() callback START");
+   /// Set Global Anchors
+   //let typed_path = path.clone().into_typed(ScopedLinkType::try_from(LinkTypes::Tree)?);
+   let path = Path::from(DIRECTORY_ANCHOR).typed(SnapmailLink::Members)?;
+   path.ensure()?;
+   /// Setup initial capabilities
+   init_caps(())?;
+   // /// Create public encryption key and broadcast it
+   //create_enc_key()?;
+   //PubEncKey::create_and_share()?;
+   /// Done
+   debug!("*** init() callback DONE");
+   Ok(InitCallbackResult::Pass)
+}
+
+
+///
 fn init_caps(_: ()) -> ExternResult<()> {
    let mut fns = BTreeSet::new();
    fns.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
@@ -20,24 +40,4 @@ fn init_caps(_: ()) -> ExternResult<()> {
       }
    )?;
    Ok(())
-}
-
-
-
-/// Zome Callback
-#[hdk_extern]
-fn init(_: ()) -> ExternResult<InitCallbackResult> {
-   debug!("*** init() callback START");
-   /// Set Global Anchors
-   //let typed_path = path.clone().into_typed(ScopedLinkType::try_from(LinkTypes::Tree)?);
-   let path = Path::from(DIRECTORY_ANCHOR).typed(SnapmailLink::Members)?;
-   path.ensure()?;
-   /// Setup initial capabilities
-   init_caps(())?;
-   /// Create public encryption key and broadcast it
-   //create_enc_key()?;
-   //PubEncKey::create_and_share()?;
-   /// Done
-   debug!("*** init() callback DONE");
-   Ok(InitCallbackResult::Pass)
 }

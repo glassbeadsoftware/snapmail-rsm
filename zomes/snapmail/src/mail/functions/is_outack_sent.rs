@@ -9,6 +9,7 @@ use crate::mail::get_confirmations;
 #[hdk_extern]
 //#[snapmail_api]
 pub fn is_outack_sent(outack_ah: ActionHash) -> ExternResult<bool> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    debug!(" *** get_outack_state(): ");
    /// Make sure of type
    let (outack_eh, _outack) = get_typed_from_ah::<OutAck>(outack_ah)?;

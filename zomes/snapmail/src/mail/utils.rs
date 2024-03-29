@@ -95,12 +95,6 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResu
 }
 
 
-// pub(crate) fn has_been_acknowledged(inmail_ah: ActionHash) -> ExternResult<bool> {
-//     let list = get_outacks(inmail_ah)?;
-//     Ok(list.len() > 0)
-// }
-
-
 ///
 pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResult<Vec<InAck>> {
     /// Get all InAck entries
@@ -169,7 +163,7 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
         return Ok(false);
     }
     let mut pending_found = false;
-    /// If a pending link and and inbox link match, still waiting for confirmation
+    /// If a pending link and inbox link match, still waiting for confirmation
     let pendings_links = get_links(link_input(package_eh.clone(), SnapmailLink::Pendings, None))?;
     let inbox_links = get_links(link_input(recipient.to_owned(), SnapmailLink::MailInbox, None))?;
     let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x| x.target.clone().into_entry_hash().unwrap()).collect();

@@ -5,13 +5,8 @@ use crate::create_entry::*;
 
 use crate::{
     send_dm,
-    mail::{
-        sign_mail, PendingMailExt,
-    },
-    dm_protocol::{
-        MailMessage, DirectMessageProtocol,
-    },
-    //mail::receive::*,
+    mail::{sign_mail, PendingMailExt},
+    dm_protocol::{MailMessage, DirectMessageProtocol},
     SnapmailLink,
     file::{get_manifest},
 };
@@ -23,7 +18,6 @@ pub enum SendSuccessKind {
     OK_DIRECT,
     OK_PENDING,
 }
-
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SendMailInput {
@@ -137,7 +131,9 @@ fn deliver_mail_by_dm(
 }
 
 
+/// remote called
 #[hdk_extern]
+#[ignore(zits)]
 fn commit_inmail(inmail: InMail) -> ExternResult<ActionHash> {
     debug!("commit_inmail() START **********");
     create_entry(SnapmailEntry::InMail(inmail))
@@ -151,8 +147,9 @@ struct CommitPendingMailInput {
     destination: AgentPubKey,
 }
 
-
+/// remote called
 #[hdk_extern]
+#[ignore(zits)]
 fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<ActionHash> {
     debug!("commit_pending_mail() START **********");
     let me = agent_info()?.agent_latest_pubkey;
@@ -264,12 +261,13 @@ pub(crate) fn deliver_mail(
 }
 
 
-/// Zone Function
+///
 /// Send Mail: Creates and commits OutMail. Files must already be committed.
 /// post_commit will try to send directly to each recipient.
 #[hdk_extern]
 //#[snapmail_api]
 pub fn send_mail(input: SendMailInput) -> ExternResult<ActionHash> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     debug!("Sending mail: {:?}", input);
     /// Get file manifests from addresses
     let mut file_manifest_list = Vec::new();
@@ -346,20 +344,3 @@ pub fn send_committed_mail(
     /// Done
     Ok(())
 }
-
-//
-// #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-// struct CommitSentsLinkInput {
-//     pub outmail_eh: EntryHash,
-//     pub to: AgentPubKey,
-// }
-//
-// /// Create & Commit 'Sent' link
-// /// Return ActionHash of newly created link
-// #[hdk_extern]
-// fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<ActionHash> {
-//     debug!("commit_sents_link(): {:?} ", input);
-//     let tag = SnapmailLink::Sents.concat_hash(&input.to);
-//     let ah = create_link(input.outmail_eh.clone(), input.outmail_eh, HdkLinkType::Any, tag)?;
-//     Ok(ah)
-// }

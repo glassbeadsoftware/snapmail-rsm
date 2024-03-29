@@ -162,6 +162,7 @@ impl PendingMailExt for PendingMail {
 
 #[hdk_extern]
 fn test_encryption(recipient: AgentPubKey) -> ExternResult<()> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    /// Get my key
    let sender = agent_info()?.agent_latest_pubkey;
    /// Serialize

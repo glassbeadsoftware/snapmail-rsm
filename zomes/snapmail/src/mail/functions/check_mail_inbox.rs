@@ -14,6 +14,7 @@ use crate::{
 #[hdk_extern]
 //#[snapmail_api]
 pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     /// Lookup `mail_inbox` links on my agentId
     let me = agent_info()?.agent_latest_pubkey;
     let my_agent_eh = EntryHash::from(me.clone());

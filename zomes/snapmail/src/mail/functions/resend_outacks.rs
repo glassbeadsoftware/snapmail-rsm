@@ -1,5 +1,4 @@
 use hdk::prelude::*;
-//use hdk::prelude::query::ChainQueryFilter;
 use snapmail_model::*;
 use zome_utils::*;
 
@@ -16,6 +15,7 @@ use crate::{
 #[hdk_extern]
 //#[snapmail_api]
 fn resend_outacks(_: ()) -> ExternResult<Vec<ActionHash>> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    let query_args = ChainQueryFilter::default()
       .include_entries(true)
       .action_type(ActionType::Create)

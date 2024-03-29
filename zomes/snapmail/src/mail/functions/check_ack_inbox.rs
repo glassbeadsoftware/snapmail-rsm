@@ -13,6 +13,7 @@ use crate::{
 #[hdk_extern]
 //#[snapmail_api]
 pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     /// Lookup `ack_inbox` links on my agentId
     let me = agent_info()?.agent_latest_pubkey;
     let links_result = get_links(link_input(me.clone(), SnapmailLink::AckInbox, None))?;

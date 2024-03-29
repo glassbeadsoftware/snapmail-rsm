@@ -1,5 +1,4 @@
 use hdk::prelude::*;
-//use hdk::prelude::query::ChainQueryFilter;
 use snapmail_model::*;
 use zome_utils::*;
 
@@ -17,6 +16,7 @@ use crate::mail::get_inacks;
 #[hdk_extern]
 //#[snapmail_api]
 pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    /// Get all Create OutMail actions with query
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)

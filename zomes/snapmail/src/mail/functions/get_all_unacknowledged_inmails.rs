@@ -1,6 +1,6 @@
 use hdk::prelude::*;
-//use hdk::prelude::query::ChainQueryFilter;
 use snapmail_model::*;
+use zome_utils::*;
 
 use crate::{
     mail::utils::*,
@@ -11,6 +11,7 @@ use crate::{
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<ActionHash>> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     /// Get all InMails
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)

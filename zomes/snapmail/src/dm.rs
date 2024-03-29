@@ -19,6 +19,7 @@ pub struct DmPacket {
 /// Start point for any remote call
 /// WARN: Name of function must match REMOTE_ENDPOINT const value
 #[hdk_extern]
+#[ignore(zits)]
 pub fn receive_dm(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
    // let (from, dm): (AgentPubKey, DirectMessageProtocol) = dm_packet.into();
    debug!("*** receive_dm() called from {:?}", dm_packet.from);
@@ -32,7 +33,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    /// Pre-conditions: Don't call yourself (otherwise we get concurrency issues)
    let me = agent_info().unwrap().agent_latest_pubkey;
    if destination == me {
-      /// FOR DEBUGGING ONLY?
+      /// TODO: FOR DEBUGGING ONLY?
       return error("send_dm() aborted. Can't send to self.");
    }
    /// Prepare payload

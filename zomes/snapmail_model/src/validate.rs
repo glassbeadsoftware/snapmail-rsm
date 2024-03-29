@@ -43,7 +43,7 @@ pub fn validate_create_entry(creation_action: EntryCreationAction, entry: Entry)
 }
 
 
-/// Checks Agent Link is created by self
+/// TODO: Checks Agent Link is created by self
 pub fn validate_create_link(create_link: HoloHashed<CreateLink>, signature: Signature) -> ExternResult<ValidateCallbackResult>  {
    // debug!("validate_create_link(): {:?}", create_link);
    // /// Retrieve Path::Component from LinkTag

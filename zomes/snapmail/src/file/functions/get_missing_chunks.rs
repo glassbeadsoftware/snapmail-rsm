@@ -17,6 +17,7 @@ pub struct GetMissingChunksInput {
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_missing_chunks(input: GetMissingChunksInput) -> ExternResult<u32> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     let manifest = get_typed_from_eh::<FileManifest>(input.manifest_eh.clone())?;
     let chunk_count = manifest.chunks.len();
     let mut missing = 0;

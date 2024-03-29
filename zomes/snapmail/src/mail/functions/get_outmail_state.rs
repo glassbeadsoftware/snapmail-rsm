@@ -11,6 +11,7 @@ use crate::mail::get_inacks;
 #[hdk_extern]
 //[snapmail_api]
 pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    debug!(" *** get_outmail_state() START - {}", outmail_ah);
 
    /// Check if deleted
@@ -63,6 +64,7 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<BTreeMap<AgentPubKey, DeliveryState>> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    debug!(" *** get_outmail_delivery_state(): ");
    /// Get OutMail Details
    let maybe_details = get_details(outmail_ah.clone(), GetOptions::network())?;

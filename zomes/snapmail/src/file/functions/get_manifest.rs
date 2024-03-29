@@ -8,6 +8,7 @@ use zome_utils::*;
 #[hdk_extern]
 //#[snapmail_api]
 pub fn get_manifest(manifest_address: AnyDhtHash) -> ExternResult<FileManifest> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     trace!("get_manifest(): {}", manifest_address);
     /// Look for record
     let record = match get(manifest_address, GetOptions::network())? {

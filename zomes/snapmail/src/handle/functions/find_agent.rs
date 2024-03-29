@@ -8,6 +8,7 @@ use crate::handle::utils::get_members;
 #[hdk_extern]
 //#[snapmail_api]
 pub fn find_agent(handle: String) -> ExternResult<Vec<AgentPubKey>> {
+   std::panic::set_hook(Box::new(zome_panic_hook));
    let member_links = get_members()?;
    let mut agent_list = Vec::new();
    /* Find handle entry whose author is agentId */

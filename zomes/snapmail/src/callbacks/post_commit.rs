@@ -1,36 +1,23 @@
 use hdk::prelude::*;
-//use zome_utils::*;
-//use snapmail_model::*;
-
 use crate::{
-   //file::*,
    mail::functions::*,
    signal_protocol::*,
 };
-
 use snapmail_model::*;
 
-//use crate::strum::AsStaticRef;
 
-
-/// Zome Callback
+///
 #[hdk_extern(infallible)]
-fn post_commit(signedActionList: Vec<SignedActionHashed>) {
+fn post_commit(signed_action_list: Vec<SignedActionHashed>) {
    //debug!("post_commit() called: {:?}", ahList);
-   debug!("post_commit() len = {}", signedActionList.len());
-   for sah in signedActionList {
+   debug!("post_commit() len = {}", signed_action_list.len());
+   for sah in signed_action_list {
       //debug!(" - {:?}", signedAction.action().entry_type());
       let action = sah.action().clone();
-
-      //let hash = signedAction.as_hash().get_raw_39();
-      //let hash64 = format!("u{}", base64::encode_config(hash, base64::URL_SAFE_NO_PAD));
-      // debug!(" - {} ({:?})", hash64, signedAction.action().entry_type());
-
       if action.entry_type().is_none() {
          continue;
       }
       let (eh, entry_type) = action.entry_data().unwrap();
-
       match entry_type {
          EntryType::AgentPubKey => {},
          EntryType::CapClaim => {},

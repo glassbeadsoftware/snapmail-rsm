@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use snapmail_model::*;
+use zome_utils::*;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct WriteManifestInput {
@@ -13,6 +14,7 @@ pub struct WriteManifestInput {
 #[hdk_extern]
 //#[snapmail_api]
 pub fn write_manifest(input: WriteManifestInput) -> ExternResult<ActionHash> {
+    std::panic::set_hook(Box::new(zome_panic_hook));
     let manifest = FileManifest {
         data_hash: input.data_hash,
         filename: input.filename,

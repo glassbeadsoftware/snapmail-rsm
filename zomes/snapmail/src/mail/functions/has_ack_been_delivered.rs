@@ -11,7 +11,8 @@ use crate::{
 #[hdk_extern]
 //#[snapmail_api]
 pub fn has_ack_been_delivered(inmail_ah: ActionHash) -> ExternResult<bool> {
-   /// Make sure its an inmail
+   std::panic::set_hook(Box::new(zome_panic_hook));
+   /// Make sure it's an inmail
    let inmail_eh = get_eh(inmail_ah.clone())?;
    let _ = get_typed_from_eh::<InMail>(inmail_eh)?;
    /// Get inmail's outack
