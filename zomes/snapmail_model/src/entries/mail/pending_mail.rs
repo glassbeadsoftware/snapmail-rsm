@@ -12,7 +12,6 @@ pub struct PendingMail {
 }
 
 
-
 impl PendingMail {
    pub fn new(
       encrypted_mail: XSalsa20Poly1305EncryptedData,

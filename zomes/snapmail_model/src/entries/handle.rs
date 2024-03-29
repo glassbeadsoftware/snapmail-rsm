@@ -1,5 +1,4 @@
 use hdi::prelude::*;
-
 use crate::properties::*;
 
 /// Entry representing the username of an Agent

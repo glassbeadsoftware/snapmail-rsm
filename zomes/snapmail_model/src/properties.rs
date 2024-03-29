@@ -6,6 +6,8 @@ use hdi::prelude::*;
 pub struct SnapmailProperties {
    pub min_handle_length: u8,
    pub max_handle_length: u16,
+   pub max_chunk_size: usize,
+   pub max_file_size: usize,
 }
 
 

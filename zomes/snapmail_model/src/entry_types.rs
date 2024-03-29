@@ -54,10 +54,7 @@ pub(crate) fn validate_app_entry(
     let variant = entry_index_to_variant(entry_index)?;
     return match variant {
         SnapmailEntryTypes::PubEncKey => Ok(ValidateCallbackResult::Valid),
-        SnapmailEntryTypes::Handle => {
-            let handle = Handle::try_from(entry)?;
-            return handle.validate();
-        },
+        SnapmailEntryTypes::Handle => Handle::try_from(entry)?.validate(),
         SnapmailEntryTypes::InMail => Ok(ValidateCallbackResult::Valid),
         SnapmailEntryTypes::OutMail => Ok(ValidateCallbackResult::Valid),
         SnapmailEntryTypes::OutAck => Ok(ValidateCallbackResult::Valid),
@@ -65,8 +62,8 @@ pub(crate) fn validate_app_entry(
         SnapmailEntryTypes::PendingMail => Ok(ValidateCallbackResult::Valid),
         SnapmailEntryTypes::PendingAck => Ok(ValidateCallbackResult::Valid),
         SnapmailEntryTypes::DeliveryConfirmation => Ok(ValidateCallbackResult::Valid),
-        SnapmailEntryTypes::FileChunk => Ok(ValidateCallbackResult::Valid),
-        SnapmailEntryTypes::FileManifest => Ok(ValidateCallbackResult::Valid),
+        SnapmailEntryTypes::FileChunk => FileChunk::try_from(entry)?.validate(),
+        SnapmailEntryTypes::FileManifest => FileManifest::try_from(entry)?.validate(),
         //_ => Ok(ValidateCallbackResult::Valid),
     }
 }

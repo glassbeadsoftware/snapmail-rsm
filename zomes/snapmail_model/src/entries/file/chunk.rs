@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+use crate::properties::*;
 
 /// Entry representing a file chunk.
 #[hdk_entry_helper]
@@ -17,17 +18,15 @@ impl FileChunk {
             chunk,
         }
     }
+
+    /// Check the Handle's data integrity
+    pub fn validate(&self) -> ExternResult<ValidateCallbackResult> {
+        let properties = get_properties()?;
+        /// Check size
+        if self.chunk.len() > properties.max_chunk_size {
+            return Ok(ValidateCallbackResult::Invalid(
+                format!("A file chunk can't be bigger than {} KiB", properties.max_chunk_size / 1024)));
+        }
+        Ok(ValidateCallbackResult::Valid)
+    }
 }
-
-
-//
-// pub(crate) fn validate_chunk(chunk: FileChunk)
-//     -> ExternResult<ValidateCallbackResult>
-// {
-//     /// Check size
-//     if chunk.chunk.len() > CHUNK_MAX_SIZE {
-//         return Ok(ValidateCallbackResult::Invalid(
-//             format!("A file chunk can't be bigger than {} KiB", CHUNK_MAX_SIZE / 1024)));
-//     }
-//     Ok(ValidateCallbackResult::Valid)
-// }
