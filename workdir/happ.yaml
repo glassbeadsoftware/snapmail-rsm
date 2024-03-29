@@ -15,4 +15,4 @@ roles:
         maxHandleLength: 32
         minHandleLength: 2
         maxChunkSize: 204800
-        maxParcelSize: 10485760
+        maxFileSize: 10485760

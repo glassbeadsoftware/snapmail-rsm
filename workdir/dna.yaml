@@ -7,7 +7,7 @@ integrity:
     maxHandleLength: 32
     minHandleLength: 2
     maxChunkSize: 204800
-    maxParcelSize: 10485760
+    maxFileSize: 10485760
   zomes:
     - name: snapmail_model
       bundled: ../target/wasm32-unknown-unknown/release/snapmail_model.wasm
