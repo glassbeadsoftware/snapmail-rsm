@@ -11,7 +11,7 @@ use crate::{
     send_dm,
 };
 
-/// Zome function
+
 /// Return EntryHash of newly created OutAck
 #[hdk_extern]
 //#[snapmail_api]
@@ -126,18 +126,18 @@ fn commit_pending_ack(input: CommitPendingAckInput) -> ExternResult<ActionHash> 
     let pending_ack_ah = create_entry(SnapmailEntry::PendingAck(pending_ack.clone()))?;
     /// Create links between PendingAck and OutAck & recipient inbox
     let pending_ack_eh = hash_entry(&pending_ack)?;
-    // let tag = LinkKind::AckInbox.concat_hash(&input.original_sender);
+    // let tag = SnapmailLink::AckInbox.concat_hash(&input.original_sender);
     let _ = create_link(
         input.outack_eh.clone(),
         pending_ack_eh.clone(),
-        LinkKind::Pending,
+        SnapmailLink::Pending,
         LinkTag::from(()),
     )?;
     let _ = create_link(
         EntryHash::from(input.original_sender.clone()),
         pending_ack_eh,
-        LinkKind::AckInbox,
-        LinkKind::from_agent(&input.original_sender),
+        SnapmailLink::AckInbox,
+        SnapmailLink::from_agent(&input.original_sender),
     )?;
     debug!("pending_ack_ah: {:?} (for {})", pending_ack_ah, input.original_sender);
     /// Done

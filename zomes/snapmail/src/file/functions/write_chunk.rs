@@ -1,7 +1,7 @@
 use hdk::prelude::*;
 use snapmail_model::*;
 
-/// Zome function
+
 /// Write base64 file as string to source chain
 #[hdk_extern]
 //#[snapmail_api]

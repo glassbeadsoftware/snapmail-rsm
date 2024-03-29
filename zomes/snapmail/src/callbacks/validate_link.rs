@@ -13,7 +13,7 @@ pub fn validate_create_link(signed_create_link: SignedHashed<CreateLink>)
    let tag_str = String::from_utf8_lossy(&create_link.tag.0);
    trace!("*** `validate_create_link()` called: {}", tag_str);
 
-   for link_kind in LinkKind::iter() {
+   for link_kind in SnapmailLink::iter() {
       /// Get the entries linked
       let base =
          must_get_entry(create_link.base_address.clone().into())?
@@ -48,7 +48,7 @@ pub fn validate_create_link(signed_create_link: SignedHashed<CreateLink>)
 // ) -> ExternResult<ValidateLinkCallbackResult>
 // {
 //    debug!("*** validate_handle_link() START");
-//    assert!(submission.link_add.tag == LinkKind::Handle.as_tag());
+//    assert!(submission.link_add.tag == SnapmailLink::Handle.as_tag());
 //
 //    // TODO: Only one handle per agent
 //    //let my_agent_address = agent_info!()?.agent_latest_pubkey;

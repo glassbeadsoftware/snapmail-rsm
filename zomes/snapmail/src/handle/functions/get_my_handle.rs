@@ -4,7 +4,7 @@ use snapmail_model::*;
 
 use crate::handle::functions::get_handle::*;
 
-/// Zome Function
+
 /// Return this agent's latest handle string
 #[hdk_extern]
 //#[snapmail_api]

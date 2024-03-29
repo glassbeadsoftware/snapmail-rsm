@@ -8,7 +8,6 @@ use crate::file::get_all_manifests;
 pub struct FindManifestOutput(pub Option<FileManifest>);
 
 
-/// Zome function
 /// Get manifest from file content hash
 #[hdk_extern]
 //#[snapmail_api]

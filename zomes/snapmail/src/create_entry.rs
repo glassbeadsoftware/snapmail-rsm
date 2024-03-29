@@ -44,7 +44,7 @@ pub fn create_enc_key() -> ExternResult<()> {
    let _ = create_link(
       my_agent_address,
       key_eh.clone(),
-      LinkKind::EncKey,
+      SnapmailLink::EncKey,
       LinkTag::from(()),
    )?;
    debug!("**** EncKey linked to agent!");

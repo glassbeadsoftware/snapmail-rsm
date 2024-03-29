@@ -9,7 +9,6 @@ use crate::{
 };
 
 
-/// Zome Function
 /// Check for PendingMails and convert to InMails
 /// Return list of new InMail addresses created after checking for PendingMails
 #[hdk_extern]
@@ -20,7 +19,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
     let my_agent_eh = EntryHash::from(me.clone());
     let links_result = get_links(link_input(
         my_agent_eh.clone(),
-        LinkKind::MailInbox,
+        SnapmailLink::MailInbox,
         None,
         ))?;
     debug!("incoming_mail links_result: {:?} (for {})", links_result, &my_agent_eh);
@@ -141,7 +140,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
 //     let pendings_links_result = get_links(
 //         outmail_eh.clone(),
 //         //None,
-//         Some(LinkKind::Pendings.concat_hash(to)),
+//         Some(SnapmailLink::Pendings.concat_hash(to)),
 //     )?;
 //     debug!("pendings_links_result: {:?}", pendings_links_result);
 //     if pendings_links_result.len() != 1 {

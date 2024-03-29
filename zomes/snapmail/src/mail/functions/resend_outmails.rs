@@ -1,5 +1,4 @@
 use hdk::prelude::*;
-//use hdk::prelude::query::ChainQueryFilter;
 use snapmail_model::*;
 use zome_utils::*;
 
@@ -11,7 +10,6 @@ use crate::{
 };
 
 
-/// Zome Function
 /// Re-send mail to each recipient of each OutMail which has an Unsent status
 /// Return list of OutMails for which we tried to deliver mail again
 #[hdk_extern]
@@ -21,7 +19,7 @@ fn resend_outmails(_: ()) -> ExternResult<Vec<ActionHash>> {
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)
       .action_type(ActionType::Create)
-      .entry_type(UnitEntryTypes::OutMail.try_into().unwrap());
+      .entry_type(SnapmailEntryTypes::OutMail.try_into().unwrap());
    let maybe_outmails = query(outmail_query_args);
    if let Err(err) = maybe_outmails {
       error!("resend_outmails() outmail_result failed: {:?}", err);

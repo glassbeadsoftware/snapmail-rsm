@@ -12,9 +12,8 @@ pub use self::{
     inmail::*, pending_mail::*, outmail::*,
     pending_ack::*, inack::*, outack::*, delivery_confirmation::*,
 };
-
 use crate::{
-    file::FileManifest,
+    entries::file::FileManifest,
 };
 
 /// Possible states of an InMail entry
@@ -26,9 +25,9 @@ pub enum InMailState {
     AckUnsent,
     /// OutAck committed, PendingAck available
     AckPending,
-    /// OutAck committed, confirmation commited
+    /// OutAck committed, confirmation committed
     AckDelivered,
-    /// Delete entry commited
+    /// Delete entry committed
     Deleted,
 }
 
@@ -57,7 +56,7 @@ pub enum OutMailState {
     AllReceived,
     /// (green) Has a InAck for each recipient
     AllAcknowledged,
-    /// (red) Delete entry commited
+    /// (red) Delete entry committed
     Deleted,
 }
 
@@ -73,7 +72,6 @@ pub struct MailItem {
     pub author: AgentPubKey,
     pub mail: Mail,
     pub state: MailState,
-    // pub delivery_states: Map<AgentPubKey, DeliveryState>
     pub bcc: Vec<AgentPubKey>,
     pub date: i64,
     /// UI Things
@@ -125,7 +123,6 @@ impl Mail {
         }
     }
 }
-
 
 
 /// Metadata for a mail attachment

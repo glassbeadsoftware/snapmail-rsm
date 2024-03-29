@@ -10,7 +10,6 @@
 // pub struct HasMailBeenFullyAcknowledgedOutput(Result<(), Vec<AgentPubKey>>);
 //
 //
-// /// Zome function
 // /// Check if agent received receipts from all recipients of one of its OutMail.
 // /// If false, returns list of agents who's receipt is missing.
 // #[hdk_extern]
@@ -23,13 +22,13 @@
 //     debug!("all_recipients: {:?} ({})", all_recipients, outmail_ah);
 //     /// Get all ``receipt`` links
 //     // FIXME: have tag filtering working when calling get_links
-//     // let links_result: Vec<Link> = get_links(outmail_eh, LinkKind::Receipt.as_tag_opt())?.into_inner();
+//     // let links_result: Vec<Link> = get_links(outmail_eh, SnapmailLink::Receipt.as_tag_opt())?.into_inner();
 //     let links_result: Vec<Link> = get_links(outmail_eh, None)?;
 //     debug!("links_result: {:?}", links_result);
 //     /// Make list of Receipt authors
 //     let mut receipt_authors: Vec<AgentPubKey> = Vec::new();
 //     for receipt_link in links_result {
-//         let maybe_hash = LinkKind::Receipt.unconcat_hash(&receipt_link.tag);
+//         let maybe_hash = SnapmailLink::Receipt.unconcat_hash(&receipt_link.tag);
 //         if let Err(_err) = maybe_hash {
 //             continue;
 //         }

@@ -11,7 +11,6 @@ use crate::{
 };
 
 
-/// Zome Function
 /// Re-send outack which has an Unsent Delivery status
 /// Return list of OutAcks which we tried to deliver again
 #[hdk_extern]
@@ -20,7 +19,7 @@ fn resend_outacks(_: ()) -> ExternResult<Vec<ActionHash>> {
    let query_args = ChainQueryFilter::default()
       .include_entries(true)
       .action_type(ActionType::Create)
-      .entry_type(UnitEntryTypes::OutAck.try_into().unwrap());
+      .entry_type(SnapmailEntryTypes::OutAck.try_into().unwrap());
    let maybe_outacks = query(query_args);
    if let Err(err) = maybe_outacks {
       error!("resend_outacks() query failed: {:?}", err);

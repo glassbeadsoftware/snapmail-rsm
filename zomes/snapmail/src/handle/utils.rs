@@ -11,7 +11,7 @@ use crate::{
 /// Get 'Members' links on the DNA entry
 pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
     let path_hash = Path::from(path_kind::Directory).path_entry_hash()?;
-    let entry_results = get_links(link_input(path_hash, LinkKind::Members, None))?;
+    let entry_results = get_links(link_input(path_hash, SnapmailLink::Members, None))?;
     Ok(entry_results)
 }
 
@@ -19,7 +19,7 @@ pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
 /// Return Record of latest Handle Entry for agent
 pub(crate) fn get_handle_element(agent_id: AgentPubKey) -> Option<(Handle, ActionHash)> {
     /// Get All Handle links on agent ; should have only one
-    let handle_links = get_links(link_input(agent_id, LinkKind::Handle, None))
+    let handle_links = get_links(link_input(agent_id, SnapmailLink::Handle, None))
        .expect("No reason for this to fail");
     assert!(handle_links.len() <= 1);
     if handle_links.len() == 0 {

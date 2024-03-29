@@ -11,3 +11,6 @@ roles:
       deferred: false
     dna:
       bundled: ./snapmail.dna
+      properties:
+        maxHandleLength: 32
+        minHandleLength: 2

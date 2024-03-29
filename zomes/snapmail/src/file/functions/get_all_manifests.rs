@@ -5,7 +5,7 @@ use zome_utils::*;
 #[derive(Shrinkwrap, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ZomeManifestVec(Vec<FileManifest>);
 
-/// Zome function
+
 /// Get all manifests stored in our source chain
 #[hdk_extern]
 //#[snapmail_api]
@@ -14,7 +14,7 @@ pub fn get_all_manifests(_: ()) -> ExternResult<ZomeManifestVec> {
     /// Get all FileManifest on local chain with query
     let query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(UnitEntryTypes::FileManifest.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::FileManifest.try_into().unwrap());
     let query_result = query(query_args);
     if let Err(err) = query_result {
         error!("find_manifest() query_result failed: {:?}", err);

@@ -11,8 +11,6 @@ pub struct GetMissingChunksInput {
     pub from: AgentPubKey,
     pub manifest_eh: EntryHash,
 }
-
-/// Zome Function
 /// Request missing chunks for an attachment
 /// Returns number of remaining missing chunks
 /// TODO: Return vec of missing chunk ActionHash

@@ -7,7 +7,6 @@ use crate::{
 };
 
 
-/// Zome Function
 /// DEBUG / TESTING ONLY
 #[hdk_extern]
 pub fn create_empty_handle(_: ()) -> ExternResult<ActionHash> {
@@ -16,7 +15,7 @@ pub fn create_empty_handle(_: ()) -> ExternResult<ActionHash> {
     Ok(ah)
 }
 
-/// Zome Function
+
 /// Set handle for this agent
 #[hdk_extern]
 //#[snapmail_api]
@@ -44,7 +43,7 @@ pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
     let _ = create_link(
         EntryHash::from(my_agent_address),
         new_handle_eh.clone(),
-        LinkKind::Handle,
+        SnapmailLink::Handle,
         LinkTag::from(()),
     )?;
     debug!("**** Handle linked to agent!");
@@ -53,7 +52,7 @@ pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
     let _ = create_link(
         directory_address,
         new_handle_eh,
-        LinkKind::Members,
+        SnapmailLink::Members,
         LinkTag::from(()),
     )?;
     /// Done

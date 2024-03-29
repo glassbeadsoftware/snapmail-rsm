@@ -7,7 +7,7 @@ use crate::{
     dm_protocol::DirectMessageProtocol,
 };
 
-/// Zome function
+
 /// Return true if agent is online
 #[hdk_extern]
 //#[snapmail_api]

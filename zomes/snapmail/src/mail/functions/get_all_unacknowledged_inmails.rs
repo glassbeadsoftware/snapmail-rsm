@@ -6,7 +6,7 @@ use crate::{
     mail::utils::*,
 };
 
-/// Zome Function
+
 /// Return list of all InMails that this agent did not acknowledge.
 #[hdk_extern]
 //#[snapmail_api]
@@ -14,7 +14,7 @@ pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<ActionHash>> {
     /// Get all InMails
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
-       .entry_type(UnitEntryTypes::InMail.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::InMail.try_into().unwrap());
     let maybe_inmail_result = query(inmail_query_args);
     if let Err(err) = maybe_inmail_result {
         error!("get_all_unacknowledged_inmails() inmail_result failed: {:?}", err);

@@ -12,7 +12,7 @@ use crate::{
         MailMessage, DirectMessageProtocol,
     },
     //mail::receive::*,
-    LinkKind,
+    SnapmailLink,
     file::{get_manifest},
 };
 
@@ -169,8 +169,8 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<ActionHash
     let maybe_link1_ah = create_link(
         input.outmail_eh.clone(),
         pending_mail_eh.clone(),
-        LinkKind::Pendings,
-        LinkKind::from_agent(&input.destination),
+        SnapmailLink::Pendings,
+        SnapmailLink::from_agent(&input.destination),
         );
     if let Err(err) = maybe_link1_ah.clone() {
         debug!("link1 failed = {:?}", err);
@@ -179,12 +179,12 @@ fn commit_pending_mail(input: CommitPendingMailInput) -> ExternResult<ActionHash
     let link1_ah = maybe_link1_ah.unwrap();
     debug!("link1_ah = {}", link1_ah);
     /// Commit MailInbox Link
-    //let tag = LinkKind::MailInbox.concat_hash(&me);
+    //let tag = SnapmailLink::MailInbox.concat_hash(&me);
     let maybe_link2_ah = create_link(
         EntryHash::from(input.destination.clone()),
         pending_mail_eh,
-        LinkKind::MailInbox,
-        LinkKind::from_agent(&me),
+        SnapmailLink::MailInbox,
+        SnapmailLink::from_agent(&me),
     );
     if let Err(err) = maybe_link2_ah.clone() {
         debug!("link2 failed = {:?}", err);
@@ -359,7 +359,7 @@ pub fn send_committed_mail(
 // #[hdk_extern]
 // fn commit_sents_link(input: CommitSentsLinkInput) -> ExternResult<ActionHash> {
 //     debug!("commit_sents_link(): {:?} ", input);
-//     let tag = LinkKind::Sents.concat_hash(&input.to);
+//     let tag = SnapmailLink::Sents.concat_hash(&input.to);
 //     let ah = create_link(input.outmail_eh.clone(), input.outmail_eh, HdkLinkType::Any, tag)?;
 //     Ok(ah)
 // }

@@ -1,9 +1,5 @@
 use hdi::prelude::*;
 
-// use crate::{
-//     FILE_MAX_SIZE,
-// };
-
 /// Entry representing a file in chunks.
 /// All chunks must be committed beforehand.
 #[hdk_entry_helper]
@@ -16,6 +12,7 @@ pub struct FileManifest {
     pub chunks: Vec<EntryHash>,
     pub content: Option<String>, // For ViewModel ; TODO: Remove this field from data model
 }
+
 
 //
 // TODO: Check if data_hash not already stored in source chain

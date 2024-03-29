@@ -3,7 +3,6 @@ use snapmail_model::*;
 use zome_utils::*;
 
 
-/// Zome function
 /// Get manifest entry at given address
 /// Must be a valid address
 #[hdk_extern]

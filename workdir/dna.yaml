@@ -2,7 +2,10 @@
 manifest_version: "1"
 name: dSnapmail
 integrity:
-  origin_time: 2022-09-25T13:55:49.200Z
+  origin_time: 2024-01-25T13:55:49.200Z
+  properties:
+    maxHandleLength: 32
+    minHandleLength: 2
   zomes:
     - name: snapmail_model
       bundled: ../target/wasm32-unknown-unknown/release/snapmail_model.wasm

@@ -3,7 +3,6 @@ use snapmail_model::*;
 use zome_utils::*;
 
 
-/// Zome function
 /// Get chunk index and chunk as base64 string in local source chain at given address
 /// Must be a valid address
 /// TODO try using a AnyDht hash

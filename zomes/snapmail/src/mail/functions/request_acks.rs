@@ -12,7 +12,6 @@ use crate::{
 use crate::mail::get_inacks;
 
 
-/// Zome Function
 /// Re-send mail to each recipient of each OutMail for which we have missing acks
 /// Return list of OutMails for which we requested acks
 #[hdk_extern]
@@ -22,7 +21,7 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
    let outmail_query_args = ChainQueryFilter::default()
       .include_entries(true)
       .action_type(ActionType::Create)
-      .entry_type(UnitEntryTypes::OutMail.try_into().unwrap());
+      .entry_type(SnapmailEntryTypes::OutMail.try_into().unwrap());
    let maybe_outmails = query(outmail_query_args);
    if let Err(err) = maybe_outmails {
       error!("request_acks() outmail_result failed: {:?}", err);

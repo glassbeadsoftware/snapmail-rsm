@@ -32,7 +32,7 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    debug!("*** init() callback START");
    /// Set Global Anchors
    //let typed_path = path.clone().into_typed(ScopedLinkType::try_from(LinkTypes::Tree)?);
-   let path = Path::from(path_kind::Directory).typed(LinkKind::Members)?;
+   let path = Path::from(path_kind::Directory).typed(SnapmailLink::Members)?;
    path.ensure()?;
    /// Setup initial capabilities
    init_caps(())?;

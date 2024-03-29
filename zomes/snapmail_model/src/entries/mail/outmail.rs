@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 
-use crate::mail::Mail;
+use crate::entries::mail::Mail;
 
 
 /// Entry representing an authored mail. It is private.

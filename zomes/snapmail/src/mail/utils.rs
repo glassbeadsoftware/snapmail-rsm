@@ -68,7 +68,7 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResu
     let outacks_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .action_type(ActionType::Create)
-       .entry_type(UnitEntryTypes::OutAck.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::OutAck.try_into().unwrap());
     let maybe_outacks = query(outacks_query_args);
     if let Err(err) = maybe_outacks {
         error!("get_outacks() query failed: {:?}", err);
@@ -107,7 +107,7 @@ pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResu
     let outacks_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .action_type(ActionType::Create)
-       .entry_type(UnitEntryTypes::InAck.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::InAck.try_into().unwrap());
     let maybe_inacks = query(outacks_query_args);
     if let Err(err) = maybe_inacks {
         error!("get_inacks() query failed: {:?}", err);
@@ -140,7 +140,7 @@ pub(crate) fn get_confirmations(package_eh: EntryHash) -> ExternResult<Vec<Deliv
     let query_args = ChainQueryFilter::default()
        .include_entries(true)
        .action_type(ActionType::Create)
-       .entry_type(UnitEntryTypes::DeliveryConfirmation.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::DeliveryConfirmation.try_into().unwrap());
     let records = query(query_args)?;
     let mut confirmations = Vec::new();
     //debug!("get_confirmations() records.len(): {}", records.len());
@@ -170,11 +170,11 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
     }
     let mut pending_found = false;
     /// If a pending link and and inbox link match, still waiting for confirmation
-    let pendings_links = get_links(link_input(package_eh.clone(), LinkKind::Pendings, None))?;
-    let inbox_links = get_links(link_input(recipient.to_owned(), LinkKind::MailInbox, None))?;
+    let pendings_links = get_links(link_input(package_eh.clone(), SnapmailLink::Pendings, None))?;
+    let inbox_links = get_links(link_input(recipient.to_owned(), SnapmailLink::MailInbox, None))?;
     let inbox_targets: Vec<EntryHash> = inbox_links.iter().map(|x| x.target.clone().into_entry_hash().unwrap()).collect();
     for pendings_link in pendings_links.iter() {
-        let res = LinkKind::into_agent(&pendings_link.tag);
+        let res = SnapmailLink::into_agent(&pendings_link.tag);
         if let Ok(agent) = res {
             // inbox link found ; check if tag is recipient
             if &agent == recipient {
@@ -208,12 +208,12 @@ pub(crate) fn try_confirming_pending_ack_has_been_received(package_eh: EntryHash
         return Ok(false);
     }
     /// If a pending link and and inbox link match, still waiting for confirmation
-    let pending_links = get_links(link_input(package_eh.clone(), LinkKind::Pending, None))?;
+    let pending_links = get_links(link_input(package_eh.clone(), SnapmailLink::Pending, None))?;
     for _pending_link in pending_links.iter() {
         /// Check for inbox link: If no link, it means it has been deleted by recipient
-        let links = get_links(link_input(recipient.to_owned(), LinkKind::AckInbox, None))?;
+        let links = get_links(link_input(recipient.to_owned(), SnapmailLink::AckInbox, None))?;
         for link in links.iter() {
-            let res = LinkKind::into_agent(&link.tag);
+            let res = SnapmailLink::into_agent(&link.tag);
             if let Ok(agent) = res {
                 // inbox link found ; check if tag is recipient
                 if &agent == recipient {
@@ -243,15 +243,15 @@ pub fn get_delivery_state(package_eh: EntryHash, recipient: &AgentPubKey) -> Ext
     /// TODO: Do one query of multiple link types with HDK 145
 
     /// OutAck
-    let pending_links = get_links(link_input(package_eh.clone(), LinkKind::Pending, None))?;
+    let pending_links = get_links(link_input(package_eh.clone(), SnapmailLink::Pending, None))?;
     if pending_links.len() > 0 {
         return Ok(DeliveryState::Pending)
     }
 
     /// OutMail
-    let links = get_links(link_input(package_eh.clone(), LinkKind::Pendings, None))?;
+    let links = get_links(link_input(package_eh.clone(), SnapmailLink::Pendings, None))?;
     for link in links {
-        let maybe_pendings = LinkKind::into_agent(&link.tag);
+        let maybe_pendings = SnapmailLink::into_agent(&link.tag);
         if let Ok(agent) = maybe_pendings {
             if &agent == recipient {
                 return Ok(DeliveryState::Pending)

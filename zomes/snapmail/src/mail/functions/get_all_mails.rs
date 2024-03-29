@@ -12,9 +12,6 @@ use crate::{
 };
 
 
-
-
-/// Zome Function
 /// Return list of all InMails and OutMails in the local source chain
 #[hdk_extern]
 //#[snapmail_api]
@@ -23,7 +20,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     let inmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .action_type(ActionType::Create)
-       .entry_type(UnitEntryTypes::InMail.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::InMail.try_into().unwrap());
     let maybe_inmails = query(inmail_query_args);
     if let Err(err) = maybe_inmails {
         error!("get_all_mails() query failed: {:?}", err);
@@ -36,7 +33,7 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     let outmail_query_args = ChainQueryFilter::default()
        .include_entries(true)
        .action_type(ActionType::Create)
-       .entry_type(UnitEntryTypes::OutMail.try_into().unwrap());
+       .entry_type(SnapmailEntryTypes::OutMail.try_into().unwrap());
     let maybe_outmails = query(outmail_query_args);
     if let Err(err) = maybe_outmails {
         error!("get_all_mails() outmail_result failed: {:?}", err);

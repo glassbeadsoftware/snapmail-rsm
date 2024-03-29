@@ -13,7 +13,7 @@ pub struct GetMissingAttachmentsInput {
     pub inmail_ah: ActionHash,
 }
 
-/// Zome Function
+
 /// Get InMail or OutMail struct in local source chain at address
 #[hdk_extern]
 //#[snapmail_api]

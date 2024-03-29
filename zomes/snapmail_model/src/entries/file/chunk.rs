@@ -1,9 +1,5 @@
 use hdi::prelude::*;
 
-// use crate::{
-//     CHUNK_MAX_SIZE,
-// };
-
 /// Entry representing a file chunk.
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]

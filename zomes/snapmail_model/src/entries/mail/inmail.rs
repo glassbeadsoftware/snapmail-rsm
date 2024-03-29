@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 
-use crate::mail::Mail;
+use crate::entries::mail::Mail;
 
 
 /// Entry representing a received mail.

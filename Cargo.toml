@@ -4,7 +4,7 @@ members = [
   "zomes/snapmail_model",
   "zomes/snapmail",
   #"sweettest",
-  "crates/proc_macro",
+  #"crates/proc_macro",
 ]
 
 [workspace.package]
@@ -19,10 +19,10 @@ hdk = { version = "=0.3.0-beta-dev.34", default-features = false }
 
 zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "hdk-3.0" }
 
-holochain = { version = "=0.3.0-beta-dev.40" }
-holochain_conductor_api = { version = "^0.3.0-beta-dev.39", default-features = false }
-holochain_util = { version = "^0.3.0-beta-dev.5", default-features = false }
-holochain_serialized_bytes = "=0.0.53"
+#holochain = { version = "=0.3.0-beta-dev.40" }
+#holochain_conductor_api = { version = "^0.3.0-beta-dev.39", default-features = false }
+#holochain_util = { version = "^0.3.0-beta-dev.5", default-features = false }
+#holochain_serialized_bytes = "=0.0.53"
 
 [profile.dev]
 lto = false

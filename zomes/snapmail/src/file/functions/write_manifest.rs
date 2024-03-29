@@ -9,8 +9,6 @@ pub struct WriteManifestInput {
     pub orig_filesize: usize,
     pub chunks: Vec<EntryHash>,
 }
-
-/// Zome function
 /// Write file manifest to source chain
 #[hdk_extern]
 //#[snapmail_api]

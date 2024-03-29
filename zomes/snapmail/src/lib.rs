@@ -8,7 +8,7 @@ extern crate strum;
 extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
-// FIXME update to beta-rc
+// FIXME update to latest hdk
 //#[macro_use]
 //extern crate snapmail_proc_macro;
 
