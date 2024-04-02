@@ -4,7 +4,6 @@ use snapmail_model::*;
 
 use crate::{
    dm::*,
-   //create_enc_key,
 };
 
 
@@ -18,8 +17,6 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
    path.ensure()?;
    /// Setup initial capabilities
    init_caps(())?;
-   // /// Create public encryption key and broadcast it
-   //create_enc_key()?;
    //PubEncKey::create_and_share()?;
    /// Done
    debug!("*** init() callback DONE");
@@ -31,7 +28,6 @@ fn init(_: ()) -> ExternResult<InitCallbackResult> {
 fn init_caps(_: ()) -> ExternResult<()> {
    let mut fns = BTreeSet::new();
    fns.insert((zome_info()?.name, REMOTE_ENDPOINT.into()));
-   //functions.insert((zome_info()?.name, "get_enc_key".into()));
    create_cap_grant(
       CapGrantEntry {
          tag: "".into(),

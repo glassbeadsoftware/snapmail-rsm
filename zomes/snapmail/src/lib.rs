@@ -24,7 +24,6 @@ pub mod handle;
 pub mod mail;
 pub mod file;
 pub mod create_entry;
-//pub mod get_enc_key;
 
 pub use snapmail_model::*;
 pub use dm::*;

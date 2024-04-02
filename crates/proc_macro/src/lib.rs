@@ -71,7 +71,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
       #[cfg(not(target_arch = "wasm32"))]
       pub fn #output_fn(conductor: holochain::conductor::ConductorHandle, arg: #input_type) -> crate::api_error::SnapmailApiResult<#inner_type> {
          let DEFAULT_TIMEOUT = std::time::Duration::from_secs(9);
-         let payload = ExternIO::encode(arg).expect("Serialization should never fail");
+         let payload = ExternIO::encode(arg).expect("Serialization failed");
          //println!(" payload = {:?}", payload);
          let fn_name = std::stringify!(#external_fn_ident);
          //println!(" fn_name = {:?}", fn_name);
@@ -102,7 +102,7 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
             // - Handle result
             let api_result = match call_result {
                ZomeCallResponse::Ok(io) => {
-                  let maybe_ret: #inner_type = io.decode().expect("Deserialization should never fail");
+                  let maybe_ret: #inner_type = io.decode().expect("Deserialization failed");
                   Ok(maybe_ret)
                },
                ZomeCallResponse::Unauthorized(_, _, _, _, _) => Err(crate::api_error::SnapmailApiError::Unauthorized),

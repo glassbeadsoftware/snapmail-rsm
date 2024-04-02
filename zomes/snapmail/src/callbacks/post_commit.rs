@@ -17,7 +17,7 @@ fn post_commit(signed_action_list: Vec<SignedActionHashed>) {
       if action.entry_type().is_none() {
          continue;
       }
-      let (eh, entry_type) = action.entry_data().unwrap();
+      let (eh, entry_type) = action.entry_data().expect("Missing Entry for a post-committed action");
       match entry_type {
          EntryType::AgentPubKey => {},
          EntryType::CapClaim => {},

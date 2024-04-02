@@ -54,16 +54,16 @@ fn send_manifest_by_dm(
     }
 }
 
+
 ///
 fn send_chunk_by_dm(destination: &AgentPubKey, chunk_eh: &EntryHash) -> ExternResult<()> {
     debug!("send_chunk_by_dm(): {}", chunk_eh);
-    let maybe_el = get(chunk_eh.clone(), GetOptions::network())?;
+    let maybe_record = get(chunk_eh.clone(), GetOptions::network())?;
         //.expect("No reason for get_entry() to crash");
-    debug!("maybe_entry =  {:?}", maybe_el);
-    if maybe_el.is_none() {
-        return error("No chunk found at given address".into());
-    }
-    let chunk = get_typed_from_record::<FileChunk>(maybe_el.unwrap())?;
+    debug!("maybe_entry =  {:?}", maybe_record);
+    let Some(record) = maybe_record
+        else { return error("No chunk found at given address".into()); };
+    let chunk = get_typed_from_record::<FileChunk>(record)?;
     /// Send DM
     let response = send_dm(
         destination.clone(),
@@ -102,7 +102,7 @@ fn deliver_mail_by_dm(
     signature: &Signature,
 ) -> ExternResult<()> {
     /// -- Send Attachments
-    debug!("Send Attachments");
+    debug!("deliver_mail_by_dm() Send Attachments");
     /// For each attachment, send all the chunks
     for manifest in manifest_list {
         let result = send_attachment_by_dm(destination, manifest);
@@ -127,7 +127,7 @@ fn deliver_mail_by_dm(
     if let DirectMessageProtocol::Success(_) = response_dm {
         return Ok(());
     }
-    return error(&format!("send_dm() failed: {:?}", response_dm));
+    return error(&format!("deliver_mail_by_dm() failed: {:?}", response_dm));
 }
 
 
@@ -227,13 +227,9 @@ pub(crate) fn deliver_mail(
     }
     /// Try sending directly to other Agent if Online
     let result = deliver_mail_by_dm(outmail_eh, mail, destination, manifest_list, signature);
-    if result.is_ok() {
-        return Ok(SendSuccessKind::OK_DIRECT);
-    } else {
-        let err = result.err().unwrap();
-        debug!("send_mail_by_dm() failed: {:?}", err);
-    }
-
+    let Err(err) = result
+        else { return Ok(SendSuccessKind::OK_DIRECT); };
+    debug!("send_mail_by_dm() failed: {:?}", err);
     debug!("deliver_mail() - Creating pending_mail...");
     /// DM failed, send to DHT instead by creating a PendingMail
     /// Create and commit PendingMail with remote call to self

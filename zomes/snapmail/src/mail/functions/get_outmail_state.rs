@@ -17,22 +17,21 @@ pub fn get_outmail_state(outmail_ah: ActionHash) -> ExternResult<OutMailState> {
    /// Check if deleted
    /// Get OutMail Details
    let maybe_details = get_details(outmail_ah.clone(), GetOptions::network())?;
-   if maybe_details.is_none() {
-      return error("No OutMail at given address");
-   }
-   let el_details = match maybe_details.unwrap() {
-      Details::Record(details) => details,
-      Details::Entry(_) => unreachable!("in get_outmail_state()"),
+   let Some(details) = maybe_details
+     else { return error("No OutMail at given address"); };
+   let record_details = match details {
+      Details::Record(det) => det,
+      Details::Entry(_) => unreachable!("Got an Entry instead of a Record in get_outmail_state()"),
    };
    /// Check if deleted
-   if el_details.deletes.len() > 0 {
+   if record_details.deletes.len() > 0 {
       return Ok(OutMailState::Deleted);
    }
    //debug!(" get_outmail_state() - el_details: {:?}", el_details);
 
 
    /// Get OutMail Entry
-   let outmail: OutMail = get_typed_from_record(el_details.record.clone())?;
+   let outmail: OutMail = get_typed_from_record(record_details.record.clone())?;
    //let outmail_eh = el_details.record.action().entry_hash().expect("Should have an Entry");
 
    /// Check if AllAcknowledged
@@ -68,16 +67,15 @@ pub fn get_outmail_delivery_state(outmail_ah: ActionHash) -> ExternResult<BTreeM
    debug!(" *** get_outmail_delivery_state(): ");
    /// Get OutMail Details
    let maybe_details = get_details(outmail_ah.clone(), GetOptions::network())?;
-   if maybe_details.is_none() {
-      return error("No OutMail at given address");
-   }
-   let el_details = match maybe_details.unwrap() {
-      Details::Record(details) => details,
-      Details::Entry(_) => unreachable!("in get_outmail_state()"),
+   let Some(details) = maybe_details
+     else { return error("No OutMail at given address"); };
+   let record_details = match details {
+      Details::Record(det) => det,
+      Details::Entry(_) => unreachable!("Got an Entry instead of a Record in get_outmail_state()"),
    };
    /// Get OutMail Entry
-   let outmail: OutMail = get_typed_from_record(el_details.record.clone())?;
-   let outmail_eh = el_details.record.action().entry_hash().expect("Should have an Entry");
+   let outmail: OutMail = get_typed_from_record(record_details.record.clone())?;
+   let outmail_eh = record_details.record.action().entry_hash().expect("OutMail record is missing an Entry");
 
    /// Determine state of delivery for each recipient and insert result in hashmap
    let mut map = BTreeMap::new();

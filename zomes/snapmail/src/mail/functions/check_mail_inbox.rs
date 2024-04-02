@@ -28,12 +28,11 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
     let mut new_inmails = Vec::new();
     for inbox_link in &links_result {
         let pending_mail_eh = inbox_link.target.clone().into_entry_hash().unwrap();
-        let maybe_el = get(pending_mail_eh.clone(), GetOptions::network())?;
-        if maybe_el.is_none() {
+        let maybe_record = get(pending_mail_eh.clone(), GetOptions::network())?;
+        if maybe_record.is_none() {
             warn!("Action not found for pending mail entry");
             continue;
         }
-        //let pending_ah = maybe_el.unwrap().action_address().clone();
         /// Get entry on the DHT
         let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh.into());
         if let Err(err) = maybe_pending_mail {
@@ -42,14 +41,14 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
         }
         let (author, pending) = maybe_pending_mail.unwrap();
         /// Convert and Commit as InMail
-        let inmail = pending.try_into_inmail(author)?.unwrap();
+        let inmail = pending.try_into_inmail(author)?;
         let maybe_inmail_ah = create_entry(SnapmailEntry::InMail(inmail.clone()));
-        if maybe_inmail_ah.is_err() {
+        let Ok(inmail_ah) = maybe_inmail_ah else {
             error!("Failed committing InMail");
             continue;
-        }
+        };
         //debug!("inmail_ah: {}", maybe_inmail_ah.clone().unwrap());
-        new_inmails.push(maybe_inmail_ah.unwrap());
+        new_inmails.push(inmail_ah);
         /// Remove inbox link
         let res = delete_link(inbox_link.create_link_hash.clone());
         if let Err(err) = res {

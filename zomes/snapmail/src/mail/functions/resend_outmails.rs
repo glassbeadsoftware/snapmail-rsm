@@ -31,10 +31,10 @@ fn resend_outmails(_: ()) -> ExternResult<Vec<ActionHash>> {
 
    /// Check for each OutMail
    let mut ahs = Vec::new();
-   for outmail_el in created_outmails {
-      let ah = outmail_el.action_address().to_owned();
-      let eh = outmail_el.action().entry_hash().unwrap();
-      let outmail: OutMail = get_typed_from_record(outmail_el.clone())?;
+   for outmail_record in created_outmails {
+      let ah = outmail_record.action_address().to_owned();
+      let eh = outmail_record.action().entry_hash().expect("Missing Entry in Create OutMail record");
+      let outmail: OutMail = get_typed_from_record(outmail_record.clone())?;
       let states = get_outmail_delivery_state(ah.clone())?;
       let unsent_recipients: Vec<AgentPubKey> = states.iter()
          .filter(|pair| pair.1 == &DeliveryState::Unsent)

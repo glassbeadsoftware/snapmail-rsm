@@ -28,10 +28,10 @@ fn resend_outacks(_: ()) -> ExternResult<Vec<ActionHash>> {
    let created_outacks: Vec<Record> = maybe_outacks.unwrap();
    debug!(" resend_outacks() outacks len = {}", created_outacks.len());
    let mut ahs = Vec::new();
-   for outack_el in created_outacks {
-      let ah = outack_el.action_address().to_owned();
-      let eh = outack_el.action().entry_hash().unwrap();
-      let outack: OutAck = get_typed_from_record(outack_el.clone())?;
+   for outack_record in created_outacks {
+      let ah = outack_record.action_address().to_owned();
+      let eh = outack_record.action().entry_hash().expect("Mssing Entry in Create OutAck record");
+      let outack: OutAck = get_typed_from_record(outack_record.clone())?;
       let inmail: InMail = get_typed_from_eh(outack.inmail_eh.clone())?;
       let state = get_delivery_state(eh.to_owned(), &inmail.from)?;
       if state != DeliveryState::Unsent {

@@ -15,11 +15,10 @@ pub fn sign_mail(mail: &Mail) -> ExternResult<Signature> {
 pub(crate) fn get_inmail_state(inmail_ah: ActionHash) -> ExternResult<InMailState> {
     /// Get inMail Details
     let maybe_details = get_details(inmail_ah.clone(), GetOptions::network())?;
-    if maybe_details.is_none() {
-        return error("No InMail at given address");
-    }
-    let el_details = match maybe_details.unwrap() {
-        Details::Record(details) => details,
+    let Some(details) = maybe_details
+      else { return error("No InMail at given address"); };
+    let el_details = match details {
+        Details::Record(det) => det,
         Details::Entry(_) => unreachable!("in get_outmail_state()"),
     };
     /// Check if deleted
@@ -76,8 +75,8 @@ pub(crate) fn get_outacks(maybe_inmail_filter: Option<ActionHash>) -> ExternResu
     }
     //debug!("get_outacks() maybe_outacks: {:?}", maybe_outacks.as_ref().unwrap());
     let mut res = Vec::new();
-    for outack_el in maybe_outacks.unwrap() {
-        let outack = get_typed_from_record::<OutAck>(outack_el)?;
+    for outack_record in maybe_outacks.unwrap() {
+        let outack = get_typed_from_record::<OutAck>(outack_record)?;
         res.push(outack)
     }
     //debug!("get_outacks() res.len(): {}", res.len());
@@ -109,8 +108,8 @@ pub(crate) fn get_inacks(maybe_outmail_filter: Option<ActionHash>) -> ExternResu
     }
     //debug!("get_inacks() maybe_inacks: {}", maybe_inacks.as_ref().unwrap().len());
     let mut res = Vec::new();
-    for inack_el in maybe_inacks.unwrap() {
-        let inack = get_typed_from_record::<InAck>(inack_el)?;
+    for inack_record in maybe_inacks.unwrap() {
+        let inack = get_typed_from_record::<InAck>(inack_record)?;
         res.push(inack)
     }
     //debug!("get_inacks() res.len(): {}", res.len());
@@ -173,7 +172,8 @@ pub(crate) fn try_confirming_pending_mail_has_been_received(package_eh: EntryHas
             // inbox link found ; check if tag is recipient
             if &agent == recipient {
                 pending_found = true;
-                if inbox_targets.contains(&pendings_link.target.clone().into_entry_hash().unwrap()) {
+                let eh = pendings_link.target.clone().into_entry_hash().expect("Link target not an EntryHash");
+                if inbox_targets.contains(&eh) {
                     return Ok(false);
                 }
             }

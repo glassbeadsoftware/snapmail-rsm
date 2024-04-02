@@ -22,13 +22,14 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
     let mut updated_outmails = Vec::new();
     for link in &links_result {
         /// Get entry on the DHT
-        let pending_ack_eh = link.target.clone().into_entry_hash().unwrap();
-        let maybe_el = get(pending_ack_eh.clone(), GetOptions::network())?;
-        if maybe_el.is_none() {
-            warn!("Action not found for pending ack entry");
-            continue;
-        }
-        let pending_ack_ah = maybe_el.unwrap().action_address().clone();
+        let pending_ack_eh = link.target.clone().into_entry_hash().expect("Link target not an EntryHash");
+        let maybe_record = get(pending_ack_eh.clone(), GetOptions::network())?;
+        let Some(record) = maybe_record
+            else {
+                warn!("Action not found for pending ack entry");
+                continue;
+        };
+        let pending_ack_ah = record.action_address().clone();
         debug!("pending_ack_ah: {}", pending_ack_ah);
         let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh.into());
         if let Err(err) = maybe_pending_ack {

@@ -31,7 +31,7 @@ pub fn receive_dm(dm_packet: DmPacket) -> ExternResult<DirectMessageProtocol> {
 ///
 pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> ExternResult<DirectMessageProtocol> {
    /// Pre-conditions: Don't call yourself (otherwise we get concurrency issues)
-   let me = agent_info().unwrap().agent_latest_pubkey;
+   let me = agent_info()?.agent_latest_pubkey;
    if destination == me {
       /// TODO: FOR DEBUGGING ONLY?
       return error("send_dm() aborted. Can't send to self.");
@@ -39,7 +39,7 @@ pub(crate) fn send_dm(destination: AgentPubKey, dm: DirectMessageProtocol) -> Ex
    /// Prepare payload
    let dm_packet = DmPacket { from: me, dm: dm.clone() };
    /// Call peer
-   debug!("calling remote receive_dm() ; dm = {:?}", dm);
+   debug!("send_dm() calling remote receive_dm() ; dm = {:?}", dm);
    let response = call_remote(
       destination,
       zome_info()?.name,

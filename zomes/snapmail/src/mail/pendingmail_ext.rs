@@ -4,15 +4,14 @@ use zome_utils::*;
 
 use crate::{
    mail::utils::*,
-   //get_enc_key::*,
 };
 
 // From your crate
 pub trait PendingMailExt {
    fn create(mail: Mail, outmail_eh: EntryHash, sender: AgentPubKey, recipient: AgentPubKey) -> PendingMail;
    fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<PendingMail>;
-   fn attempt_decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Option<Mail>;
-   fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>>;
+   fn decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Mail;
+   fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<InMail>;
 }
 
 
@@ -23,13 +22,13 @@ impl PendingMailExt for PendingMail {
    /// This will encrypt the Mail with the recipient's key
    fn create(mail: Mail, outmail_eh: EntryHash, sender: AgentPubKey, recipient: AgentPubKey) -> PendingMail {
       /// Serialize
-      let serialized = bincode::serialize(&mail).unwrap();
+      let serialized = bincode::serialize(&mail).expect("Failed to serialize Mail");
       let data: XSalsa20Poly1305Data = serialized.into();
       /// Encrypt
       let encrypted = ed_25519_x_salsa20_poly1305_encrypt(sender.clone(), recipient.clone(), data)
-         .expect("Encryption should work");
+         .expect("PendingMail encryption failed");
       trace!("Encrypted: {:?}", encrypted.clone());
-      let signature = sign_mail(&mail).expect("Should be able to sign with my key");
+      let signature = sign_mail(&mail).expect("Signing mail failed");
       // let me = agent_info().expect("Should have agent info").agent_latest_pubkey;
       // let signature = sign(me, mail).expect("Should be able to sign with my key");
       trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
@@ -43,102 +42,48 @@ impl PendingMailExt for PendingMail {
    /// called from post_commit()
    fn from_mail(mail: Mail, outmail_eh: EntryHash, to: AgentPubKey) -> ExternResult<PendingMail> {
       /// Get my key
-      let me = agent_info()?.agent_latest_pubkey;
-      debug!("get_enc_key() for sender {:?}", me);
-      let maybe_sender_key = call_remote(
-         me.clone(),
-         zome_info()?.name,
-         "get_enc_key".to_string().into(),
-         None,
-         me.clone(),
-      )?;
-      debug!("get_enc_key() for sender result: {:?}", maybe_sender_key);
-      let sender_key = match maybe_sender_key {
-         ZomeCallResponse::Ok(output) => output.decode().expect("Deserialization should never fail"),
-         _ => return error("Self call to get_enc_key(sender) failed")
-      };
-
+      let sender_key = agent_info()?.agent_latest_pubkey;
       /// Get recipient's key
-      debug!("get_enc_key() for recipient {:?}", to);
-      let maybe_recipient_key = call_remote(
-         me.clone(),
-         zome_info()?.name,
-         "get_enc_key".to_string().into(),
-         None,
-         to.clone(),
-      )?;
-      debug!("get_enc_key() for recipient result: {:?}", maybe_recipient_key);
-      let recipient_key = match maybe_recipient_key {
-         ZomeCallResponse::Ok(output) => output.decode().expect("Deserialization should never fail"),
-         _ => return error("Self call to get_enc_key(recipient) failed")
-      };
+      let recipient_key = to;
       /// Create
-      debug!("pending_mail: recipient_key = {:?}", recipient_key);
       Ok(Self::create(mail, outmail_eh, sender_key, recipient_key))
    }
 
-   // /// Attempt to decrypt pendingMail with provided keys
-   // fn attempt_decrypt(&self, sender: X25519PubKey, recipient: X25519PubKey) -> Option<Mail> {
-   //    trace!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
-   //    trace!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
-   //    /// Decrypt
-   //    let maybe_decrypted = x_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
-   //       .expect("Decryption should work");
-   //    trace!("attempt_decrypt maybe_decrypted = {:?}", maybe_decrypted);
-   //    let decrypted = match maybe_decrypted {
-   //       Some(data) => data,
-   //       None => return None,
-   //    };
-   //    /// Deserialize
-   //    let mail: Mail = bincode::deserialize(decrypted.as_ref())
-   //       .expect("Deserialization should work");
-   //    /// Done
-   //    Some(mail)
-   // }
 
    /// Attempt to decrypt pendingMail with provided keys
-   fn attempt_decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Option<Mail> {
-      debug!("attempt_decrypt of: {:?}", self.encrypted_mail.clone());
+   fn decrypt(&self, sender: AgentPubKey, recipient: AgentPubKey) -> Mail {
+      debug!("decrypt of: {:?}", self.encrypted_mail.clone());
       debug!("with:\n -    sender = {:?}\n - recipient = {:?}", sender.clone(), recipient.clone());
       /// Decrypt
-      //let decrypted = ed_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
-      let decrypted = ed_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
-          .expect("Decryption should work");
-      debug!("attempt_decrypt maybe_decrypted = {:?}", decrypted);
+      let decrypted = ed_25519_x_salsa20_poly1305_decrypt(recipient, sender, self.encrypted_mail.clone())
+      //let decrypted = ed_25519_x_salsa20_poly1305_decrypt(sender, recipient, self.encrypted_mail.clone())
+          .expect("Failed decrypting mail");
+      debug!("decrypt maybe_decrypted = {:?}", decrypted);
       /// Deserialize
       let mail: Mail = bincode::deserialize(decrypted.as_ref())
-          .expect("Deserialization should work");
+          .expect("Deserialization Mail failed");
       /// Done
-      Some(mail)
+      mail
    }
 
 
-   fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<Option<InMail>> {
+   fn try_into_inmail(&self, from: AgentPubKey) -> ExternResult<InMail> {
       let received_date = zome_utils::now();
       /// Get my key
-      let my_agent_key = agent_info()?.agent_latest_pubkey;
-      debug!("try_into_inmail() my_agent_key: {}", my_agent_key);
-      //let recipient_key = get_enc_key(my_agent_key.clone())?;
-      let recipient_key =  my_agent_key.clone();
+      let recipient_key = agent_info()?.agent_latest_pubkey;
+      debug!("try_into_inmail() recipient_key: {}", recipient_key);
       /// Get sender's key
-      //let sender_key = get_enc_key(from.clone())?;
       let sender_key = from.clone();
-      /// Decrypt
-      debug!("try_into_inmail() recipient_key: {:?}", recipient_key);
       debug!("   try_into_inmail() sender_key: {:?}", sender_key);
-      let maybe_mail = self.attempt_decrypt(sender_key, recipient_key);
-      debug!("   try_into_inmail() maybe_mail: {:?}", maybe_mail);
+      /// Decrypt
+      let mail = self.decrypt(sender_key, recipient_key);
+      debug!("   try_into_inmail() mail: {:?}", mail);
       /// Into InMail
-      let inmail = match maybe_mail {
-         None => return Ok(None),
-         Some(mail) => {
-            InMail::new(mail,
+      let inmail = InMail::new(mail,
                         from.clone(),
                         received_date,
                         self.outmail_eh.clone(),
-                        self.from_signature.clone())
-         },
-      };
+                        self.from_signature.clone());
       /// Check signature
       let maybe_verified = verify_signature(from, self.from_signature.clone(), inmail.mail.clone());
       match maybe_verified {
@@ -155,7 +100,7 @@ impl PendingMailExt for PendingMail {
          Ok(true) => debug!("Valid PendingMail signature"),
       }
       /// Done
-      Ok(Some(inmail))
+      Ok(inmail)
    }
 }
 

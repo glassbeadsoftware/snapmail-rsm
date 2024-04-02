@@ -129,18 +129,16 @@ pub fn receive_dm_ack(from: AgentPubKey, ack_msg: AckMessage) -> DirectMessagePr
 /// Returns FileManifest, UnknownEntry or Failure.
 pub fn receive_direct_request_manifest(from: AgentPubKey, manifest_eh: EntryHash) -> DirectMessageProtocol {
     debug!("received request manifest from: {}", from);
-    let maybe_maybe_el = get(manifest_eh.clone(), GetOptions::network());
-    if let Err(err) = maybe_maybe_el {
+    let maybe_maybe_record = get(manifest_eh.clone(), GetOptions::network());
+    if let Err(err) = maybe_maybe_record {
         let response_str = "Failed on get_entry()";
         warn!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-    let maybe_el = maybe_maybe_el.unwrap();
-    if let None = maybe_el {
-        return DirectMessageProtocol::UnknownEntry;
-    }
+    let Some(record) = maybe_maybe_record.unwrap()
+        else { return DirectMessageProtocol::UnknownEntry; };
     debug!("Sending manifest: {}", manifest_eh);
-    let maybe_manifest = get_typed_from_record::<FileManifest>(maybe_el.unwrap());
+    let maybe_manifest = get_typed_from_record::<FileManifest>(record);
     if let Err(_err) = maybe_manifest {
         let response_str = "Requested entry is not a FileManifest";
         error!("{}", response_str);
@@ -176,18 +174,16 @@ pub fn receive_direct_manifest(from: AgentPubKey, manifest: FileManifest) -> Dir
 pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> DirectMessageProtocol {
     debug!("received request chunk from: {}", from);
     // FIXME: emit signal
-    let maybe_maybe_el = get(chunk_eh.clone(), GetOptions::network());
-    if let Err(err) = maybe_maybe_el {
+    let maybe_maybe_record = get(chunk_eh.clone(), GetOptions::network());
+    if let Err(err) = maybe_maybe_record {
         let response_str = "Failed on get_entry()";
         error!("{}: {}", response_str, err);
         return DirectMessageProtocol::Failure(response_str.to_string());
     }
-    let maybe_el = maybe_maybe_el.unwrap();
-    if let None = maybe_el {
-        return DirectMessageProtocol::UnknownEntry;
-    }
+    let Some(record) = maybe_maybe_record.unwrap()
+      else { return DirectMessageProtocol::UnknownEntry; };
     debug!("Sending chunk: {}", chunk_eh);
-    let maybe_chunk = get_typed_from_record::<FileChunk>(maybe_el.unwrap());
+    let maybe_chunk = get_typed_from_record::<FileChunk>(record);
     if let Err(_err) = maybe_chunk {
         let response_str = "Requested entry is not a FileChunk";
         error!("{}", response_str);
@@ -196,6 +192,7 @@ pub fn receive_direct_request_chunk(from: AgentPubKey, chunk_eh: EntryHash) -> D
     /// Return Success response
     return DirectMessageProtocol::Chunk(maybe_chunk.unwrap());
 }
+
 
 /// Handle a ChunkMessage.
 /// Emits `received_chunk` signal.

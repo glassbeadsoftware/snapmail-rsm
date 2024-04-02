@@ -45,20 +45,18 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     let my_agent_address = agent_info()?.agent_latest_pubkey;
     /// Change all OutMail into a MailItem
     let mut reply_map = BTreeMap::new();
-    for outmail_element in created_outmails {
-        let outmail_ah = outmail_element.action_hashed().as_hash().to_owned();
-        let date: i64 = outmail_element.action().timestamp().as_seconds_and_nanos().0;
-        let maybe_state = get_outmail_state(outmail_ah.clone());
-        if let Err(_err) = maybe_state {
-            continue;
-        }
-        debug!(" outmail_element = {:?}", outmail_element);
-        let outmail: OutMail = get_typed_from_record(outmail_element)?;
+    for outmail_record in created_outmails {
+        let outmail_ah = outmail_record.action_hashed().as_hash().to_owned();
+        let date: i64 = outmail_record.action().timestamp().as_seconds_and_nanos().0;
+        let Ok(outmail_state) = get_outmail_state(outmail_ah.clone())
+          else { continue };
+        debug!(" outmail_record = {:?}", outmail_record);
+        let outmail: OutMail = get_typed_from_record(outmail_record)?;
         // Fill reply map
         if let Some(reply_of) = outmail.reply_of.clone() {
             reply_map.insert(reply_of, outmail_ah.clone());
         }
-        let state = MailState::Out(maybe_state.unwrap());
+        let state = MailState::Out(outmail_state);
         let item = MailItem {
             ah: outmail_ah.clone(),
             author: my_agent_address.clone(),
@@ -75,15 +73,13 @@ pub fn get_all_mails(_: ()) -> ExternResult<Vec<MailItem>> {
     }
     debug!(" get_all_mails() final outmail count = {}", item_list.len());
     /* Change all InMail into a MailItem */
-    for inmail_element in created_inmails {
-        let inmail_ah = inmail_element.action_hashed().as_hash().to_owned();
-        let date: i64 = inmail_element.action().timestamp().as_seconds_and_nanos().0;
-        let maybe_state = get_inmail_state(inmail_ah.clone());
-        if let Err(_err) = maybe_state {
-            continue;
-        }
-        let state = MailState::In(maybe_state.unwrap());
-        let inmail: InMail = get_typed_from_record(inmail_element)?;
+    for inmail_record in created_inmails {
+        let inmail_ah = inmail_record.action_hashed().as_hash().to_owned();
+        let date: i64 = inmail_record.action().timestamp().as_seconds_and_nanos().0;
+        let Ok(inmail_state) = get_inmail_state(inmail_ah.clone())
+        else { continue };
+        let state = MailState::In(inmail_state);
+        let inmail: InMail = get_typed_from_record(inmail_record)?;
         let item = MailItem {
             ah: inmail_ah.clone(),
             author: inmail.from,

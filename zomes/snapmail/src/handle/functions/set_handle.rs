@@ -50,7 +50,7 @@ pub fn set_handle(new_username: String) -> ExternResult<ActionHash> {
     )?;
     debug!("**** Handle linked to agent!");
     /// Link Handle to DNA entry for a global directory
-    let directory_address = Path::from(DIRECTORY_ANCHOR).path_entry_hash().unwrap();
+    let directory_address = Path::from(DIRECTORY_ANCHOR).path_entry_hash()?;
     let _ = create_link(
         directory_address,
         new_handle_eh,

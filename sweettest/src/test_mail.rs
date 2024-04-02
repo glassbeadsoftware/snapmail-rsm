@@ -286,7 +286,6 @@ pub async fn test_mail_pending() {
    ).await;
    println!("outack_eh: {:?}", outack_eh);
 
-
    /// A checks ack inbox
    let outmails_ehs = try_zome_call(&conductors[0], cells[0], "snapmail","check_ack_inbox", (), |res:&Vec<EntryHash>| {res.len() > 0})
       .await

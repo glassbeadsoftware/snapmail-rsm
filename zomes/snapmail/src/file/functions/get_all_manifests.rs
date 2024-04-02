@@ -19,11 +19,11 @@ pub fn get_all_manifests(_: ()) -> ExternResult<Vec<FileManifest>> {
         //return Err(hdk::error::HdkError::SerializedBytes(err));
         return Err(err);
     }
-    let manifest_elements: Vec<Record> = query_result.unwrap();
+    let manifest_records: Vec<Record> = query_result.unwrap();
     /// For each File Manifest record, get its entry
     let mut manifest_list = Vec::new();
-    for manifest_el in &manifest_elements {
-        let manifest: FileManifest = get_typed_from_record(manifest_el.clone())?;
+    for manifest_record in &manifest_records {
+        let manifest: FileManifest = get_typed_from_record(manifest_record.clone())?;
         manifest_list.push(manifest);
     }
     /// Done

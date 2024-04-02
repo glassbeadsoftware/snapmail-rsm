@@ -30,11 +30,10 @@ pub fn get_all_unacknowledged_inmails(_: ()) -> ExternResult<Vec<ActionHash>> {
     //debug!("acked_inmails: {:?}", acked_inmails);
     /// For each InMail
     let mut unacknowledgeds = Vec::new();
-    for inmail_el in inmails {
-        let inmail_eh = inmail_el.action().entry_hash()
-           .expect("Missing Entry in record");
+    for inmail_record in inmails {
+        let inmail_eh = inmail_record.action().entry_hash().expect("Missing Entry in InMail record");
         if !acked_inmails.contains(&inmail_eh) {
-            unacknowledgeds.push(inmail_el.action_address().to_owned())
+            unacknowledgeds.push(inmail_record.action_address().to_owned())
         }
     }
     /// Done

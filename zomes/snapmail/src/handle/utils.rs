@@ -15,17 +15,17 @@ pub(crate) fn get_members() -> ExternResult<Vec<Link>> {
 pub(crate) fn get_handle_record(agent_id: AgentPubKey) -> Option<(Handle, ActionHash)> {
     /// Get All Handle links on agent ; should have only one
     let handle_links = get_links(link_input(agent_id, SnapmailLink::Handle, None))
-       .expect("No reason for this to fail");
+       .expect("get_links() for Handle failed");
     assert!(handle_links.len() <= 1);
     if handle_links.len() == 0 {
         warn!("No handle found for this agent:");
         return None;
     }
     /// Get the Entry from the link
-    let handle_eh: EntryHash = handle_links[0].target.clone().into_entry_hash().unwrap();
+    let handle_eh: EntryHash = handle_links[0].target.clone().into_entry_hash().expect("Link target not an EntryHash");
     let handle_and_hash = get_latest_typed_from_eh::<Handle>(handle_eh.clone())
-       .expect("No reason for get_entry to crash")
-       .expect("Should have it");
+       .expect("get_entry() failed")
+       .expect("No handle found for agent");
     /// Look for original record
     let maybe_record = match get(handle_eh.clone(), GetOptions::network()) {
         Ok(Some(record)) => record,

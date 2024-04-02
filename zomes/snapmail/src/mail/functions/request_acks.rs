@@ -35,15 +35,15 @@ pub fn request_acks(_: ()) -> ExternResult<Vec<ActionHash>> {
 
    /// Check for each OutMail
    let mut ahs = Vec::new();
-   for outmail_element in created_outmails {
+   for outmail_record in created_outmails {
       /// Get OutMail's recipients
-      let outmail_ah = outmail_element.action_hashed().as_hash().to_owned();
-      //let date: i64 = outmail_element.action().timestamp().as_seconds_and_nanos().0;
+      let outmail_ah = outmail_record.action_hashed().as_hash().to_owned();
+      //let date: i64 = outmail_record.action().timestamp().as_seconds_and_nanos().0;
       let maybe_state = get_outmail_state(outmail_ah.clone());
       if let Err(_err) = maybe_state {
          continue;
       }
-      let outmail: OutMail = get_typed_from_record(outmail_element)?;
+      let outmail: OutMail = get_typed_from_record(outmail_record)?;
       let outmail_eh = hash_entry(outmail.clone())?;
       let recipients = outmail.recipients();
       /// Get OutMail's inacks

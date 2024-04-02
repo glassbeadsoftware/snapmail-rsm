@@ -31,22 +31,3 @@ pub fn create_outmail(
    /// Done
    OutMail::new(mail, bcc, reply_of)
 }
-
-
-/// Create public encryption key and broadcast it
-pub fn create_enc_key() -> ExternResult<()> {
-   let value = create_x25519_keypair().expect("Create Keypair should work");
-   let new_key = PubEncKey::new(value);
-   let key_eh = hash_entry(&new_key)?;
-   let key_ah = create_entry(SnapmailEntry::PubEncKey(new_key.clone()))?;
-   let my_agent_address = agent_info()?.agent_latest_pubkey;
-   debug!("key_ah = {:?}", key_ah);
-   let _ = create_link(
-      my_agent_address,
-      key_eh.clone(),
-      SnapmailLink::EncKey,
-      LinkTag::from(()),
-   )?;
-   debug!("**** EncKey linked to agent!");
-   Ok(())
-}
