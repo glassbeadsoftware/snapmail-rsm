@@ -31,19 +31,6 @@ pub enum SnapmailEntry {
 }
 
 
-///
-fn entry_index_to_variant(entry_index: EntryDefIndex) -> ExternResult<SnapmailEntryTypes> {
-    let mut i = 0;
-    for variant in SnapmailEntryTypes::iter() {
-        if i == entry_index.0 {
-            return Ok(variant);
-        }
-        i += 1;
-    }
-    return Err(wasm_error!(format!("Unknown EntryDefIndex: {}", entry_index.0)));
-}
-
-
 /// Dispatch validate function call
 pub(crate) fn validate_app_entry(
     _creation_action: EntryCreationAction,
@@ -66,4 +53,17 @@ pub(crate) fn validate_app_entry(
         SnapmailEntryTypes::FileManifest => FileManifest::try_from(entry)?.validate(),
         //_ => Ok(ValidateCallbackResult::Valid),
     }
+}
+
+
+///
+fn entry_index_to_variant(entry_index: EntryDefIndex) -> ExternResult<SnapmailEntryTypes> {
+    let mut i = 0;
+    for variant in SnapmailEntryTypes::iter() {
+        if i == entry_index.0 {
+            return Ok(variant);
+        }
+        i += 1;
+    }
+    return Err(wasm_error!(format!("Unknown EntryDefIndex: {}", entry_index.0)));
 }
