@@ -32,7 +32,7 @@ pub enum SnapmailEntry {
 
 
 ///
-pub fn entry_index_to_variant(entry_index: EntryDefIndex) -> ExternResult<SnapmailEntryTypes> {
+fn entry_index_to_variant(entry_index: EntryDefIndex) -> ExternResult<SnapmailEntryTypes> {
     let mut i = 0;
     for variant in SnapmailEntryTypes::iter() {
         if i == entry_index.0 {

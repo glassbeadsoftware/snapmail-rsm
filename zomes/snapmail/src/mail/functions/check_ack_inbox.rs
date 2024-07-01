@@ -31,7 +31,7 @@ pub fn check_ack_inbox(_:()) -> ExternResult<Vec<EntryHash>> {
         };
         let pending_ack_ah = record.action_address().clone();
         debug!("pending_ack_ah: {}", pending_ack_ah);
-        let maybe_pending_ack = get_typed_and_author::<PendingAck>(&pending_ack_eh.into());
+        let maybe_pending_ack = get_typed_and_author::<PendingAck>(pending_ack_eh.into());
         if let Err(err) = maybe_pending_ack {
             warn!("Getting PendingAck from DHT failed: {}", err);
             continue;

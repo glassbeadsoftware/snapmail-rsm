@@ -44,7 +44,7 @@ pub fn validate_create_entry(creation_action: EntryCreationAction, entry: Entry)
 
 
 /// TODO: Checks Agent Link is created by self
-pub fn validate_create_link(create_link: HoloHashed<CreateLink>, signature: Signature) -> ExternResult<ValidateCallbackResult>  {
+pub fn validate_create_link(_create_link: HoloHashed<CreateLink>, _signature: Signature) -> ExternResult<ValidateCallbackResult>  {
    // debug!("validate_create_link(): {:?}", create_link);
    // /// Retrieve Path::Component from LinkTag
    // let tag_bytes = create_link.tag.clone().into_inner();

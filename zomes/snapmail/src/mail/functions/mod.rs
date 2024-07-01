@@ -29,7 +29,7 @@ pub use self::{
    send_mail::*,
    delete_mail::*,
    request_acks::*,
-   resend_outmails::*,
-   resend_outacks::*,
+   //resend_outmails::*,
+   //resend_outacks::*,
    get_outmail_state::*,
 };

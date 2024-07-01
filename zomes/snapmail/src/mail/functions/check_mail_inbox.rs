@@ -34,7 +34,7 @@ pub fn check_mail_inbox(_:()) -> ExternResult<Vec<ActionHash>> {
             continue;
         }
         /// Get entry on the DHT
-        let maybe_pending_mail = get_typed_and_author::<PendingMail>(&pending_mail_eh.into());
+        let maybe_pending_mail = get_typed_and_author::<PendingMail>(pending_mail_eh.into());
         if let Err(err) = maybe_pending_mail {
             warn!("Getting PendingMail from DHT failed: {}", err);
             continue;

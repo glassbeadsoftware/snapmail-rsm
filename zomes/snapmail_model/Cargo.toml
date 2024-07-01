@@ -8,6 +8,9 @@ edition.workspace = true
 name = "snapmail_model"
 crate-type = [ "cdylib", "rlib" ]
 
+[lints]
+workspace = true
+
 [dependencies]
 shrinkwraprs = "=0.3.0"
 strum = "=0.19"
