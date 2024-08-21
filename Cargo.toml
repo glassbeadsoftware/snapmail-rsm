@@ -4,7 +4,7 @@ members = [
   "zomes/snapmail_model",
   "zomes/snapmail",
   #"sweettest",
-  #"crates/proc_macro",
+  "crates/proc_macro",
 ]
 
 [workspace.package]
