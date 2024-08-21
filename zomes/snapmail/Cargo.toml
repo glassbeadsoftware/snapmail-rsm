@@ -11,6 +11,7 @@ crate-type = [ "cdylib", "rlib" ]
 [lints]
 workspace = true
 
+
 [dependencies]
 shrinkwraprs = "=0.3.0"
 strum = "=0.19"
@@ -27,9 +28,9 @@ snapmail_model = { path = "../snapmail_model" }
 
 #snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 
-#[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-#thiserror = "1.0.24"
-#holochain_serialized_bytes.workspace = true
-#holochain.workspace = true
-#holochain_util.workspace = true
-#holochain_conductor_api.workspace = true
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+thiserror = "1.0.24"
+holochain_serialized_bytes.workspace = true
+holochain.workspace = true
+holochain_util.workspace = true
+holochain_conductor_api.workspace = true
