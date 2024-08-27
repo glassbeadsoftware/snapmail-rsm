@@ -26,7 +26,7 @@ zome_utils.workspace = true
 
 snapmail_model = { path = "../snapmail_model" }
 
-#snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
+snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thiserror = "1.0.24"

@@ -4,8 +4,7 @@ extern crate strum_macros;
 #[macro_use] extern crate shrinkwraprs;
 
 // FIXME update to latest hdk
-//#[macro_use]
-//extern crate snapmail_proc_macro;
+#[macro_use] extern crate snapmail_proc_macro;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod api_error;

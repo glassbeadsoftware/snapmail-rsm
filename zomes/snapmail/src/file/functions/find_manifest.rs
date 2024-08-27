@@ -4,7 +4,6 @@ use zome_utils::*;
 
 use crate::file::get_all_manifests;
 
-
 /// Get manifest from file content hash
 #[hdk_extern]
 //#[snapmail_api]

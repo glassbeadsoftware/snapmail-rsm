@@ -89,10 +89,9 @@ pub fn snapmail_api(_metadata: TokenStream, item: TokenStream) -> TokenStream {
                payload,
                cap_secret: None,
                provenance,
-               // FIXME
-               //signature: Signature,
-               //nonce: Nonce256Bits,
-               //expires_at: Timestamp,
+               signature: Signature::arbitrary(),
+               nonce: fresh_nonce(0),
+               expires_at: 0,
             })
             .await
             .map_err(|e| crate::api_error::SnapmailApiError::ConductorApiError(e))?
