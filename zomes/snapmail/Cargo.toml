@@ -30,7 +30,7 @@ snapmail_proc_macro = {path = "../../crates/proc_macro", default-features = fals
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 thiserror = "1.0.24"
-holochain_serialized_bytes.workspace = true
-holochain.workspace = true
-holochain_util.workspace = true
-holochain_conductor_api.workspace = true
+#holochain_serialized_bytes.workspace = true
+#holochain.workspace = true
+#holochain_util.workspace = true
+#holochain_conductor_api.workspace = true

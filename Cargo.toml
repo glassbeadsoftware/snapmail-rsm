@@ -24,15 +24,15 @@ ill_formed_attribute_input = "allow"
 
 [workspace.dependencies]
 serde = { version = "=1.0.203", default-features = false }
-hdi = { version = "=0.5.0-dev.12", default-features = false }
-hdk = { version = "=0.4.0-dev.14", default-features = false }
+hdi = { version = "=0.5.0-dev.17", default-features = false }
+hdk = { version = "=0.4.0-dev.19", default-features = false }
 
 zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "hdk-4.0-dev.20" }
 
-holochain = { version = "=0.4.0-dev.20" }
-holochain_conductor_api = { version = "=0.4.0-dev.20", default-features = false }
-holochain_util = { version = "=0.4.0-dev.4", default-features = false }
-holochain_serialized_bytes = "=0.0.55"
+#holochain = { version = "=0.4.0-dev.27" }
+#holochain_conductor_api = { version = "=0.4.0-dev.27", default-features = false }
+#holochain_util = { version = "=0.4.0-dev.4", default-features = false }
+#holochain_serialized_bytes = "=0.0.55"
 
 [profile.dev]
 lto = false
